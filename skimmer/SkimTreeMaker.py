@@ -5,7 +5,7 @@
 #python tools/SkimTreeMaker.py /nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_30.root
 
 from ROOT import *
-from ../tools/utils import *
+from utils import *
 import os, sys
 from glob import glob
 csv_b = 0.8484
@@ -22,7 +22,7 @@ print 'isDasAndSignal?', isDasAndSignal
 # files specified with optional wildcards @ command line #
 ##########################################################
 try: infilenames = sys.argv[1]
-except: infilenames = '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_20_RA2AnalysisTree.root'
+except: infilenames = '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2//fl:Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_20_RA2AnalysisTree.root'
 
 
 #############################################
@@ -30,6 +30,7 @@ except: infilenames = '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Produc
 #############################################
 newfilename = 'skim_'+(infilenames.split('/')[-1]).replace('*','')
 fnew = TFile(newfilename,'recreate')
+hNev = TH1F('hNev','hNev',1,0,1)
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 histoStyler(hHt,kBlack)
@@ -123,11 +124,13 @@ if isDasAndSignal: tEvent.Branch('weight', var_weight,'weight/D')
 
 readerPixelOnly = TMVA.Reader()
 #pixelXml = '/nfs/dust/cms/user/kutznerv/cmsdas/BDTs/newpresel3-200-4-short-nodxyVtx/weights/TMVAClassification_BDT.weights.xml'
-pixelXml = '/nfs/dust/cms/user/kutznerv/shorttrack/fake-tracks/newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
+#pixelXml = '/nfs/dust/cms/user/kutznerv/shorttrack/fake-tracks/newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
+pixelXml = '/u/user/sangilpark/WorkDir/DisappearingTracks/CMSDAS2018/longlivedLE/CMSSW_10_1_0/src/cmsdas2018/shorttrack/fake-tracks/newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
 prepareReader(readerPixelOnly, pixelXml)
 readerPixelStrips = TMVA.Reader()
 #trackerXml = '/nfs/dust/cms/user/kutznerv/cmsdas/BDTs/newpresel2-200-4-medium-nodxyVtx/weights/TMVAClassification_BDT.weights.xml'
-trackerXml = '/nfs/dust/cms/user/kutznerv/shorttrack/fake-tracks/newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'
+#trackerXml = '/nfs/dust/cms/user/kutznerv/shorttrack/fake-tracks/newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'
+trackerXml = '/u/user/sangilpark/WorkDir/DisappearingTracks/CMSDAS2018/longlivedLE/CMSSW_10_1_0/src/cmsdas2018/shorttrack/fake-tracks/newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'
 prepareReader(readerPixelStrips, trackerXml)
 
 c = TChain('TreeMaker2/PreSelection')
@@ -141,6 +144,7 @@ for filename in filenamelist:
 c.Show(0)
 nentries = min(9999999,c.GetEntries())
 print 'will analyze', nentries
+hNev.SetBinContent(1,nentries)
 
 if isDasAndSignal: var_weight[0] = 1.0*xsecInPb/nentries
 verbosity = 100
@@ -301,6 +305,7 @@ for ientry in range(nentries):
 fnew.cd()
 tEvent.Write()
 print 'just created', fnew.GetName()
+hNev.Write()
 hHt.Write()
 hHtWeighted.Write()
 fnew.Close()
