@@ -234,11 +234,11 @@ for ientry in range(nentries):
             thits = c.tracks_nValidTrackerHits[itrack]        
             pixelOnly = phits>0 and thits==phits
             pixelStrips = not pixelOnly
-            if pixelStrips: 
-            	ispixelstripss.append(1)
+            if pixelOnly: 
+            	ispixelstripss.append(0)
             	npix+=1
             else: 
-            	ispixelstripss.append(0) 
+            	ispixelstripss.append(1) 
             	npixstrips+=1
             genParticles = []
             for igp, gp in enumerate(c.GenParticles):
