@@ -5,6 +5,7 @@ gROOT.SetBatch(1)
 
 drawttbar = True
 files = [TFile('RawKappaMaps/RawKapps_AllMC_PixAndStrips.root'),TFile('RawKappaMaps/RawKapps_AllMC_PixOnly.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips.root'), TFile('RawKappaMaps/RawKapps_Run2016_PixOnly.root')]
+#files = [TFile('RawKappaMaps/RawKapps_AllMC_PixAndStrips.root')]
 
 labels = {}
 files[0].ls()
@@ -60,6 +61,7 @@ for file in files:
 	range = (etarange+' '+ptrange).replace('to','-').replace('eta', '|eta|=').replace('pt', 'p_{T}=')
 	tl.DrawLatex(0.6,0.7,range)
 	if 'AllMC' in file.GetName():
+		print 'opening', file.GetName().replace('AllMC','TTJets')
 		fCompanion = TFile(file.GetName().replace('AllMC','TTJets'))
 		hCompanion = fCompanion.Get(key.replace('_RECOden','_DTnum'))
 		hCompanion.SetLineColor(kOrange)

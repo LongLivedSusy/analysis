@@ -1,6 +1,5 @@
 from ROOT import *
 from utils import *
-from namelib import *
 import sys
 from random import shuffle
 gROOT.SetBatch(1)

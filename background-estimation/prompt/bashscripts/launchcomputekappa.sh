@@ -33,6 +33,7 @@ mv KappaWJets_PixAndStrips.root usefulthings/
 python tools/ComputeKappa.py RawKappaMaps/RawKapps_Run2016_PixAndStrips.root KappaRun2016_PixAndStrips.root
 mv KappaRun2016_PixAndStrips.root usefulthings/
 
+'''
 python tools/mergeMcHists.py "RawKappaMaps/RawKapps_TTJets_PixOrStrips.root" "output/smallchunks/TagnProbeHists_TTJets*PixOrStrips.root"
 python tools/mergeMcHists.py "RawKappaMaps/RawKapps_DYJets_PixOrStrips.root" "output/smallchunks/TagnProbeHists_DYJets*PixOrStrips.root"
 python tools/mergeMcHists.py "RawKappaMaps/RawKapps_AllMC_PixOrStrips.root" "output/smallchunks/TagnProbeHists_*Tune*PixOrStrips.root"
@@ -40,17 +41,17 @@ python tools/mergeMcHists.py "RawKappaMaps/RawKapps_WJets_PixOrStrips.root" "out
 python tools/ahadd.py -f      RawKappaMaps/RawKapps_Run2016_PixOrStrips.root output/smallchunks/TagnProbeHists_Run2016*PixOrStrips.root
 
 
-#python tools/ComputeKappa.py RawKappaMaps/RawKapps_TTJets_PixOrStrips.root KappaTTJets_PixOrStrips.root
-#mv KappaTTJets_PixOrStrips.root usefulthings/
-#python tools/ComputeKappa.py RawKappaMaps/RawKapps_DYJets_PixOrStrips.root KappaDYJets_PixOrStrips.root
-#mv KappaDYJets_PixOrStrips.root usefulthings/
-#python tools/ComputeKappa.py RawKappaMaps/RawKapps_AllMC_PixOrStrips.root KappaAllMC_PixOrStrips.root
-#mv KappaAllMC_PixOrStrips.root usefulthings/
-#python tools/ComputeKappa.py RawKappaMaps/RawKapps_WJets_PixOrStrips.root KappaWJets_PixOrStrips.root
-#mv KappaWJets_PixOrStrips.root usefulthings/
-#python tools/ComputeKappa.py RawKappaMaps/RawKapps_Run2016_PixOrStrips.root KappaRun2016_PixOrStrips.root
-#mv KappaRun2016_PixOrStrips.root usefulthings/
-
+python tools/ComputeKappa.py RawKappaMaps/RawKapps_TTJets_PixOrStrips.root KappaTTJets_PixOrStrips.root
+mv KappaTTJets_PixOrStrips.root usefulthings/
+python tools/ComputeKappa.py RawKappaMaps/RawKapps_DYJets_PixOrStrips.root KappaDYJets_PixOrStrips.root
+mv KappaDYJets_PixOrStrips.root usefulthings/
+python tools/ComputeKappa.py RawKappaMaps/RawKapps_AllMC_PixOrStrips.root KappaAllMC_PixOrStrips.root
+mv KappaAllMC_PixOrStrips.root usefulthings/
+python tools/ComputeKappa.py RawKappaMaps/RawKapps_WJets_PixOrStrips.root KappaWJets_PixOrStrips.root
+mv KappaWJets_PixOrStrips.root usefulthings/
+python tools/ComputeKappa.py RawKappaMaps/RawKapps_Run2016_PixOrStrips.root KappaRun2016_PixOrStrips.root
+mv KappaRun2016_PixOrStrips.root usefulthings/
+'''
 
 echo python tools/CompareInvariantMass.py
 echo python tools/PlotKappaClosureAndDataSplit.py PixOnly && python tools/PlotKappaClosureAndDataSplit.py PixAndStrips 

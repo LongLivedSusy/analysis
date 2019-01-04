@@ -5,8 +5,12 @@ from glob import glob
 from utils import *
 gROOT.SetBatch()
 gROOT.SetStyle('Plain')
+CSV_cut = 0.5
 
+
+MakeMask = True
 GenOnly = False
+if MakeMask: GenOnly = True
 RelaxGenKin = True
 verbose = False
 SmearLeps = False
@@ -42,24 +46,26 @@ elif dtmode == 'PixOrStrips':
 	PixStripsMode = False
 	CombineMode = True	
 		
-lepPtCut = 30
+lepPtCut = 20
 
 c = TChain("TreeMaker2/PreSelection")
 #if isdata: fsmearname = 'usefulthings/DataDrivenSmear_2016Data.root'
 #else: fsmearname = 'usefulthings/DataDrivenSmear_2016MC.root'
 if isdata: fsmearname = 'usefulthings/DataDrivenSmear_Run2016_'+dtmode+'.root'
-else: fsmearname = 'usefulthings/DataDrivenSmear_DYJets_'+dtmode+'.root'
+else: fsmearname = 'usefulthings/DataDrivenSmear_AllMC_'+dtmode+'.root'
 
+if MakeMask: fsmearname = 'usefulthings/DataDrivenSmear_DYJets_PixAndStrips.root'
 fSmear  = TFile(fsmearname)
 
 
 
-hEtaVsPhiDT = TH2F('hEtaVsPhiDT','hEtaVsPhiDT',160,-3.2,3.2,250,-2.5,2.5)
+hEtaVsPhiDT = TH2F('hEtaVsPhiDT','hEtaVsPhiDT',80,-3.2,3.2,120,-2.5,2.5)
 fMask = TFile('usefulthings/Masks.root')
 fMask.ls()
 if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskRun2016')
 else: hMask = fMask.Get('hEtaVsPhiDT_maskRun2016')
 
+if MakeMask: hMask = ''
 
 #=====This sets up the smearing
 dResponseHist_el = {}
@@ -217,7 +223,6 @@ for ientry in range(nentries):
     ProbeEta = 0
     probeTlv = TLorentzVector()
     probeTlv.SetPxPyPzE(0, 0, 0, 0)
-    if not c.BTags==0: continue
     if ientry==0:
         for itrig in range(len(c.TriggerPass)):
             print itrig, c.TriggerNames[itrig], c.TriggerPrescales[itrig], c.HT
@@ -320,7 +325,8 @@ for ientry in range(nentries):
     adjustedMht = TLorentzVector()
     adjustedMht.SetPxPyPzE(0,0,0,0)
     adjustedNJets = 0
-    for jet in c.Jets:
+    adjustedNBtags = 0
+    for ijet, jet in enumerate(c.Jets):
        if not jet.Pt()>30: continue
        if not abs(jet.Eta())<5: continue
        if len(SmearedElectrons)>0:
@@ -333,7 +339,7 @@ for ientry in range(nentries):
        if not abs(jet.Eta())<2.4: continue####update to 2.4       
        adjustedHt+=jet.Pt()
        adjustedNJets+=1
-    if not adjustedNJets<3: continue
+       if c.Jets_bDiscriminatorCSV[ijet]>CSV_cut: adjustedNBtags+=1
           
     for igen, genlep in enumerate(genels):
         for idistrk, distrk in enumerate(disappearingTracks):
@@ -393,6 +399,11 @@ for ientry in range(nentries):
             if gotthematch: break            
   
 	if GenOnly: continue
+    if not MakeMask:
+    	if not c.BTags==0: continue
+    	if not adjustedNJets<3: continue
+    	if not adjustedNBtags==0: continue
+    		
 	tagTlv = TLorentzVector()
 	tagTlv.SetPxPyPzE(0,0,0,0)
        

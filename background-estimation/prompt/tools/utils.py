@@ -13,7 +13,7 @@ EtaBinEdges = [0,1.4442,1.566,2.4]
 '''
 
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
-PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 450,550,650,750,850,950,1000,2000,2500]
+PtBinEdges = [0,20,25,30,35,40,45,50, 60, 90, 120, 200,300,450,2500]
 EtaBinEdges = [0, 1.4442,1.566, 2.4]
 
 PtBinEdgesForSmearing = [0,20, 30,40, 50, 70, 90, 120, 200, 300, 310]
@@ -691,9 +691,11 @@ def isBaselineTrack(track, track_id, c, hMask):
 	if not c.tracks_trkRelIso[track_id] < 0.2: return False
 	if not (c.tracks_trackerLayersWithMeasurement[track_id] >= 2 and c.tracks_nValidTrackerHits[track_id] >= 2): return False
 	if not c.tracks_nMissingInnerHits[track_id]==0: return False
-	xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
-	ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
-	if hMask.GetBinContent(ibinx, ibiny)==0: return False
+	if hMask!='':
+		print 'in here'
+		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
+		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
+		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 	                
 def overflow(h):
