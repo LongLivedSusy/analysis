@@ -4,12 +4,13 @@ from ROOT import *
 import glob
 import uuid
 from CfgUtils import readSamplesConfig
+import os
 
 gROOT.SetBatch(True)
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
-def get_histogram_from_tree(tree, var, hName=False, cutstring=False, drawoptions=False, nBins=False, xmin=False, xmax=False):
+def get_histogram_from_tree(tree, var, hName=False, cutstring=False, drawoptions=False, nBins=False, xmin=False, xmax=False, overflow=False):
 
     # get a histogram from a tree branch, either define your histogram or take it from the tree
 
@@ -37,6 +38,13 @@ def get_histogram_from_tree(tree, var, hName=False, cutstring=False, drawoptions
             tree.Draw(var)
         histo = tree.GetHistogram().Clone()
         histo.SetDirectory(0)
+
+    # do overflow bin
+    if overflow:       
+        h_overflow = get_histogram_from_tree(tree, var, hName=hName, cutstring=cutstring, drawoptions=drawoptions, nBins=1, xmin=xmax, xmax=1e6, overflow=False)
+        n_overflow = h_overflow.GetBinContent(1)
+        histo.SetBinContent(histo.GetNbinsX(), n_overflow)
+        print "overflow:", histo.GetNbinsX(), n_overflow
 
     return histo
 
@@ -102,7 +110,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     return histo, nev
 
 
-def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.0, unweighted=False, suffix="", debug=False):
+def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.0, unweighted=False, suffix="", debug=False, folder=".", root_file = False):
 
     print "\nStacking histograms:", var
 
@@ -346,13 +354,23 @@ def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.
     
     latex.SetTextSize(0.35*t)
     latex.SetTextFont(52)
-    latex.DrawLatex(0.4, 1-0.5*t+0.15*0.5*t, "CMS Simulation")
+    #latex.DrawLatex(0.4, 1-0.5*t+0.15*0.5*t, "CMS Simulation")
     
-    canvas.SaveAs("%s%s.pdf" % (var, suffix))
-    canvas.SaveAs("%s%s.root" % (var, suffix))
+    if folder != ".":
+        os.system("mkdir -p %s" % folder)
+    canvas.SaveAs("%s/%s%s.pdf" % (folder, var, suffix))
+    canvas.SaveAs("%s/%s%s.root" % (folder, var, suffix))
+
+    if root_file:
+        output_file = TFile(folder + root_file, "update")
+        gDirectory.mkdir("stacked")
+        output_file.cd("stacked")
+        canvas.SetName("%s%s" % (var, suffix)) 
+        canvas.Write()
+        output_file.Close()
 
 
-def loop_over_files(tree_folder, configuration_file, plot_config, tree_folder_name="PreSelection", file_contains_histograms=False, cutstring=False, suffix="", unweighted=False, debug=False, ignore_samples=""):
+def loop_over_files(tree_folder, configuration_file, plot_config, tree_folder_name="PreSelection", file_contains_histograms=False, cutstring=False, suffix="", unweighted=False, debug=False, ignore_samples="", folder=".", root_file = False):
 
     samples = readSamplesConfig(configuration_file)
 
@@ -400,7 +418,7 @@ def loop_over_files(tree_folder, configuration_file, plot_config, tree_folder_na
                 histograms[sample] = contents[0]
                 samples[sample]["nev"] = contents[1]
           
-        stack_histograms(histograms, samples, plot_config[var], var, suffix=suffix, unweighted=unweighted, debug=debug)
+        stack_histograms(histograms, samples, plot_config[var], var, suffix=suffix, unweighted=unweighted, debug=debug, folder=folder, root_file = root_file)
 
 
 if __name__ == "__main__":

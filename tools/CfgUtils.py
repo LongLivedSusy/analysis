@@ -1,3 +1,5 @@
+import glob
+
 def readSamplesConfig(configFileName):
     
     # read sample configuration file
@@ -62,4 +64,29 @@ def readSamplesConfig(configFileName):
         except:
             print "[!] malformed sample configuration file!"
 
+    return samples
+
+
+def update_samples_with_filenames(tree_folder, configuration_file):
+
+    samples = readSamplesConfig(configuration_file)
+
+    for file_name in glob.glob(tree_folder + "/*.root"):
+
+        for sample in samples:
+
+            sample_name = sample.replace("_RA2AnalysisTree", "")
+
+            if "filenames" not in samples[sample]:
+                samples[sample]["filenames"] = []
+            if sample_name in file_name:
+                samples[sample]["filenames"].append(file_name)
+                break
+
+    for sample in samples.keys():
+        if sample != "global":
+            if "filenames" not in samples[sample]:
+                del samples[sample]
+            elif len(samples[sample]["filenames"]) == 0:
+                del samples[sample]
     return samples
