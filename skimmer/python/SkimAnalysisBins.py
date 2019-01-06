@@ -8,10 +8,14 @@ from utils import *
 import os, sys
 from glob import glob
 
-from subprocess import Popen
-Popen('python $CMSSW_BASE/src/GitAnalysisRepo/analysis/tools/distracklibs.py')
+distracklibs = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
+execfile(distracklibs)
+
+hAnalysisBins = TH1F('hAnalysisBins','hAnalysisBins',33,0,33)
+histoStyler(hAnalysisBins, kBlack)
 
 defaultInfile = '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_20_RA2AnalysisTree.root'
+defaultInfile = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_100.root'
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
@@ -25,11 +29,13 @@ JerUpDown = args.JerUpDown
 #smdir = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/'
 #smdir = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/'
 
-isDasAndSignal = False
+isPrivateSignal = True
 #cross sections can be looked up on the SUSY xsec working group page:
 #https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections#Cross_sections_for_various_S_AN2
-if isDasAndSignal: xsecInPb = 0.00276133
-print 'isDasAndSignal?', isDasAndSignal
+if isPrivateSignal: 
+	xsecInPb = 0.00276133
+	#lumi = 135
+print 'isPrivateSignal?', isPrivateSignal
 
 lepPtCut = 20
 csv_b = 0.8484
@@ -143,7 +149,7 @@ var_Track2IsGenMatched = np.zeros(1,dtype=int)
 var_SearchBin = np.zeros(1,dtype=int)
 var_SumTagPtOverMht = np.zeros(1,dtype=float)
 var_CrossSection = np.zeros(1,dtype=float)
-if isDasAndSignal: var_weight = np.zeros(1,dtype=float)
+if isPrivateSignal: var_weight = np.zeros(1,dtype=float)
 
 #####################################################
 # declare tree and associate branches to containers #
@@ -184,7 +190,7 @@ tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
 tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
 tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
 
-if isDasAndSignal: tEvent.Branch('weight', var_weight,'weight/D')
+if isPrivateSignal: tEvent.Branch('weight', var_weight,'weight/D')
 
 
 ##############################################
@@ -263,7 +269,7 @@ for filename in filenamelist: c.Add(filename.strip())
 nentries = min(9999999,c.GetEntries())
 print 'will analyze', nentries
 
-if isDasAndSignal: var_weight[0] = 1.0*xsecInPb/nentries
+if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
 verbosity = 10000
 
 for ientry in range(nentries):
@@ -411,9 +417,8 @@ for ientry in range(nentries):
     binnumber = getBinNumber(fv)
     fv.append(binnumber)
     var_SearchBin[0] = binnumber
-    print 'we have a dt', fv
-    if binnumber>-1: print 'bin number', binnumber
-        
+    
+    fillth1(hAnalysisBins, binnumber, var_weight[0])
             
     if len(mvas)==1:
         var_Track1BdtScore[0] = mvas[0]
@@ -462,6 +467,7 @@ for ientry in range(nentries):
 
 fnew.cd()
 tEvent.Write()
+hAnalysisBins.Write()
 print 'just created', fnew.GetName()
 hHt.Write()
 hHtWeighted.Write()

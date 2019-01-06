@@ -12,7 +12,7 @@ lumi = 135
 fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
 
 
-listOfVariationFilenames = ['output/totalweightedbkgsTrueFit.root']
+listOfVariationFilenames = []#['output/totalweightedbkgsTrueFit.root']
 listOfVariationFiles = []
 for variationFileName in listOfVariationFilenames: listOfVariationFiles.append(TFile(variationFileName))
 variationColors = [kBlue-1, kBlue, kBlue+1]

@@ -44,7 +44,7 @@ def main():
             files = ''
             ijob+=1
             if test: break
-            sleep(0.2)
+            sleep(0.15)
         
 jobscript = '''#!/bin/zsh
 source /etc/profile.d/modules.sh

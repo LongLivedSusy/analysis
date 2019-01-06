@@ -16,7 +16,7 @@ c1 = mkcanvas('c1')
 newkeys = files[0].GetListOfKeys()
 for file in files:
   lilbit = file.GetName().split('RawKapps_')[1].replace('.root','')
-  fnew = TFile('InvMass'+lilbit+'.root','recreate')
+  fnew__ = TFile('InvMass'+lilbit+'.root','recreate')
   for key_ in newkeys:
 	key = key_.GetName()
 	if not ('hInvMass' in key): continue
@@ -74,10 +74,10 @@ for file in files:
 		
 	c1.Update()
 	#pause()	
-	fnew.cd()
+	fnew__.cd()
 	c1.Write(shortbit.replace(' ','')+key)
 	print 'making pdf associated with', file	
 	c1.Print(('pdfs/tagandprobe/'+lilbit+key.replace('_RECOden','')).replace('.','p')+'.pdf')
-print 'just created', fnew.GetName()
-fnew.Close()
+print 'just created', fnew__.GetName()
+fnew__.Close()
 exit(0)

@@ -6,11 +6,18 @@ from utils import *
 from glob import glob
 from random import shuffle
 import random
+import os
+file2run = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
+print 'file2run', file2run
+execfile(file2run)
+
 BTAG_CSV = 0.8484
  
 gROOT.SetBatch()
 gROOT.SetStyle('Plain')
 SmearLeps = False
+
+
 
 verbose = False
 try: inputFileNames = sys.argv[1]
@@ -21,8 +28,17 @@ inputFiles = glob(inputFileNames)
 x = len(inputFiles)
 
 
+'''Must integrate these:
+        CSV         DeepCSV
+2016   0.8484    0.6324
+
+2017  0.8838     0.4941
+
+2018  0.8838     0.4941
+'''
+
 ############VARIATIONS
-useGenKappa = False #aka TrueFit
+useGenKappa = True #aka TrueFit
 
 
 #####################
@@ -97,44 +113,46 @@ for region in regionCuts:
                 
 binnumbers = {}
 listagain = ['Ht',  'Mht',    'NJets','BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'TrkPt','TrkEta','BinNumber']
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1))] = 1
-binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1))] = 2
-binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1))] = 3
-binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1))] = 4
-binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1))] = 5
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1))] = 6
-binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1))] = 7
-binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1))] = 8
-binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1))] = 9
-binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1))] = 10
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1))] = 11
-binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1))] = 12
-binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1))] = 13
-binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (0,0),  (1,1))] = 14
-binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1))] = 15
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0))] = 16
-binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0))] = 17
-binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0))] = 18
-binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0))] = 19
-binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0))] = 20
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0))] = 21
-binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0))] = 22
-binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0))] = 23
-binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0))] = 24
-binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0))] = 25
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0))] = 26
-binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0))] = 27
-binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (1,1),  (0,0))] = 28
-binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (1,1),  (0,0))] = 29
-binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0))] = 30
-binnumbers[((0,inf),(250,400),(1,inf),(0,inf),(2,inf),(0,inf),(0,inf))]=31
-binnumbers[((0,inf),(400,inf),(1,inf),(0,inf),(2,inf),(0,inf),(0,inf))]=32
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),        (0.5,inf))] = 1
+binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.5,inf))] = 2
+binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.5,inf))] = 3
+binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),        (0.5,inf))] = 4
+binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),        (0.5,inf))] = 5
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 6
+binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 7
+binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 8
+binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 9
+binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 10
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 11
+binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 12
+binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 13
+binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 14
+binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 15
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),        (0.5,inf))] = 16
+binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.5,inf))] = 17
+binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.5,inf))] = 18
+binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),        (0.5,inf))] = 19
+binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),        (0.5,inf))] = 20
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 21
+binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 22
+binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 23
+binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 24
+binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 25
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 26
+binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 27
+binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 28
+binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 29
+binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 30
+binnumbers[((0,inf),(250,400),(1,inf),(0,inf),(2,inf),(0,inf),(0,inf),      (0.0,inf))] = 31
+binnumbers[((0,inf),(400,inf),(1,inf),(0,inf),(2,inf),(0,inf),(0,inf),      (0.0,inf))] = 32
 
 def getBinNumber(fv):
     for binkey in binnumbers:
         foundbin = True
         for iwindow, window in enumerate(binkey):
-            if not (fv[iwindow]>=window[0] and fv[iwindow]<=window[1]): foundbin = False
+            if not (fv[iwindow]>=window[0] and fv[iwindow]<=window[1]): 
+            	foundbin = False
+            	break
         if foundbin: return binnumbers[binkey]
     return -1
 
@@ -171,8 +189,8 @@ if isdata: fsmearname = 'usefulthings/DataDrivenSmear_2016Data.root'
 else: fsmearname = 'usefulthings/DataDrivenSmear_2016MC.root'
 fSmear  = TFile(fsmearname)
 fMask = TFile('usefulthings/Masks.root')
-if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskRun2016')
-else: hMask = fMask.Get('hEtaVsPhiDTRun2016')
+if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
+else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 
 dResponseHist = {}
 for iPtBinEdge, PtBinEdge in enumerate(PtBinEdgesForSmearing[:-1]):
@@ -198,8 +216,8 @@ else:
     pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'    
 readerPixelOnly = TMVA.Reader()
 readerPixelStrips = TMVA.Reader()
-prepareReaderPixel(readerPixelOnly, pixelXml)
-prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
+prepareReaderShort(readerPixelOnly, pixelXml)
+prepareReaderLong(readerPixelStrips, pixelstripsXml)
 
 
 if isdata: 
@@ -547,7 +565,7 @@ for ientry in range(nentries):
             if c.Jets_bDiscriminatorCSV[ijet]>BTAG_CSV: adjustedBTags+=1
         adjustedNJets = len(adjustedJets)
         mindphi = 4
-        for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
+        for jet in adjustedJets[:4]: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
         
         if genMatchEverything:
                 if RelaxGenKin:

@@ -77,11 +77,12 @@ for name in names_:
 	MethodMC = fMethodMC.Get(mname)
 	funcMethodMC = fMethodMC.Get('f1'+mname)
 
-	xrangemax = 250
+	xrangemax = 200
 	leg = mklegend(x1=.41, y1=.69, x2=.89, y2=.87)
 	hWJetsToLL.GetXaxis().SetRangeUser(0,xrangemax)
-	hWJetsToLL.GetYaxis().SetRangeUser(0.000001,1.5)
+	hWJetsToLL.GetYaxis().SetRangeUser(0.00000001,.015)
 	hWJetsToLL.Draw()	
+	
 	hTTJets.GetXaxis().SetRangeUser(0,xrangemax)
 	hTTJets.GetYaxis().SetRangeUser(0.000001,2)
 	hTTJets.Draw('same')

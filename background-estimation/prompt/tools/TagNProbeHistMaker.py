@@ -1,14 +1,16 @@
 from ROOT import *
-import sys
+import os, sys
 import numpy as np
 from glob import glob
 from utils import *
 gROOT.SetBatch()
 gROOT.SetStyle('Plain')
-CSV_cut = 0.5
+BTAG_CSV = 0.8484
+file2run = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
+print 'file2run', file2run
+execfile(file2run)
 
-
-MakeMask = True
+MakeMask = False
 GenOnly = False
 if MakeMask: GenOnly = True
 RelaxGenKin = True
@@ -24,13 +26,20 @@ x_ = len(inputFiles)
 print 'going to analyze events in', inputFileNames
 if 'Run20' in inputFileNames: isdata = True
 else: isdata = False
-if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames:
-	phase = 0
-else:
-	phase = 1
+if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames: phase = 0
+else: phase = 1
 	
 try: dtmode = sys.argv[2]
 except:	dtmode = 'PixAndStrips'
+
+'''Must integrate these:
+        CSV         DeepCSV
+2016   0.8484    0.6324
+
+2017  0.8838     0.4941
+
+2018  0.8838     0.4941
+'''
 
 print 'dtmode', dtmode
 if dtmode == 'PixOnly': 
@@ -52,21 +61,17 @@ c = TChain("TreeMaker2/PreSelection")
 #if isdata: fsmearname = 'usefulthings/DataDrivenSmear_2016Data.root'
 #else: fsmearname = 'usefulthings/DataDrivenSmear_2016MC.root'
 if isdata: fsmearname = 'usefulthings/DataDrivenSmear_Run2016_'+dtmode+'.root'
-else: fsmearname = 'usefulthings/DataDrivenSmear_AllMC_'+dtmode+'.root'
+else: fsmearname = 'usefulthings/DataDrivenSmear_MC2016_'+dtmode+'.root'
 
-if MakeMask: fsmearname = 'usefulthings/DataDrivenSmear_DYJets_PixAndStrips.root'
+if MakeMask: fsmearname = 'usefulthings/DataDrivenSmear_MC2016_PixAndStrips.root'
 fSmear  = TFile(fsmearname)
 
 
 
-hEtaVsPhiDT = TH2F('hEtaVsPhiDT','hEtaVsPhiDT',80,-3.2,3.2,120,-2.5,2.5)
 fMask = TFile('usefulthings/Masks.root')
-fMask.ls()
-if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskRun2016')
-else: hMask = fMask.Get('hEtaVsPhiDT_maskRun2016')
-
+if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
+else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 if MakeMask: hMask = ''
-
 #=====This sets up the smearing
 dResponseHist_el = {}
 dResponseHist_mu = {}
@@ -88,17 +93,17 @@ def getSmearFactor(Eta, Pt, dResponseHist):
     print 'returning 1'
     return 1
 
-hHt       = makeTh1("hHt","HT for number of events", 250,0,5000)
-hHtWeighted       = makeTh1("hHtWeighted","HT for number of events", 250,0,5000)
+
+hHt             = makeTh1("hHt","HT for number of events", 250,0,5000)
+hHtWeighted     = makeTh1("hHtWeighted","HT for number of events", 250,0,5000)
 hElTagPt        = makeTh1VB("hElTagPt"  , "pt of the ElTags", len(PtBinEdges)-1,PtBinEdges)
 hElTagEta       = makeTh1VB("hElTagEta"  , "Eta of the ElTags", len(EtaBinEdges)-1,EtaBinEdges)
-
 hMuTagPt        = makeTh1VB("hMuTagPt"  , "pt of the MuTags", len(PtBinEdges)-1,PtBinEdges)
 hMuTagEta       = makeTh1VB("hMuTagEta"  , "Eta of the MuTags", len(EtaBinEdges)-1,EtaBinEdges)
-hGenPtvsResp    = makeTh2("hGenPtvsResp","hGenPtvsResp",50, 10, 400, 20, -2 ,3)    
-
+hGenPtvsResp    = makeTh2_("hGenPtvsResp","hGenPtvsResp",50, 10, 400, 20, -2 ,3)    
 hNTrackerLayersDT_el = TH1F('hNTrackerLayersDT_el','hNTrackerLayersDT_el',11,0,11)
 hNTrackerLayersDT_mu = TH1F('hNTrackerLayersDT_mu','hNTrackerLayersDT_mu',11,0,11)
+hEtaVsPhiDT = TH2F('hEtaVsPhiDT','hEtaVsPhiDT',80,-3.2,3.2,120,-2.5,2.5)
 
 #=====This sets up histograms for the pT response of the tracks
 dProbeElTrkResponseDT_ = {}
@@ -164,14 +169,14 @@ for iEtaBin, EtaBin in enumerate(EtaBinEdges[:-1]):
 
 if phase==0:
 	pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
+	LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
 else:
 	pixelXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'	
-readerPixelOnly = TMVA.Reader()
-readerPixelStrips = TMVA.Reader()
-prepareReaderPixel(readerPixelOnly, pixelXml)
-prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
+	LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'	
+readerShort = TMVA.Reader()
+readerLong = TMVA.Reader()
+prepareReaderShort(readerShort, pixelXml)
+prepareReaderLong(readerLong, LongXml)
 
 def isGenMatched(lep, pdgid):
     for igenm, genm in enumerate(c.GenParticles):
@@ -186,7 +191,7 @@ for f in inputFiles:
     print 'adding file:', f
     c.Add(f)
 nentries = c.GetEntries()
-c.Show(0)
+#c.Show(0)
 print nentries, ' events to be analyzed'
 verbosity = 10000
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('Summer16.','').replace('RA2AnalysisTree','')
@@ -251,7 +256,7 @@ for ientry in range(nentries):
        if not isBaselineTrack(track, itrack, c, hMask): continue
        basicTracks.append([track,c.tracks_charge[itrack], itrack])
        if not (track.Pt()>lepPtCut and track.Pt()<9999): continue
-       dtstatus = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
+       dtstatus = isDisappearingTrack_(track, itrack, c, readerShort, readerLong)
        if dtstatus==0: continue
        if PixMode:
            if not dtstatus==1: continue
@@ -339,7 +344,7 @@ for ientry in range(nentries):
        if not abs(jet.Eta())<2.4: continue####update to 2.4       
        adjustedHt+=jet.Pt()
        adjustedNJets+=1
-       if c.Jets_bDiscriminatorCSV[ijet]>CSV_cut: adjustedNBtags+=1
+       if c.Jets_bDiscriminatorCSV[ijet]>BTAG_CSV: adjustedNBtags+=1
           
     for igen, genlep in enumerate(genels):
         for idistrk, distrk in enumerate(disappearingTracks):
@@ -530,7 +535,6 @@ for ientry in range(nentries):
                     if not isdata: isgenmatched  = isGenMatched(probeTlv, 13)
                     else: isgenmatched = 1
                     #if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
-                    print 'here at the muon threshold', ProbePt, ProbeEta
                     for histkey in  dInvMassMuDTHist:
                         if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
                             fillth1(dInvMassMuDTHist[histkey],IM,weight)                    
