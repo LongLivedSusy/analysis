@@ -55,7 +55,7 @@ def get_histogram(variable, cutstring, nBins=False, xmin=False, xmax=False, path
     return h_bg_combined
 
 
-def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = False, ymax = False, path = "./output_genparticleDTs", config = "../cfg/samples_cmssw8_all.cfg", base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250", suffix = "", unweighted = False, output_folder="", extra_text="", extra_text_inline = ""):
+def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = False, ymax = False, path = "", config = "../cfg/samples_cmssw8_all.cfg", base_cuts = "", suffix = "", unweighted = False, output_folder="", extra_text="", extra_text_inline = "", require_mask = False):
 
     if xlabel == "": xlabel = variable
 
@@ -65,14 +65,24 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
 
     nBins = int(xmax/binWidth)
 
-    h_electrons = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==11 || taggedtrack2_bgtype==11) && !((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_muons = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==13 || taggedtrack2_bgtype==13) && !((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_taus = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==15 || taggedtrack2_bgtype==15) && !((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_nonprompt = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==0 || taggedtrack2_bgtype==0)", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_gammaconv_electrons = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==11 || taggedtrack2_bgtype==11) && ((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_gammaconv_muons = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==13 || taggedtrack2_bgtype==13) && ((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_gammaconv_taus = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==15 || taggedtrack2_bgtype==15) && ((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
-    h_gammaconv_nonprompt = get_histogram(variable, base_cuts + " && (taggedtrack1_bgtype==0 || taggedtrack2_bgtype==0) && ((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1))", nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    if require_mask:
+        base_cuts += " && (taggedtrack1_mask>0 || taggedtrack2_mask>0) "
+
+    select_electrons = " && (taggedtrack1_bgtype==11 || taggedtrack2_bgtype==11) "
+    select_muons = " && (taggedtrack1_bgtype==13 || taggedtrack2_bgtype==13) "
+    select_taus = " && (taggedtrack1_bgtype==15 || taggedtrack2_bgtype==15) "
+    select_nonprompt = " && (taggedtrack1_bgtype==0 || taggedtrack2_bgtype==0) "
+    require_photon = " && ((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1)) "
+    reject_photon = " && !((taggedtrack1_gamma_DR<0.1 && taggedtrack1_gamma_ptfraction>1) || (taggedtrack2_gamma_DR<0.1 && taggedtrack2_gamma_ptfraction>1)) "
+
+    h_electrons = get_histogram(variable, base_cuts + select_electrons + reject_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_muons = get_histogram(variable, base_cuts + select_muons + reject_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_taus = get_histogram(variable, base_cuts + select_taus + reject_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_nonprompt = get_histogram(variable, base_cuts + select_nonprompt, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_gammaconv_electrons = get_histogram(variable, base_cuts + select_electrons + require_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_gammaconv_muons = get_histogram(variable, base_cuts + select_muons + require_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_gammaconv_taus = get_histogram(variable, base_cuts + select_taus + require_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
+    h_gammaconv_nonprompt = get_histogram(variable, base_cuts + select_nonprompt + require_photon, nBins=nBins, xmin=xmin, xmax=xmax, path=path, config=config, unweighted=unweighted)
 
     mcstack = THStack("genBGstacked", "")
     legend = TLegend(0.6, 0.65, 0.89, 0.89)
@@ -204,22 +214,29 @@ if __name__ == "__main__":
 
     config = "../cfg/samples_cmssw8_all.cfg"
     path = "output_bgcomposition/"
-    output_folder = "plots_bgcomposition/"
+
+    #output_folder = "plots_bgcomposition/"
+    #require_mask = False
+
+    output_folder = "plots_bgcomposition_masked/"
+    require_mask = True
     
+    base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250"
+
     # do stacked background plots (stacked by background type):
+   
+    stack_gendisapptrks("taggedtrack1_tagid", 1, 1, 4, ymin=1e-2, xlabel="track category", path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts, suffix = "", config = config)    
+    stack_gendisapptrks("taggedtrack1_pt", 50, 30, 430, ymin=1e0, xlabel="track p_{T} (GeV)", path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts, suffix = "", config = config)
+    stack_gendisapptrks("taggedtrack1_pt", 50, 30, 430, ymin=1e0, xlabel="track p_{T} (GeV)", path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts + " && taggedtrack1_tagid==1", suffix = "_pixelonly", config = config)
+    stack_gendisapptrks("taggedtrack1_pt", 50, 30, 430, ymin=1e0, xlabel="track p_{T} (GeV)", path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts + " && taggedtrack1_tagid==2", suffix = "_pixelstrips", config = config)
 
-    stack_gendisapptrks("taggedtrack1_tagid", 1, 1, 4, ymin=1e-2, xlabel="track category", path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250", suffix = "", config = config)    
-    stack_gendisapptrks("taggedtrack1_pt", 50, 30, 430, ymin=1e0, xlabel="track p_{T} (GeV)", path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250", suffix = "", config = config)
-    stack_gendisapptrks("taggedtrack1_pt", 50, 30, 430, ymin=1e0, xlabel="track p_{T} (GeV)", path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250 && taggedtrack1_tagid==1", suffix = "_pixelonly", config = config)
-    stack_gendisapptrks("taggedtrack1_pt", 50, 30, 430, ymin=1e0, xlabel="track p_{T} (GeV)", path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250 && taggedtrack1_tagid==2", suffix = "_pixelstrips", config = config)
+    stack_gendisapptrks("HT", 100, 0, 1000, xlabel="H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts, suffix = "", config = config)
+    stack_gendisapptrks("HT", 100, 0, 1000, xlabel="H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts + " && taggedtrack1_tagid==1", suffix = "_pixelonly", config = config)
+    stack_gendisapptrks("HT", 100, 0, 1000, xlabel="H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts + " && taggedtrack1_tagid==2", suffix = "_pixelstrips", config = config)
 
-    stack_gendisapptrks("HT", 100, 0, 1000, xlabel="H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250", suffix = "", config = config)
-    stack_gendisapptrks("HT", 100, 0, 1000, xlabel="H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250 && taggedtrack1_tagid==1", suffix = "_pixelonly", config = config)
-    stack_gendisapptrks("HT", 100, 0, 1000, xlabel="H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250 && taggedtrack1_tagid==2", suffix = "_pixelstrips", config = config)
-
-    stack_gendisapptrks("MHT", 100, 0, 1000, xlabel="missing H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250", suffix = "", config = config)
-    stack_gendisapptrks("MHT", 100, 0, 1000, xlabel="missing H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250 && taggedtrack1_tagid==1", suffix = "_pixelonly", config = config)
-    stack_gendisapptrks("MHT", 100, 0, 1000, xlabel="missing H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, base_cuts = "n_DT>0 && PFCaloMETRatio<5 && MHT>250 && taggedtrack1_tagid==2", suffix = "_pixelstrips", config = config)
+    stack_gendisapptrks("MHT", 100, 0, 1000, xlabel="missing H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts, suffix = "", config = config)
+    stack_gendisapptrks("MHT", 100, 0, 1000, xlabel="missing H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts + " && taggedtrack1_tagid==1", suffix = "_pixelonly", config = config)
+    stack_gendisapptrks("MHT", 100, 0, 1000, xlabel="missing H_{T} (GeV)", ymin=1e0, path=path, output_folder=output_folder, require_mask = require_mask, base_cuts = base_cuts + " && taggedtrack1_tagid==2", suffix = "_pixelstrips", config = config)
 
     # standard stacked background plots (stacked by MC sample):
 

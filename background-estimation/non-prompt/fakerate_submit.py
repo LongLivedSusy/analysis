@@ -5,8 +5,8 @@ from GridEngineTools import runParallel
 
 runmode = "grid"
 output_folder = "output_dileptons"
-files_per_job = 1
-files_per_sample = 10
+files_per_job = 3
+files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
 commands = []
@@ -49,20 +49,20 @@ cmssw8_samples = [
                     "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-                    "Run2016B-03Feb2017_ver2-v2.SingleElectron",
-                    "Run2016B-03Feb2017_ver2-v2.SingleMuon",
+                    #"Run2016B-03Feb2017_ver2-v2.SingleElectron",
+                    #"Run2016B-03Feb2017_ver2-v2.SingleMuon",
                     "Run2016C-03Feb2017-v1.SingleElectron",
                     "Run2016C-03Feb2017-v1.SingleMuon",
-                    "Run2016D-03Feb2017-v1.SingleElectron",
-                    "Run2016D-03Feb2017-v1.SingleMuon",
-                    "Run2016E-03Feb2017-v1.SingleElectron",
-                    "Run2016E-03Feb2017-v1.SingleMuon",
-                    "Run2016F-03Feb2017-v1.SingleElectron",
-                    "Run2016F-03Feb2017-v1.SingleMuon",
-                    "Run2016G-03Feb2017-v1.SingleElectron",
-                    "Run2016G-03Feb2017-v1.SingleMuon",
-                    "Run2016H-03Feb2017_ver2-v1.SingleElectron",
-                    "Run2016H-03Feb2017_ver2-v1.SingleMuon",
+                    #"Run2016D-03Feb2017-v1.SingleElectron",
+                    #"Run2016D-03Feb2017-v1.SingleMuon",
+                    #"Run2016E-03Feb2017-v1.SingleElectron",
+                    #"Run2016E-03Feb2017-v1.SingleMuon",
+                    #"Run2016F-03Feb2017-v1.SingleElectron",
+                    #"Run2016F-03Feb2017-v1.SingleMuon",
+                    #"Run2016G-03Feb2017-v1.SingleElectron",
+                    #"Run2016G-03Feb2017-v1.SingleMuon",
+                    #"Run2016H-03Feb2017_ver2-v1.SingleElectron",
+                    #"Run2016H-03Feb2017_ver2-v1.SingleMuon",
                  ]
  
 for sample in cmssw8_samples:

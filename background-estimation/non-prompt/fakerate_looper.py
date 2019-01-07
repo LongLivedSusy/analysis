@@ -7,10 +7,8 @@ import tmva_tools
 import os
 import numpy as np
 
-def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, n_jets_cleaned = False, MHT_cleaned = False, MinDeltaPhiMhtJets_cleaned = False, n_btags_cleaned = False):
-
-    # signal regions as defined in https://indico.desy.de/indico/event/20437/contribution/2/material/slides/0.pdf
-    
+def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track, n_jets_cleaned = False, MHT_cleaned = False, MinDeltaPhiMhtJets_cleaned = False, n_btags_cleaned = False):
+  
     if n_jets_cleaned and MHT_cleaned and MinDeltaPhiMhtJets_cleaned:
         NJets = n_jets_cleaned
         MHT = MHT_cleaned
@@ -22,49 +20,55 @@ def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, n_jets_cleaned = False, M
         MinDeltaPhiMhtJets = MinDeltaPhiMhtJets
         n_btags = event.BTags
 
-    region = 0
+    is_tracker_track = not is_pixel_track
 
-    if n_DT==1:
-        if MHT>=250 and MHT<400 and MinDeltaPhiMhtJets>0.5:
-            if NJets==1 and n_btags>=0:
-                region = 1
-            elif NJets>=2 and NJets<=5 and n_btags==0:
-                region = 2
-            elif NJets>=2 and NJets<=5 and n_btags>0:
-                region = 3
-            elif NJets>=6 and n_btags==0:
-                region = 4
-            elif NJets>=6 and n_btags>0:
-                region = 5
-        elif MHT>=400 and MHT<650 and MinDeltaPhiMhtJets>0.3:
-            if NJets==1 and n_btags>=0:
-                region = 6
-            elif NJets>=2 and NJets<=5 and n_btags==0:
-                region = 7
-            elif NJets>=2 and NJets<=5 and n_btags>0:
-                region = 8
-            elif NJets>=6 and n_btags==0:
-                region = 9
-            elif NJets>=6 and n_btags>0:
-                region = 10
-        elif MHT>=650 and MinDeltaPhiMhtJets>0.3:
-            if NJets==1 and n_btags>=0:
-                region = 11
-            elif NJets>=2 and NJets<=5 and n_btags==0:
-                region = 12
-            elif NJets>=2 and NJets<=5 and n_btags>0:
-                region = 13
-            elif NJets>=6 and n_btags==0:
-                region = 14
-            elif NJets>=6 and n_btags>0:
-                region = 15
-    
-    elif n_DT>1 and NJets>=1:
-        if MHT>=250 and MHT<400:
-            region = 16
-        elif MHT>=400:
-            region = 17
-            
+    binnumbers = {}
+    binkey = ['Ht', 'Mht', 'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets']
+    binnumbers[((0,float("inf")),(250,400),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 1
+    binnumbers[((0,float("inf")),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 2
+    binnumbers[((0,float("inf")),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 3
+    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 4
+    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 5
+    binnumbers[((0,float("inf")),(400,700),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 6
+    binnumbers[((0,float("inf")),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 7
+    binnumbers[((0,float("inf")),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 8
+    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 9
+    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 10
+    binnumbers[((0,float("inf")),(700,float("inf")),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 11
+    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 12
+    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 13
+    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 14
+    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 15
+    binnumbers[((0,float("inf")),(250,400),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 16
+    binnumbers[((0,float("inf")),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 17
+    binnumbers[((0,float("inf")),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 18
+    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 19
+    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 20
+    binnumbers[((0,float("inf")),(400,700),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 21
+    binnumbers[((0,float("inf")),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 22
+    binnumbers[((0,float("inf")),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 23
+    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 24
+    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 25
+    binnumbers[((0,float("inf")),(700,float("inf")),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 26
+    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 27
+    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 28
+    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 29
+    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 30
+    binnumbers[((0,float("inf")),(250,400),(1,float("inf")),(0,float("inf")),(2,float("inf")),(0,float("inf")),(0,float("inf")),      (0.0,float("inf")))] = 31
+    binnumbers[((0,float("inf")),(400,float("inf")),(1,float("inf")),(0,float("inf")),(2,float("inf")),(0,float("inf")),(0,float("inf")),      (0.0,float("inf")))] = 32
+
+    region = 0
+    for binkey in binnumbers:
+        if MHT >= binkey[1][0] and MHT <= binkey[1][1] and \
+           NJets >= binkey[2][0] and NJets <= binkey[2][1] and \
+           n_btags >= binkey[3][0] and n_btags <= binkey[3][1] and \
+           n_DT >= binkey[4][0] and n_DT <= binkey[4][1] and \
+           is_pixel_track >= binkey[5][0] and is_pixel_track <= binkey[5][1] and \
+           is_tracker_track >= binkey[6][0] and is_tracker_track <= binkey[6][1] and \
+           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1]:
+            region = binnumbers[binkey]
+            break
+
     return region
 
 
@@ -107,6 +111,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                       "CrossSection",
                     ]:
         tree_branch_values[variable] = array( 'f', [ -1000 ] )
+        tout.Branch( variable, tree_branch_values[variable], '%s/F' % variable )
 
     for variable in [
                       "signalregion",
@@ -129,75 +134,8 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                       "lepton_type",
                     ]:
         tree_branch_values[variable] = array( 'i', [ -1000 ] )
-
-    vector_length = 20
-
-    # float vectors:
-    for variable in [
-                      "tagged_track_bdt",
-                      "tagged_track_pt",
-                      "tagged_track_eta",
-                      "tagged_track_chi2perNdof",
-                      "tagged_track_trkRelIso",
-                      "tagged_track_dxyVtx",
-                      "tagged_track_dzVtx",
-                    ]:
-        tree_branch_values[variable] = array( 'f', vector_length*[ -1000 ] )
-
-    # integer vectors:
-    for variable in [
-                      "tagged_track_trackerlayers",
-                      "tagged_track_pixellayers",
-                    ]:
-        tree_branch_values[variable] = array( 'i', vector_length*[ -1000 ] )
-
-    for variable in [
-                      "gen_track_cone_pdgid",
-                      "gen_track_cone_taucorrected",
-                    ]:
-        tree_branch_values[variable] = array( 'i', vector_length*vector_length*[ -1000 ] )
-
-    tout.Branch( "MET", tree_branch_values["MET"], 'MET/F' )
-    tout.Branch( "MHT", tree_branch_values["MHT"], 'MHT/F' )
-    tout.Branch( "MHT_cleaned", tree_branch_values["MHT_cleaned"], 'MHT_cleaned/F' )
-    tout.Branch( "HT", tree_branch_values["HT"], 'HT/F' )
-    tout.Branch( "HT_cleaned", tree_branch_values["HT_cleaned"], 'HT_cleaned/F' )
-    tout.Branch( "MinDeltaPhiMhtJets", tree_branch_values["MinDeltaPhiMhtJets"], 'MinDeltaPhiMhtJets/F' )
-    tout.Branch( "MinDeltaPhiMhtJets_cleaned", tree_branch_values["MinDeltaPhiMhtJets_cleaned"], 'MinDeltaPhiMhtJets_cleaned/F' )
-    tout.Branch( "signalregion", tree_branch_values["signalregion"], 'signalregion/I' )
-    tout.Branch( "signalregion_cleaned", tree_branch_values["signalregion_cleaned"], 'signalregion_cleaned/I' )
-    tout.Branch( "n_DT", tree_branch_values["n_DT"], 'n_DT/I' )
-    tout.Branch( "n_DT_realfake", tree_branch_values["n_DT_realfake"], 'n_DT_realfake/I' )
-    tout.Branch( "n_DT_mask", tree_branch_values["n_DT_mask"], 'n_DT_mask/I' )
-    tout.Branch( "n_DT_realfake_mask", tree_branch_values["n_DT_realfake_mask"], 'n_DT_realfake_mask/I' )
-    tout.Branch( "n_jets", tree_branch_values["n_jets"], 'n_jets/I' )
-    tout.Branch( "n_jets_cleaned", tree_branch_values["n_jets_cleaned"], 'n_jets_cleaned/I' )
-    tout.Branch( "n_btags", tree_branch_values["n_btags"], 'n_btags/I' )
-    tout.Branch( "n_btags_cleaned", tree_branch_values["n_btags_cleaned"], 'n_btags_cleaned/I' )
-    tout.Branch( "n_leptons", tree_branch_values["n_leptons"], 'n_leptons/I' )
-    tout.Branch( "n_allvertices", tree_branch_values["n_allvertices"], 'n_allvertices/I' )
-    tout.Branch( "PFCaloMETRatio", tree_branch_values["PFCaloMETRatio"], 'PFCaloMETRatio/F' )
-    tout.Branch( "zmass", tree_branch_values["zmass"], 'zmass/F' )
-    tout.Branch( "n_NVtx", tree_branch_values["n_NVtx"], 'n_NVtx/I' )
-    tout.Branch( "EvtNumEven", tree_branch_values["EvtNumEven"], 'EvtNumEven/I' )
-    tout.Branch( "lepton_type", tree_branch_values["lepton_type"], 'lepton_type/I' )
-    tout.Branch( "n_gen_particles_in_cone", tree_branch_values["n_gen_particles_in_cone"], 'n_gen_particles_in_cone/I' )   
-    tout.Branch( "n_gen_taus_in_cone", tree_branch_values["n_gen_taus_in_cone"], 'n_gen_taus_in_cone/I' )
-    tout.Branch( "n_leading_tracks_in_cone", tree_branch_values["n_leading_tracks_in_cone"], 'n_leading_tracks_in_cone/I' )
-
-    # vectors:
-    tout.Branch( "tagged_track_bdt", tree_branch_values["tagged_track_bdt"], 'tagged_track_bdt[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_pt", tree_branch_values["tagged_track_pt"], 'tagged_track_pt[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_eta", tree_branch_values["tagged_track_eta"], 'tagged_track_eta[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_chi2perNdof", tree_branch_values["tagged_track_chi2perNdof"], 'tagged_track_chi2perNdof[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_trkRelIso", tree_branch_values["tagged_track_trkRelIso"], 'tagged_track_trkRelIso[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_dxyVtx", tree_branch_values["tagged_track_dxyVtx"], 'tagged_track_dxyVtx[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_dzVtx", tree_branch_values["tagged_track_dzVtx"], 'tagged_track_dzVtx[%s]/F' % (vector_length))
-    tout.Branch( "tagged_track_trackerlayers", tree_branch_values["tagged_track_trackerlayers"], 'tagged_track_trackerlayers[%s]/I' % (vector_length))
-    tout.Branch( "tagged_track_pixellayers", tree_branch_values["tagged_track_pixellayers"], 'tagged_track_pixellayers[%s]/I' % (vector_length))
-    tout.Branch( "gen_track_cone_pdgid", tree_branch_values["gen_track_cone_pdgid"], 'gen_track_cone_pdgid[%s]/I' % (vector_length*vector_length))
-    tout.Branch( "gen_track_cone_taucorrected", tree_branch_values["gen_track_cone_taucorrected"], 'gen_track_cone_taucorrected[%s]/I' % (vector_length*vector_length))
-
+        tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
+        
     # BDT configuration:
     readerPixelOnly = 0
     readerPixelStrips = 0
@@ -342,10 +280,6 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
             if event.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
             if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets:
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
-
-        # get signal region for event:
-        #tree_branch_values["signalregion"][0] = get_signal_region(event, MinDeltaPhiMhtJets, n_DT)
-        #tree_branch_values["signalregion_cleaned"][0] = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, n_jets_cleaned=n_jets_cleaned, MHT_cleaned=MHT_cleaned, MinDeltaPhiMhtJets_cleaned=MinDeltaPhiMhtJets_cleaned, n_btags_cleaned=n_btags_cleaned)
      
         nevents_total += 1
         n_DT = 0
@@ -480,15 +414,6 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 
             if is_disappearing_track:
 
-                tree_branch_values["tagged_track_pt"][n_DT] = event.tracks[iCand].Pt()
-                tree_branch_values["tagged_track_eta"][n_DT] = event.tracks[iCand].Eta()
-                tree_branch_values["tagged_track_trackerlayers"][n_DT] = event.tracks_trackerLayersWithMeasurement[iCand]
-                tree_branch_values["tagged_track_pixellayers"][n_DT] = event.tracks_pixelLayersWithMeasurement[iCand]
-                tree_branch_values["tagged_track_chi2perNdof"][n_DT] = event.tracks_chi2perNdof[iCand]
-                tree_branch_values["tagged_track_trkRelIso"][n_DT] = event.tracks_trkRelIso[iCand]
-                tree_branch_values["tagged_track_dxyVtx"][n_DT] = event.tracks_dxyVtx[iCand]
-                tree_branch_values["tagged_track_dzVtx"][n_DT] = event.tracks_dzVtx[iCand]
-                tree_branch_values["tagged_track_bdt"][n_DT] = mva
                 n_DT += 1
 
                 # check eta/phi mask:
@@ -499,14 +424,17 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                         mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
                     elif "Summer16" in current_file_name:
                         mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
-                masked = mask.GetBinContent(mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
+                try: 
+                    masked = mask.GetBinContent(mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
+                except:
+                    print "Error while reading mask, event: ", iEv
 
                 if masked > 0:
                     n_DT_mask += 1
 
                 if not genparticle_in_track_cone:
                     n_DT_realfake += 1
-                    if masked > 0:
+                    if masked>0:
                         n_DT_realfake_mask += 1
  
         # event-level variables:
@@ -540,6 +468,10 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
         tree_branch_values["n_gen_particles_in_cone"][0] = n_gen_particles_in_cone
         tree_branch_values["n_gen_taus_in_cone"][0] = n_gen_taus_in_cone
         tree_branch_values["n_leading_tracks_in_cone"][0] = n_leading_tracks_in_cone
+   
+        # get signal region bin for event:
+        tree_branch_values["signalregion"][0] = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track)
+        tree_branch_values["signalregion_cleaned"][0] = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track, n_jets_cleaned=n_jets_cleaned, MHT_cleaned=MHT_cleaned, MinDeltaPhiMhtJets_cleaned=MinDeltaPhiMhtJets_cleaned, n_btags_cleaned=n_btags_cleaned)
    
         tout.Fill()
         
