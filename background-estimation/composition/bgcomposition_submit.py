@@ -3,10 +3,10 @@ import sys, os, glob
 import multiprocessing
 from GridEngineTools import runParallel
 
-#runmode = "multi"
 runmode = "grid"
-
-output_folder = "output_tautrack"
+output_folder = "output_bgcomposition"
+files_per_job = 3
+files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
 commands = []
@@ -49,29 +49,28 @@ cmssw8_samples = [
                     "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-                    #"Run2016B-03Feb2017_ver2-v2.SingleElectron",
-                    #"Run2016B-03Feb2017_ver2-v2.SingleMuon",
-                    "Run2016C-03Feb2017-v1.SingleElectron",
-                    "Run2016C-03Feb2017-v1.SingleMuon",
                  ]
 
 for sample in cmssw8_samples:
 
     ifile_list = sorted(glob.glob(ntuples_folder + "/" + sample + "*.root"))
     
+    if files_per_sample != -1:
+        ifile_list = ifile_list[:files_per_sample]
+    
     if len(ifile_list)==0:
         continue
 
     print "Looping over %s files (%s)" % (len(ifile_list), sample)
 
-    files_per_job = 4
     file_segments = [ifile_list[x:x+files_per_job] for x in range(0,len(ifile_list),files_per_job)]
 
     for inFile_segment in file_segments:
             
         out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].split(".root")[0] + "_fakes.root"
-        commands.append("./looper.py %s %s" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
+        commands.append("./bgcomposition_looper.py %s %s" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
 
 raw_input("submit %s jobs?" % len(commands))
+os.system("cp bgcomposition_looper.py %s/" % output_folder)
 runParallel(commands, runmode, dontCheckOnJobs=True, burst_mode=False)
 
