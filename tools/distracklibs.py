@@ -27,7 +27,7 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):#
         trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr]
         if pixelOnly:
                 mva_ = evaluateBDT(readerPixelOnly, trackfv)
-                if not mva_ > 0.15: return 0###.1
+                if not mva_ > 0.1: return 0###.1
                 else: return 1
         elif pixelStrips:
                 mva_ = evaluateBDT(readerPixelStrips, trackfv)             
