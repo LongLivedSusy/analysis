@@ -312,7 +312,7 @@ for ientry in range(nentries):
     var_NJets[0] = len(jets)
     var_Mht[0] = mhtvec.Pt()
     mindphi = 9999   
-    for jet in jets: 
+    for jet in jets[:4]: 
         if abs(jet.DeltaPhi(mhtvec))<mindphi:
             mindphi = abs(jet.DeltaPhi(mhtvec))
             
