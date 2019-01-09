@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-#from GridEngineTools import runParallel
+from GridEngineTools import runParallel
+from glob import glob
 import sys, os
 
-cwd = os.getcwd()
 commands = []
 
 path_sig = '/u/user/sangilpark/WorkDir/DisappearingTracks/TreeMaker/CMSSW_8_0_30/src/TreeMaker/Production/test/TREE/'
@@ -25,25 +25,7 @@ SigPoints = [
 #"'pMSSM12_MCMC1_47_872207_step4_TREEMAKER*_RA2AnalysisTree.root'",
 ]
 
-Sig_Xsecs = [
-0.1787303  ,       
-0.00098065,
-0.5190465,
-0.1215245,
-0.00125156,
-0.0217644,
-0.04073879,
-0.159513515,
-0.001673982,
-0.0069252,
-0.00759999,
-0.0063312,
-0.0063312,
-0.15820697,
-0.1112457,
-]
-
-path_bkg = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/NtupleHub/Production2016v2/'
+path_bkg = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/'
 Bkgs = [
 	"'Summer16.DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
 	"'Summer16.DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
@@ -61,7 +43,6 @@ Bkgs = [
 	"'Summer16.QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
 	"'Summer16.QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
 	"'Summer16.QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
-	"'Summer16.TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
 	"'Summer16.TTJets_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
 	"'Summer16.TTJets_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
 	"'Summer16.TTJets_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'",
@@ -87,19 +68,15 @@ Bkgs = [
 	"'Summer16.ZZTo2Q2Nu_13TeV_amcatnloFXFX_madspin_pythia8_*_RA2AnalysisTree.root'",
 	]
 
-for SigPoint in SigPoints :
-    #print('python SkimTreeMaker.py %s' %path_sig+SigPoint)
-    os.system('python SkimTreeMaker.py %s' %path_sig+SigPoint)
+#for SigPoint in SigPoints :
+#    #print('python SkimTreeMaker.py %s' %path_sig+SigPoint)
+#    os.system('python SkimTreeMaker.py %s' %path_sig+SigPoint)
 
 
-#for i in range(0,len(Bkgs)) :
-#    #print ('python SkimTreeMaker_sangil.py %s %f' %(path+SigPoints[i],Xsecs[i]))
-#    #os.system('python SkimTreeMaker_sangil2.py %s %f' %(path+SigPoints[i],Xsecs[i]))
-#    #os.system('python SkimTreeMaker_sangil2.py %s' %(path_sig+SigPoints[i]))
-#    cmd = "python SkimTreeMaker_sangil2.py %s" %(path_bkg+Bkgs[i])
-#    print (cmd)
-#    #print (i,SigPoints[i],Xsecs[i])
-#    commands.append(cmd)
+for i in range(0,len(Bkgs)) :
+    cmd = "python SkimTreeMaker.py %s" %(path_bkg+Bkgs[i])
+    print (cmd)
+    commands.append(cmd)
 
 
 #runParallel(commands, "grid", dryrun=False, cmsbase=False, qsubOptions="-q cms", ncores_percentage=0.45, dontCheckOnJobs=True)
