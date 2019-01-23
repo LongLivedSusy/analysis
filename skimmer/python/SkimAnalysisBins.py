@@ -7,25 +7,64 @@ from ROOT import *
 from utils import *
 import os, sys
 from glob import glob
+from distracklibs import *
 
-distracklibs = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
-execfile(distracklibs)
+#distracklibs = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
+#execfile(distracklibs)
 
 hAnalysisBins = TH1F('hAnalysisBins','hAnalysisBins',33,0,33)
 histoStyler(hAnalysisBins, kBlack)
 
-defaultInfile = '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_20_RA2AnalysisTree.root'
-defaultInfile = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_100.root'
+#defaultInfile = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_100.root'
+defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
+#defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_52_RA2AnalysisTree.root'
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
 parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
+parser.add_argument("-btagsf", "--BtagWeight", type=bool, default=False, help="Btag SF")
 args = parser.parse_args()
 fnamekeyword = args.fnamekeyword.strip()
 analyzer = args.analyzer
 JerUpDown = args.JerUpDown
+BtagWeight = args.BtagWeight
+print 'BtagWeight : ', BtagWeight
+if BtagWeight :
+    import ROOT
+    ROOT.gROOT.ProcessLine('.L ../../systematics/btagSF/BTagCalibrationStandalone.cpp+')
+    calib = ROOT.BTagCalibration('deepcsv', '../../systematics/btagSF/DeepCSV_Moriond17_B_H.csv')
+    # making a std::vector<std::string>> in python is a bit awkward, 
+    # but works with root (needed to load other sys types):
+    v_sys = getattr(ROOT, 'std::vector<string>')()
+    v_sys.push_back('up')
+    v_sys.push_back('down')
+    
+    # make a reader instance and load the sf data
+    reader = ROOT.BTagCalibrationReader(
+        1,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
+        "central",      # central systematic type
+        v_sys,          # vector of other sys. types
+    ) 
+    print reader
+    reader.load(
+        calib, 
+        0,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "comb"      # measurement type
+    )
+    reader.load(
+        calib, 
+        1,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "comb"      # measurement type
+    )
+    reader.load(
+        calib, 
+        2,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "incl"      # measurement type
+    )
+
+    
 #smdir = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/'
 #smdir = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/'
 
@@ -38,9 +77,9 @@ if isPrivateSignal:
 print 'isPrivateSignal?', isPrivateSignal
 
 lepPtCut = 20
-csv_b = 0.8484
-csv_b = 0.8838# new with CMSSW_9
-
+#csv_b = 0.8484
+#csv_b = 0.8838# new with CMSSW_9
+csv_b = 0.6324
 
 '''Must integrate these:
         CSV         DeepCSV
@@ -50,6 +89,7 @@ csv_b = 0.8838# new with CMSSW_9
 
 2018  0.8838     0.4941
 '''
+
 
 
 
@@ -149,6 +189,7 @@ var_Track2IsGenMatched = np.zeros(1,dtype=int)
 var_SearchBin = np.zeros(1,dtype=int)
 var_SumTagPtOverMht = np.zeros(1,dtype=float)
 var_CrossSection = np.zeros(1,dtype=float)
+var_weight_btag = np.zeros(1,dtype=float)
 if isPrivateSignal: var_weight = np.zeros(1,dtype=float)
 
 #####################################################
@@ -189,6 +230,7 @@ tEvent.Branch('Track2IsGenMatched', var_Track2IsGenMatched,'Track2IsGenMatched/I
 tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
 tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
 tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
+tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
 
 if isPrivateSignal: tEvent.Branch('weight', var_weight,'weight/D')
 
@@ -245,17 +287,19 @@ def getBinNumber(fv):
 # declare readers and selection code for BDT #
 ##############################################
 if phase==0:
-    pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
-    LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
+    #pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
+    #LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
+    pixelXml = '../../disappearing-track-tag/cmssw8-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
+    LongXml = '../../disappearing-track-tag/cmssw8-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'
 else:
     pixelXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
     LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'    
-readerShort = TMVA.Reader()
-readerLong = TMVA.Reader()
-prepareReaderShort(readerShort, pixelXml)
-prepareReaderLong(readerLong, LongXml)
+#readerShort = TMVA.Reader()
+#readerLong = TMVA.Reader()
+#prepareReaderShort(readerShort, pixelXml)
+#prepareReaderLong(readerLong, LongXml)
 
-fMask = TFile('usefulthings/Masks.root')
+fMask = TFile('../usefulthings/Masks.root')
 if 'Run2016' in fnamekeyword: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
 else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 
@@ -272,7 +316,8 @@ print 'will analyze', nentries
 if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
 verbosity = 10000
 
-for ientry in range(nentries):
+#for ientry in range(nentries):
+for ientry in range(10):
 
     if ientry%verbosity==0: 
         print 'analyzing event %d of %d' % (ientry, nentries)+ '....%f'%(100.*ientry/nentries)+'%'
@@ -303,12 +348,70 @@ for ientry in range(nentries):
     jets = []
     nb = 0
     ht = 0
+    pMC = 1
+    pData = 1
     for ijet, jet in enumerate(c.Jets): #need dphi w.r.t. the modified mht
+	#print ientry, 'th event, ', ijet,'th jet'
         if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
         mhtvec-=jet
         jets.append(jet)
         ht+=jet.Pt()        
         if c.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
+	if BtagWeight :
+	    fbeff = TFile("../usefulthings/BTagEfficiency_Summer16_TTJets.root")
+	    
+	    if c.Jets_hadronFlavor[ijet]== 5: # truth b particle
+		heff = fbeff.Get("eff_b")
+		binx = heff.GetXaxis().FindBin(jet.Pt())
+		biny = heff.GetYaxis().FindBin(jet.Eta())
+		eff = heff.GetBinContent(binx,biny)
+		FLAV = 0
+		#print 'b jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+	    elif c.Jets_hadronFlavor[ijet]== 4: # truth c particle
+		heff = fbeff.Get("eff_c")
+		binx = heff.GetXaxis().FindBin(jet.Pt())
+		biny = heff.GetYaxis().FindBin(jet.Eta())
+		eff = heff.GetBinContent(binx,biny)
+		FLAV = 1
+		#print 'c jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+	    else : # truth udsg particle
+		heff = fbeff.Get("eff_udsg")
+		binx = heff.GetXaxis().FindBin(jet.Pt())
+		biny = heff.GetYaxis().FindBin(jet.Eta())
+		eff = heff.GetBinContent(binx,biny)
+		FLAV = 2
+		#print 'udsg jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+	    
+            sf = reader.eval_auto_bounds(
+                'central',      # systematic (here also 'up'/'down' possible)
+                FLAV,              # jet flavor
+                jet.Eta(),      # absolute value of eta
+                jet.Pt()        # pt
+            )
+            sf_up = reader.eval_auto_bounds(
+                'up',           # systematic (here also 'up'/'down' possible)
+                FLAV,              # jet flavor
+                jet.Eta(),      # absolute value of eta
+                jet.Pt()        # pt
+            )
+            sf_down = reader.eval_auto_bounds(
+                'down',         # systematic (here also 'up'/'down' possible)
+                FLAV,              # jet flavor
+                jet.Eta(),      # absolute value of eta
+                jet.Pt()        # pt
+            )
+	    
+	    if c.Jets_bDiscriminatorCSV[ijet]>csv_b :
+		pMC *= eff
+		pData *= eff*sf
+	    else :
+		pMC *= 1 - eff
+		pData *= 1 - eff*sf
+
+    btagweight = pData/pMC
+    #print 'btagweight : ', btagweight
+ 
+
     var_NJets[0] = len(jets)
     var_Mht[0] = mhtvec.Pt()
     mindphi = 9999   
@@ -343,7 +446,8 @@ for ientry in range(nentries):
             if abs(abs(track.Eta()) < 1.566) and abs(track.Eta()) > 1.4442: continue
             if not (track.Pt()>lepPtCut and track.Pt()<9999): continue
             if not isBaselineTrack(track, itrack, c, hMask): continue
-            mva_ = isDisappearingTrack_(track, itrack, c, readerShort, readerLong)
+            #mva_ = isDisappearingTrack_(track, itrack, c, readerShort, readerLong)
+            mva_ = 1
             if mva_==0: continue
             passeslep = True
             drlep = 99
@@ -462,6 +566,7 @@ for ientry in range(nentries):
     var_SumTagPtOverMht[0] = sumtagvec.Pt()/mhtvec.Pt()
 
     var_CrossSection[0] = c.CrossSection
+    var_weight_btag[0] = btagweight
     tEvent.Fill()
 
 
