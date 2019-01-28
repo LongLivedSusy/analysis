@@ -352,8 +352,10 @@ for ientry in range(10):
     jets = []
     nb = 0
     ht = 0
-    pMC = 1
-    pData = 1
+    pMC = 1.0
+    pData = 1.0
+    pData_up = 1.0
+    pData_down = 1.0
     for ijet, jet in enumerate(c.Jets): #need dphi w.r.t. the modified mht
 	#print ientry, 'th event, ', ijet,'th jet'
         if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
