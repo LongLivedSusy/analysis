@@ -5,7 +5,7 @@ import sys, os
 
 commands = []
 
-path_sig = '/u/user/sangilpark/WorkDir/DisappearingTracks/TreeMaker/CMSSW_8_0_30/src/TreeMaker/Production/test/TREE/'
+path_sig = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/'
 
 SigPoints = [
 "'pMSSM12_MCMC1_4_252033_step4_TREEMAKER*_RA2AnalysisTree.root'", 

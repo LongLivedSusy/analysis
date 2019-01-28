@@ -190,6 +190,8 @@ var_SearchBin = np.zeros(1,dtype=int)
 var_SumTagPtOverMht = np.zeros(1,dtype=float)
 var_CrossSection = np.zeros(1,dtype=float)
 var_weight_btag = np.zeros(1,dtype=float)
+var_weight_btag_up = np.zeros(1,dtype=float)
+var_weight_btag_down = np.zeros(1,dtype=float)
 if isPrivateSignal: var_weight = np.zeros(1,dtype=float)
 
 #####################################################
@@ -231,6 +233,8 @@ tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
 tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
 tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
 tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
+tEvent.Branch('weight_btag_up', var_weight_btag_up,'weight_btag_up/D')
+tEvent.Branch('weight_btag_down', var_weight_btag_down,'weight_btag_down/D')
 
 if isPrivateSignal: tEvent.Branch('weight', var_weight,'weight/D')
 
@@ -294,10 +298,10 @@ if phase==0:
 else:
     pixelXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
     LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'    
-#readerShort = TMVA.Reader()
-#readerLong = TMVA.Reader()
-#prepareReaderShort(readerShort, pixelXml)
-#prepareReaderLong(readerLong, LongXml)
+readerShort = TMVA.Reader()
+readerLong = TMVA.Reader()
+prepareReaderShort(readerShort, pixelXml)
+prepareReaderLong(readerLong, LongXml)
 
 fMask = TFile('../usefulthings/Masks.root')
 if 'Run2016' in fnamekeyword: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
@@ -404,11 +408,17 @@ for ientry in range(10):
 	    if c.Jets_bDiscriminatorCSV[ijet]>csv_b :
 		pMC *= eff
 		pData *= eff*sf
+		pData_up *= eff*sf_up
+		pData_down *= eff*sf_down
 	    else :
 		pMC *= 1 - eff
 		pData *= 1 - eff*sf
+		pData_up *= 1 - eff*sf_up
+		pData_down *= 1 - eff*sf_down
 
     btagweight = pData/pMC
+    btagweight_up = pData_up/pMC
+    btagweight_down = pData_down/pMC
     #print 'btagweight : ', btagweight
  
 
@@ -446,8 +456,8 @@ for ientry in range(10):
             if abs(abs(track.Eta()) < 1.566) and abs(track.Eta()) > 1.4442: continue
             if not (track.Pt()>lepPtCut and track.Pt()<9999): continue
             if not isBaselineTrack(track, itrack, c, hMask): continue
-            #mva_ = isDisappearingTrack_(track, itrack, c, readerShort, readerLong)
-            mva_ = 1
+            mva_ = isDisappearingTrack_(track, itrack, c, readerShort, readerLong)
+            #mva_ = 1
             if mva_==0: continue
             passeslep = True
             drlep = 99
@@ -567,6 +577,8 @@ for ientry in range(10):
 
     var_CrossSection[0] = c.CrossSection
     var_weight_btag[0] = btagweight
+    var_weight_btag_up[0] = btagweight_up
+    var_weight_btag_down[0] = btagweight_down
     tEvent.Fill()
 
 

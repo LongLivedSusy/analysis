@@ -9,7 +9,8 @@ ROOT.gROOT.ProcessLine('.L BTagCalibrationStandalone.cpp+')
 
 # get the sf data loaded
 #calib = ROOT.BTagCalibration('csvv1', 'CSVV1.csv')
-calib = ROOT.BTagCalibration('csvv2', 'CSVv2_Moriond17_B_H.csv')
+#calib = ROOT.BTagCalibration('csvv2', 'CSVv2_Moriond17_B_H.csv')
+calib = ROOT.BTagCalibration('DeepCSV', 'DeepCSV_Moriond17_B_H.csv')
 
 # making a std::vector<std::string>> in python is a bit awkward, 
 # but works with root (needed to load other sys types):
@@ -34,16 +35,19 @@ reader.load(
 
 
 
-f = ROOT.TFile("../../samples/Summer16.TTJets_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_53_RA2AnalysisTree.root","READ")
+f = ROOT.TFile("/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_52_RA2AnalysisTree.root","READ")
 t = f.Get("TreeMaker2/PreSelection")
 nentries = t.GetEntries()
 print nentries
 
 # for data 2016 and 80X MC
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80XReReco
-csv_b_looseWP = 0.5426
-csv_b_mediumWP = 0.8484
-csv_b_tightWP = 0.9535
+#csv_b_looseWP = 0.5426
+#csv_b_mediumWP = 0.8484
+#csv_b_tightWP = 0.9535
+deepcsv_b_looseWP = 0.2219
+deepcsv_b_mediumWP = 0.6324
+deepcsv_b_tightWP = 0.8958
 
 #for ientry in nentries :
 for ientry in range(10) :
@@ -53,7 +57,7 @@ for ientry in range(10) :
     weight_up = 1
     weight_down = 1
     for ijet, jet in enumerate(t.Jets) :
-	if t.Jets_bDiscriminatorCSV[ijet] < csv_b_looseWP : continue
+	if t.Jets_bDiscriminatorCSV[ijet] < deepcsv_b_mediumWP : continue
 	if 20 < jet.Pt() < 1000. :
 	    sf = reader.eval_auto_bounds(
 	        'central',      # systematic (here also 'up'/'down' possible)
