@@ -212,7 +212,7 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
    
 if __name__ == "__main__":
 
-    config = "../cfg/samples_cmssw8_all.cfg"
+    config = "../../cfg/samples_cmssw8_all.cfg"
     path = "output_bgcomposition/"
 
     output_folder = "plots_bgcomposition_masked/"

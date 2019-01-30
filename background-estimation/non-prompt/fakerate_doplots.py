@@ -420,7 +420,7 @@ if __name__ == "__main__":
     if create_stacked_plots:
 
         # use treeplotter to create a stacked plot of the invariant mass and number of DT:
-        config = "../cfg/samples_cmssw8_all.cfg"
+        config = "../../cfg/samples_cmssw8_all.cfg"
 
         # z mass:
         plot_config = {"dilepton_invmass": {"binw": 2, "xmin": 75, "xmax": 120, "ymin": 1e5, "xlabel": "m_{ll} (GeV)", "ylabel": "events", "logx": False, "logy": True} }
