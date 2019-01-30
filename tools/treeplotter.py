@@ -85,6 +85,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
             histo = False
 
         # get number of entries:
+        xsec = 0
         nev = 0
         for tree_file in tree_files:
             fin = TFile(tree_file)
@@ -105,9 +106,14 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
             else:
                 i_nev = 0 
             nev += i_nev
+
+            if fin.Get("xsec"):
+                hnev = fin.Get("xsec")
+                xsec = hnev.GetBinContent(1)
+
             fin.Close()
     
-    return histo, nev
+    return histo, nev, xsec
 
 
 def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.0, unweighted=False, suffix="", debug=False, folder=".", root_file = False):
