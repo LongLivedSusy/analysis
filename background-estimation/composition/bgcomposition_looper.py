@@ -142,7 +142,14 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                    ("2500toInf_" in current_file_name and madHT<2500) or \
                    ("2500ToInf_" in current_file_name and madHT<2500):
                     continue
-                  
+                
+        if maskfile:
+            mask_file = TFile(maskfile, "open")
+            if "Run2016" in current_file_name:
+                mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
+            elif "Summer16" in current_file_name:
+                mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
+  
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
         mhtvec = TLorentzVector()
@@ -239,15 +246,11 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                        is_disappearing_track = True
                        tagid_bdt = 2
             
-            # check eta/phi mask:
-            masked = -1.0
-            if maskfile and is_disappearing_track:
-                mask_file = TFile(maskfile, "open")
-                if "Run2016" in current_file_name:
-                    mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
-                else:
-                    mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
+            # check eta/phi mask:           
+            if maskfile:
                 masked = mask.GetBinContent(mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
+            else:
+                masked = -1.0
      
             # contains all pdgids for the track
             pdgids_in_cone = []

@@ -7,72 +7,7 @@ import tmva_tools
 import os
 import numpy as np
 
-def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track, n_jets_cleaned = False, MHT_cleaned = False, MinDeltaPhiMhtJets_cleaned = False, n_btags_cleaned = False):
-  
-    if n_jets_cleaned and MHT_cleaned and MinDeltaPhiMhtJets_cleaned:
-        NJets = n_jets_cleaned
-        MHT = MHT_cleaned
-        MinDeltaPhiMhtJets = MinDeltaPhiMhtJets_cleaned
-        n_btags = n_btags_cleaned
-    else:
-        NJets = len(event.Jets)
-        MHT = event.MHT
-        MinDeltaPhiMhtJets = MinDeltaPhiMhtJets
-        n_btags = event.BTags
-
-    is_tracker_track = not is_pixel_track
-
-    binnumbers = {}
-    binkey = ['Ht', 'Mht', 'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets']
-    binnumbers[((0,float("inf")),(250,400),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 1
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 2
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 3
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 4
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),        (0.5,float("inf")))] = 5
-    binnumbers[((0,float("inf")),(400,700),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 6
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 7
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 8
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 9
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 10
-    binnumbers[((0,float("inf")),(700,float("inf")),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 11
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 12
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 13
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 14
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),        (0.3,float("inf")))] = 15
-    binnumbers[((0,float("inf")),(250,400),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 16
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 17
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 18
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 19
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),        (0.5,float("inf")))] = 20
-    binnumbers[((0,float("inf")),(400,700),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 21
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 22
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 23
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 24
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 25
-    binnumbers[((0,float("inf")),(700,float("inf")),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 26
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 27
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 28
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 29
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),        (0.3,float("inf")))] = 30
-    binnumbers[((0,float("inf")),(250,400),(1,float("inf")),(0,float("inf")),(2,float("inf")),(0,float("inf")),(0,float("inf")),      (0.0,float("inf")))] = 31
-    binnumbers[((0,float("inf")),(400,float("inf")),(1,float("inf")),(0,float("inf")),(2,float("inf")),(0,float("inf")),(0,float("inf")),      (0.0,float("inf")))] = 32
-
-    region = 0
-    for binkey in binnumbers:
-        if MHT >= binkey[1][0] and MHT <= binkey[1][1] and \
-           NJets >= binkey[2][0] and NJets <= binkey[2][1] and \
-           n_btags >= binkey[3][0] and n_btags <= binkey[3][1] and \
-           n_DT >= binkey[4][0] and n_DT <= binkey[4][1] and \
-           is_pixel_track >= binkey[5][0] and is_pixel_track <= binkey[5][1] and \
-           is_tracker_track >= binkey[6][0] and is_tracker_track <= binkey[6][1] and \
-           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1]:
-            region = binnumbers[binkey]
-            break
-
-    return region
-
-
-def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, treename = "TreeMaker2/PreSelection", zmass_matching = True, maskfile = "Masks.root"):
+def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", do_dilepton_CR = True, do_singlelepton_CR = False, do_qcd_CR = True):
 
     tree = TChain(treename)
     for iFile in event_tree_filenames:
@@ -85,6 +20,8 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
     h_nev = TH1F("nev", "nev", 1, 0, 1)
     h_nev.Fill(0, nev)
     h_nev.Write()
+
+    xsec_written = False
 
     tout = TTree("Events", "tout")
  
@@ -106,20 +43,16 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                       "HT_cleaned",
                       "MinDeltaPhiMhtJets",
                       "MinDeltaPhiMhtJets_cleaned",
-                      "zmass",
+                      "dilepton_invmass",
                       "PFCaloMETRatio",
-                      "CrossSection",
+                      "singlelepton_pt",
                     ]:
-        tree_branch_values[variable] = array( 'f', [ -1000 ] )
+        tree_branch_values[variable] = array( 'f', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/F' % variable )
 
     for variable in [
-                      "signalregion",
-                      "signalregion_cleaned",
                       "n_DT",
-                      "n_DT_realfake",
-                      "n_DT_mask",
-                      "n_DT_realfake_mask",
+                      "n_DT_actualfake",
                       "n_jets",
                       "n_jets_cleaned",
                       "n_btags",
@@ -127,13 +60,13 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                       "n_leptons",
                       "n_allvertices",
                       "n_NVtx",
-                      "n_gen_particles_in_cone",
-                      "n_gen_taus_in_cone",
-                      "n_leading_tracks_in_cone",
                       "EvtNumEven",
                       "lepton_type",
+                      "dilepton_CR",
+                      "singlelepton_CR",
+                      "qcd_CR",
                     ]:
-        tree_branch_values[variable] = array( 'i', [ -1000 ] )
+        tree_branch_values[variable] = array( 'i', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
         
     # BDT configuration:
@@ -146,7 +79,6 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
 
     for i_category, category in enumerate(["pixelonly", "pixelstrips"]):
 
-        #bdt_bestcut = tmva_tools.get_get_bdt_cut_value(bdt_folders[i_category] + '/output.root')["best_cut_value"]
         bdt_infos = tmva_tools.get_tmva_info(bdt_folders[i_category])
 
         if category == "pixelonly":
@@ -158,15 +90,27 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
             preselection_pixelstrips = bdt_infos["preselection"]
             bdt_cut_pixelstrips = 0.25
 
+    # load mask file:
+    mask_file = False
+    previous_file_name = ""
+
     # some loop variables:
     nevents_total = 0
     nevents_tagged = 0
-    nevents_tagged_realfake = 0
+    nevents_tagged_actualfake = 0
 
     # loop over events
-    # ****************
-
     for iEv, event in enumerate(tree):
+
+        if not xsec_written:
+            if tree.GetBranch("CrossSection"):
+                xsec = event.CrossSection
+            else:
+                xsec = -1
+            h_xsec = TH1F("xsec", "xsec", 1, 0, 1)
+            h_xsec.Fill(0, xsec)
+            h_xsec.Write()
+            xsec_written = True
 
         if nevents > 0 and iEv > nevents:
             break
@@ -196,77 +140,113 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                ("2500toInf_" in current_file_name and madHT<2500) or \
                ("2500ToInf_" in current_file_name and madHT<2500):
                 continue
-                    
-        # reset all branch values
+                   
+        # reset all branch values:
         for label in tree_branch_values:
-            tree_branch_values[label][0] = -1000
+            tree_branch_values[label][0] = -1
 
-        if zmass_matching:
-            # only two oppositely charged leptons matched to Z mass:
-            min_lepton_pt = 30.0        
-            invariant_mass = 0
-            
-            if (len(event.Electrons) == 2 and len(event.Muons) == 0):
-                if (event.Electrons[0].Pt() > min_lepton_pt):
-                    if (bool(event.Electrons_mediumID[0]) and bool(event.Electrons_mediumID[1])):
-                        if (event.Electrons_charge[0] * event.Electrons_charge[1] < 0):
-                            if (bool(event.Electrons_passIso[0]) * bool(event.Electrons_passIso[1]) == 1):
+        # set selection flags (veto event later if it does not fit into any selection):
+        dilepton_CR = False
+        singlelepton_CR = False
+        qcd_CR = False
+
+        # dilepton control region: do zmass matching
+        if do_dilepton_CR:
+            if "Run" not in current_file_name or "SingleElectron" in current_file_name or "SingleMuon" in current_file_name:
+                min_lepton_pt = 30.0
+                invariant_mass = 0
+                if (len(event.Electrons) == 2 and len(event.Muons) == 0):
+                    if (event.Electrons[0].Pt() > min_lepton_pt):
+                        if bool(event.Electrons_mediumID[0]) and bool(event.Electrons_mediumID[1]):
+                            if (event.Electrons_charge[0] * event.Electrons_charge[1] < 0):
                                 invariant_mass = (event.Electrons[0] + event.Electrons[1]).M()
                                 if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                                    tree_branch_values["zmass"][0] = invariant_mass
-                                    tree_branch_values["lepton_type"][0] = 11
-            
-            elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
-                if (event.Muons[0].Pt() > min_lepton_pt):
-                    if (bool(event.Muons_tightID[0]) and bool(event.Muons_tightID[1])):
-                        if (event.Muons_charge[0] * event.Muons_charge[1] < 0):
-                            if (bool(event.Muons_passIso[0]) * bool(event.Muons_passIso[1]) == 1):
+                                    if bool(event.Electrons_passIso[0]) and bool(event.Electrons_passIso[1]):
+                                        tree_branch_values["dilepton_invmass"][0] = invariant_mass
+                                        tree_branch_values["lepton_type"][0] = 11
+                                        tree_branch_values["dilepton_CR"][0] = 1
+                                        dilepton_CR = True       
+                elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
+                    if (event.Muons[0].Pt() > min_lepton_pt):
+                        if (bool(event.Muons_tightID[0]) and bool(event.Muons_tightID[1])):
+                            if (event.Muons_charge[0] * event.Muons_charge[1] < 0):
                                 invariant_mass = (event.Muons[0] + event.Muons[1]).M()            
                                 if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                                    tree_branch_values["zmass"][0] = invariant_mass
-                                    tree_branch_values["lepton_type"][0] = 13
+                                    if bool(event.Muons_passIso[0]) and bool(event.Muons_passIso[1]):
+                                        tree_branch_values["dilepton_invmass"][0] = invariant_mass
+                                        tree_branch_values["lepton_type"][0] = 13
+                                        tree_branch_values["dilepton_CR"][0] = 1
+                                        dilepton_CR = True
 
-            # veto events with incompatible Z mass
-            if tree_branch_values["zmass"][0] < 0:
-                continue
-                
-        # clean event (recalculate HT, MHT, n_Jets without the two leptons):
-        csv_b = 0.8838
-        metvec = TLorentzVector()
-        metvec.SetPtEtaPhiE(event.MET, 0, event.METPhi, event.MET)
-        mhtvec = TLorentzVector()
-        mhtvec.SetPtEtaPhiE(0, 0, 0, 0)
-        jets = []
-        nb = 0
-        HT_cleaned = 0
-        
-        for ijet, jet in enumerate(event.Jets):
-            
-            if not (abs(jet.Eta()) < 5 and jet.Pt() > 30): continue
-            
-            # check if lepton is in jet, and veto jet if that is the case
-            lepton_is_in_jet = False
-            for leptons in [event.Electrons, event.Muons]:
-                for lepton in leptons:
-                    if jet.DeltaR(lepton) < 0.05:
-                        lepton_is_in_jet = True
-            if lepton_is_in_jet: continue
-            
-            mhtvec-=jet
-            jets.append(jet)
-            HT_cleaned+=jet.Pt()        
-            if event.Jets_bDiscriminatorCSV[ijet] > csv_b: nb+=1
-            
-        n_btags_cleaned = nb        
-        n_jets_cleaned = len(jets)
-        MHT_cleaned = mhtvec.Pt()
+        if do_singlelepton_CR:
+            if "Run" not in current_file_name or "SingleElectron" in current_file_name or "SingleMuon" in current_file_name:
+                min_lepton_pt = 30.0
+                if (len(event.Electrons) == 1 and len(event.Muons) == 0):
+                    if (event.Electrons[0].Pt() > min_lepton_pt) and bool(event.Electrons_mediumID[0]) and bool(event.Electrons_passIso[0]):
+                        tree_branch_values["singlelepton_pt"][0] = event.Electrons[0].Pt()
+                        tree_branch_values["lepton_type"][0] = 11
+                        tree_branch_values["singlelepton_CR"][0] = 1
+                        singlelepton_CR = True
+                elif (len(event.Muons) == 1 and len(event.Electrons) == 0):
+                    if (event.Muons[0].Pt() > min_lepton_pt) and bool(event.Muons_tightID[0]) and bool(event.Muons_passIso[0]):
+                        tree_branch_values["singlelepton_pt"][0] = event.Muons[0].Pt()
+                        tree_branch_values["lepton_type"][0] = 13
+                        tree_branch_values["singlelepton_CR"][0] = 1
+                        singlelepton_CR = True
 
-        MinDeltaPhiMhtJets_cleaned = 9999   
-        for jet in jets: 
-            if abs(jet.DeltaPhi(mhtvec)) < MinDeltaPhiMhtJets_cleaned:
-                MinDeltaPhiMhtJets_cleaned = abs(jet.DeltaPhi(mhtvec))
+        # check if low-MHT, QCD-only samples:
+        if do_qcd_CR and ("QCD" in current_file_name or "JetHT" in current_file_name):
+            if event.MHT < 200:
+                tree_branch_values["qcd_CR"][0] = 1
+                qcd_CR = True
+
+        # CHECK: event selection
+        if not dilepton_CR and not qcd_CR:
+            continue
                 
-       
+        # for the dilepton CR, clean event (recalculate HT, MHT, n_Jets without the two leptons):
+        if dilepton_CR:
+            csv_b = 0.8838
+            metvec = TLorentzVector()
+            metvec.SetPtEtaPhiE(event.MET, 0, event.METPhi, event.MET)
+            mhtvec = TLorentzVector()
+            mhtvec.SetPtEtaPhiE(0, 0, 0, 0)
+            jets = []
+            nb = 0
+            HT_cleaned = 0
+            
+            for ijet, jet in enumerate(event.Jets):
+                
+                if not (abs(jet.Eta()) < 5 and jet.Pt() > 30): continue
+                
+                # check if lepton is in jet, and veto jet if that is the case
+                lepton_is_in_jet = False
+                for leptons in [event.Electrons, event.Muons]:
+                    for lepton in leptons:
+                        if jet.DeltaR(lepton) < 0.05:
+                            lepton_is_in_jet = True
+                if lepton_is_in_jet: continue
+                
+                mhtvec-=jet
+                jets.append(jet)
+                HT_cleaned+=jet.Pt()        
+                if event.Jets_bDiscriminatorCSV[ijet] > csv_b: nb+=1
+                
+            n_btags_cleaned = nb        
+            n_jets_cleaned = len(jets)
+            MHT_cleaned = mhtvec.Pt()
+
+            MinDeltaPhiMhtJets_cleaned = 9999   
+            for jet in jets: 
+                if abs(jet.DeltaPhi(mhtvec)) < MinDeltaPhiMhtJets_cleaned:
+                    MinDeltaPhiMhtJets_cleaned = abs(jet.DeltaPhi(mhtvec))
+
+            tree_branch_values["n_btags_cleaned"][0] = n_btags_cleaned
+            tree_branch_values["n_jets_cleaned"][0] = n_jets_cleaned
+            tree_branch_values["MHT_cleaned"][0] = MHT_cleaned
+            tree_branch_values["HT_cleaned"][0] = HT_cleaned
+            tree_branch_values["MinDeltaPhiMhtJets_cleaned"][0] = MinDeltaPhiMhtJets_cleaned
+
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
         mhtvec = TLorentzVector()
@@ -281,27 +261,28 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
             if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets:
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
      
+        # load mask file:
+        if maskfile:
+            if "Run2016" in current_file_name:
+                if current_file_name != previous_file_name:
+                    mask_file = TFile(maskfile, "open")
+                mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
+            elif "Summer16" in current_file_name:
+                if current_file_name != previous_file_name:
+                    mask_file = TFile(maskfile, "open")
+                mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
+            previous_file_name = current_file_name
+
+        # loop over tracks (tracks):
         nevents_total += 1
         n_DT = 0
-        n_DT_realfake = 0
-        n_DT_mask = 0
-        n_DT_realfake_mask = 0
-
-        gen_track_cone_pdgid = -1000
-        gen_track_cone_taucorrected = -1000
-        n_gen_particles_in_cone = 0
-
-        n_gen_taus_in_cone = 0
-        n_leading_tracks_in_cone = 0
-
-        # loop over tracks (tracks)
+        n_DT_actualfake = 0
         for i_iCand, iCand in enumerate(xrange(len(event.tracks))):
 
             # set up booleans
             is_pixel_track = False
             is_tracker_track = False
             genparticle_in_track_cone = False
-            tau_leadtrk_in_track_cone = False
             is_disappearing_track = False
             is_a_PF_lepton = False
 
@@ -379,102 +360,64 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                         # we only need genparticles with status 1:
                         if event.GenParticles_Status[k] != 1:
                             continue
-
-                        gen_track_cone_pdgid = event.GenParticles_PdgId[k]
-                        gen_track_cone_taucorrected = -1000
-
+                            
                         # ignore certain non-charged genparticles (neutrinos, gluons and photons):
+                        gen_track_cone_pdgid = event.GenParticles_PdgId[k]
                         if abs(gen_track_cone_pdgid) == 12 or abs(gen_track_cone_pdgid) == 14 or abs(gen_track_cone_pdgid) == 16 or abs(gen_track_cone_pdgid) == 21 or abs(gen_track_cone_pdgid) == 22:
                             continue
 
-                        # check if track matches with a GenTaus_LeadTrk track:
-                        if abs(gen_track_cone_pdgid) != 15:
-                            gen_track_cone_taucorrected = gen_track_cone_pdgid
-                        else:
-                            n_gen_taus_in_cone += 1
-                        
-                        if tree.GetBranch("GenTaus_LeadTrk"):
+                        # if genTau, check if the track matches with a GenTaus_LeadTrk track:
+                        if abs(gen_track_cone_pdgid) == 15 and tree.GetBranch("GenTaus_LeadTrk"):
+                            tau_leading_track = False
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
                                 if deltaR < 0.01:
                                     print "That's a tau leading track"
-                                    n_leading_tracks_in_cone += 1
-
-                                    if event.tracks_charge[iCand] > 0:
-                                        gen_track_cone_taucorrected = 15
-                                    elif event.tracks_charge[iCand] < 0:
-                                        gen_track_cone_taucorrected = -15
+                                    tau_leading_track = True
+                            
+                            if not tau_leading_track:
+                                continue
                                         
-                        if gen_track_cone_taucorrected != -1000:
-                            genparticle_in_track_cone = True
-
-                        tree_branch_values["gen_track_cone_pdgid"][n_DT * vector_length + n_gen_particles_in_cone] = gen_track_cone_pdgid
-                        tree_branch_values["gen_track_cone_taucorrected"][n_DT * vector_length + n_gen_particles_in_cone] = gen_track_cone_taucorrected
-                        n_gen_particles_in_cone += 1
+                        genparticle_in_track_cone = True
                 
             if is_disappearing_track:
 
-                n_DT += 1
-
                 # check eta/phi mask:
-                masked = -1.0
-                if maskfile:
-                    mask_file = TFile(maskfile, "open")
-                    if "Run2016" in current_file_name:
-                        mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
-                    elif "Summer16" in current_file_name:
-                        mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
-                try: 
+                if mask:
                     masked = mask.GetBinContent(mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
-                except:
-                    print "Error while reading mask, event: ", iEv
+                    if masked > 0:
+                        n_DT += 1
+                        if not genparticle_in_track_cone:
+                            n_DT_actualfake += 1
 
-                if masked > 0:
-                    n_DT_mask += 1
-
-                if not genparticle_in_track_cone:
-                    n_DT_realfake += 1
-                    if masked>0:
-                        n_DT_realfake_mask += 1
+                else:
+                    masked = -1.0
+                    n_DT += 1
+                    if not genparticle_in_track_cone:
+                        n_DT_actualfake += 1
  
         # event-level variables:
-        if tree.GetBranch("CrossSection"):
-            tree_branch_values["CrossSection"][0] = event.CrossSection
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
         tree_branch_values["n_btags"][0] = event.BTags
-        tree_branch_values["n_btags_cleaned"][0] = n_btags_cleaned
         tree_branch_values["n_DT"][0] = n_DT
-        tree_branch_values["n_DT_realfake"][0] = n_DT_realfake
-        tree_branch_values["n_DT_mask"][0] = n_DT_mask
-        tree_branch_values["n_DT_realfake_mask"][0] = n_DT_mask
+        tree_branch_values["n_DT_actualfake"][0] = n_DT_actualfake
         tree_branch_values["n_jets"][0] = len(event.Jets)
-        tree_branch_values["n_jets_cleaned"][0] = n_jets_cleaned
         tree_branch_values["n_allvertices"][0] = event.nAllVertices
         tree_branch_values["PFCaloMETRatio"][0] = event.PFCaloMETRatio
         tree_branch_values["MET"][0] = event.MET
         tree_branch_values["MHT"][0] = event.MHT
-        tree_branch_values["MHT_cleaned"][0] = MHT_cleaned
         tree_branch_values["HT"][0] = event.HT
-        tree_branch_values["HT_cleaned"][0] = HT_cleaned
         tree_branch_values["MinDeltaPhiMhtJets"][0] = MinDeltaPhiMhtJets
-        tree_branch_values["MinDeltaPhiMhtJets_cleaned"][0] = MinDeltaPhiMhtJets_cleaned
         tree_branch_values["n_NVtx"][0] = event.NVtx
         
         if event.EvtNum % 2 == 0:
             tree_branch_values["EvtNumEven"][0] = 1
         else:
             tree_branch_values["EvtNumEven"][0] = 0
-
-        tree_branch_values["n_gen_particles_in_cone"][0] = n_gen_particles_in_cone
-        tree_branch_values["n_gen_taus_in_cone"][0] = n_gen_taus_in_cone
-        tree_branch_values["n_leading_tracks_in_cone"][0] = n_leading_tracks_in_cone
-   
-        # get signal region bin for event:
-        tree_branch_values["signalregion"][0] = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track)
-        tree_branch_values["signalregion_cleaned"][0] = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track, n_jets_cleaned=n_jets_cleaned, MHT_cleaned=MHT_cleaned, MinDeltaPhiMhtJets_cleaned=MinDeltaPhiMhtJets_cleaned, n_btags_cleaned=n_btags_cleaned)
-   
+     
         tout.Fill()
-        
+     
+    fout.cd()
     fout.Write()
     fout.Close()
 
@@ -491,10 +434,5 @@ if __name__ == "__main__":
     else:
         nev = -1
 
-    if len(args)>3:
-        zmass_matching = int(args[3])
-    else:
-        zmass_matching = True
-
-    loop(iFile, out_tree, ["../cutoptimization/tmva/newpresel3-200-4-short", "../cutoptimization/tmva/newpresel2-200-4-medium"], nevents=nev, zmass_matching = zmass_matching )
+    loop(iFile, out_tree, ["../cutoptimization/tmva/newpresel3-200-4-short", "../cutoptimization/tmva/newpresel2-200-4-medium"], nevents=nev)
 

@@ -215,9 +215,6 @@ if __name__ == "__main__":
     config = "../cfg/samples_cmssw8_all.cfg"
     path = "output_bgcomposition/"
 
-    #output_folder = "plots_bgcomposition/"
-    #require_mask = False
-
     output_folder = "plots_bgcomposition_masked/"
     require_mask = True
     
