@@ -142,7 +142,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
     tmva_variables = {}
 
-    bdt_folders = ["../cutoptimization/tmva/newpresel3-200-4-short", "../cutoptimization/tmva/newpresel2-200-4-medium"]
+    bdt_folders = ["../../disappearing-track-tag/short-tracks", "../../disappearing-track-tag/long-tracks"]
     for i_category, category in enumerate(["pixelonly", "pixelstrips"]):
 
         bdt_infos = tmva_tools.get_tmva_info(bdt_folders[i_category])

@@ -434,5 +434,5 @@ if __name__ == "__main__":
     else:
         nev = -1
 
-    loop(iFile, out_tree, ["../cutoptimization/tmva/newpresel3-200-4-short", "../cutoptimization/tmva/newpresel2-200-4-medium"], nevents=nev)
+    loop(iFile, out_tree, ["../../disappearing-track-tag/short-tracks", "../../disappearing-track-tag/long-tracks"], nevents=nev)
 
