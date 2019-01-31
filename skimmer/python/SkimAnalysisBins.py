@@ -318,7 +318,7 @@ nentries = min(9999999,c.GetEntries())
 print 'will analyze', nentries
 
 if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
-verbosity = 10000
+verbosity = 100
 
 #for ientry in range(nentries):
 for ientry in range(10):
@@ -336,7 +336,7 @@ for ientry in range(10):
     if not passesUniversalSelection(c): continue
     
     if 'TTJets_TuneCUET' in filenamelist[0]:
-     if not c.madHT<600: continue
+	if not c.madHT<600: continue
     if 'TTJets_HT' in filenamelist[0]:
         if not c.madHT>600: continue  
     if 'WJetsToLNu_TuneCUET' in filenamelist[0]:
@@ -352,6 +352,7 @@ for ientry in range(10):
     jets = []
     nb = 0
     ht = 0
+    nSigma = 1.0
     pMC = 1.0
     pData = 1.0
     pData_up = 1.0
@@ -406,23 +407,31 @@ for ientry in range(10):
                 jet.Eta(),      # absolute value of eta
                 jet.Pt()        # pt
             )
+	    print '%s th event %sth jet btag sf:%s, up:%s, down:%s'%(ientry, ijet, sf,sf_up,sf_down)
 	    
+	    # systematics for up, down sf
+	    sf_systup = sf	# set initial sf as nominal sf
+	    sf_systdown = sf	# set initial sf as nominal sf
+	    dsf_up = sf_up - sf
+	    dsf_down = sf - sf_down
+	    sf_systup += nSigma*dsf_up
+	    sf_systdown -= nSigma*dsf_down
+
 	    if c.Jets_bDiscriminatorCSV[ijet]>csv_b :
 		pMC *= eff
 		pData *= eff*sf
-		pData_up *= eff*sf_up
-		pData_down *= eff*sf_down
+		pData_up *= eff*sf_systup
+		pData_down *= eff*sf_systdown
 	    else :
 		pMC *= 1 - eff
 		pData *= 1 - eff*sf
-		pData_up *= 1 - eff*sf_up
-		pData_down *= 1 - eff*sf_down
+		pData_up *= 1 - eff*sf_systup
+		pData_down *= 1 - eff*sf_systdown
 
     btagweight = pData/pMC
     btagweight_up = pData_up/pMC
     btagweight_down = pData_down/pMC
-    #print 'btagweight : ', btagweight
- 
+    print 'btagweight :%s, up:%s, down:%s ' %(btagweight,btagweight_up,btagweight_down) 
 
     var_NJets[0] = len(jets)
     var_Mht[0] = mhtvec.Pt()
