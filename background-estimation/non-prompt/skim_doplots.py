@@ -37,9 +37,11 @@ def stamp_plot():
     tl.SetTextSize(1.0/0.81*tl.GetTextSize())
 
 
-def control_plot(rootfile = "skimplots.root"):
+def control_plot(input_file, label, rootfile, is_data = False, lumi = 132.0):
     
-    fin = TFile("output_skim2/merged_bg.root", "READ")
+    print "Doing control plot"
+
+    fin = TFile(input_file, "READ")
     colors = [kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kOrange]
 
     histos = {}
@@ -47,10 +49,12 @@ def control_plot(rootfile = "skimplots.root"):
         histos[label] = fin.Get(label)
         histos[label].SetLineWidth(2)
         histos[label].SetLineColor(colors.pop(0))
+        # scale all histos to given lumi:
+        if not is_data: histos[label].Scale(lumi)
 
     fout = TFile(rootfile, "update")
 
-    canvas = TCanvas("regions", "regions", 800, 800)  
+    canvas = TCanvas("%s_regions" % label, "%s_regions" % label, 800, 800)  
     canvas.SetRightMargin(0.06)
     canvas.SetLeftMargin(0.12)
     canvas.SetLogy(True)
@@ -74,15 +78,16 @@ def control_plot(rootfile = "skimplots.root"):
     histos["h_region_noDT"].SetLineWidth(0)
     histos["h_region_noDT"].SetFillColor(1)
 
-    histos["h_region_prompt"].Draw("same")
-    histos["h_region_actualfakes"].Draw("same")
+    histos["h_region_prompt"].Draw("same hist")
+    histos["h_region_actualfakes"].Draw("same hist")
 
-    histos["h_region_noDT_xFR_dilepton"].Draw("same p")
-    histos["h_region_noDT_xFR_qcd"].Draw("same p")
+    histos["h_region_noDT_xFR_dilepton"].Draw("same")
+    histos["h_region_noDT_xFR_qcd"].Draw("same")
 
     legend = TLegend(0.4, 0.75, 0.89, 0.89)
     legend.SetTextSize(0.025)
-    legend.AddEntry(histos["h_region"], "signal region (SR)")
+    if not is_data:
+        legend.AddEntry(histos["h_region"], "signal region (SR)")
     legend.AddEntry(histos["h_region_prompt"], "prompt background in SR (MC Truth)")
     legend.AddEntry(histos["h_region_actualfakes"], "non-prompt background in SR (MC Truth)")
     legend.AddEntry(histos["h_region_noDT"], "control region (CR)")
@@ -100,7 +105,7 @@ def control_plot(rootfile = "skimplots.root"):
     latex.SetTextFont(62)
     latex.SetTextAlign(31)
     latex.SetTextSize(0.03)
-    latex.DrawLatex(0.93, 0.91, "1 fb^{-1} (13 TeV)")
+    latex.DrawLatex(0.93, 0.91, "%s fb^{-1} (13 TeV)" % lumi)
 
     # ratio plot
     pad2.cd()
@@ -120,15 +125,20 @@ def control_plot(rootfile = "skimplots.root"):
     ratio.GetYaxis().SetLabelSize(0.15)
 
     canvas.Write()
+    canvas.SaveAs("plots/nonprompt_control_%s.pdf" % label)
 
     fout.Close()
     fin.Close()
 
 
+# folder containing skim output
+folder = "output_skim3"
+
 # set to True to do an hadd:
 if False:
-    os.system("hadd -f output_skim/merged_bg.root output_skim/Summer16*root")
+    os.system("hadd -f %s/merged_bg.root %s/Summer16*root" % (folder, folder))
     for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-        os.system("hadd -f output_skim/merged_%s.root output_skim/Run%s*root" % (period, period))
+        os.system("hadd -f %s/merged_%s.root %s/Run%s*root" % (folder, period, folder, period))
 
-control_plot()
+control_plot("%s/merged_bg.root" % folder, "bg", "skimplots.root")
+

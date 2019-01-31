@@ -4,8 +4,8 @@ import multiprocessing
 from GridEngineTools import runParallel
 
 runmode = "grid"
-output_folder = "output_skim3"
-files_per_job = 3
+output_folder = "output_skim6"
+files_per_job = 5
 files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
@@ -88,5 +88,5 @@ create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Producti
 
 raw_input("submit %s jobs?" % len(commands))
 os.system("cp skim_looper.py %s/" % output_folder)
-runParallel(commands, runmode, dontCheckOnJobs=True, burst_mode=False)
+runParallel(commands, runmode, dontCheckOnJobs=True)
 

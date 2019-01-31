@@ -197,6 +197,7 @@ def create_2D_plots(path = "output/", variables = "HT_cleaned:n_allvertices", nB
     fake_rate.SetName("%s_fake_rate_%s" % (foldername, label))
     fake_rate.SetTitle(";number of vertices; H_{T} (GeV); fake rate")
     fake_rate.GetZaxis().SetTitleOffset(1.5)
+    fake_rate.GetZaxis().SetRangeUser(1e-6, 1e-1)
     fake_rate.SetName("%s_fake_rate_%s" % (foldername, label))
     fake_rate.Write()
   
@@ -219,6 +220,7 @@ def create_2D_plots(path = "output/", variables = "HT_cleaned:n_allvertices", nB
     latex.DrawLatex(0.18, 0.87, extra_text)
     stamp_plot()
     canvas.Write("%s_canvas_%s_%s" % (foldername, label, variables.replace(":", "-")))
+    canvas.SaveAs("plots/fakerate_%s_%s_%s.pdf" % (foldername, label, variables.replace(":", "-")))
 
     fout.Close()
 
@@ -397,7 +399,7 @@ if __name__ == "__main__":
     
     path = "output_fakerate/"
     base_cuts = "PFCaloMETRatio<5"
-    rootfile = "fakerate.root"
+    rootfile = "fakerate-updated.root"
 
     create_fakerate_maps_dilepton = 1
     create_fakerate_maps_qcd = 1
@@ -429,12 +431,12 @@ if __name__ == "__main__":
 
         # z mass:
         plot_config = {"dilepton_invmass": {"binw": 2, "xmin": 75, "xmax": 120, "ymin": 1e5, "xlabel": "m_{ll} (GeV)", "ylabel": "events", "logx": False, "logy": True} }
-        treeplotter.loop_over_files(path, config, plot_config, tree_folder_name="Events", cutstring = base_cuts + " && dilepton_CR==1 && lepton_type==11", suffix="_ee", ignore_samples="Run201", folder = output_folder)
-        treeplotter.loop_over_files(path, config, plot_config, tree_folder_name="Events", cutstring = base_cuts + " && dilepton_CR==1 && lepton_type==13", suffix="_mumu", ignore_samples="Run201", folder = output_folder)
+        treeplotter.loop_over_files(path, config, plot_config, tree_folder_name="Events", cutstring = base_cuts + " && dilepton_CR==1 && lepton_type==11", suffix="_ee", ignore_samples="Run201", folder = "plots")
+        treeplotter.loop_over_files(path, config, plot_config, tree_folder_name="Events", cutstring = base_cuts + " && dilepton_CR==1 && lepton_type==13", suffix="_mumu", ignore_samples="Run201", folder = "plots")
 
         # number of DT:
         plot_config = {"n_DT": {"binw": 1, "xmin": 0, "xmax": 3, "xlabel": "number of DT", "ylabel": "events", "logx": False, "logy": True} }
-        treeplotter.loop_over_files(path, config, plot_config, tree_folder_name="Events", cutstring = base_cuts + " && dilepton_CR==1", suffix="", ignore_samples="Run201", folder = output_folder)
+        treeplotter.loop_over_files(path, config, plot_config, tree_folder_name="Events", cutstring = base_cuts + " && dilepton_CR==1", suffix="", ignore_samples="Run201", folder = "plots")
 
 
 

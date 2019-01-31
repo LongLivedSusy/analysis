@@ -5,6 +5,10 @@ from array import array
 from optparse import OptionParser
 import tmva_tools
 import numpy as np
+import collections
+
+gStyle.SetOptStat(0)
+TH1D.SetDefaultSumw2()
 
 def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track, ignoreDT = False):
   
@@ -13,8 +17,8 @@ def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track, ignoreDT 
     n_btags = event.BTags
     is_tracker_track = not is_pixel_track
 
-    binnumbers = {}
-    binkey =  [ 'Ht',             'Mht',                'NJets',            'BTags',            'NTags',            'NPix',             'NPixStrips',       'MinDPhiMhtJets' ]
+    binnumbers = collections.OrderedDict()
+    #           'Ht',             'Mht',                'NJets',            'BTags',            'NTags',            'NPix',             'NPixStrips',       'MinDPhiMhtJets'
     binnumbers[((0,float("inf")), (250,400),            (1,1),              (0,float("inf")),   (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 1
     binnumbers[((0,float("inf")), (250,400),            (2,5),              (0,0),              (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 2
     binnumbers[((0,float("inf")), (250,400),            (2,5),              (1,5),              (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 3
@@ -79,14 +83,16 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     xsec_written = False
 
     # prepare histograms:
-    h_region                    = TH1F("h_region", "h_region", 40, 0, 40)
-    h_region_prompt             = TH1F("h_region_prompt", "h_region_prompt", 40, 0, 40)
-    h_region_actualfakes        = TH1F("h_region_actualfakes", "h_region_actualfakes", 40, 0, 40)
-    h_region_xFR_dilepton       = TH1F("h_region_xFR_dilepton", "h_region_xFR_dilepton", 40, 0, 40)
-    h_region_xFR_qcd            = TH1F("h_region_xFR_qcd", "h_region_xFR_qcd", 40, 0, 40)
-    h_region_noDT               = TH1F("h_region_noDT", "h_region_noDT", 40, 0, 40)
-    h_region_noDT_xFR_dilepton  = TH1F("h_region_noDT_xFR_dilepton", "h_region_noDT_xFR_dilepton", 40, 0, 40)
-    h_region_noDT_xFR_qcd       = TH1F("h_region_noDT_xFR_qcd", "h_region_noDT_xFR_qcd", 40, 0, 40)
+    histos = collections.OrderedDict()
+    for lepton_region in ["", "zeroleptons_", "onelepton_"]:
+        histos["h_" + lepton_region + "region"]                    = TH1F("h_" + lepton_region + "region", "h_" + lepton_region + "region", 40, 0, 40)
+        histos["h_" + lepton_region + "region_prompt"]             = TH1F("h_" + lepton_region + "region_prompt", "h_" + lepton_region + "region_prompt", 40, 0, 40)
+        histos["h_" + lepton_region + "region_actualfakes"]        = TH1F("h_" + lepton_region + "region_actualfakes", "h_" + lepton_region + "region_actualfakes", 40, 0, 40)
+        histos["h_" + lepton_region + "region_xFR_dilepton"]       = TH1F("h_" + lepton_region + "region_xFR_dilepton", "h_" + lepton_region + "region_xFR_dilepton", 40, 0, 40)
+        histos["h_" + lepton_region + "region_xFR_qcd"]            = TH1F("h_" + lepton_region + "region_xFR_qcd", "h_" + lepton_region + "region_xFR_qcd", 40, 0, 40)
+        histos["h_" + lepton_region + "region_noDT"]               = TH1F("h_" + lepton_region + "region_noDT", "h_" + lepton_region + "region_noDT", 40, 0, 40)
+        histos["h_" + lepton_region + "region_noDT_xFR_dilepton"]  = TH1F("h_" + lepton_region + "region_noDT_xFR_dilepton", "h_" + lepton_region + "region_noDT_xFR_dilepton", 40, 0, 40)
+        histos["h_" + lepton_region + "region_noDT_xFR_qcd"]       = TH1F("h_" + lepton_region + "region_noDT_xFR_qcd", "h_" + lepton_region + "region_noDT_xFR_qcd", 40, 0, 40)
 
     tout = TTree("Events", "tout")
  
@@ -116,7 +122,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                       "region_noDT",
                       "region_noDT_xFR_dilepton",
                       "region_noDT_xFR_qcd",
-
+                      "weight",
                     ]:
         tree_branch_values[variable] = array( 'f', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/F' % variable )
@@ -274,14 +280,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
         for i_iCand, iCand in enumerate(xrange(len(event.tracks))):
 
-            # set up booleans
-            is_pixel_track = False
-            is_tracker_track = False
-            genparticle_in_track_cone = False
-            is_disappearing_track = False
-            is_a_PF_lepton = False
-
             # re-check PF lepton veto:
+            is_a_PF_lepton = False
             for k in range(len(event.Muons)):
                 deltaR = event.tracks[iCand].DeltaR(event.Muons[k])
                 if deltaR < 0.01:
@@ -300,6 +300,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
 
             # check for category:
+            is_pixel_track = False
+            is_tracker_track = False
             if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = True
             if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
@@ -339,6 +341,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             tmva_variables["nMissingOuterHits"][0] = event.tracks_nMissingOuterHits[iCand]
             tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
 
+            is_disappearing_track = False
             if is_pixel_track:
                 mva = readerPixelOnly.EvaluateMVA("BDT")
                 if mva > bdt_cut_pixelonly:
@@ -348,37 +351,26 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 if mva > bdt_cut_pixelstrips:
                     is_disappearing_track = True
 
-            # check if "real" fake (no genparticle around track):            
+            # check if actual fake track (no genparticle in cone around track):
+            charged_genparticle_in_track_cone = False
             if is_disappearing_track and tree.GetBranch("GenParticles"):
                 for k in range(len(event.GenParticles)):
 
                     deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
-                    if deltaR < 0.01:
-
-                        # we only need genparticles with status 1:
-                        if event.GenParticles_Status[k] != 1:
-                            continue
-                            
-                        # ignore certain non-charged genparticles (neutrinos, gluons and photons):
-                        gen_track_cone_pdgid = event.GenParticles_PdgId[k]
-                        if abs(gen_track_cone_pdgid) == 12 or abs(gen_track_cone_pdgid) == 14 or abs(gen_track_cone_pdgid) == 16 or abs(gen_track_cone_pdgid) == 21 or abs(gen_track_cone_pdgid) == 22:
-                            continue
-
-                        # if genTau, check if the track matches with a GenTaus_LeadTrk track:
-                        if abs(gen_track_cone_pdgid) == 15 and tree.GetBranch("GenTaus_LeadTrk"):
-                            tau_leading_track = False
+                    if deltaR < 0.01 and event.GenParticles_Status[k] != 1:
+                           
+                        gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
+                        if gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13:
+                            charged_genparticle_in_track_cone = True
+                            break
+                        elif gen_track_cone_pdgid == 15 and tree.GetBranch("GenTaus_LeadTrk"):
+                            # if genTau, check if the track matches with a GenTaus_LeadTrk track:
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
                                 if deltaR < 0.01:
                                     print "That's a tau leading track"
-                                    tau_leading_track = True
+                                    charged_genparticle_in_track_cone = True
                                     break
-                            
-                            if not tau_leading_track:
-                                continue
-                                        
-                        genparticle_in_track_cone = True
-                        break
                 
             if is_disappearing_track:
 
@@ -387,12 +379,12 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     masked = h_mask.GetBinContent(h_mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), h_mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
                     if masked > 0:
                         n_DT += 1
-                        if not genparticle_in_track_cone and not is_data:
+                        if not charged_genparticle_in_track_cone and not is_data:
                             n_DT_actualfake += 1
 
                 else:
                     n_DT += 1
-                    if not genparticle_in_track_cone and not is_data:
+                    if not charged_genparticle_in_track_cone and not is_data:
                         n_DT_actualfake += 1
  
         # before filling tree, check if event in signal region:
@@ -426,18 +418,41 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 fakerate_qcd = getBinContent_with_overflow(h_fakerate_qcd_bg, event.nAllVertices, event.HT)
 
             # fill histograms:
-            if n_DT > 0:
-                h_region.Fill(region, weight)
-                h_region_xFR_dilepton.Fill(region, fakerate_dilepton * weight)
-                h_region_xFR_qcd.Fill(region, fakerate_qcd * weight)
-                if n_DT == n_DT_actualfake: 
-                    h_region_actualfakes.Fill(region, weight)
-                else:
-                    h_region_prompt.Fill(region, weight)
-            else:
-                h_region_noDT.Fill(region_noDT, weight)
-                h_region_noDT_xFR_dilepton.Fill(region_noDT, fakerate_dilepton * weight)
-                h_region_noDT_xFR_qcd.Fill(region_noDT, fakerate_qcd * weight)
+                for lepton_region in ["", "zeroleptons_", "onelepton_"]:
+                    n_leptons = len(event.Electrons) + len(event.Muons)
+                    if lepton_region == "zeroleptons_" and n_leptons != 0: continue
+                    if lepton_region == "onelepton_" and n_leptons != 1: continue
+
+                    if n_DT > 0:
+                        if not is_data:
+                            # don't look at signal region in data
+                            histos["h_" + lepton_region + "region"].Fill(region, weight)
+                        histos["h_" + lepton_region + "region_xFR_dilepton"].Fill(region, fakerate_dilepton * weight)
+                        histos["h_" + lepton_region + "region_xFR_qcd"].Fill(region, fakerate_qcd * weight)
+                        if n_DT == n_DT_actualfake: 
+                            histos["h_" + lepton_region + "region_actualfakes"].Fill(region, weight)
+                        else:
+                            histos["h_" + lepton_region + "region_prompt"].Fill(region, weight)
+                    else:
+                        # fill first region bins for long tracks:
+                        histos["h_" + lepton_region + "region_noDT"].Fill(region_noDT, weight)
+                        histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(region_noDT, fakerate_dilepton * weight)
+                        histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(region_noDT, fakerate_qcd * weight)
+
+                        # also fill region bins for short tracks:
+                        histos["h_" + lepton_region + "region_noDT"].Fill(region_noDT + 15, weight)
+                        histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(region_noDT + 15, fakerate_dilepton * weight)
+                        histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(region_noDT + 15, fakerate_qcd * weight)
+
+                        # fill last two region bins:
+                        if event.MHT >= 250 and event.MHT < 400 and len(event.Jets) > 0:
+                            histos["h_" + lepton_region + "region_noDT"].Fill(31, weight)
+                            histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(31, fakerate_dilepton * weight)
+                            histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(31, fakerate_qcd * weight)
+                        elif event.MHT >= 400 and len(event.Jets) > 0:
+                            histos["h_" + lepton_region + "region_noDT"].Fill(32, weight)
+                            histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(31, fakerate_dilepton * weight)
+                            histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(31, fakerate_qcd * weight)
 
             # fill tree branches:
             tree_branch_values["region"][0] = region
@@ -456,6 +471,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             tree_branch_values["HT"][0] = event.HT
             tree_branch_values["MinDeltaPhiMhtJets"][0] = MinDeltaPhiMhtJets
             tree_branch_values["n_NVtx"][0] = event.NVtx
+            tree_branch_values["weight"][0] = weight
             
             if event.EvtNum % 2 == 0:
                 tree_branch_values["EvtNumEven"][0] = 1
@@ -468,14 +484,9 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     fout.Write()
 
     h_xsec.Write()
-    h_region.Write()
-    h_region_prompt.Write()
-    h_region_actualfakes.Write()
-    h_region_xFR_dilepton.Write()
-    h_region_xFR_qcd.Write()
-    h_region_noDT.Write()
-    h_region_noDT_xFR_dilepton.Write()
-    h_region_noDT_xFR_qcd.Write()
+
+    for label in histos:
+        histos[label].Write()
 
     fout.Close()
     mask_file.Close()
