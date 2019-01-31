@@ -1,0 +1,4 @@
+convert_to_tracklevel.py: convert event-level ntuples to track-level trees
+prepareTreeMakerTrees.py: used to submit jobs using convert_to_tracklevel.py
+apply_weights.py: update track-level trees with BDT classifier value
+apply_weights_submit.py: used to submit jobs using apply_weights.py
