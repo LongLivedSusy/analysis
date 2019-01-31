@@ -39,7 +39,7 @@ def stamp_plot():
 
 def control_plot(rootfile = "skimplots.root"):
     
-    fin = TFile("output_skim/merged_bg.root", "READ")
+    fin = TFile("output_skim2/merged_bg.root", "READ")
     colors = [kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kOrange]
 
     histos = {}

@@ -315,8 +315,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 event.tracks_dzVtx[iCand] < 0.1 and \
                 ptErrOverPt2 < 10 and \
                 event.tracks_nMissingMiddleHits[iCand] == 0 and \
-                bool(event.tracks_trackQualityHighPurity[iCand]) == 1 and \
-                bool(event.tracks_passPFCandVeto[iCand]) == 1):
+                bool(event.tracks_trackQualityHighPurity[iCand]) == 1):
                     continue
 
             if is_tracker_track and not (event.tracks[iCand].Pt() > 15 and \
@@ -327,8 +326,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 ptErrOverPt2 < 10 and \
                 event.tracks_nMissingOuterHits[iCand] >= 2 and \
                 event.tracks_nMissingMiddleHits[iCand] == 0 and \
-                bool(event.tracks_trackQualityHighPurity[iCand]) == 1 and \
-                bool(event.tracks_passPFCandVeto[iCand]) == 1):
+                bool(event.tracks_trackQualityHighPurity[iCand]) == 1):
                     continue
 
             # evalulate BDT:

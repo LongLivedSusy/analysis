@@ -395,14 +395,14 @@ def create_1D_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output
 
 if __name__ == "__main__":
     
-    path = "output_cr/"
+    path = "output_fakerate/"
     base_cuts = "PFCaloMETRatio<5"
     rootfile = "fakerate.root"
 
-    create_fakerate_maps_dilepton = False
-    create_fakerate_maps_qcd = False
-    create_1Dplots = False
-    create_stacked_plots = True
+    create_fakerate_maps_dilepton = 1
+    create_fakerate_maps_qcd = 1
+    create_1Dplots = 1
+    create_stacked_plots = 1
 
     if create_fakerate_maps_dilepton:
         create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", label = "bg", selected_sample = "Summer16", extra_text = "combined MC background")
@@ -416,6 +416,11 @@ if __name__ == "__main__":
 
     if create_1Dplots:
         create_1D_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton")
+        create_1D_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton")
+        create_1D_plot("MHT_cleaned", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton")
+        create_1D_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd")
+        create_1D_plot("HT", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd")
+        create_1D_plot("MHT", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd")
 
     if create_stacked_plots:
 
