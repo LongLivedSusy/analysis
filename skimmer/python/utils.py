@@ -8,7 +8,16 @@ EtaBinEdges = [0, 1.4442,1.566, 2.4]
 PtBinEdgesForSmearing = [0,20, 30,40, 50, 70, 90, 120, 200, 300, 310]
 EtaBinEdgesForSmearing = [0,1.4442,1.566,2.4]
 
+csv_b = 0.6324
+'''
+Must integrate these:
+        CSV      DeepCSV
+2016  0.8484     0.6324
 
+2017  0.8838     0.4941
+
+2018  0.8838     0.4941
+'''
 
 tl = TLatex()
 tl.SetNDC()
@@ -660,7 +669,114 @@ def passesUniversalSelection(t):
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False
     if not t.eeBadScFilter: return False 
     return True
-    
-    
+   
 
+def prepareReaderBtagSF():
+    # load b tag sf from csv file
+    import ROOT
+    ROOT.gROOT.ProcessLine('.L ../../systematics/btagSF/BTagCalibrationStandalone.cpp+')
+    calib = ROOT.BTagCalibration('deepcsv', '../../systematics/btagSF/DeepCSV_Moriond17_B_H.csv')
+    # making a std::vector<std::string>> in python is a bit awkward, 
+    # but works with root (needed to load other sys types):
+    v_sys = getattr(ROOT, 'std::vector<string>')()
+    v_sys.push_back('up')
+    v_sys.push_back('down')
+    
+    # make a reader instance and load the sf data
+    global readerBtag
+    readerBtag = ROOT.BTagCalibrationReader(
+        1,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
+        "central",      # central systematic type
+        v_sys,          # vector of other sys. types
+    ) 
+    readerBtag.load(
+        calib, 
+        0,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "comb"      # measurement type
+    )
+    readerBtag.load(
+        calib, 
+        1,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "comb"      # measurement type
+    )
+    readerBtag.load(
+        calib, 
+        2,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
+        "incl"      # measurement type
+    )
 
+def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
+    fbeff = TFile("../usefulthings/BTagEfficiency_Summer16_TTJets.root")
+    pMC = 1.0
+    pData = 1.0
+    
+    # jet loop start here
+    for ijet, jet in enumerate(tree.Jets):
+	if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
+       
+        eff = 1.0
+	# b tag efficiency
+	if tree.Jets_hadronFlavor[ijet]== 5: # truth b particle
+	    heff = fbeff.Get("eff_b")
+	    binx = heff.GetXaxis().FindBin(jet.Pt())
+	    biny = heff.GetYaxis().FindBin(jet.Eta())
+	    eff = heff.GetBinContent(binx,biny)
+	    FLAV = 0
+	    #print 'b jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+        elif tree.Jets_hadronFlavor[ijet]== 4: # truth c particle
+	    heff = fbeff.Get("eff_c")
+	    binx = heff.GetXaxis().FindBin(jet.Pt())
+            biny = heff.GetYaxis().FindBin(jet.Eta())
+	    eff = heff.GetBinContent(binx,biny)
+	    FLAV = 1
+	    #print 'c jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+        else : # truth udsg particle
+	    heff = fbeff.Get("eff_udsg")
+	    binx = heff.GetXaxis().FindBin(jet.Pt())
+	    biny = heff.GetYaxis().FindBin(jet.Eta())
+	    eff = heff.GetBinContent(binx,biny)
+	    FLAV = 2
+	    #print 'udsg jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+	    
+	sf_cen = readerBtag.eval_auto_bounds(
+	    'central',      # systematic (here also 'up'/'down' possible)
+	    FLAV,              # jet flavor
+	    abs(jet.Eta()),      # absolute value of eta
+	    jet.Pt()        # pt
+	)
+	sf_up = readerBtag.eval_auto_bounds(
+	    'up',           # systematic (here also 'up'/'down' possible)
+	    FLAV,              # jet flavor
+	    abs(jet.Eta()),      # absolute value of eta
+	    jet.Pt()        # pt
+	)
+	sf_down = readerBtag.eval_auto_bounds(
+	    'down',         # systematic (here also 'up'/'down' possible)
+	    FLAV,              # jet flavor
+	    abs(jet.Eta()),      # absolute value of eta
+	    jet.Pt()        # pt
+	)
+	#print '%sth jet pt : %.2f, eta : %.2f, flavor : %s, sf_cen : %.2f, sf_up : %.2f, sf_down : %.2f'%(ijet,jet.Pt(),jet.Eta(),tree.Jets_hadronFlavor[ijet],sf_cen,sf_up,sf_down)
+	
+	sf = get_syst_weight(sf_cen, sf_up, sf_down, nSigmaBtagSF)
+        
+	if tree.Jets_bDiscriminatorCSV[ijet]>csv_b :
+	    pMC *= eff
+	    pData *= eff*sf
+        else :
+	    pMC *= 1 - eff
+	    pData *= 1 - eff*sf
+    
+    weight = pData / pMC
+    return weight
+
+def get_syst_weight(weight_nominal,weight_up,weight_down,nSigma):
+    w = weight_nominal
+    if nSigma==0 : return w
+    else :
+	dw_up = weight_up - weight_nominal
+	dw_down = weight_nominal - weight_down
+	if nSigma >= 0. :
+	    w += nSigma*dw_up
+	else : w += nSigma*dw_down
+    return w
