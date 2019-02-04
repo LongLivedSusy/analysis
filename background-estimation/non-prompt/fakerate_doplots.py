@@ -171,10 +171,10 @@ def get_histogram(variable, cutstring, nBinsX=False, xmin=False, xmax=False, nBi
     return h_combined
 
 
-def create_2D_plots(path = "output/", variables = "HT_cleaned:n_allvertices", nBinsX=10, xmin=0, xmax=50, nBinsY=10, ymin=0, ymax=1000, rootfile = False, foldername = "dilepton", label = "mc", selected_sample = "Summer16", base_cuts = "PFCaloMETRatio<5", extra_text = "combined MC background"):
+def create_2D_plots(path = "output/", variables = "HT_cleaned:n_allvertices", nBinsX=10, xmin=0, xmax=50, nBinsY=10, ymin=0, ymax=1000, rootfile = False, foldername = "dilepton", label = "mc", selected_sample = "Summer16", base_cuts = "PFCaloMETRatio<5", numerator_cuts = "", denominator_cuts = "", extra_text = "combined MC background"):
 
-    fakes_numerator = get_histogram(variables, base_cuts + " && n_DT>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample = selected_sample)
-    fakes_denominator = get_histogram(variables, base_cuts + " && n_DT==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample = selected_sample)
+    fakes_numerator = get_histogram(variables, base_cuts + numerator_cuts + " && n_DT>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample = selected_sample)
+    fakes_denominator = get_histogram(variables, base_cuts + denominator_cuts + " && n_DT==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample = selected_sample)
 
     try:
         print fakes_numerator.GetEntries()
@@ -391,6 +391,7 @@ def create_1D_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output
 
     canvas.SetName("%s/%s_%s_fakerate" % (foldername, foldername, variable))
     canvas.Write()
+    canvas.SaveAs("plots/fakerate_%s_%s" % (foldername, variable))
 
     fout.Close()
 
@@ -404,18 +405,26 @@ if __name__ == "__main__":
     create_fakerate_maps_dilepton = 1
     create_fakerate_maps_qcd = 1
     create_1Dplots = 1
-    create_stacked_plots = 1
+    create_stacked_plots = 0
+
+    os.system("rm fakerate-updated.root")
 
     if create_fakerate_maps_dilepton:
-        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", label = "bg", selected_sample = "Summer16", extra_text = "combined MC background")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = "bg_short", selected_sample = "Summer16", extra_text = "combined MC background, pixel-only tracks")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = "bg_long", selected_sample = "Summer16", extra_text = "combined MC background, pixel+strips tracks")
+        
         for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", label = period, selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = period + "_short", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel-only tracks" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = period + "_long", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel+strips tracks" % period)
 
     if create_fakerate_maps_qcd:
-        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", label = "bg", selected_sample = "Summer16*QCD", extra_text = "combined MC background")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = "bg_short", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel-only tracks")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = "bg_long", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel+strips tracks")
+        
         for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", label = period, selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT" % period)
-
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = period + "_short", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel-only tracks" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = period + "_long", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel+strips tracks" % period)
+            
     if create_1Dplots:
         create_1D_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton")
         create_1D_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton")

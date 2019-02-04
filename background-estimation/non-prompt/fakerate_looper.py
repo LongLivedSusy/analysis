@@ -7,7 +7,9 @@ import tmva_tools
 import os
 import numpy as np
 
-def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", do_dilepton_CR = True, do_singlelepton_CR = False, do_qcd_CR = True):
+def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", do_dilepton_CR = False, do_singlelepton_CR = False, do_qcd_CR = False, debug = False):
+
+    #FIXME oben
 
     tree = TChain(treename)
     for iFile in event_tree_filenames:
@@ -65,6 +67,8 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                       "dilepton_CR",
                       "singlelepton_CR",
                       "qcd_CR",
+                      "is_pixel_track",
+                      "trackerLayersWithMeasurement"
                     ]:
         tree_branch_values[variable] = array( 'i', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
@@ -101,6 +105,9 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
 
     # loop over events
     for iEv, event in enumerate(tree):
+
+        #FIXME:
+        if iEv<17681: continue
 
         if not xsec_written:
             if tree.GetBranch("CrossSection"):
@@ -149,6 +156,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
         dilepton_CR = False
         singlelepton_CR = False
         qcd_CR = False
+        #FIXME
 
         # dilepton control region: do zmass matching
         if do_dilepton_CR:
@@ -201,8 +209,9 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 qcd_CR = True
 
         # CHECK: event selection
-        if not dilepton_CR and not qcd_CR:
-            continue
+        #if not dilepton_CR and not qcd_CR:
+        #    continue
+        # #FIXME
                 
         # for the dilepton CR, clean event (recalculate HT, MHT, n_Jets without the two leptons):
         if dilepton_CR:
@@ -277,7 +286,12 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
         nevents_total += 1
         n_DT = 0
         n_DT_actualfake = 0
-        for i_iCand, iCand in enumerate(xrange(len(event.tracks))):
+        
+        is_pixel_track = False
+        trackerLayersWithMeasurement = -1
+        
+        #for i_iCand, iCand in enumerate(xrange(len(event.tracks))):
+        for iCand in xrange(len(event.tracks)):
 
             # set up booleans
             is_pixel_track = False
@@ -304,11 +318,11 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
             # check for category:
             if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = True
-            if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
+            elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_tracker_track = True
-
+                            
             # apply TMVA preselection:
-            if is_pixel_track and not (event.tracks[iCand].Pt() > 15 and \
+            if is_pixel_track and not (event.tracks[iCand].Pt() > 30 and \
                 abs(event.tracks[iCand].Eta()) < 2.4 and \
                 event.tracks_trkRelIso[iCand] < 0.2 and \
                 event.tracks_dxyVtx[iCand] < 0.1 and \
@@ -318,7 +332,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 bool(event.tracks_trackQualityHighPurity[iCand]) == 1):
                     continue
 
-            if is_tracker_track and not (event.tracks[iCand].Pt() > 15 and \
+            if is_tracker_track and not (event.tracks[iCand].Pt() > 30 and \
                 abs(event.tracks[iCand].Eta()) < 2.4 and \
                 event.tracks_trkRelIso[iCand] < 0.2 and \
                 event.tracks_dxyVtx[iCand] < 0.1 and \
@@ -329,25 +343,57 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 bool(event.tracks_trackQualityHighPurity[iCand]) == 1):
                     continue
 
-            # evalulate BDT:
-            tmva_variables["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
-            tmva_variables["dzVtx"][0] = event.tracks_dzVtx[iCand]
-            tmva_variables["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
-            tmva_variables["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
-            tmva_variables["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
-            tmva_variables["nValidTrackerHits"][0] = event.tracks_nValidTrackerHits[iCand]
-            tmva_variables["nMissingOuterHits"][0] = event.tracks_nMissingOuterHits[iCand]
-            tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
-            
-            # final categorization:
+            # evaluate BDT:
             if is_pixel_track:
+
+                tmva_variables["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
+                tmva_variables["dzVtx"][0] = event.tracks_dzVtx[iCand]
+                tmva_variables["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
+                tmva_variables["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
+                tmva_variables["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
+                tmva_variables["nValidTrackerHits"][0] = event.tracks_nValidTrackerHits[iCand]
+                tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
+
                 mva = readerPixelOnly.EvaluateMVA("BDT")
                 if mva>bdt_cut_pixelonly:
                     is_disappearing_track = True
+                    print "pixel DT", iEv, event.HT, tree_branch_values["HT_cleaned"][0], event.nAllVertices        #FIXME
+
             elif is_tracker_track:
+
+                tmva_variables["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
+                tmva_variables["dzVtx"][0] = event.tracks_dzVtx[iCand]
+                tmva_variables["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
+                tmva_variables["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
+                tmva_variables["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
+                tmva_variables["nValidTrackerHits"][0] = event.tracks_nValidTrackerHits[iCand]
+                tmva_variables["nMissingOuterHits"][0] = event.tracks_nMissingOuterHits[iCand]
+                tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
+
                 mva = readerPixelStrips.EvaluateMVA("BDT")
                 if mva>bdt_cut_pixelstrips:
                     is_disappearing_track = True
+                    print "tracker DT", iEv, event.HT, tree_branch_values["HT_cleaned"][0], event.nAllVertices      #FIXME
+
+            # apply baseline DT selection:
+            if is_disappearing_track and not isBaselineTrack(event.tracks[iCand], iCand, event, mask):
+                print "Failed baseline DT selection"
+                is_disappearing_track = False
+
+            if is_disappearing_track and debug:
+                print event.tracks[iCand].Pt()
+                print abs(event.tracks[iCand].Eta())
+                print event.tracks_nMissingInnerHits[iCand]
+                print event.tracks_nMissingMiddleHits[iCand]
+                print bool(event.tracks_trackQualityHighPurity[iCand])
+                print event.tracks_dxyVtx[iCand]
+                print event.tracks_dzVtx[iCand]
+                print event.tracks_matchedCaloEnergy[iCand]
+                print event.tracks_trkRelIso[iCand]
+                print event.tracks_nValidPixelHits[iCand]
+                print event.tracks_nValidTrackerHits[iCand]
+                print event.tracks_nMissingOuterHits[iCand]
+                print ptErrOverPt2
 
             # check if "real" fake (no genparticle around track):            
             if is_disappearing_track and tree.GetBranch("GenParticles"):
@@ -380,6 +426,9 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 
             if is_disappearing_track:
 
+                # save number of layers
+                trackerLayersWithMeasurement = event.tracks_trackerLayersWithMeasurement[iCand]
+                
                 # check eta/phi mask:
                 if mask:
                     masked = mask.GetBinContent(mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
@@ -407,6 +456,12 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
         tree_branch_values["HT"][0] = event.HT
         tree_branch_values["MinDeltaPhiMhtJets"][0] = MinDeltaPhiMhtJets
         tree_branch_values["n_NVtx"][0] = event.NVtx
+        
+        if n_DT>0:
+            tree_branch_values["is_pixel_track"][0] = is_pixel_track
+            tree_branch_values["trackerLayersWithMeasurement"][0] = trackerLayersWithMeasurement
+        else:
+            tree_branch_values["is_pixel_track"][0] = -1
         
         if event.EvtNum % 2 == 0:
             tree_branch_values["EvtNumEven"][0] = 1

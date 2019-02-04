@@ -5,7 +5,7 @@ from GridEngineTools import runParallel
 
 runmode = "grid"
 output_folder = "output_fakerate"
-files_per_job = 4
+files_per_job = 5
 files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
@@ -93,7 +93,6 @@ cmssw8_samples = [
 cmssw9_samples = [
                     "Run2016C-17Jul2018-v1.JetHT",
                     "Run2016E-17Jul2018-v1.JetHT",
-                    "Run2016F-17Jul2018-v1.JetHT",
                     "Run2016F-17Jul2018-v1.JetHT",
                     "Run2016G-17Jul2018-v1.JetHT",
                     "Run2016H-17Jul2018-v1.JetHT",
