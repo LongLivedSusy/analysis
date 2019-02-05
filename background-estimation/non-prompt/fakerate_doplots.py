@@ -398,7 +398,6 @@ if __name__ == "__main__":
     
     path = "output_fakerate/"
     base_cuts = "PFCaloMETRatio<5"
-    rootfile = "fakerate-updated.root"
 
     create_fakerate_maps_dilepton = 1
     create_fakerate_maps_qcd = 0
@@ -406,22 +405,26 @@ if __name__ == "__main__":
     create_stacked_plots = 0
 
     os.system("rm fakerate-updated.root")
+    rootfile = "fakerate-updated.root"
+
+    cut_is_short_track = " && ((n_DT==1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
+    cut_is_long_track  = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
 
     if create_fakerate_maps_dilepton:
-        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = "bg_short", selected_sample = "Summer16", extra_text = "combined MC background, pixel-only tracks")
-        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = "bg_long", selected_sample = "Summer16", extra_text = "combined MC background, pixel+strips tracks")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_short_track, label = "bg_short", selected_sample = "Summer16", extra_text = "combined MC background, pixel-only tracks")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_long_track, label = "bg_long", selected_sample = "Summer16", extra_text = "combined MC background, pixel+strips tracks")
         
         for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = period + "_short", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel-only tracks" % period)
-            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = period + "_long", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel+strips tracks" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_short_track, label = period + "_short", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel-only tracks" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_long_track, label = period + "_long", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel+strips tracks" % period)
 
     if create_fakerate_maps_qcd:
-        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = "bg_short", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel-only tracks")
-        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = "bg_long", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel+strips tracks")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_short_track, label = "bg_short", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel-only tracks")
+        create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_long_track, label = "bg_long", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel+strips tracks")
         
         for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==1 ", label = period + "_short", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel-only tracks" % period)
-            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = " && is_pixel_track==0 ", label = period + "_long", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel+strips tracks" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_short_track, label = period + "_short", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel-only tracks" % period)
+            create_2D_plots(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_long_track, label = period + "_long", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel+strips tracks" % period)
             
     if create_1Dplots:
         create_1D_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton")
