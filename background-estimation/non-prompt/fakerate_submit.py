@@ -36,7 +36,7 @@ def create_command_list(ntuples_folder, samples):
         for inFile_segment in file_segments:
                 
             out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].split(".root")[0] + "_fakes.root"
-            commands.append("./fakerate_looper.py %s %s 0 0" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
+            commands.append("./looper.py %s %s 0 0" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
 
 cmssw8_samples = [
                     "Summer16.WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
@@ -102,7 +102,7 @@ create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Producti
 create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", cmssw9_samples)
 
 raw_input("submit %s jobs?" % len(commands))
-os.system("cp fakerate_looper.py %s/" % output_folder)
+os.system("cp looper.py %s/" % output_folder)
 runParallel(commands, runmode, dontCheckOnJobs=True, burst_mode=False)
 
 
