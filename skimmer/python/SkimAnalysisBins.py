@@ -24,47 +24,15 @@ parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
 parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
-parser.add_argument("-btagsf", "--BtagWeight", type=bool, default=False, help="Btag SF")
+parser.add_argument("-btagsf", "--nSigmaBtagSF", type=int, default=0, help="Btag weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 args = parser.parse_args()
 fnamekeyword = args.fnamekeyword.strip()
 analyzer = args.analyzer
 JerUpDown = args.JerUpDown
-BtagWeight = args.BtagWeight
-print 'BtagWeight : ', BtagWeight
-if BtagWeight :
-    import ROOT
-    ROOT.gROOT.ProcessLine('.L ../../systematics/btagSF/BTagCalibrationStandalone.cpp+')
-    calib = ROOT.BTagCalibration('deepcsv', '../../systematics/btagSF/DeepCSV_Moriond17_B_H.csv')
-    # making a std::vector<std::string>> in python is a bit awkward, 
-    # but works with root (needed to load other sys types):
-    v_sys = getattr(ROOT, 'std::vector<string>')()
-    v_sys.push_back('up')
-    v_sys.push_back('down')
-    
-    # make a reader instance and load the sf data
-    reader = ROOT.BTagCalibrationReader(
-        1,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
-        "central",      # central systematic type
-        v_sys,          # vector of other sys. types
-    ) 
-    print reader
-    reader.load(
-        calib, 
-        0,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
-        "comb"      # measurement type
-    )
-    reader.load(
-        calib, 
-        1,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
-        "comb"      # measurement type
-    )
-    reader.load(
-        calib, 
-        2,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
-        "incl"      # measurement type
-    )
+nSigmaBtagSF = args.nSigmaBtagSF
+nSigmaBtagFastSimSF = 1.0
+isFastSim = False
 
-    
 #smdir = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/'
 #smdir = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/'
 
@@ -190,8 +158,6 @@ var_SearchBin = np.zeros(1,dtype=int)
 var_SumTagPtOverMht = np.zeros(1,dtype=float)
 var_CrossSection = np.zeros(1,dtype=float)
 var_weight_btag = np.zeros(1,dtype=float)
-var_weight_btag_up = np.zeros(1,dtype=float)
-var_weight_btag_down = np.zeros(1,dtype=float)
 if isPrivateSignal: var_weight = np.zeros(1,dtype=float)
 
 #####################################################
@@ -233,8 +199,6 @@ tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
 tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
 tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
 tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
-tEvent.Branch('weight_btag_up', var_weight_btag_up,'weight_btag_up/D')
-tEvent.Branch('weight_btag_down', var_weight_btag_down,'weight_btag_down/D')
 
 if isPrivateSignal: tEvent.Branch('weight', var_weight,'weight/D')
 
@@ -303,6 +267,11 @@ readerLong = TMVA.Reader()
 prepareReaderShort(readerShort, pixelXml)
 prepareReaderLong(readerLong, LongXml)
 
+###############################
+# Btag SF
+##############################
+prepareReaderBtagSF()
+
 fMask = TFile('../usefulthings/Masks.root')
 if 'Run2016' in fnamekeyword: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
 else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
@@ -320,8 +289,8 @@ print 'will analyze', nentries
 if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
 verbosity = 100
 
-#for ientry in range(nentries):
-for ientry in range(10):
+for ientry in range(nentries):
+#for ientry in range(2000):
 
     if ientry%verbosity==0: 
         print 'analyzing event %d of %d' % (ientry, nentries)+ '....%f'%(100.*ientry/nentries)+'%'
@@ -352,11 +321,6 @@ for ientry in range(10):
     jets = []
     nb = 0
     ht = 0
-    nSigma = 1.0
-    pMC = 1.0
-    pData = 1.0
-    pData_up = 1.0
-    pData_down = 1.0
     for ijet, jet in enumerate(c.Jets): #need dphi w.r.t. the modified mht
 	#print ientry, 'th event, ', ijet,'th jet'
         if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
@@ -364,75 +328,7 @@ for ientry in range(10):
         jets.append(jet)
         ht+=jet.Pt()        
         if c.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
-	if BtagWeight :
-	    fbeff = TFile("../usefulthings/BTagEfficiency_Summer16_TTJets.root")
-	    
-	    if c.Jets_hadronFlavor[ijet]== 5: # truth b particle
-		heff = fbeff.Get("eff_b")
-		binx = heff.GetXaxis().FindBin(jet.Pt())
-		biny = heff.GetYaxis().FindBin(jet.Eta())
-		eff = heff.GetBinContent(binx,biny)
-		FLAV = 0
-		#print 'b jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-	    elif c.Jets_hadronFlavor[ijet]== 4: # truth c particle
-		heff = fbeff.Get("eff_c")
-		binx = heff.GetXaxis().FindBin(jet.Pt())
-		biny = heff.GetYaxis().FindBin(jet.Eta())
-		eff = heff.GetBinContent(binx,biny)
-		FLAV = 1
-		#print 'c jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-	    else : # truth udsg particle
-		heff = fbeff.Get("eff_udsg")
-		binx = heff.GetXaxis().FindBin(jet.Pt())
-		biny = heff.GetYaxis().FindBin(jet.Eta())
-		eff = heff.GetBinContent(binx,biny)
-		FLAV = 2
-		#print 'udsg jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-	    
-            sf = reader.eval_auto_bounds(
-                'central',      # systematic (here also 'up'/'down' possible)
-                FLAV,              # jet flavor
-                jet.Eta(),      # absolute value of eta
-                jet.Pt()        # pt
-            )
-            sf_up = reader.eval_auto_bounds(
-                'up',           # systematic (here also 'up'/'down' possible)
-                FLAV,              # jet flavor
-                jet.Eta(),      # absolute value of eta
-                jet.Pt()        # pt
-            )
-            sf_down = reader.eval_auto_bounds(
-                'down',         # systematic (here also 'up'/'down' possible)
-                FLAV,              # jet flavor
-                jet.Eta(),      # absolute value of eta
-                jet.Pt()        # pt
-            )
-	    print '%s th event %sth jet btag sf:%s, up:%s, down:%s'%(ientry, ijet, sf,sf_up,sf_down)
-	    
-	    # systematics for up, down sf
-	    sf_systup = sf	# set initial sf as nominal sf
-	    sf_systdown = sf	# set initial sf as nominal sf
-	    dsf_up = sf_up - sf
-	    dsf_down = sf - sf_down
-	    sf_systup += nSigma*dsf_up
-	    sf_systdown -= nSigma*dsf_down
-
-	    if c.Jets_bDiscriminatorCSV[ijet]>csv_b :
-		pMC *= eff
-		pData *= eff*sf
-		pData_up *= eff*sf_systup
-		pData_down *= eff*sf_systdown
-	    else :
-		pMC *= 1 - eff
-		pData *= 1 - eff*sf
-		pData_up *= 1 - eff*sf_systup
-		pData_down *= 1 - eff*sf_systdown
-
-    btagweight = pData/pMC
-    btagweight_up = pData_up/pMC
-    btagweight_down = pData_down/pMC
-    print 'btagweight :%s, up:%s, down:%s ' %(btagweight,btagweight_up,btagweight_down) 
-
+	
     var_NJets[0] = len(jets)
     var_Mht[0] = mhtvec.Pt()
     mindphi = 9999   
@@ -543,6 +439,14 @@ for ientry in range(10):
     fv.append(binnumber)
     var_SearchBin[0] = binnumber
     
+    #################
+    ## SYSTEMATICS ##
+    #################
+    weight_btag = calc_btag_weight(c,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim)
+    #print '%sth event weight_btag : %f'%(ientry,weight_btag)
+
+
+    var_weight[0]*=weight_btag
     fillth1(hAnalysisBins, binnumber, var_weight[0])
             
     if len(mvas)==1:
@@ -587,9 +491,7 @@ for ientry in range(10):
     var_SumTagPtOverMht[0] = sumtagvec.Pt()/mhtvec.Pt()
 
     var_CrossSection[0] = c.CrossSection
-    var_weight_btag[0] = btagweight
-    var_weight_btag_up[0] = btagweight_up
-    var_weight_btag_down[0] = btagweight_down
+    var_weight_btag[0] = weight_btag
     tEvent.Fill()
 
 
