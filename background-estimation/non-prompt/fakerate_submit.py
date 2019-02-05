@@ -5,7 +5,7 @@ from GridEngineTools import runParallel
 
 runmode = "grid"
 output_folder = "output_fakerate"
-files_per_job = 5
+files_per_job = 4
 files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
@@ -27,7 +27,7 @@ def create_command_list(ntuples_folder, samples):
 
         # check if (not) running over QCD events:
         if "QCD" in sample or "JetHT" in sample:
-            current_files_per_job = 2
+            current_files_per_job = 1
         else:
             current_files_per_job = files_per_job
         
@@ -74,28 +74,28 @@ cmssw8_samples = [
                     "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-                    "Run2016B-03Feb2017_ver2-v2.SingleElectron",
-                    "Run2016B-03Feb2017_ver2-v2.SingleMuon",
+                    #"Run2016B-03Feb2017_ver2-v2.SingleElectron",
+                    #"Run2016B-03Feb2017_ver2-v2.SingleMuon",
                     "Run2016C-03Feb2017-v1.SingleElectron",
                     "Run2016C-03Feb2017-v1.SingleMuon",
                     "Run2016D-03Feb2017-v1.SingleElectron",
                     "Run2016D-03Feb2017-v1.SingleMuon",
-                    "Run2016E-03Feb2017-v1.SingleElectron",
-                    "Run2016E-03Feb2017-v1.SingleMuon",
-                    "Run2016F-03Feb2017-v1.SingleElectron",
-                    "Run2016F-03Feb2017-v1.SingleMuon",
-                    "Run2016G-03Feb2017-v1.SingleElectron",
-                    "Run2016G-03Feb2017-v1.SingleMuon",
-                    "Run2016H-03Feb2017_ver2-v1.SingleElectron",
-                    "Run2016H-03Feb2017_ver2-v1.SingleMuon",
+                    #"Run2016E-03Feb2017-v1.SingleElectron",
+                    #"Run2016E-03Feb2017-v1.SingleMuon",
+                    #"Run2016F-03Feb2017-v1.SingleElectron",
+                    #"Run2016F-03Feb2017-v1.SingleMuon",
+                    #"Run2016G-03Feb2017-v1.SingleElectron",
+                    #"Run2016G-03Feb2017-v1.SingleMuon",
+                    #"Run2016H-03Feb2017_ver2-v1.SingleElectron",
+                    #"Run2016H-03Feb2017_ver2-v1.SingleMuon",
                  ]
 
 cmssw9_samples = [
                     "Run2016C-17Jul2018-v1.JetHT",
-                    "Run2016E-17Jul2018-v1.JetHT",
-                    "Run2016F-17Jul2018-v1.JetHT",
-                    "Run2016G-17Jul2018-v1.JetHT",
-                    "Run2016H-17Jul2018-v1.JetHT",
+                    #"Run2016E-17Jul2018-v1.JetHT",
+                    #"Run2016F-17Jul2018-v1.JetHT",
+                    #"Run2016G-17Jul2018-v1.JetHT",
+                    #"Run2016H-17Jul2018-v1.JetHT",
                  ]
 
 create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples)

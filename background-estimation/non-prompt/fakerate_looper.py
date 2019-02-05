@@ -7,9 +7,28 @@ import tmva_tools
 import os
 import numpy as np
 
-def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", do_dilepton_CR = False, do_singlelepton_CR = False, do_qcd_CR = False, debug = False):
+def isBaselineTrack(track, itrack, c, hMask):
+	if not abs(track.Eta())< 2.4 : return False
+	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
+	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
+	if not (c.tracks_ptError[itrack]/(track.Pt()*track.Pt()) < 10): return False
+	if not abs(c.tracks_dxyVtx[itrack]) < 0.1: return False
+	if not abs(c.tracks_dzVtx[itrack]) < 0.1 : return False
+	if not c.tracks_trkRelIso[itrack] < 0.2: return False
+	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False
+	if not c.tracks_nMissingInnerHits[itrack]==0: return False
+	if not c.tracks_nMissingMiddleHits[itrack]==0: return False	
+	if hMask!='':
+		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
+		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
+		if hMask.GetBinContent(ibinx, ibiny)==0: return False
+	return True
 
-    #FIXME oben
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root"):
+
+    do_dilepton_CR = True
+    do_singlelepton_CR = False
+    do_qcd_CR = True
 
     tree = TChain(treename)
     for iFile in event_tree_filenames:
@@ -67,8 +86,15 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                       "dilepton_CR",
                       "singlelepton_CR",
                       "qcd_CR",
-                      "is_pixel_track",
-                      "trackerLayersWithMeasurement"
+                      "DT1_is_pixel_track",
+                      "DT2_is_pixel_track",
+                      "DT3_is_pixel_track",
+                      "DT1_trackerLayersWithMeasurement",
+                      "DT2_trackerLayersWithMeasurement",
+                      "DT3_trackerLayersWithMeasurement",
+                      "DT1_actualfake",
+                      "DT2_actualfake",
+                      "DT3_actualfake",
                     ]:
         tree_branch_values[variable] = array( 'i', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
@@ -80,6 +106,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
     preselection_pixelstrips = ""
 
     tmva_variables = {}
+    bdt_folders = ["../../disappearing-track-tag/short-tracks", "../../disappearing-track-tag/long-tracks"]
 
     for i_category, category in enumerate(["pixelonly", "pixelstrips"]):
 
@@ -106,9 +133,6 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
     # loop over events
     for iEv, event in enumerate(tree):
 
-        #FIXME:
-        if iEv<17681: continue
-
         if not xsec_written:
             if tree.GetBranch("CrossSection"):
                 xsec = event.CrossSection
@@ -134,20 +158,32 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                ("TTJets_Tune" in current_file_name and madHT>600) or \
                ("100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
                ("100To200_" in current_file_name and (madHT<100 or madHT>200)) or \
+               ("200to300_" in current_file_name and (madHT<200 or madHT>300)) or \
+               ("200To300_" in current_file_name and (madHT<200 or madHT>300)) or \
                ("200to400_" in current_file_name and (madHT<200 or madHT>400)) or \
                ("200To400_" in current_file_name and (madHT<200 or madHT>400)) or \
+               ("300to500_" in current_file_name and (madHT<300 or madHT>500)) or \
+               ("300To500_" in current_file_name and (madHT<300 or madHT>500)) or \
                ("400to600_" in current_file_name and (madHT<400 or madHT>600)) or \
                ("400To600_" in current_file_name and (madHT<400 or madHT>600)) or \
+               ("500to700_" in current_file_name and (madHT<500 or madHT>700)) or \
+               ("500To700_" in current_file_name and (madHT<500 or madHT>700)) or \
                ("600to800_" in current_file_name and (madHT<600 or madHT>800)) or \
                ("600To800_" in current_file_name and (madHT<600 or madHT>800)) or \
+               ("700to1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
+               ("700To1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
                ("800to1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
                ("800To1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
+               ("1000to1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
+               ("1000To1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
                ("1200to2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
                ("1200To2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
+               ("1500to2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
+               ("1500To2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
                ("2500toInf_" in current_file_name and madHT<2500) or \
                ("2500ToInf_" in current_file_name and madHT<2500):
                 continue
-                   
+                  
         # reset all branch values:
         for label in tree_branch_values:
             tree_branch_values[label][0] = -1
@@ -156,7 +192,6 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
         dilepton_CR = False
         singlelepton_CR = False
         qcd_CR = False
-        #FIXME
 
         # dilepton control region: do zmass matching
         if do_dilepton_CR:
@@ -209,9 +244,8 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 qcd_CR = True
 
         # CHECK: event selection
-        #if not dilepton_CR and not qcd_CR:
-        #    continue
-        # #FIXME
+        if not dilepton_CR and not qcd_CR:
+            continue
                 
         # for the dilepton CR, clean event (recalculate HT, MHT, n_Jets without the two leptons):
         if dilepton_CR:
@@ -237,6 +271,8 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 if lepton_is_in_jet: continue
                 
                 mhtvec-=jet
+                if not abs(jet.Eta()) < 2.4: continue
+
                 jets.append(jet)
                 HT_cleaned+=jet.Pt()        
                 if event.Jets_bDiscriminatorCSV[ijet] > csv_b: nb+=1
@@ -271,32 +307,30 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
      
         # load mask file:
+        mask = ''
         if maskfile:
             if "Run2016" in current_file_name:
                 if current_file_name != previous_file_name:
                     mask_file = TFile(maskfile, "open")
                 mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
-            elif "Summer16" in current_file_name:
-                if current_file_name != previous_file_name:
-                    mask_file = TFile(maskfile, "open")
-                mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
+            # don't use mask for MC:
+            #elif "Summer16" in current_file_name:
+            #    if current_file_name != previous_file_name:
+            #        mask_file = TFile(maskfile, "open")
+            #    mask = mask_file.Get("hEtaVsPhiDT_maskedMC-2016MC-2016")
             previous_file_name = current_file_name
 
         # loop over tracks (tracks):
         nevents_total += 1
         n_DT = 0
         n_DT_actualfake = 0
-        
-        is_pixel_track = False
-        trackerLayersWithMeasurement = -1
-        
-        #for i_iCand, iCand in enumerate(xrange(len(event.tracks))):
+
         for iCand in xrange(len(event.tracks)):
 
             # set up booleans
             is_pixel_track = False
             is_tracker_track = False
-            genparticle_in_track_cone = False
+            charged_genparticle_in_track_cone = False
             is_disappearing_track = False
             is_a_PF_lepton = False
 
@@ -357,7 +391,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 mva = readerPixelOnly.EvaluateMVA("BDT")
                 if mva>bdt_cut_pixelonly:
                     is_disappearing_track = True
-                    print "pixel DT", iEv, event.HT, tree_branch_values["HT_cleaned"][0], event.nAllVertices        #FIXME
+                    if debug: print "pixel DT", iEv, event.HT, tree_branch_values["HT_cleaned"][0], event.nAllVertices
 
             elif is_tracker_track:
 
@@ -373,7 +407,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 mva = readerPixelStrips.EvaluateMVA("BDT")
                 if mva>bdt_cut_pixelstrips:
                     is_disappearing_track = True
-                    print "tracker DT", iEv, event.HT, tree_branch_values["HT_cleaned"][0], event.nAllVertices      #FIXME
+                    if debug: print "tracker DT", iEv, event.HT, tree_branch_values["HT_cleaned"][0], event.nAllVertices
 
             # apply baseline DT selection:
             if is_disappearing_track and not isBaselineTrack(event.tracks[iCand], iCand, event, mask):
@@ -395,53 +429,38 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
                 print event.tracks_nMissingOuterHits[iCand]
                 print ptErrOverPt2
 
-            # check if "real" fake (no genparticle around track):            
+            # check if actual fake track (no genparticle in cone around track):
+            charged_genparticle_in_track_cone = False
             if is_disappearing_track and tree.GetBranch("GenParticles"):
                 for k in range(len(event.GenParticles)):
+
                     deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
-                    if deltaR < 0.01:
-
-                        # we only need genparticles with status 1:
-                        if event.GenParticles_Status[k] != 1:
-                            continue
-                            
-                        # ignore certain non-charged genparticles (neutrinos, gluons and photons):
-                        gen_track_cone_pdgid = event.GenParticles_PdgId[k]
-                        if abs(gen_track_cone_pdgid) == 12 or abs(gen_track_cone_pdgid) == 14 or abs(gen_track_cone_pdgid) == 16 or abs(gen_track_cone_pdgid) == 21 or abs(gen_track_cone_pdgid) == 22:
-                            continue
-
-                        # if genTau, check if the track matches with a GenTaus_LeadTrk track:
-                        if abs(gen_track_cone_pdgid) == 15 and tree.GetBranch("GenTaus_LeadTrk"):
-                            tau_leading_track = False
+                    if deltaR < 0.02 and event.GenParticles_Status[k] != 1:
+                           
+                        gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
+                        if gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13:
+                            charged_genparticle_in_track_cone = True
+                            break
+                        elif gen_track_cone_pdgid == 15 and tree.GetBranch("GenTaus_LeadTrk"):
+                            # if genTau, check if the track matches with a GenTaus_LeadTrk track:
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
                                 if deltaR < 0.01:
                                     print "That's a tau leading track"
-                                    tau_leading_track = True
-                            
-                            if not tau_leading_track:
-                                continue
-                                        
-                        genparticle_in_track_cone = True
+                                    charged_genparticle_in_track_cone = True
+                                    break
                 
             if is_disappearing_track:
+               
+                n_DT += 1
+                if not charged_genparticle_in_track_cone:
+                    n_DT_actualfake += 1
 
-                # save number of layers
-                trackerLayersWithMeasurement = event.tracks_trackerLayersWithMeasurement[iCand]
-                
-                # check eta/phi mask:
-                if mask:
-                    masked = mask.GetBinContent(mask.GetXaxis().FindBin(event.tracks[iCand].Phi()), mask.GetYaxis().FindBin(event.tracks[iCand].Eta()))
-                    if masked > 0:
-                        n_DT += 1
-                        if not genparticle_in_track_cone:
-                            n_DT_actualfake += 1
+                # save track-level properties:
+                tree_branch_values["DT%s_is_pixel_track" % n_DT][0] = is_pixel_track
+                tree_branch_values["DT%s_trackerLayersWithMeasurement" % n_DT][0] = event.tracks_trackerLayersWithMeasurement[iCand]
+                tree_branch_values["DT%s_actualfake" % n_DT][0] = not charged_genparticle_in_track_cone
 
-                else:
-                    masked = -1.0
-                    n_DT += 1
-                    if not genparticle_in_track_cone:
-                        n_DT_actualfake += 1
  
         # event-level variables:
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
@@ -456,13 +475,7 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
         tree_branch_values["HT"][0] = event.HT
         tree_branch_values["MinDeltaPhiMhtJets"][0] = MinDeltaPhiMhtJets
         tree_branch_values["n_NVtx"][0] = event.NVtx
-        
-        if n_DT>0:
-            tree_branch_values["is_pixel_track"][0] = is_pixel_track
-            tree_branch_values["trackerLayersWithMeasurement"][0] = trackerLayersWithMeasurement
-        else:
-            tree_branch_values["is_pixel_track"][0] = -1
-        
+               
         if event.EvtNum % 2 == 0:
             tree_branch_values["EvtNumEven"][0] = 1
         else:
@@ -487,5 +500,5 @@ if __name__ == "__main__":
     else:
         nev = -1
 
-    loop(iFile, out_tree, ["../../disappearing-track-tag/short-tracks", "../../disappearing-track-tag/long-tracks"], nevents=nev)
+    loop(iFile, out_tree, nevents=nev)
 

@@ -151,8 +151,6 @@ def get_histogram(variable, cutstring, nBinsX=False, xmin=False, xmax=False, nBi
 
     for sample in samples:
 
-        print "Getting histogram for %s, var = %s, cut = %s" % (sample, variable, cutstring)
-
         filenames = glob.glob(sample + "*root")
 
         if not nBinsY:
@@ -403,8 +401,8 @@ if __name__ == "__main__":
     rootfile = "fakerate-updated.root"
 
     create_fakerate_maps_dilepton = 1
-    create_fakerate_maps_qcd = 1
-    create_1Dplots = 1
+    create_fakerate_maps_qcd = 0
+    create_1Dplots = 0
     create_stacked_plots = 0
 
     os.system("rm fakerate-updated.root")
