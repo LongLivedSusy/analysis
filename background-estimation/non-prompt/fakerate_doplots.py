@@ -400,7 +400,7 @@ if __name__ == "__main__":
     base_cuts = "PFCaloMETRatio<5"
 
     create_fakerate_maps_dilepton = 1
-    create_fakerate_maps_qcd = 0
+    create_fakerate_maps_qcd = 1
     create_1Dplots = 0
     create_stacked_plots = 0
 

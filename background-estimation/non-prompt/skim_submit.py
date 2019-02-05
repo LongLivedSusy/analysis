@@ -4,7 +4,7 @@ import multiprocessing
 from GridEngineTools import runParallel
 
 runmode = "grid"
-output_folder = "output_skim7"
+output_folder = "output_skim8"
 files_per_job = 5
 files_per_sample = -1
 
