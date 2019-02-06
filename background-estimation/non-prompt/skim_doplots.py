@@ -36,8 +36,8 @@ def stamp_plot():
     tl.SetTextSize(1.0/0.81*tl.GetTextSize())
 
 
-#def control_plot(folder, label, rootfile, lumi = 2.572 + 4.242, lepton_region = ""):
-def control_plot(folder, label, rootfile, lumi = 135000, lepton_region = ""):
+def control_plot(folder, label, rootfile, lumi = 2.572 + 4.242, lepton_region = ""):
+#def control_plot(folder, label, rootfile, lumi = 135000, lepton_region = ""):
     
     histos = {}
 
@@ -110,7 +110,7 @@ def control_plot(folder, label, rootfile, lumi = 135000, lepton_region = ""):
     histos["h_region_bg"].SetFillStyle(3003)
     histos["h_region_bg"].GetXaxis().SetRangeUser(1,33)
     histos["h_region_bg"].GetXaxis().SetLabelSize(0)
-    histos["h_region_bg"].GetYaxis().SetRangeUser(1e-5,5e7)
+    histos["h_region_bg"].GetYaxis().SetRangeUser(1e-5,2e6)
     histos["h_region_bg"].SetTitle(";;events")
 
     histos["h_region_noDT_bg"].Draw("same hist e")
@@ -210,7 +210,7 @@ def control_plot(folder, label, rootfile, lumi = 135000, lepton_region = ""):
 
 
 # folder containing skim output
-folder = "output_skim7"
+folder = "output_skim"
 merge_skim = 0
 
 # set to True to do an hadd:
@@ -220,8 +220,6 @@ if merge_skim:
         for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
             os.system("hadd -f %s/merged_%s_%s.root %s/Run%s*%s*root" % (folder, period, dataset, folder, period, dataset))
         os.system("hadd -f %s/merged_2016_%s.root %s/Run2016*%s*root" % (folder, dataset, folder, dataset))
-
-
 
 os.system("rm skimplots.root")
 control_plot(folder, "bg", "skimplots.root")

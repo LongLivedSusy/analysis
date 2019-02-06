@@ -231,6 +231,11 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         h_fakerate_dilepton_data = fakerate_file.Get("dilepton/dilepton_fake_rate_%s" % data_period)
         h_fakerate_dilepton_data_short = fakerate_file.Get("dilepton/dilepton_fake_rate_%s_short" % data_period)
         h_fakerate_dilepton_data_long = fakerate_file.Get("dilepton/dilepton_fake_rate_%s_long" % data_period)
+        
+        # use 2016C map for all qcd
+        if data_period == "2016D":
+            data_period = "2016C"
+        
         h_fakerate_qcd_bg = fakerate_file.Get("qcd/qcd_fake_rate_bg")
         h_fakerate_qcd_bg_short = fakerate_file.Get("qcd/qcd_fake_rate_bg_short")
         h_fakerate_qcd_bg_long = fakerate_file.Get("qcd/qcd_fake_rate_bg_long")
@@ -436,14 +441,12 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
 
             # check for category:
+            is_pixel_track = False
+            is_tracker_track = False
             if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = True
-            else:
-                is_pixel_track = False
-            if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
+            elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_tracker_track = True
-            else:
-                is_tracker_track = False
                             
             # apply TMVA preselection:
             if is_pixel_track and not (event.tracks[iCand].Pt() > 30 and \
@@ -559,6 +562,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
             # before filling tree, check if event in signal or control region:
             if n_DT > 0:
+                #FIXME: event with two DTs 
+                is_pixel_track = tree_branch_values["DT1_is_pixel_track"][0]
                 region = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track)
             else:
                 region = 0
@@ -588,9 +593,14 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     return value
 
                 # get fake rate from maps:
+                fakerate_dilepton_short = False
+                fakerate_qcd_short = False
+                fakerate_dilepton_long = False
+                fakerate_qcd_long = False
+                
                 if is_data:
                     fakerate_dilepton_short = getBinContent_with_overflow(h_fakerate_dilepton_data_short, event.nAllVertices, event.HT)
-                    fakerate_qcd_short_short = getBinContent_with_overflow(h_fakerate_qcd_data_short, event.nAllVertices, event.HT)
+                    fakerate_qcd_short = getBinContent_with_overflow(h_fakerate_qcd_data_short, event.nAllVertices, event.HT)
                     fakerate_dilepton_long = getBinContent_with_overflow(h_fakerate_dilepton_data_long, event.nAllVertices, event.HT)
                     fakerate_qcd_long = getBinContent_with_overflow(h_fakerate_qcd_data_long, event.nAllVertices, event.HT)
                 else:

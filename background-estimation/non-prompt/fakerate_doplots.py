@@ -229,10 +229,11 @@ def create_1D_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output
     
     canvas = TCanvas("fakerate", "fakerate", 800, 800)  
 
-    if len(cutstring) > 0:
-        base_cuts = cutstring + " && EvtNumEven==0"
-    else:
-        base_cuts = "EvtNumEven==0"
+    #if len(cutstring) > 0:
+    #    base_cuts = cutstring + " && EvtNumEven==0"
+    #else:
+    #    base_cuts = "EvtNumEven==0"
+    base_cuts = cutstring
    
     nBinsX = int(xmax/binWidth)
 
@@ -250,10 +251,10 @@ def create_1D_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output
     fake_rate_data.SetName("fake_rate_data")
       
     #check tracks if they are close to a genParticle with status 1:  
-    if len(cutstring) > 0:
-        base_cuts = cutstring + " && EvtNumEven==1"
-    else:
-        base_cuts = "EvtNumEven==1"
+    #if len(cutstring) > 0:
+    #    base_cuts = cutstring + " && EvtNumEven==1"
+    #else:
+    #    base_cuts = "EvtNumEven==1"
 
     fakes_gen_nominator = get_histogram(variable, base_cuts + " && n_DT_actualfake>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample = "Summer16")
     fakes_gen_denominator = get_histogram(variable, base_cuts + " && n_DT_actualfake==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample = "Summer16")
@@ -389,7 +390,7 @@ def create_1D_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output
 
     canvas.SetName("%s/%s_%s_fakerate" % (foldername, foldername, variable))
     canvas.Write()
-    canvas.SaveAs("plots/fakerate_%s_%s" % (foldername, variable))
+    canvas.SaveAs("plots/fakerate_%s_%s.pdf" % (foldername, variable))
 
     fout.Close()
 
@@ -399,13 +400,13 @@ if __name__ == "__main__":
     path = "output_fakerate/"
     base_cuts = "PFCaloMETRatio<5"
 
-    create_fakerate_maps_dilepton = 1
-    create_fakerate_maps_qcd = 1
-    create_1Dplots = 0
+    create_fakerate_maps_dilepton = 0
+    create_fakerate_maps_qcd = 0
+    create_1Dplots = 1
     create_stacked_plots = 0
 
-    os.system("rm fakerate-updated.root")
-    rootfile = "fakerate-updated.root"
+    #os.system("rm fakerate-updated-2.root")
+    rootfile = "fakerate-updated-2.root"
 
     cut_is_short_track = " && ((n_DT==1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
     cut_is_long_track  = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
