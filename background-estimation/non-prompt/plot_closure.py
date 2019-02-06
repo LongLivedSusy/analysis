@@ -1,43 +1,10 @@
 #!/bin/env python
 import sys, os, glob
+import os
 from ROOT import *
-
-gROOT.SetBatch(True)
-gStyle.SetOptStat(0)
-TH1D.SetDefaultSumw2()
-
-def stamp_plot():
-
-    # from Sam:
-    showlumi = False
-    tl = TLatex()
-    tl.SetNDC()
-    cmsTextFont = 61
-    extraTextFont = 52
-    lumiTextSize = 0.6
-    lumiTextOffset = 0.2
-    cmsTextSize = 0.75
-    cmsTextOffset = 0.1
-    regularfont = 42
-    tl.SetTextFont(cmsTextFont)
-    tl.SetTextSize(0.85*tl.GetTextSize())
-    tl.DrawLatex(0.135,0.915, 'CMS')
-    tl.SetTextFont(extraTextFont)
-    tl.SetTextSize(1.0/0.9*tl.GetTextSize())
-    xlab = 0.23
-    tl.DrawLatex(xlab,0.915, 'simulation preliminary')
-    tl.SetTextFont(regularfont)
-    tl.SetTextSize(0.81*tl.GetTextSize())    
-    thingy = ''
-    #if lumi: thingy+='#sqrt{s}=13 TeV, L = '+str(lumi)+' fb^{-1}'
-    xthing = 0.6202
-    if not showlumi: xthing+=0.13
-    tl.DrawLatex(xthing,0.915,thingy)
-    tl.SetTextSize(1.0/0.81*tl.GetTextSize())
-
+from plotting import *
 
 def control_plot(folder, label, rootfile, lumi = 2.572 + 4.242, lepton_region = ""):
-#def control_plot(folder, label, rootfile, lumi = 135000, lepton_region = ""):
     
     histos = {}
 
@@ -91,7 +58,7 @@ def control_plot(folder, label, rootfile, lumi = 2.572 + 4.242, lepton_region = 
     if lepton_region != "":
         label = label + "_" + lepton_region
 
-    canvas = TCanvas("%s_regions" % label, "%s_regions" % label, 800, 800)
+    canvas = TCanvas("%s_closure" % label, "%s_closure" % label, 800, 800)
     canvas.SetRightMargin(0.06)
     canvas.SetLeftMargin(0.12)
     canvas.SetLogy(True)
@@ -204,25 +171,25 @@ def control_plot(folder, label, rootfile, lumi = 2.572 + 4.242, lepton_region = 
     ratio_dilepton.GetYaxis().SetLabelSize(0.15)
 
     canvas.Write()
+    if not os.path.exists("plots"): os.mkdir("plots")
     canvas.SaveAs("plots/nonprompt_control_%s.pdf" % label)
 
     fout.Close()
 
 
-# folder containing skim output
+# folder containing skim output:
 folder = "output_skim"
-merge_skim = 0
+merge_skim = False
 
 # set to True to do an hadd:
-if merge_skim:
+if merge_skim or not os.path.exists("%s/merged_bg.root" % folder):
     os.system("hadd -f %s/merged_bg.root %s/Summer16*root" % (folder, folder))
     for dataset in ["SingleElectron", "SingleMuon"]:
         for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
             os.system("hadd -f %s/merged_%s_%s.root %s/Run%s*%s*root" % (folder, period, dataset, folder, period, dataset))
         os.system("hadd -f %s/merged_2016_%s.root %s/Run2016*%s*root" % (folder, dataset, folder, dataset))
 
-os.system("rm skimplots.root")
-control_plot(folder, "bg", "skimplots.root")
-control_plot(folder, "bg", "skimplots.root", lepton_region = "zeroleptons")
-control_plot(folder, "bg", "skimplots.root", lepton_region = "onelepton")
+control_plot(folder, "bg", "plots.root")
+control_plot(folder, "bg", "plots.root", lepton_region = "zeroleptons")
+control_plot(folder, "bg", "plots.root", lepton_region = "onelepton")
 

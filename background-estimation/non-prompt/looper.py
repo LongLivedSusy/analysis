@@ -84,9 +84,9 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
-def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_SRCR = True, verbose = True):
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = True):
 
-    if region_SRCR:
+    if region_signalcontrol:
         print "\nConfigured for inclusive SR / CR!\n"
     if region_fakerate:
         print "\nConfigured for fake rate estimation region!\n"
@@ -105,7 +105,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     xsec_written = False
 
     # prepare histograms:
-    if region_SRCR:
+    if region_signalcontrol:
         histos = collections.OrderedDict()
         for lepton_region in ["", "zeroleptons_", "onelepton_"]:
             histos["h_" + lepton_region + "region"]                    = TH1F("h_" + lepton_region + "region", "h_" + lepton_region + "region", 40, 0, 40)
@@ -141,7 +141,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         float_branches.append("MHT_cleaned")
         float_branches.append("HT_cleaned")
         float_branches.append("MinDeltaPhiMhtJets_cleaned")
-    if region_SRCR: 
+    if region_signalcontrol: 
         float_branches.append("region")
         float_branches.append("region_prompt")
         float_branches.append("region_actualfakes")
@@ -222,7 +222,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if "Run2016" in event_tree_filenames[0]:
             mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
 
-    if region_SRCR:
+    if region_signalcontrol:
         # load fakerate maps:
         fakerate_file = TFile("fakerate.root", "open")
         h_fakerate_dilepton_bg = fakerate_file.Get("dilepton/dilepton_fake_rate_bg")
@@ -269,7 +269,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if (iEv+1) % 500 == 0:
             print "Processing event %s / %s" % (iEv + 1, nev)
 
-        if region_SRCR:
+        if region_signalcontrol:
             # speed things up (low MHT without jets don't fall into any signal region):
             if event.MHT<250 or len(event.Jets) == 0: continue
 
@@ -558,7 +558,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     print "charged_genparticle_in_track_cone", charged_genparticle_in_track_cone
                     print "***********************************************"
 
-        if region_SRCR:
+        if region_signalcontrol:
 
             # before filling tree, check if event in signal or control region:
             if n_DT > 0:
@@ -695,7 +695,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     fout.Write()
     h_xsec.Write()
 
-    if region_SRCR:
+    if region_signalcontrol:
         for label in histos:
             histos[label].Write()
         fakerate_file.Close()
@@ -718,11 +718,11 @@ if __name__ == "__main__":
         nev = -1
 
     region_fakerate = False
-    region_SRCR = False
+    region_signalcontrol = False
     if region == 0:
         region_fakerate = True
     elif region == 1:
-        region_SRCR = True
+        region_signalcontrol = True
 
-    loop(iFile, out_tree, nevents = nev, region_fakerate = region_fakerate, region_SRCR = region_SRCR)
+    loop(iFile, out_tree, nevents = nev, region_fakerate = region_fakerate, region_signalcontrol = region_signalcontrol)
 
