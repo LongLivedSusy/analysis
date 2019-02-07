@@ -3,7 +3,8 @@ from ROOT import *
 from glob import glob
 import numpy as np
 
-infilename = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'
+#infilename = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root'
+infilename = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
 
 t = TChain("TreeMaker2/PreSelection")
 filenamelist = glob(infilename)
@@ -25,6 +26,7 @@ DeepCSVL = 0.2219
 DeepCSVM = 0.6324
 DeepCSVT = 0.8958
 
+# Pt, Eta bins for 2D histo
 xbins = np.array([20,30,50,70,140,200,300,600,1000],dtype='f')
 nbinsx = len(xbins)-1
 ybins = np.array([-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4],dtype='f')
@@ -49,10 +51,13 @@ for ientry in range(nentries) :
 #for ientry in range(1000) :
     if ientry % verbosity ==0: print ientry, 'events passing'
     t.GetEntry(ientry)
+    
+    if not t.MHT > 200 : continue
+    if not t.HT > 100 : continue
 
     for ijet, jet in enumerate(t.Jets) :
 	#print ientry,'th event', ijet, 'th jet', 'b_Disc :', t.Jets_bDiscriminatorCSV[ijet], '\thadron flavor:', t.Jets_hadronFlavor[ijet], '\tisTagged : ', True if t.Jets_bDiscriminatorCSV[ijet]>DeepCSVM else False
-	if jet.Pt() < 20 : continue
+	if jet.Pt() < 30 : continue
 
 	# Fill 2D : b,c,light quarks and b-tagged(medium WP) quark in each pT,eta region
 	if t.Jets_hadronFlavor[ijet]==5: # truth b particle
@@ -129,7 +134,8 @@ h2_eff_udsg.SetOption("COLZ")
 h2_eff_udsg.SetStats(False)
 
 # Save in root file
-newfilename = 'BTagEfficiency_Summer16_TTJets.root'
+#newfilename = 'BTagEfficiency_Summer16_TTJets.root'
+newfilename = 'BTagEfficiency_g1800_chi1400_27_200970.root'
 fout = TFile(newfilename,"RECREATE")
 h2_nb.Write()
 h2_nb_btag.Write()
