@@ -4,8 +4,6 @@ from ROOT import *
 from array import array
 from optparse import OptionParser
 import tmva_tools
-import os
-import numpy as np
 import collections
 
 gStyle.SetOptStat(0)
@@ -84,7 +82,7 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
-def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = True):
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
 
     if region_signalcontrol:
         print "\nConfigured for inclusive SR / CR!\n"
@@ -160,21 +158,31 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     integer_branches.append("n_allvertices")
     integer_branches.append("n_NVtx")
     integer_branches.append("EvtNumEven")
-    integer_branches.append("DT1_is_pixel_track")
-    integer_branches.append("DT2_is_pixel_track")
-    integer_branches.append("DT3_is_pixel_track")
-    integer_branches.append("DT1_trackerLayersWithMeasurement")
-    integer_branches.append("DT2_trackerLayersWithMeasurement")
-    integer_branches.append("DT3_trackerLayersWithMeasurement")
-    integer_branches.append("DT1_actualfake")
-    integer_branches.append("DT2_actualfake")
-    integer_branches.append("DT3_actualfake")
     if region_fakerate:
         integer_branches.append("n_jets_cleaned")
         integer_branches.append("n_btags_cleaned")
         integer_branches.append("dilepton_CR")
         integer_branches.append("qcd_CR")
-        integer_branches.append("lepton_type")
+        integer_branches.append("dilepton_leptontype")
+    for i in range(1,4):
+        integer_branches.append("DT%i_is_pixel_track" % i)
+        integer_branches.append("DT%i_pixelLayersWithMeasurement" % i)
+        integer_branches.append("DT%i_trackerLayersWithMeasurement" % i)
+        integer_branches.append("DT%i_nMissingInnerHits" % i)
+        integer_branches.append("DT%i_nMissingMiddleHits" % i)
+        integer_branches.append("DT%i_nMissingOuterHits" % i)
+        integer_branches.append("DT%i_trackQualityHighPurity" % i)
+        integer_branches.append("DT%i_nValidPixelHits" % i)
+        integer_branches.append("DT%i_nValidTrackerHits" % i)
+        integer_branches.append("DT%i_actualfake" % i)
+        float_branches.append("DT%i_dxyVtx" % i)
+        float_branches.append("DT%i_dzVtx" % i)
+        float_branches.append("DT%i_matchedCaloEnergy" % i)
+        float_branches.append("DT%i_trkRelIso" % i)
+        float_branches.append("DT%i_ptErrOverPt2" % i)
+        float_branches.append("DT%i_mva" % i)
+        float_branches.append("DT%i_pt" % i)
+        float_branches.append("DT%i_eta" % i)
 
     tree_branch_values = {}
     for variable in float_branches:
@@ -243,16 +251,14 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         h_fakerate_qcd_data_short = fakerate_file.Get("qcd/qcd_fake_rate_%s_short" % data_period)
         h_fakerate_qcd_data_long = fakerate_file.Get("qcd/qcd_fake_rate_%s_long" % data_period)
 
-    # some loop variables:
-    nevents_total = 0
-    nevents_tagged = 0
-    nevents_tagged_actualfake = 0
-
     weight = 1
     h_xsec = TH1F("xsec", "xsec", 1, 0, 1)
 
     # loop over events
     for iEv, event in enumerate(tree):
+
+        if iEv_start and iEv < begin_event:
+            continue
 
         if not xsec_written and not is_data:
             if tree.GetBranch("CrossSection"):
@@ -267,7 +273,9 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             break
         
         if (iEv+1) % 500 == 0:
-            print "Processing event %s / %s" % (iEv + 1, nev)
+            PercentProcessed = int( 20 * iEv / nev )
+            line = "[" + PercentProcessed*"#" + (20-PercentProcessed)*" " + "]\t" + "Processing event %s / %s" % (iEv + 1, nev)
+            print line
 
         if region_signalcontrol:
             # speed things up (low MHT without jets don't fall into any signal region):
@@ -331,7 +339,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                 if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
                                     if bool(event.Electrons_passIso[0]) and bool(event.Electrons_passIso[1]):
                                         tree_branch_values["dilepton_invmass"][0] = invariant_mass
-                                        tree_branch_values["lepton_type"][0] = 11
+                                        tree_branch_values["dilepton_leptontype"][0] = 11
                                         tree_branch_values["dilepton_CR"][0] = 1
                                         dilepton_CR = True       
                 elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
@@ -342,7 +350,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                 if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
                                     if bool(event.Muons_passIso[0]) and bool(event.Muons_passIso[1]):
                                         tree_branch_values["dilepton_invmass"][0] = invariant_mass
-                                        tree_branch_values["lepton_type"][0] = 13
+                                        tree_branch_values["dilepton_leptontype"][0] = 13
                                         tree_branch_values["dilepton_CR"][0] = 1
                                         dilepton_CR = True
 
@@ -414,7 +422,6 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
      
         # loop over tracks (tracks):
-        nevents_total += 1
         n_DT = 0
         n_DT_actualfake = 0
 
@@ -471,29 +478,21 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     continue
 
             # evaluate BDT:
-            if is_pixel_track:
-                tmva_variables["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
-                tmva_variables["dzVtx"][0] = event.tracks_dzVtx[iCand]
-                tmva_variables["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
-                tmva_variables["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
-                tmva_variables["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
-                tmva_variables["nValidTrackerHits"][0] = event.tracks_nValidTrackerHits[iCand]
-                tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
+            tmva_variables["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
+            tmva_variables["dzVtx"][0] = event.tracks_dzVtx[iCand]
+            tmva_variables["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
+            tmva_variables["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
+            tmva_variables["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
+            tmva_variables["nValidTrackerHits"][0] = event.tracks_nValidTrackerHits[iCand]
+            tmva_variables["nMissingOuterHits"][0] = event.tracks_nMissingOuterHits[iCand]
+            tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
 
+            if is_pixel_track:
                 mva = readerPixelOnly.EvaluateMVA("BDT")
                 if mva>bdt_cut_pixelonly:
                     is_disappearing_track = True
 
             elif is_tracker_track:
-                tmva_variables["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
-                tmva_variables["dzVtx"][0] = event.tracks_dzVtx[iCand]
-                tmva_variables["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
-                tmva_variables["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
-                tmva_variables["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
-                tmva_variables["nValidTrackerHits"][0] = event.tracks_nValidTrackerHits[iCand]
-                tmva_variables["nMissingOuterHits"][0] = event.tracks_nMissingOuterHits[iCand]
-                tmva_variables["ptErrOverPt2"][0] = ptErrOverPt2
-
                 mva = readerPixelStrips.EvaluateMVA("BDT")
                 if mva>bdt_cut_pixelstrips:
                     is_disappearing_track = True
@@ -531,31 +530,32 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     n_DT_actualfake += 1
 
                 # save track-level properties:
-                tree_branch_values["DT%s_is_pixel_track" % n_DT][0] = is_pixel_track
-                tree_branch_values["DT%s_trackerLayersWithMeasurement" % n_DT][0] = event.tracks_trackerLayersWithMeasurement[iCand]
-                tree_branch_values["DT%s_actualfake" % n_DT][0] = not charged_genparticle_in_track_cone
+                tree_branch_values["DT%i_is_pixel_track" % n_DT][0] = is_pixel_track
+                tree_branch_values["DT%i_pixelLayersWithMeasurement" % n_DT][0] = event.tracks_pixelLayersWithMeasurement[iCand]
+                tree_branch_values["DT%i_trackerLayersWithMeasurement" % n_DT][0] = event.tracks_trackerLayersWithMeasurement[iCand]
+                tree_branch_values["DT%i_actualfake" % n_DT][0] = not charged_genparticle_in_track_cone
+                tree_branch_values["DT%i_nMissingInnerHits" % n_DT][0] = event.tracks_nMissingInnerHits[iCand]
+                tree_branch_values["DT%i_nMissingMiddleHits" % n_DT][0] = event.tracks_nMissingMiddleHits[iCand]
+                tree_branch_values["DT%i_nMissingOuterHits" % n_DT][0] = event.tracks_nMissingOuterHits[iCand]
+                tree_branch_values["DT%i_trackQualityHighPurity" % n_DT][0] = bool(event.tracks_trackQualityHighPurity[iCand])
+                tree_branch_values["DT%i_nValidPixelHits" % n_DT][0] = event.tracks_nValidPixelHits[iCand]
+                tree_branch_values["DT%i_nValidTrackerHits" % n_DT][0] = event.tracks_nValidTrackerHits[iCand]
+                tree_branch_values["DT%i_dxyVtx" % n_DT][0] = event.tracks_dxyVtx[iCand]
+                tree_branch_values["DT%i_dzVtx" % n_DT][0] = event.tracks_dzVtx[iCand]
+                tree_branch_values["DT%i_matchedCaloEnergy" % n_DT][0] = event.tracks_matchedCaloEnergy[iCand]
+                tree_branch_values["DT%i_trkRelIso" % n_DT][0] = event.tracks_trkRelIso[iCand]
+                tree_branch_values["DT%i_ptErrOverPt2" % n_DT][0] = ptErrOverPt2
+                tree_branch_values["DT%i_mva" % n_DT][0] = mva
+                tree_branch_values["DT%i_pt" % n_DT][0] = event.tracks[iCand].Pt()
+                tree_branch_values["DT%i_eta" % n_DT][0] = event.tracks[iCand].Eta()
 
                 if verbose:
                     print "**************** DT track info ****************"
-                    print "file name =", current_file_name
-                    print "event number =", iEv
-                    print "mva =", mva
-                    print "is_pixel_track =", is_pixel_track
-                    print "is_tracker_track =", is_tracker_track
-                    print "pt =", event.tracks[iCand].Pt()
-                    print "eta =", abs(event.tracks[iCand].Eta())
-                    print "nMissingInnerHits =", event.tracks_nMissingInnerHits[iCand]
-                    print "nMissingMiddleHits =", event.tracks_nMissingMiddleHits[iCand]
-                    print "trackQualityHighPurity =", bool(event.tracks_trackQualityHighPurity[iCand])
-                    print "dxyVtx =", event.tracks_dxyVtx[iCand]
-                    print "dzVtx =", event.tracks_dzVtx[iCand]
-                    print "matchedCaloEnergy =", event.tracks_matchedCaloEnergy[iCand]
-                    print "trkRelIso =", event.tracks_trkRelIso[iCand]
-                    print "nValidPixelHits =", event.tracks_nValidPixelHits[iCand]
-                    print "nValidTrackerHits =", event.tracks_nValidTrackerHits[iCand]
-                    print "nMissingOuterHits =", event.tracks_nMissingOuterHits[iCand]
-                    print "ptErrOverPt2 =", ptErrOverPt2
-                    print "charged_genparticle_in_track_cone", charged_genparticle_in_track_cone
+                    print "file =", current_file_name
+                    print "event =", iEv
+                    for item in tree_branch_values:
+                        if "DT%i" % n_DT in item:
+                           print "%s = %s" % (item, tree_branch_values[item][0])
                     print "***********************************************"
 
         if region_signalcontrol:

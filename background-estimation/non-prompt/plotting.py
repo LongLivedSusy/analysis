@@ -2,14 +2,13 @@
 from __future__ import division
 import glob
 from ROOT import *
-import numpy as np
 import uuid
-import os
-import treeplotter
 
 gROOT.SetBatch(True)
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
+
+# a collection of generic functions to retrieve a 1D or 2D histogram from a collection of files containing a TTree
 
 def stamp_plot():
 
@@ -128,6 +127,8 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
 
 
 def get_histogram(variable, cutstring, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", selected_sample = "Run2016"):
+
+    print "Getting histogram for %s, cut = %s (sample: %s)" % (variable, cutstring, selected_sample)
 
     unique = str(uuid.uuid1())
     

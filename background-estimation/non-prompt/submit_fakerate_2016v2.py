@@ -1,11 +1,10 @@
 #!/bin/env python
-import sys, os, glob
-import multiprocessing
+import os, glob
 from GridEngineTools import runParallel
 
 runmode = "grid"
-output_folder = "output_skim"
-files_per_job = 4
+output_folder = "output_fakerate"
+files_per_job = 5
 files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
@@ -25,12 +24,18 @@ def create_command_list(ntuples_folder, samples):
 
         print "Looping over %s files (%s)" % (len(ifile_list), sample)
 
-        file_segments = [ifile_list[x:x+files_per_job] for x in range(0,len(ifile_list),files_per_job)]
+        # check if (not) running over QCD events:
+        if "QCD" in sample or "JetHT" in sample:
+            current_files_per_job = 2
+        else:
+            current_files_per_job = files_per_job
+        
+        file_segments = [ifile_list[x:x+current_files_per_job] for x in range(0,len(ifile_list),current_files_per_job)]
 
         for inFile_segment in file_segments:
                 
             out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].split(".root")[0] + "_fakes.root"
-            commands.append("./looper.py %s %s 0 1" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
+            commands.append("./looper.py %s %s 0 0" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
 
 cmssw8_samples = [
                     "Summer16.WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
@@ -68,25 +73,35 @@ cmssw8_samples = [
                     "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-                    #"Run2016B-03Feb2017_ver2-v2.SingleElectron",
-                    #"Run2016B-03Feb2017_ver2-v2.SingleMuon",
+                    "Run2016B-03Feb2017_ver2-v2.SingleElectron",
                     "Run2016C-03Feb2017-v1.SingleElectron",
-                    "Run2016C-03Feb2017-v1.SingleMuon",
                     "Run2016D-03Feb2017-v1.SingleElectron",
+                    "Run2016E-03Feb2017-v1.SingleElectron",
+                    "Run2016F-03Feb2017-v1.SingleElectron",
+                    "Run2016G-03Feb2017-v1.SingleElectron",
+                    "Run2016H-03Feb2017_ver2-v1.SingleElectron",
+                    "Run2016B-03Feb2017_ver2-v2.SingleMuon",
+                    "Run2016C-03Feb2017-v1.SingleMuon",
                     "Run2016D-03Feb2017-v1.SingleMuon",
-                    #"Run2016E-03Feb2017-v1.SingleElectron",
-                    #"Run2016E-03Feb2017-v1.SingleMuon",
-                    #"Run2016F-03Feb2017-v1.SingleElectron",
-                    #"Run2016F-03Feb2017-v1.SingleMuon",
-                    #"Run2016G-03Feb2017-v1.SingleElectron",
-                    #"Run2016G-03Feb2017-v1.SingleMuon",
-                    #"Run2016H-03Feb2017_ver2-v1.SingleElectron",
-                    #"Run2016H-03Feb2017_ver2-v1.SingleMuon",
+                    "Run2016E-03Feb2017-v1.SingleMuon",
+                    "Run2016F-03Feb2017-v1.SingleMuon",
+                    "Run2016G-03Feb2017-v1.SingleMuon",
+                    "Run2016H-03Feb2017_ver2-v1.SingleMuon",
+                 ]
+
+cmssw9_samples = [
+                    "Run2016C-17Jul2018-v1.JetHT",
+                    "Run2016E-17Jul2018-v1.JetHT",
+                    "Run2016F-17Jul2018-v1.JetHT",
+                    "Run2016G-17Jul2018-v1.JetHT",
+                    "Run2016H-17Jul2018-v1.JetHT",
                  ]
 
 create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples)
+create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", cmssw9_samples)
 
 raw_input("submit %s jobs?" % len(commands))
 os.system("cp looper.py %s/" % output_folder)
-runParallel(commands, runmode, dontCheckOnJobs=True)
+runParallel(commands, runmode, dontCheckOnJobs=True, burst_mode=False)
+
 

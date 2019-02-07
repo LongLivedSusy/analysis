@@ -1,10 +1,7 @@
 #!/bin/env python
 from __future__ import division
-import glob
-from ROOT import *
-import numpy as np
-import uuid
 import os
+from ROOT import *
 from plotting import *
 
 def fakerate_map(path = "output/", variables = "HT_cleaned:n_allvertices", nBinsX=10, xmin=0, xmax=50, nBinsY=10, ymin=0, ymax=1000, rootfile = False, foldername = "dilepton", label = "mc", selected_sample = "Summer16", base_cuts = "PFCaloMETRatio<5", numerator_cuts = "", denominator_cuts = "", extra_text = "combined MC background"):
@@ -56,9 +53,36 @@ def fakerate_map(path = "output/", variables = "HT_cleaned:n_allvertices", nBins
     latex.DrawLatex(0.18, 0.87, extra_text)
     stamp_plot()
     canvas.Write("%s_canvas_%s_%s" % (foldername, label, variables.replace(":", "-")))
+    if not os.path.exists("plots"): os.mkdir("plots")
     canvas.SaveAs("plots/fakerate_%s_%s_%s.pdf" % (foldername, label, variables.replace(":", "-")))
 
     fout.Close()
+
+
+def combine_fakerate_maps(fout, foldername):
+
+    fout = TFile(rootfile, "update")
+
+    histos = {}
+
+    histos["%s_fake_rate_data_short" % foldername] = 0
+    histos["%s_fake_rate_data_long" % foldername] = 0
+
+    for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
+        histos["%s_fake_rate_%s_short" % (foldername, period)] = fout.Get("%s/%s_fake_rate_%s_short" % (foldername, foldername, period))
+        histos["%s_fake_rate_%s_long" % (foldername, period)] = fout.Get("%s/%s_fake_rate_%s_long" % (foldername, foldername, period))
+
+        if histos["%s_fake_rate_data_short" % foldername] == 0:
+            histos["%s_fake_rate_data_short" % foldername] = histos["%s_fake_rate_%s_short" % (foldername, period)].Clone()
+        else:
+            histos["%s_fake_rate_data_short" % foldername].Add( histos["%s_fake_rate_%s_short" % (foldername, period)] )
+
+        if histos["%s_fake_rate_data_long" % foldername] == 0:
+            histos["%s_fake_rate_data_long" % foldername] = histos["%s_fake_rate_%s_long" % (foldername, period)].Clone()
+        else:
+            histos["%s_fake_rate_data_long" % foldername].Add( histos["%s_fake_rate_%s_long" % (foldername, period)] )
+
+    #FIXME
 
 
 if __name__ == "__main__":

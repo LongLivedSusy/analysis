@@ -1,5 +1,4 @@
 #!/bin/env python
-import sys, os, glob
 import os
 from ROOT import *
 from plotting import *
