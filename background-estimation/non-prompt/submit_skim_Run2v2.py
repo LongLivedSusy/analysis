@@ -202,7 +202,7 @@ Run20172018_ntuples = [
 
 
 command = "./looper.py $INPUT $OUTPUT 0 1"
-output_folder = "output_fakerate_Run2v2"
+output_folder = "output_skim_Run2v2"
 commands = []
 commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", Run2016_ntuples, output_folder, command = command)
 commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command)
