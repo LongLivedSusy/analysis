@@ -1,35 +1,5 @@
 #!/bin/env python
-import os, glob
-from GridEngineTools import runParallel
-
-runmode = "grid"
-output_folder = "output_fakerate_Run2v2"
-files_per_job = 5
-files_per_sample = -1
-
-os.system("mkdir -p %s" % output_folder)
-commands = []
-
-def create_command_list(ntuples_folder, samples):
-
-    for sample in samples:
-
-        ifile_list = sorted(glob.glob(ntuples_folder + "/" + sample + "*.root"))
-        
-        if files_per_sample != -1:
-            ifile_list = ifile_list[:files_per_sample]
-        
-        if len(ifile_list)==0:
-            continue
-
-        print "Looping over %s files (%s)" % (len(ifile_list), sample)
-       
-        file_segments = [ifile_list[x:x+files_per_job] for x in range(0,len(ifile_list),files_per_job)]
-
-        for inFile_segment in file_segments:
-                
-            out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].split(".root")[0] + "_fakes.root"
-            commands.append("./looper.py %s %s 0 0" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
+from submit import *
 
 Run2016_ntuples = [
                     "Summer16.QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
@@ -230,10 +200,10 @@ Run20172018_ntuples = [
                     "Run2018C-17Sep2018-v1.SingleMuon",
                  ]
 
-create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", Run2016_ntuples)
-create_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples)
+command = "./looper.py $INPUT $OUTPUT 0 0"
+output_folder = "output_fakerate_Run2v2"
+commands = []
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", Run2016_ntuples, output_folder, command = command)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command)
 
-raw_input("submit %s jobs?" % len(commands))
-os.system("cp looper.py %s/" % output_folder)
-runParallel(commands, runmode, dontCheckOnJobs=True)
-
+do_submission(commands, output_folder)

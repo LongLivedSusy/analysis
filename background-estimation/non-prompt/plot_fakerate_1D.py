@@ -151,7 +151,7 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
     legend.SetTextSize(0.03)
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
-    legend.AddEntry(fake_rate_data, "Fake rate from data")
+    legend.AddEntry(fake_rate_data, "Fake rate from data (%s)" % selected_data.replace("*", " "))
 
     legend.AddEntry(fake_rate_bg, "Fake rate from MC")
     legend.AddEntry(fake_rate_gen, "Fake rate from MC + truth")
@@ -190,24 +190,25 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
 
 if __name__ == "__main__":
     
-    path = "output_fakerate_Run2v2/"
     base_cuts = "PFCaloMETRatio<5"
-    rootfile = "fakerate.root"
+    rootfile = "fakerate_updated.root"
 
-    #selected_mc = "Summer16"
+    path = "output_fakerate_2016v2/"
+    selected_mc = "Summer16"
     #selected_data_dilepton = "Run2016C*SingleElectron"
     #selected_data_qcd = "Run2016C*JetHT"
-    #selected_data_dilepton = "Run2016*SingleElectron"
-    #selected_data_qcd = "Run2016*JetHT"
+    selected_data_dilepton = "Run2016*SingleElectron"
+    selected_data_qcd = "Run2016*JetHT"
 
-    selected_mc = "Fall17"
+    #path = "output_fakerate_Run2v2/"
+    #selected_mc = "Fall17"
     #selected_data_dilepton = "Run2017*SingleElectron"
     #selected_data_qcd = "Run2017*JetHT"
-    selected_data_dilepton = "Run2018*SingleMuon"
-    selected_data_qcd = "Run2018*JetHT"
+    #selected_data_dilepton = "Run2018*SingleMuon"
+    #selected_data_qcd = "Run2018*JetHT"
 
 
-    for category in ["long", "short"]:
+    for category in ["short", "long"]:
 
         if category == "short":
             numerator_cut = " && ((n_DT==1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
@@ -223,6 +224,8 @@ if __name__ == "__main__":
         fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
         fakerate_plot("HT", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
         fakerate_plot("MHT", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
+
+    quit()
 
     # create stacked plots for invariant mass and n_DT using treeplotter:
     config = "../../cfg/samples_cmssw8_all.cfg"

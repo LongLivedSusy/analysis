@@ -1,41 +1,5 @@
 #!/bin/env python
-import os, glob
-from GridEngineTools import runParallel
-
-runmode = "grid"
-output_folder = "output_fakerate_2016v2"
-files_per_job = 5
-files_per_sample = -1
-
-os.system("mkdir -p %s" % output_folder)
-commands = []
-
-def create_command_list(ntuples_folder, samples):
-
-    for sample in samples:
-
-        ifile_list = sorted(glob.glob(ntuples_folder + "/" + sample + "*.root"))
-        
-        if files_per_sample != -1:
-            ifile_list = ifile_list[:files_per_sample]
-        
-        if len(ifile_list)==0:
-            continue
-
-        print "Looping over %s files (%s)" % (len(ifile_list), sample)
-
-        # check if (not) running over QCD events:
-        if "QCD" in sample or "JetHT" in sample:
-            current_files_per_job = 2
-        else:
-            current_files_per_job = files_per_job
-        
-        file_segments = [ifile_list[x:x+current_files_per_job] for x in range(0,len(ifile_list),current_files_per_job)]
-
-        for inFile_segment in file_segments:
-                
-            out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].split(".root")[0] + "_fakes.root"
-            commands.append("./looper.py %s %s 0 0" % (str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", ""), out_tree))
+from submit import *
 
 cmssw8_samples = [
                     "Summer16.WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
@@ -97,11 +61,10 @@ cmssw9_samples = [
                     "Run2016H-17Jul2018-v1.JetHT",
                  ]
 
-create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples)
-create_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", cmssw9_samples)
+command = "./looper.py $INPUT $OUTPUT 0 0"
+output_folder = "output_fakerate_2016v2"
+commands = []
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples, output_folder, command = command)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", cmssw9_samples, output_folder, command = command)
 
-raw_input("submit %s jobs?" % len(commands))
-os.system("cp looper.py %s/" % output_folder)
-runParallel(commands, runmode, dontCheckOnJobs=True, burst_mode=False)
-
-
+do_submission(commands, output_folder)
