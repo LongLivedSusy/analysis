@@ -4,7 +4,7 @@ from GridEngineTools import runParallel
 
 runmode = "grid"
 output_folder = "output_fakerate_Run2v2"
-files_per_job = 6
+files_per_job = 5
 files_per_sample = -1
 
 os.system("mkdir -p %s" % output_folder)
@@ -206,27 +206,27 @@ Run20172018_ntuples = [
                     #"ProductionRun2v2RunIIFall17MiniAODv2.ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8",
                     #"ProductionRun2v2RunIIFall17MiniAODv2.ttHJetTobb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8",
                     "ProductionRun2v2Run2017B-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017B-31Mar2018-v1.MET",
+                    #"ProductionRun2v2Run2017B-31Mar2018-v1.MET",
                     "ProductionRun2v2Run2017B-31Mar2018-v1.SingleElectron",
                     "ProductionRun2v2Run2017B-31Mar2018-v1.SingleMuon",
                     "ProductionRun2v2Run2017C-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017C-31Mar2018-v1.MET",
+                    #"ProductionRun2v2Run2017C-31Mar2018-v1.MET",
                     "ProductionRun2v2Run2017C-31Mar2018-v1.SingleElectron",
                     "ProductionRun2v2Run2017C-31Mar2018-v1.SingleMuon",
                     "ProductionRun2v2Run2017D-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017D-31Mar2018-v1.MET",
+                    #"ProductionRun2v2Run2017D-31Mar2018-v1.MET",
                     "ProductionRun2v2Run2017D-31Mar2018-v1.SingleElectron",
                     "ProductionRun2v2Run2017D-31Mar2018-v1.SingleMuon",
                     #"ProductionRun2v2Run2017E-31Mar2018-v1.JetHT",
                     #"ProductionRun2v2Run2017F-31Mar2018-v1.MET",
                     "Run2018A-17Sep2018-v1.JetHT",
-                    "Run2018A-17Sep2018-v1.MET",
+                    #"Run2018A-17Sep2018-v1.MET",
                     "Run2018A-17Sep2018-v1.SingleMuon",
                     "Run2018B-17Sep2018-v1.JetHT",
-                    "Run2018B-17Sep2018-v1.MET",
+                    #"Run2018B-17Sep2018-v1.MET",
                     "Run2018B-17Sep2018-v1.SingleMuon",
                     "Run2018C-17Sep2018-v1.JetHT",
-                    "Run2018C-17Sep2018-v1.MET",
+                    #"Run2018C-17Sep2018-v1.MET",
                     "Run2018C-17Sep2018-v1.SingleMuon",
                  ]
 
@@ -235,6 +235,5 @@ create_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run
 
 raw_input("submit %s jobs?" % len(commands))
 os.system("cp looper.py %s/" % output_folder)
-runParallel(commands, runmode, dontCheckOnJobs=True, burst_mode=False)
-
+runParallel(commands, runmode, dontCheckOnJobs=True)
 

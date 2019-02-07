@@ -3,7 +3,7 @@ import os, glob
 from GridEngineTools import runParallel
 
 runmode = "grid"
-output_folder = "output_fakerate"
+output_folder = "output_fakerate_2016v2"
 files_per_job = 5
 files_per_sample = -1
 

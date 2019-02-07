@@ -87,26 +87,30 @@ def combine_fakerate_maps(fout, foldername):
 
 if __name__ == "__main__":
     
-    path = "output_fakerate/"
+    path = "output_fakerate_2016v2/"
     base_cuts = "PFCaloMETRatio<5"
     rootfile = "fakerate.root"
+
+    selected_mc = "Summer16"
+    #periods = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]
+    data_periods = ["2016"]
 
     cut_is_short_track = " && ((n_DT==1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
     cut_is_long_track  = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
 
     # get fake rate from dilepton region:
-    fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_short_track, label = "bg_short", selected_sample = "Summer16", extra_text = "combined MC background, pixel-only tracks")
-    fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_long_track, label = "bg_long", selected_sample = "Summer16", extra_text = "combined MC background, pixel+strips tracks")
+    fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_short_track, label = "bg_short", selected_sample = selected_mc, extra_text = "combined MC background, pixel-only tracks")
+    fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_long_track, label = "bg_long", selected_sample = selected_mc, extra_text = "combined MC background, pixel+strips tracks")
     
-    for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-        fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_short_track, label = period + "_short", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel-only tracks" % period)
-        fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_long_track, label = period + "_long", selected_sample = "%s*Single" % period, extra_text = "Run%s SingleElectron + SingleMuon, pixel+strips tracks" % period)
+    for period in data_periods:
+        fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_short_track, label = period + "_short", selected_sample = "%s*SingleElectron" % period, extra_text = "Run%s SingleElectron, pixel-only tracks" % period)
+        fakerate_map(path = path, rootfile = rootfile, foldername = "dilepton", variables = "HT_cleaned:n_allvertices", base_cuts = base_cuts + " && dilepton_CR==1", numerator_cuts = cut_is_long_track, label = period + "_long", selected_sample = "%s*SingleElectron" % period, extra_text = "Run%s SingleElectron, pixel+strips tracks" % period)
 
     # get fake rate from QCD-only events:
-    fakerate_map(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_short_track, label = "bg_short", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel-only tracks")
-    fakerate_map(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_long_track, label = "bg_long", selected_sample = "Summer16*QCD", extra_text = "combined MC background, pixel+strips tracks")
+    fakerate_map(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_short_track, label = "bg_short", selected_sample = selected_mc + "*QCD", extra_text = "combined MC background, pixel-only tracks")
+    fakerate_map(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_long_track, label = "bg_long", selected_sample = selected_mc + "*QCD", extra_text = "combined MC background, pixel+strips tracks")
     
-    for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
+    for period in data_periods:
         fakerate_map(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_short_track, label = period + "_short", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel-only tracks" % period)
         fakerate_map(path = path, rootfile = rootfile, foldername = "qcd", variables = "HT:n_allvertices", base_cuts = base_cuts + " && qcd_CR==1", numerator_cuts = cut_is_long_track, label = period + "_long", selected_sample = "%s*JetHT" % period, extra_text = "Run%s JetHT, pixel+strips tracks" % period)
         

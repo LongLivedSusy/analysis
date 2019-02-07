@@ -82,7 +82,7 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
-def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = True, iEv_start = False):
 
     if region_signalcontrol:
         print "\nConfigured for inclusive SR / CR!\n"
@@ -328,7 +328,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             dilepton_CR = False
             qcd_CR = False
 
-            if "Run" not in current_file_name or "SingleElectron" in current_file_name or "SingleMuon" in current_file_name:
+            # do the following for all MC, but only for SingleLepton datastreams:
+            if not is_data or "SingleElectron" in current_file_name or "SingleMuon" in current_file_name:
                 min_lepton_pt = 30.0
                 invariant_mass = 0
                 if (len(event.Electrons) == 2 and len(event.Muons) == 0):

@@ -1,7 +1,7 @@
 #!/bin/env python
 import os, glob
 
-# use this script to get a file of unique sample names for a large folder full of ntuples:
+# use this script to get a list of unique sample names for a large folder full of ntuples.
 
 #folder = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub"
 folder = "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2"

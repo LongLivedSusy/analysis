@@ -5,54 +5,9 @@ from ROOT import *
 import treeplotter
 from plotting import *
 
-def plot_absolutes():
-
-    fakes_denominator_bg.Draw("hist")
-    fakes_denominator_bg.SetLineWidth(2)
-    fakes_denominator_bg.SetLineStyle(2)
-    fakes_denominator_bg.SetLineColor(kBlue)
-
-    fakes_numerator_bg.Draw("same hist")
-    fakes_numerator_bg.SetLineWidth(2)
-    fakes_numerator_bg.SetLineColor(kBlue)
-
-    fakes_denominator_data.Draw("same hist")
-    fakes_denominator_data.SetLineWidth(2)
-    fakes_denominator_data.SetLineStyle(2)
-    fakes_denominator_data.SetLineColor(kBlack)
-
-    fakes_numerator_data.Draw("same hist")
-    fakes_numerator_data.SetLineWidth(2)
-    fakes_numerator_data.SetLineColor(kBlack)
-
-    fakes_gen_denominator.Draw("same hist")
-    fakes_gen_denominator.SetLineWidth(2)
-    fakes_gen_denominator.SetLineStyle(2)
-    fakes_gen_denominator.SetLineColor(kRed)
-    
-    fakes_gen_numerator.Draw("same hist")
-    fakes_gen_numerator.SetLineWidth(2)
-    fakes_gen_numerator.SetLineColor(kRed)
-    
-    fakes_denominator_bg.GetYaxis().SetRangeUser(1e1,1e8)
-    fakes_denominator_bg.SetTitle(";%s;events" % xlabel)
-
-    legend = TLegend(0.4, 0.7, 0.96, 0.96)
-    legend.SetTextSize(0.025)
-    legend.AddEntry(fakes_denominator_data, "denominator (data)")
-    legend.AddEntry(fakes_numerator_data, "nominator (data)")
-    legend.AddEntry(fakes_denominator_bg, "denominator (MC)")
-    legend.AddEntry(fakes_numerator_bg, "nominator (MC)")
-    legend.AddEntry(fakes_gen_denominator, "denominator (MC + GenMatching)")
-    legend.AddEntry(fakes_gen_numerator, "nominator (MC + GenMatching)")
-    legend.Draw()
-
-    stamp_plot()
-    canvas.SetName("%s_%s_absolutes" % (foldername, variable))
-    canvas.Write()
-
-
-def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output", cutstring = "PFCaloMETRatio<5", foldername = "dilepton", rootfile = "fakerate.root", selected_mc = "Summer16", selected_data = "Run2016C*SingleElectron", plot_absolutes = False, numerator_cuts = "", decorrelate_events = False, label = ""):
+def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output", cutstring = "PFCaloMETRatio<5", foldername = "dilepton", \
+                  rootfile = "fakerate.root", selected_mc = "Summer16", selected_data = "Run2016C*SingleElectron", plot_absolutes = True, \
+                  numerator_cuts = "", decorrelate_events = False, label = ""):
     
     if xlabel == "": xlabel = variable
     
@@ -101,7 +56,50 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
     canvas.SetLogy(True)
 
     # plot absolute values of numerator and denominator:
-    if plot_absolutes: plot_absolutes()
+    if plot_absolutes:
+        fakes_denominator_bg.Draw("hist")
+        fakes_denominator_bg.SetLineWidth(2)
+        fakes_denominator_bg.SetLineStyle(2)
+        fakes_denominator_bg.SetLineColor(kBlue)
+
+        fakes_numerator_bg.Draw("same hist")
+        fakes_numerator_bg.SetLineWidth(2)
+        fakes_numerator_bg.SetLineColor(kBlue)
+
+        fakes_denominator_data.Draw("same hist")
+        fakes_denominator_data.SetLineWidth(2)
+        fakes_denominator_data.SetLineStyle(2)
+        fakes_denominator_data.SetLineColor(kBlack)
+
+        fakes_numerator_data.Draw("same hist")
+        fakes_numerator_data.SetLineWidth(2)
+        fakes_numerator_data.SetLineColor(kBlack)
+
+        fakes_gen_denominator.Draw("same hist")
+        fakes_gen_denominator.SetLineWidth(2)
+        fakes_gen_denominator.SetLineStyle(2)
+        fakes_gen_denominator.SetLineColor(kRed)
+        
+        fakes_gen_numerator.Draw("same hist")
+        fakes_gen_numerator.SetLineWidth(2)
+        fakes_gen_numerator.SetLineColor(kRed)
+        
+        fakes_denominator_bg.GetYaxis().SetRangeUser(1e1,1e8)
+        fakes_denominator_bg.SetTitle(";%s;events" % xlabel)
+
+        legend = TLegend(0.4, 0.7, 0.96, 0.96)
+        legend.SetTextSize(0.025)
+        legend.AddEntry(fakes_denominator_data, "denominator (data)")
+        legend.AddEntry(fakes_numerator_data, "nominator (data)")
+        legend.AddEntry(fakes_denominator_bg, "denominator (MC)")
+        legend.AddEntry(fakes_numerator_bg, "nominator (MC)")
+        legend.AddEntry(fakes_gen_denominator, "denominator (MC + GenMatching)")
+        legend.AddEntry(fakes_gen_numerator, "nominator (MC + GenMatching)")
+        legend.Draw()
+
+        stamp_plot()
+        canvas.SetName("%s_%s_absolutes" % (foldername, variable))
+        canvas.Write()
 
     # plot fake rates:
     canvas.Clear()
@@ -192,11 +190,24 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
 
 if __name__ == "__main__":
     
-    path = "output_fakerate/"
+    path = "output_fakerate_Run2v2/"
     base_cuts = "PFCaloMETRatio<5"
     rootfile = "fakerate.root"
 
-    for category in ["short", "long"]:
+    #selected_mc = "Summer16"
+    #selected_data_dilepton = "Run2016C*SingleElectron"
+    #selected_data_qcd = "Run2016C*JetHT"
+    #selected_data_dilepton = "Run2016*SingleElectron"
+    #selected_data_qcd = "Run2016*JetHT"
+
+    selected_mc = "Fall17"
+    #selected_data_dilepton = "Run2017*SingleElectron"
+    #selected_data_qcd = "Run2017*JetHT"
+    selected_data_dilepton = "Run2018*SingleMuon"
+    selected_data_qcd = "Run2018*JetHT"
+
+
+    for category in ["long", "short"]:
 
         if category == "short":
             numerator_cut = " && ((n_DT==1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
@@ -204,17 +215,14 @@ if __name__ == "__main__":
             numerator_cut = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
 
         # dilepton region
-        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = "Summer16", selected_data = "Run2016C*Single", numerator_cuts = numerator_cut, label = category)
-
-        continue
-
-        fakerate_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = "Summer16", selected_data = "Run2016C*Single", numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("MHT_cleaned", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = "Summer16", selected_data = "Run2016C*Single", numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton, numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton, numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("MHT_cleaned", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton, numerator_cuts = numerator_cut, label = category)
 
         # QCD-only events
-        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = "Summer16", selected_data = "Run2016C*JetHT", numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("HT", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = "Summer16", selected_data = "Run2016C*JetHT", numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("MHT", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = "Summer16", selected_data = "Run2016C*JetHT", numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("HT", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("MHT", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
 
     # create stacked plots for invariant mass and n_DT using treeplotter:
     config = "../../cfg/samples_cmssw8_all.cfg"

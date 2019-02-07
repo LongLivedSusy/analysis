@@ -178,15 +178,20 @@ def control_plot(folder, label, rootfile, lumi = 2.572 + 4.242, lepton_region = 
 
 # folder containing skim output:
 folder = "output_skim"
+merged_folder = "output_skim_merged"
 merge_skim = False
 
 # set to True to do an hadd:
-if merge_skim or not os.path.exists("%s/merged_bg.root" % folder):
-    os.system("hadd -f %s/merged_bg.root %s/Summer16*root" % (folder, folder))
-    for dataset in ["SingleElectron", "SingleMuon"]:
-        for period in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-            os.system("hadd -f %s/merged_%s_%s.root %s/Run%s*%s*root" % (folder, period, dataset, folder, period, dataset))
-        os.system("hadd -f %s/merged_2016_%s.root %s/Run2016*%s*root" % (folder, dataset, folder, dataset))
+if merge_skim or not os.path.exists("%s/merged_bg.root" % merged_folder):
+    os.system("hadd -f %s/merged_Summer16.root %s/*Summer16*root" % (merged_folder, folder))
+    os.system("hadd -f %s/merged_Fall17.root %s/*Fall17*root" % (merged_folder, folder))
+    for dataset in ["SingleElectron", "SingleMuon", "MET"]:
+        for period in ["Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]:
+            os.system("hadd -f %s/merged_%s_%s.root %s/*%s*%s*root" % (merged_folder, period, dataset, folder, period, dataset))
+
+        os.system("hadd -f %s/merged_Run2016_%s.root %s/*Run2016*%s*root" % (merged_folder, dataset, folder, dataset))
+        os.system("hadd -f %s/merged_Run2017_%s.root %s/*Run2017*%s*root" % (merged_folder, dataset, folder, dataset))
+        os.system("hadd -f %s/merged_Run2018_%s.root %s/*Run2018*%s*root" % (merged_folder, dataset, folder, dataset))
 
 control_plot(folder, "bg", "plots.root")
 control_plot(folder, "bg", "plots.root", lepton_region = "zeroleptons")
