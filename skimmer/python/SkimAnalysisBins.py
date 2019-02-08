@@ -18,21 +18,41 @@ histoStyler(hAnalysisBins, kBlack)
 #defaultInfile = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_100.root'
 defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
 #defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_52_RA2AnalysisTree.root'
+defaultOutfile = 'skim_'+(defaultInfile.split('/')[-1]).replace('*','')
+
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
-parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
-parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
-parser.add_argument("-btagsf", "--nSigmaBtagSF", type=int, default=0, help="Btag weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="input file")
+parser.add_argument("-fout", "--fout", type=str,default=defaultOutfile,help="output file name")
+parser.add_argument("-dojetsyst", "--dojetsyst", action="store_true", help="Do JES, JER systematics")
+parser.add_argument("-applysmearing", "--applysmearing", action="store_true", help="Do JER")
+parser.add_argument("-nsigmajes", "--nsigmajes", type=int, default=0, help="JES systematics  (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+parser.add_argument("-nsigmajer", "--nsigmajer", type=int, default=0, help="JER systematics  (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+parser.add_argument("-dobtagsf", "--dobtagsf", action="store_true", help="Do Btag weight and systematics")
+parser.add_argument("-nsigmabtagsf", "--nsigmabtagsf", type=int, default=0, help="Btag weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 args = parser.parse_args()
 fnamekeyword = args.fnamekeyword.strip()
+fout = args.fout
 analyzer = args.analyzer
-JerUpDown = args.JerUpDown
-nSigmaBtagSF = args.nSigmaBtagSF
+dojetsyst = args.dojetsyst
+applysmearing = args.applysmearing
+nsigmajes = args.nsigmajes
+nsigmajer = args.nsigmajer
+dobtagsf = args.dobtagsf
+nsigmabtagsf = args.nsigmabtagsf
 nSigmaBtagFastSimSF = 1.0
 isFastSim = False
 
+print 'dojetsyst? ', dojetsyst
+print 'applysmearing? ', applysmearing
+print 'nsigmajes? ', nsigmajes
+print 'nsigmajer? ', nsigmajer
+print 'dobtagsf? ', dobtagsf
+print 'nsigmabtagsf? ', nsigmabtagsf
+
+#print 'applysmearing? ', applysmearing
 #smdir = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/'
 #smdir = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/'
 
@@ -111,7 +131,8 @@ else: phase = 0
 #############################################
 # Book new file in which to write skim tree #
 #############################################
-newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
+#newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
+newfilename = fout
 fnew = TFile(newfilename,'recreate')
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
@@ -157,7 +178,7 @@ var_Track2IsGenMatched = np.zeros(1,dtype=int)
 var_SearchBin = np.zeros(1,dtype=int)
 var_SumTagPtOverMht = np.zeros(1,dtype=float)
 var_CrossSection = np.zeros(1,dtype=float)
-var_weight_btag = np.zeros(1,dtype=float)
+if dobtagsf : var_weight_btag = np.zeros(1,dtype=float)
 if isPrivateSignal: var_weight = np.zeros(1,dtype=float)
 
 #####################################################
@@ -198,8 +219,7 @@ tEvent.Branch('Track2IsGenMatched', var_Track2IsGenMatched,'Track2IsGenMatched/I
 tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
 tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
 tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
-tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
-
+if dobtagsf : tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
 if isPrivateSignal: tEvent.Branch('weight', var_weight,'weight/D')
 
 
@@ -268,9 +288,9 @@ prepareReaderShort(readerShort, pixelXml)
 prepareReaderLong(readerLong, LongXml)
 
 ###############################
-# Btag SF
+# Btagging SF load from csv
 ##############################
-prepareReaderBtagSF()
+if dobtagsf : prepareReaderBtagSF()
 
 fMask = TFile('../usefulthings/Masks.root')
 if 'Run2016' in fnamekeyword: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
@@ -287,14 +307,14 @@ nentries = min(9999999,c.GetEntries())
 print 'will analyze', nentries
 
 if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
-verbosity = 100
+verbosity = 1000
 
 for ientry in range(nentries):
-#for ientry in range(2000):
+#for ientry in range(10):
 
     if ientry%verbosity==0: 
         print 'analyzing event %d of %d' % (ientry, nentries)+ '....%f'%(100.*ientry/nentries)+'%'
-
+    
     c.GetEntry(ientry)
     weight = c.CrossSection
     hHt.Fill(c.HT)
@@ -312,6 +332,15 @@ for ientry in range(nentries):
         if not c.madHT<100: continue
     elif 'WJetsToLNu_HT' in filenamelist[0]:
      if not c.madHT>100: continue            
+    
+    #print ientry,'th event'
+
+    #############################################
+    #Jet collection variation against systematics
+    #############################################
+    if dojetsyst : 
+	jetcollection = jets_rescale_smear(c,applysmearing,nsigmajes,nsigmajer) # JEC & JER applied jet?
+    else : jetcollection = c.Jets  # only JEC applied jet?
 
     var_Met[0] = c.MET
     metvec = TLorentzVector()
@@ -321,8 +350,7 @@ for ientry in range(nentries):
     jets = []
     nb = 0
     ht = 0
-    for ijet, jet in enumerate(c.Jets): #need dphi w.r.t. the modified mht
-	#print ientry, 'th event, ', ijet,'th jet'
+    for ijet, jet in enumerate(jetcollection): #need dphi w.r.t. the modified mht
         if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
         mhtvec-=jet
         jets.append(jet)
@@ -364,7 +392,6 @@ for ientry in range(nentries):
             if not (track.Pt()>lepPtCut and track.Pt()<9999): continue
             if not isBaselineTrack(track, itrack, c, hMask): continue
             mva_ = isDisappearingTrack_(track, itrack, c, readerShort, readerLong)
-            #mva_ = 1
             if mva_==0: continue
             passeslep = True
             drlep = 99
@@ -413,13 +440,22 @@ for ientry in range(nentries):
             
     if len(mvas)==0: continue
     
+    ###########################
+    ## B tagging SYSTEMATICS ##
+    ###########################
+    if dobtagsf : 
+	var_weight[0] = 1.0*xsecInPb/nentries # initialize weight each event
+	weight_btag = calc_btag_weight(c,nsigmabtagsf,nSigmaBtagFastSimSF,isFastSim)
+	var_weight[0]*=weight_btag
+	#print '%sth event weight_btag : %f'%(ientry,weight_btag)
+    
     adjustedMht = TLorentzVector()
     adjustedMht.SetPxPyPzE(0,0,0,0)
     adjustedJets = []
     adjustedHt = 0
     adjustedBTags = 0
-    
-    for ijet, jet in enumerate(c.Jets):
+
+    for ijet, jet in enumerate(jetcollection):
         if not jet.Pt()>30: continue
         if not abs(jet.Eta())<5.0: continue
         drDt = 9999
@@ -439,14 +475,6 @@ for ientry in range(nentries):
     fv.append(binnumber)
     var_SearchBin[0] = binnumber
     
-    #################
-    ## SYSTEMATICS ##
-    #################
-    weight_btag = calc_btag_weight(c,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim)
-    #print '%sth event weight_btag : %f'%(ientry,weight_btag)
-
-
-    var_weight[0]*=weight_btag
     fillth1(hAnalysisBins, binnumber, var_weight[0])
             
     if len(mvas)==1:
@@ -491,7 +519,7 @@ for ientry in range(nentries):
     var_SumTagPtOverMht[0] = sumtagvec.Pt()/mhtvec.Pt()
 
     var_CrossSection[0] = c.CrossSection
-    var_weight_btag[0] = weight_btag
+    if dobtagsf: var_weight_btag[0] = weight_btag
     tEvent.Fill()
 
 

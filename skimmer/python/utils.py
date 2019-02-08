@@ -706,7 +706,8 @@ def prepareReaderBtagSF():
     )
 
 def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
-    fbeff = TFile("../usefulthings/BTagEfficiency_Summer16_TTJets.root")
+    #fbeff = TFile("../usefulthings/BTagEfficiency_Summer16_TTJets.root")
+    fbeff = TFile("../usefulthings/BTagEfficiency_g1800_chi1400_27_200970.root")
     pMC = 1.0
     pData = 1.0
     
@@ -758,7 +759,7 @@ def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
 	)
 	#print '%sth jet pt : %.2f, eta : %.2f, flavor : %s, sf_cen : %.2f, sf_up : %.2f, sf_down : %.2f'%(ijet,jet.Pt(),jet.Eta(),tree.Jets_hadronFlavor[ijet],sf_cen,sf_up,sf_down)
 	
-	sf = get_syst_weight(sf_cen, sf_up, sf_down, nSigmaBtagSF)
+	sf = get_syst_btagweight(sf_cen, sf_up, sf_down, nSigmaBtagSF)
         
 	if tree.Jets_bDiscriminatorCSV[ijet]>csv_b :
 	    pMC *= eff
@@ -770,7 +771,7 @@ def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
     weight = pData / pMC
     return weight
 
-def get_syst_weight(weight_nominal,weight_up,weight_down,nSigma):
+def get_syst_btagweight(weight_nominal,weight_up,weight_down,nSigma):
     w = weight_nominal
     if nSigma==0 : return w
     else :
@@ -780,3 +781,39 @@ def get_syst_weight(weight_nominal,weight_up,weight_down,nSigma):
 	    w += nSigma*dw_up
 	else : w += nSigma*dw_down
     return w
+
+def get_syst_jes(weight_nominal,uncertainty,nSigma):
+    w = weight_nominal
+    if not nSigma==0.: 
+	w*= 1.0 + nSigma*uncertainty
+    return w
+
+def get_syst_jer(weight_nominal,weight_up,weight_down,nSigma):
+    w = weight_nominal
+    if nSigma==0 : return w
+    else :
+	#dw_up = weight_up - weight_nominal
+	#dw_down = weight_nominal - weight_down
+	dw_up = weight_up / weight_nominal
+	dw_down = weight_down / weight_nominal
+	if nSigma >= 0. :
+	    #w += nSigma*dw_up
+	    w *= nSigma*dw_up
+	#else : w += nSigma*dw_down
+	else : w *= nSigma*dw_down
+    return w
+
+def jets_rescale_smear(tree,applySmearing,nSigmaJES,nSigmaJER):
+    jets_syst = []
+    for ijet, jet in enumerate(tree.Jets):
+	newjet = jet.Clone()
+	scaleJES = get_syst_jes(1.0,tree.Jets_jecUnc[ijet],nSigmaJES)
+	newjet_Pt = jet.Pt() * scaleJES
+	newjet_E = jet.E() * scaleJES
+	if applySmearing : 
+	    scaleJER = get_syst_jer(tree.Jets_jerFactor[ijet],tree.Jets_jerFactorUp[ijet],tree.Jets_jerFactorDown[ijet],nSigmaJER)
+	    newjet_Pt *= scaleJER
+	    newjet_E *= scaleJER
+	newjet.SetPtEtaPhiE(newjet_Pt, jet.Eta(), jet.Phi(), newjet_E)
+	jets_syst.append(newjet)
+    return jets_syst
