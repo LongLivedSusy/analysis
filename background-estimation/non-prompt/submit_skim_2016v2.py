@@ -62,7 +62,6 @@ cmssw8_samples = [
 
 command = "./looper.py $INPUT $OUTPUT 0 1"
 output_folder = "output_skim_2016v2"
-commands = []
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples, output_folder, command = command)
+commands = prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples, output_folder, command = command, files_per_job = 2)
 
-do_submission(commands, output_folder)
+do_submission(commands, output_folder, executable = "looper.py")
