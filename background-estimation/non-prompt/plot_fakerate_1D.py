@@ -6,8 +6,10 @@ import treeplotter
 from plotting import *
 
 def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output", cutstring = "PFCaloMETRatio<5", foldername = "dilepton", \
-                  rootfile = "fakerate.root", selected_mc = "Summer16", selected_data = "Run2016C*SingleElectron", plot_absolutes = False, \
+                  selected_mc = "Summer16", selected_data = "Run2016C*SingleElectron", plot_absolutes = False, \
                   numerator_cuts = "", decorrelate_events = False, label = ""):
+
+    if not os.path.exists("%s/plots/" % path): os.mkdir("%s/plots/" % path)
     
     if xlabel == "": xlabel = variable
     
@@ -49,7 +51,7 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
     fake_rate_gen.Divide(fakes_gen_denominator)
     fake_rate_gen.SetName("fake_rate_gen")
 
-    fout = TFile(rootfile, "update")
+    fout = TFile("%s/plots/fakerate1D.root" % path, "recreate")
     fout.mkdir(foldername)
     fout.cd(foldername)
 
@@ -182,8 +184,7 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
 
     canvas.SetName("fakerate_%s_%s" % (variable, label))
     canvas.Write()
-    if not os.path.exists("plots/fakerate_1D"): os.mkdir("plots/fakerate_1D")
-    canvas.SaveAs("plots/fakerate_1D/fakerate_%s_%s.pdf" % (variable, label))
+    canvas.SaveAs("%s/plots/fakerate_%s_%s.pdf" % (path, variable, label))
 
     fout.Close()
 
@@ -197,14 +198,6 @@ if __name__ == "__main__":
     selected_mc = "Summer16"
     selected_data_dilepton = "Run2016*Single"
     selected_data_qcd = "Run2016*JetHT"
-
-    #path = "output_fakerate_Run2v2/"
-    #selected_mc = "Fall17"
-    #selected_data_dilepton = "Run2017*SingleElectron"
-    #selected_data_qcd = "Run2017*JetHT"
-    #selected_data_dilepton = "Run2018*SingleMuon"
-    #selected_data_qcd = "Run2018*JetHT"
-
 
     for category in ["short", "long"]:
 

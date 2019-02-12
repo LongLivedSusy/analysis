@@ -25,7 +25,7 @@ def get_fakerate(path = "output/", variable = "HT_cleaned:n_allvertices", nBinsX
         print "Error while getting histogram!"
         return
         
-    fout = TFile(rootfile, "update")
+    fout = TFile(rootfile, "recreate")
     fout.cd()
     gDirectory.mkdir(foldername)
     fout.cd(foldername)
@@ -65,8 +65,8 @@ def get_fakerate(path = "output/", variable = "HT_cleaned:n_allvertices", nBinsX
         latex.DrawLatex(0.18, 0.87, extra_text)
         stamp_plot()
         canvas.Write("canvas_%s" % (variable.replace(":", "_")))
-        if not os.path.exists("plots"): os.mkdir("plots")
-        canvas.SaveAs("plots/fakerate_%s_%s.pdf" % (foldername.replace("/", "_"), variable.replace(":", "_")))
+        if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
+        canvas.SaveAs("%s/plots/fakeratemap_%s_%s.pdf" % (path, foldername.replace("/", "_"), variable.replace(":", "_")))
 
     fout.Close()
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     
     path = "output_fakerate_2016v2/"
     base_cuts = "PFCaloMETRatio<5"
-    rootfile = "fakerate_new.root"
+    rootfile = "fakerate.root"
 
     selected_mc = "Summer16"
     #data_periods = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2016"]
