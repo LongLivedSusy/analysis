@@ -182,8 +182,8 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
 
     canvas.SetName("fakerate_%s_%s" % (variable, label))
     canvas.Write()
-    if not os.path.exists("plots"): os.mkdir("plots")
-    canvas.SaveAs("plots/fakerate_%s_%s.pdf" % (variable, label))
+    if not os.path.exists("plots/fakerate_1D"): os.mkdir("plots/fakerate_1D")
+    canvas.SaveAs("plots/fakerate_1D/fakerate_%s_%s.pdf" % (variable, label))
 
     fout.Close()
 
@@ -191,11 +191,11 @@ def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output"
 if __name__ == "__main__":
     
     base_cuts = "PFCaloMETRatio<5"
-    rootfile = "fakerate_updated.root"
+    rootfile = "fakerate_1D.root"
 
     path = "output_fakerate_2016v2/"
     selected_mc = "Summer16"
-    selected_data_dilepton = "Run2016*SingleElectron"
+    selected_data_dilepton = "Run2016*Single"
     selected_data_qcd = "Run2016*JetHT"
 
     #path = "output_fakerate_Run2v2/"
