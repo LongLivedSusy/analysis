@@ -62,9 +62,9 @@ cmssw9_samples = [
                  ]
 
 command = "./looper.py $INPUT $OUTPUT 0 0"
-output_folder = "output_fakerate_2016v2"
+output_folder = "output_fakerate_2016v2_sideband"
 commands = []
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples, output_folder, command = command)
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", cmssw9_samples, output_folder, command = command)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", cmssw8_samples, output_folder, command = command, files_per_job = 10)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", cmssw9_samples, output_folder, command = command, files_per_job = 10)
 
 do_submission(commands, output_folder)

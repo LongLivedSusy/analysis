@@ -82,7 +82,7 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
-def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = True, iEv_start = False, use_fakerate_maps = True):
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False, use_fakerate_maps = True):
 
     if region_signalcontrol:
         print "\nConfigured for inclusive SR / CR!\n"
@@ -110,14 +110,14 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         for lepton_region in ["inclusive", "zeroleptons", "onelepton", "meta"]:
 
             variables = {
-                         "region": [40, 0, 40],
-                         "HT": [20, 0, 1000],
-                         "MET": [20, 0, 1000],
-                         "MHT": [20, 0, 1000],
+                         "region": [33, 0, 33],
+                         "HT": [40, 0, 1000],
+                         "MET": [40, 0, 1000],
+                         "MHT": [40, 0, 1000],
                          "njets": [20, 0, 20],
                          "n_btags": [15, 0, 15],
-                         "n_allvertices": [10, 0, 50],
-                         "MinDeltaPhiMhtJets": [15, 0, 4],
+                         "n_allvertices": [100, 0, 100],
+                         "MinDeltaPhiMhtJets": [40, 0, 4],
                         }
 
             for variable in variables:
@@ -131,9 +131,11 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 histos["h_" + lepton_region + "_%s_actualfakes" % variable]        = TH1F("h_" + lepton_region + "_%s_actualfakes" % variable, "h_" + lepton_region + "%s_actualfakes" % variable, nbins, xmin, xmax)
                 histos["h_" + lepton_region + "_%s_xFR_dilepton" % variable]       = TH1F("h_" + lepton_region + "_%s_xFR_dilepton" % variable, "h_" + lepton_region + "%s_xFR_dilepton" % variable, nbins, xmin, xmax)
                 histos["h_" + lepton_region + "_%s_xFR_qcd" % variable]            = TH1F("h_" + lepton_region + "_%s_xFR_qcd" % variable, "h_" + lepton_region + "%s_xFR_qcd" % variable, nbins, xmin, xmax)
+                histos["h_" + lepton_region + "_%s_xFR_qcd_sideband" % variable]            = TH1F("h_" + lepton_region + "_%s_xFR_qcd_sideband" % variable, "h_" + lepton_region + "%s_xFR_qcd_sideband" % variable, nbins, xmin, xmax)
                 histos["h_" + lepton_region + "_%s_noDT" % variable]               = TH1F("h_" + lepton_region + "_%s_noDT" % variable, "h_" + lepton_region + "%s_noDT" % variable, nbins, xmin, xmax)
                 histos["h_" + lepton_region + "_%s_noDT_xFR_dilepton" % variable]  = TH1F("h_" + lepton_region + "_%s_noDT_xFR_dilepton" % variable, "h_" + lepton_region + "%s_noDT_xFR_dilepton" % variable, nbins, xmin, xmax)
                 histos["h_" + lepton_region + "_%s_noDT_xFR_qcd" % variable]       = TH1F("h_" + lepton_region + "_%s_noDT_xFR_qcd" % variable, "h_" + lepton_region + "%s_noDT_xFR_qcd" % variable, nbins, xmin, xmax)
+                histos["h_" + lepton_region + "_%s_noDT_xFR_qcd_sideband" % variable]       = TH1F("h_" + lepton_region + "_%s_noDT_xFR_qcd_sideband" % variable, "h_" + lepton_region + "%s_noDT_xFR_qcd_sideband" % variable, nbins, xmin, xmax)
 
 
     tout = TTree("Events", "tout")
@@ -166,9 +168,11 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         float_branches.append("region_actualfakes")
         float_branches.append("region_xFR_dilepton")
         float_branches.append("region_xFR_qcd")
+        float_branches.append("region_xFR_qcd_sideband")
         float_branches.append("region_noDT")
         float_branches.append("region_noDT_xFR_dilepton")
         float_branches.append("region_noDT_xFR_qcd")
+        float_branches.append("region_noDT_xFR_qcd_sideband")
 
     integer_branches = []
     integer_branches.append("n_DT")
@@ -184,6 +188,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         integer_branches.append("n_btags_cleaned")
         integer_branches.append("dilepton_CR")
         integer_branches.append("qcd_CR")
+        integer_branches.append("qcd_sideband_CR")
         integer_branches.append("dilepton_leptontype")
     if region_signalcontrol: 
         integer_branches.append("meta_CR")
@@ -282,6 +287,10 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             h_fakerate_qcd_bg_long = fakerate_file.Get("qcd/%s/long/fakerate_HT_n_allvertices" % mcera)
             h_fakerate_qcd_data_short = fakerate_file.Get("qcd/%s/short/fakerate_HT_n_allvertices" % data_period)
             h_fakerate_qcd_data_long = fakerate_file.Get("qcd/%s/long/fakerate_HT_n_allvertices" % data_period)
+            h_fakerate_qcd_sideband_bg_short = fakerate_file.Get("qcd_sideband/%s/short/fakerate_HT_n_allvertices" % mcera)
+            h_fakerate_qcd_sideband_bg_long = fakerate_file.Get("qcd_sideband/%s/long/fakerate_HT_n_allvertices" % mcera)
+            h_fakerate_qcd_sideband_data_short = fakerate_file.Get("qcd_sideband/%s/short/fakerate_HT_n_allvertices" % data_period)
+            h_fakerate_qcd_sideband_data_long = fakerate_file.Get("qcd_sideband/%s/long/fakerate_HT_n_allvertices" % data_period)
 
         else:
             # use 1D fakerate histos:
@@ -293,6 +302,10 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             h_fakerate_qcd_bg_long = fakerate_file.Get("qcd/%s/long/fakerate_n_allvertices" % mcera)
             h_fakerate_qcd_data_short = fakerate_file.Get("qcd/%s/short/fakerate_n_allvertices" % data_period)
             h_fakerate_qcd_data_long = fakerate_file.Get("qcd/%s/long/fakerate_n_allvertices" % data_period)            
+            h_fakerate_qcd_sideband_bg_short = fakerate_file.Get("qcd_sideband/%s/short/fakerate_n_allvertices" % mcera)
+            h_fakerate_qcd_sideband_bg_long = fakerate_file.Get("qcd_sideband/%s/long/fakerate_n_allvertices" % mcera)
+            h_fakerate_qcd_sideband_data_short = fakerate_file.Get("qcd_sideband/%s/short/fakerate_n_allvertices" % data_period)
+            h_fakerate_qcd_sideband_data_long = fakerate_file.Get("qcd_sideband/%s/long/fakerate_n_allvertices" % data_period)            
 
     weight = 1
     h_xsec = TH1F("xsec", "xsec", 1, 0, 1)
@@ -331,9 +344,6 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                    meta_CR = True
                    tree_branch_values["meta_CR"][0] = meta_CR
             
-            elif event.MHT<250 or len(event.Jets) == 0:
-                continue
-
         # do HT-binned background stitching:
         current_file_name = tree.GetFile().GetName()
         madHT = -1
@@ -381,6 +391,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             # set selection flags (veto event later if it does not fit into any selection):
             dilepton_CR = False
             qcd_CR = False
+            qcd_sideband_CR = False
 
             # do the following for all MC, but only for SingleLepton datastreams:
             if not is_data or "SingleElectron" in current_file_name or "SingleMuon" in current_file_name:
@@ -410,12 +421,16 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                         dilepton_CR = True
 
             # check if low-MHT, QCD-only samples:
-            if ("QCD" in current_file_name or "JetHT" in current_file_name) and event.MHT < 200:
-                tree_branch_values["qcd_CR"][0] = 1
-                qcd_CR = True
+            if "QCD" in current_file_name or "JetHT" in current_file_name:
+                if event.MHT < 200:
+                    tree_branch_values["qcd_CR"][0] = 1
+                    qcd_CR = True
+                if event.MHT > 100 and event.MHT < 200:
+                    tree_branch_values["qcd_sideband_CR"][0] = 1
+                    qcd_sideband_CR = True
 
             # CHECK: event selection
-            if not dilepton_CR and not qcd_CR: continue
+            if not dilepton_CR and not qcd_CR and not qcd_sideband_CR: continue
                 
             # for the dilepton CR, clean event (recalculate HT, MHT, n_Jets without the two leptons):
             if dilepton_CR:
@@ -554,7 +569,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
             # apply baseline DT selection:
             if is_disappearing_track and not isBaselineTrack(event.tracks[iCand], iCand, event, mask):
-                print "Failed baseline DT selection"
+                if verbose: print "Failed baseline DT selection"
                 is_disappearing_track = False
 
             # check if actual fake track (no genparticle in cone around track):
@@ -655,33 +670,42 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
             # get fake rate from maps:
             fakerate_dilepton_short = False
-            fakerate_qcd_short = False
             fakerate_dilepton_long = False
+            fakerate_qcd_short = False
             fakerate_qcd_long = False
+            fakerate_qcd_sideband_short = False
+            fakerate_qcd_sideband_long = False
 
             if use_fakerate_maps:
                 if is_data:
                     fakerate_dilepton_short = getBinContent_with_overflow_2D(h_fakerate_dilepton_data_short, event.nAllVertices, event.HT)
-                    fakerate_qcd_short = getBinContent_with_overflow_2D(h_fakerate_qcd_data_short, event.nAllVertices, event.HT)
                     fakerate_dilepton_long = getBinContent_with_overflow_2D(h_fakerate_dilepton_data_long, event.nAllVertices, event.HT)
+                    fakerate_qcd_short = getBinContent_with_overflow_2D(h_fakerate_qcd_data_short, event.nAllVertices, event.HT)
                     fakerate_qcd_long = getBinContent_with_overflow_2D(h_fakerate_qcd_data_long, event.nAllVertices, event.HT)
+                    fakerate_qcd_sideband_short = getBinContent_with_overflow_2D(h_fakerate_qcd_sideband_data_short, event.nAllVertices, event.HT)
+                    fakerate_qcd_sideband_long = getBinContent_with_overflow_2D(h_fakerate_qcd_sideband_data_long, event.nAllVertices, event.HT)
                 else:
                     fakerate_dilepton_short = getBinContent_with_overflow_2D(h_fakerate_dilepton_bg_short, event.nAllVertices, event.HT)
-                    fakerate_qcd_short = getBinContent_with_overflow_2D(h_fakerate_qcd_bg_short, event.nAllVertices, event.HT)                    
                     fakerate_dilepton_long = getBinContent_with_overflow_2D(h_fakerate_dilepton_bg_long, event.nAllVertices, event.HT)
+                    fakerate_qcd_short = getBinContent_with_overflow_2D(h_fakerate_qcd_bg_short, event.nAllVertices, event.HT)                    
                     fakerate_qcd_long = getBinContent_with_overflow_2D(h_fakerate_qcd_bg_long, event.nAllVertices, event.HT)
-                    
+                    fakerate_qcd_sideband_short = getBinContent_with_overflow_2D(h_fakerate_qcd_sideband_bg_short, event.nAllVertices, event.HT)                    
+                    fakerate_qcd_sideband_long = getBinContent_with_overflow_2D(h_fakerate_qcd_sideband_bg_long, event.nAllVertices, event.HT)                   
             else:
                 if is_data:
                     fakerate_dilepton_short = getBinContent_with_overflow_1D(h_fakerate_dilepton_data_short, event.nAllVertices)
-                    fakerate_qcd_short = getBinContent_with_overflow_1D(h_fakerate_qcd_data_short, event.nAllVertices)
                     fakerate_dilepton_long = getBinContent_with_overflow_1D(h_fakerate_dilepton_data_long, event.nAllVertices)
+                    fakerate_qcd_short = getBinContent_with_overflow_1D(h_fakerate_qcd_data_short, event.nAllVertices)
                     fakerate_qcd_long = getBinContent_with_overflow_1D(h_fakerate_qcd_data_long, event.nAllVertices)
+                    fakerate_qcd_sideband_short = getBinContent_with_overflow_1D(h_fakerate_qcd_sideband_data_short, event.nAllVertices)
+                    fakerate_qcd_sideband_long = getBinContent_with_overflow_1D(h_fakerate_qcd_sideband_data_long, event.nAllVertices)
                 else:
                     fakerate_dilepton_short = getBinContent_with_overflow_1D(h_fakerate_dilepton_bg_short, event.nAllVertices)
-                    fakerate_qcd_short = getBinContent_with_overflow_1D(h_fakerate_qcd_bg_short, event.nAllVertices)                    
                     fakerate_dilepton_long = getBinContent_with_overflow_1D(h_fakerate_dilepton_bg_long, event.nAllVertices)
+                    fakerate_qcd_short = getBinContent_with_overflow_1D(h_fakerate_qcd_bg_short, event.nAllVertices)                    
                     fakerate_qcd_long = getBinContent_with_overflow_1D(h_fakerate_qcd_bg_long, event.nAllVertices)
+                    fakerate_qcd_sideband_short = getBinContent_with_overflow_1D(h_fakerate_qcd_sideband_bg_short, event.nAllVertices)                    
+                    fakerate_qcd_sideband_long = getBinContent_with_overflow_1D(h_fakerate_qcd_sideband_bg_long, event.nAllVertices)
 
             # fill histograms:
             n_leptons = len(event.Electrons) + len(event.Muons)
@@ -690,47 +714,53 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 if lepton_region == "onelepton_" and n_leptons != 1: continue
                 if lepton_region == "meta_" and meta_CR == False: continue
                 
-                # FILL REGIONS:
-
-                if n_DT > 0:
+                # fill region histograms:
+                if n_DT > 0 and region > 0:
                     histos["h_" + lepton_region + "region"].Fill(region, weight)
                     
                     # regions up to 30 are with one DT:
                     if region <= 15:
                         histos["h_" + lepton_region + "region_xFR_dilepton"].Fill(region, fakerate_dilepton_short * weight)
                         histos["h_" + lepton_region + "region_xFR_qcd"].Fill(region, fakerate_qcd_short * weight)
+                        histos["h_" + lepton_region + "region_xFR_qcd_sideband"].Fill(region, fakerate_qcd_sideband_short * weight)
                     elif region >= 16 and region <= 30:
                         histos["h_" + lepton_region + "region_xFR_dilepton"].Fill(region, fakerate_dilepton_long * weight)
                         histos["h_" + lepton_region + "region_xFR_qcd"].Fill(region, fakerate_qcd_long * weight)
+                        histos["h_" + lepton_region + "region_xFR_qcd_sideband"].Fill(region, fakerate_qcd_sideband_long * weight)
                     elif region >= 31:
                         # events with two DTs:
                         if tree_branch_values["DT1_is_pixel_track" % n_DT][0] == 1 and tree_branch_values["DT2_is_pixel_track" % n_DT][0] == 1:
                             # both are short
                             histos["h_" + lepton_region + "region_xFR_dilepton"].Fill(region, fakerate_dilepton_short**2 * weight)
                             histos["h_" + lepton_region + "region_xFR_qcd"].Fill(region, fakerate_qcd_short**2 * weight)
+                            histos["h_" + lepton_region + "region_xFR_qcd_sideband"].Fill(region, fakerate_qcd_sideband_short**2 * weight)
                         elif tree_branch_values["DT1_is_pixel_track" % n_DT][0] == 0 and tree_branch_values["DT2_is_pixel_track" % n_DT][0] == 0:
                             # both are long
                             histos["h_" + lepton_region + "region_xFR_dilepton"].Fill(region, fakerate_dilepton_long**2 * weight)
                             histos["h_" + lepton_region + "region_xFR_qcd"].Fill(region, fakerate_qcd_long**2 * weight)
+                            histos["h_" + lepton_region + "region_xFR_qcd_sideband"].Fill(region, fakerate_qcd_sideband_long**2 * weight)
                         else:
                             # one is short, other is long
                             histos["h_" + lepton_region + "region_xFR_dilepton"].Fill(region, fakerate_dilepton_short * fakerate_dilepton_long * weight)
                             histos["h_" + lepton_region + "region_xFR_qcd"].Fill(region, fakerate_qcd_short * fakerate_qcd_long * weight)
+                            histos["h_" + lepton_region + "region_xFR_qcd_sideband"].Fill(region, fakerate_qcd_sideband_short * fakerate_qcd_sideband_long * weight)
                     if n_DT == n_DT_actualfake: 
                         histos["h_" + lepton_region + "region_actualfakes"].Fill(region, weight)
                     else:
                         histos["h_" + lepton_region + "region_prompt"].Fill(region, weight)
 
-                else:
+                elif n_DT == 0 and region_noDT > 0:
                     # fill first region bins for long tracks:
                     histos["h_" + lepton_region + "region_noDT"].Fill(region_noDT, weight)
                     histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(region_noDT, fakerate_dilepton_long * weight)
                     histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(region_noDT, fakerate_qcd_long * weight)
+                    histos["h_" + lepton_region + "region_noDT_xFR_qcd_sideband"].Fill(region_noDT, fakerate_qcd_sideband_long * weight)
 
                     # also fill region bins for short tracks:
                     histos["h_" + lepton_region + "region_noDT"].Fill(region_noDT + 15, weight)
                     histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(region_noDT + 15, fakerate_dilepton_short * weight)
                     histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(region_noDT + 15, fakerate_qcd_short * weight)
+                    histos["h_" + lepton_region + "region_noDT_xFR_qcd_sideband"].Fill(region_noDT + 15, fakerate_qcd_sideband_short * weight)
 
                     # fill last two region bins:
                     # FIXME: assume one short and one long DT for events with 2 DTs. This is likely to change
@@ -738,13 +768,14 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         histos["h_" + lepton_region + "region_noDT"].Fill(31, weight)
                         histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(31, fakerate_dilepton_short * fakerate_dilepton_long * weight)
                         histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(31, fakerate_qcd_short * fakerate_qcd_long * weight)
+                        histos["h_" + lepton_region + "region_noDT_xFR_qcd_sideband"].Fill(31, fakerate_qcd_sideband_short * fakerate_qcd_sideband_long * weight)
                     elif event.MHT >= 400 and len(event.Jets) > 0:
                         histos["h_" + lepton_region + "region_noDT"].Fill(32, weight)
                         histos["h_" + lepton_region + "region_noDT_xFR_dilepton"].Fill(31, fakerate_dilepton_short * fakerate_dilepton_long * weight)
                         histos["h_" + lepton_region + "region_noDT_xFR_qcd"].Fill(31, fakerate_qcd_short * fakerate_qcd_long * weight)
+                        histos["h_" + lepton_region + "region_noDT_xFR_qcd_sideband"].Fill(31, fakerate_qcd_sideband_short * fakerate_qcd_sideband_long * weight)
 
-                # FILL MHT, NJETS:
-                
+                # fill other histograms:
                 variables = {
                              "HT": event.HT,
                              "MET": event.MET,
@@ -765,6 +796,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     histos["h_" + lepton_region + item].Fill(value, weight)
                     histos["h_" + lepton_region + item + "_xFR_dilepton"].Fill(value, fakerate_dilepton_short * weight)
                     histos["h_" + lepton_region + item + "_xFR_qcd"].Fill(value, fakerate_qcd_short * weight)
+                    histos["h_" + lepton_region + item + "_xFR_qcd_sideband"].Fill(value, fakerate_qcd_sideband_short * weight)
                     if n_DT > 0:                    
                         if n_DT == n_DT_actualfake: 
                             histos["h_" + lepton_region + item + "_actualfakes"].Fill(value, weight)
@@ -815,7 +847,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
     fout.cd()
     fout.Write()
-        
+
     fout.Close()
 
 if __name__ == "__main__":

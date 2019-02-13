@@ -5,9 +5,7 @@ from ROOT import *
 import treeplotter
 from plotting import *
 
-def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output", cutstring = "PFCaloMETRatio<5", foldername = "dilepton", \
-                  selected_mc = "Summer16", selected_data = "Run2016C*SingleElectron", plot_absolutes = False, \
-                  numerator_cuts = "", decorrelate_events = False, label = ""):
+def fakerate_plot(variable, binWidth, xmin, xmax, xlabel = "", path = "./output", cutstring = "PFCaloMETRatio<5", foldername = "dilepton", selected_mc = "Summer16", selected_data = "Run2016C*SingleElectron", plot_absolutes = False, numerator_cuts = "", decorrelate_events = False, label = ""):
 
     if not os.path.exists("%s/plots/" % path): os.mkdir("%s/plots/" % path)
     
@@ -196,7 +194,7 @@ if __name__ == "__main__":
 
     path = "output_fakerate_2016v2/"
     selected_mc = "Summer16"
-    selected_data_dilepton = "Run2016*Single"
+    selected_data_dilepton = "Run2016"
     selected_data_qcd = "Run2016*JetHT"
 
     for category in ["short", "long"]:
@@ -207,14 +205,20 @@ if __name__ == "__main__":
             numerator_cut = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
 
         # dilepton region
-        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton, numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton, numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("MHT_cleaned", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton, numerator_cuts = numerator_cut, label = category)
+        # SingleElectron:
+        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton + "*SingleElectron", numerator_cuts = numerator_cut, label = "dilepton_SingleElectron_" + category)
+        fakerate_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton + "*SingleElectron", numerator_cuts = numerator_cut, label = "dilepton_SingleElectron_" + category)
+        fakerate_plot("MHT_cleaned", 40, 0, 1000, xlabel = "missing H_{T}", path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton + "*SingleElectron", numerator_cuts = numerator_cut, label = "dilepton_SingleElectron_" + category)
+
+        # SingleMuon:
+        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton + "*SingleMuon", numerator_cuts = numerator_cut, label = "dilepton_SingleMuon_" + category)
+        fakerate_plot("HT_cleaned", 40, 0, 1000, xlabel = "H_{T}", path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton + "*SingleMuon", numerator_cuts = numerator_cut, label = "dilepton_SingleMuon_" + category)
+        fakerate_plot("MHT_cleaned", 40, 0, 1000, xlabel = "missing H_{T}", path = path, cutstring = base_cuts + " && dilepton_CR==1", foldername = "dilepton", selected_mc = selected_mc, selected_data = selected_data_dilepton + "*SingleMuon", numerator_cuts = numerator_cut, label = "dilepton_SingleMuon_" + category)
 
         # QCD-only events
-        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("HT", 40, 0, 1000, xlabel = "H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
-        fakerate_plot("MHT", 40, 0, 1000, xlabel = "missing H_{T}", rootfile = rootfile, path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = category)
+        fakerate_plot("n_allvertices", 5, 0, 50, xlabel = "n_{vertex}", path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = "qcd_" + category)
+        fakerate_plot("HT", 40, 0, 1000, xlabel = "H_{T}", path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = "qcd_" + category)
+        fakerate_plot("MHT", 40, 0, 1000, xlabel = "missing H_{T}", path = path, cutstring = base_cuts + " && qcd_CR==1", foldername = "qcd", selected_mc = selected_mc, selected_data = selected_data_qcd, numerator_cuts = numerator_cut, label = "qcd_" + category)
 
     quit()
 
