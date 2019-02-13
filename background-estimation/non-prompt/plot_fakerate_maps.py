@@ -16,6 +16,8 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         nBinsX=5; xmin=0; xmax=50; nBinsY=5; ymin=0; ymax=1000
     elif not nBinsX and plot2D and "long" in foldername:
         nBinsX=10; xmin=0; xmax=50; nBinsY=10; ymin=0; ymax=1000
+    elif not nBinsX and (variable == "HT" or variable == "HT_cleaned" or variable == "MHT" or variable == "MHT_cleaned"):
+        nBinsX=20; xmin=0; xmax=1000
     elif not nBinsX:
         nBinsX=10; xmin=0; xmax=50; nBinsY=10; ymin=0; ymax=1000
 
@@ -42,7 +44,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
     fake_rate.Divide(fakes_denominator)
     fake_rate.SetName("fakerate_%s" % (variable.replace(":", "_")))
 
-    labels = {"HT": "H_{T} (GeV)", "HT_cleaned": "cleaned H_{T} (GeV)", "n_allvertices": "number of vertices"}
+    labels = {"HT": "H_{T} (GeV)", "MHT": "missing H_{T} (GeV)", "HT_cleaned": "cleaned H_{T} (GeV)", "MHT_cleaned": "cleaned missing H_{T} (GeV)", "n_allvertices": "number of vertices"}
     if not xlabel:
         xlabel = variable.split(":")[0]
         if xlabel in labels:
@@ -53,7 +55,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
             ylabel = labels[ylabel]
 
     if plot2D:
-        fake_rate.SetTitle(";%s; %s; fake rate"  % (xlabel, ylabel))
+        fake_rate.SetTitle(";%s; %s; fake rate"  % (ylabel, xlabel))
     else:
         fake_rate.SetTitle(";%s; fake rate" % xlabel)
     
@@ -92,7 +94,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 if __name__ == "__main__":
 
     base_cuts = "PFCaloMETRatio<5"    
-    rootfile = "fakerate_newrelease2.root"
+    rootfile = "fakerate_newrelease.root"
 
     for configuration in ["2017/2018", "2016"]:
 
@@ -109,7 +111,8 @@ if __name__ == "__main__":
         cut_is_short_track = " && ((n_DT==1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
         cut_is_long_track  = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
         
-        for variable in ["HT:n_allvertices", "n_allvertices"]:
+        #for variable in ["HT:n_allvertices", "n_allvertices"]:
+        for variable in ["MHT", "HT"]:
         
             # get fake rate from dilepton region:
             get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_short_track, selected_mc, "combined MC background, pixel-only tracks")    

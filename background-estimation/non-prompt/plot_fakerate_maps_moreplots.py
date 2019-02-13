@@ -7,8 +7,6 @@ import collections
 
 def do_2D_plot(root_file, hist_name, path, extra_text):
 
-    print hist_name
-
     fin = TFile(root_file, "read")
     
     try:
@@ -83,6 +81,7 @@ def do_1D_plot(root_file, path, category, variable, regions = ["dilepton", "qcd"
 
         if i == 0:
             histos[label].Draw("hist e")
+            histos[label].GetYaxis().SetRangeUser(1e-6,1e-2)
         else:
             histos[label].Draw("hist e same")
 
@@ -112,7 +111,7 @@ def do_1D_plot(root_file, path, category, variable, regions = ["dilepton", "qcd"
 
     stamp_plot()
     if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
-    canvas.SaveAs("%s/plots/fakerate-1D-%s-%s.pdf" % (path, category, "-".join(regions)) )
+    canvas.SaveAs("%s/plots/fakerate-1D-%s-%s-%s.pdf" % (path, variable, category, "-".join(regions)) )
 
     fin.Close()
 
@@ -123,15 +122,14 @@ if __name__ == "__main__":
     path = "output_fakerate_sideband"
 
     # do 1D fakerate comparison plots:
-    do_1D_plot(root_file, path, "short", "n_allvertices", regions = ["dilepton"])
-    do_1D_plot(root_file, path, "short", "n_allvertices", regions = ["qcd"])
-    do_1D_plot(root_file, path, "short", "n_allvertices", regions = ["qcd_sideband"])
-
-    do_1D_plot(root_file, path, "long", "n_allvertices", regions = ["dilepton"])
-    do_1D_plot(root_file, path, "long", "n_allvertices", regions = ["qcd"])
-    do_1D_plot(root_file, path, "long", "n_allvertices", regions = ["qcd_sideband"])
-
-    quit()
+    for category in ["short", "long"]:
+        for variable in ["n_allvertices", "HT", "MHT"]:
+            for region in ["dilepton", "qcd", "qcd_sideband"]:
+                if region == "dilepton":
+                    variable = variable.replace("HT", "HT_cleaned")
+                else:
+                    variable = variable.replace("_cleaned", "")
+                do_1D_plot(root_file, path, category, variable, regions = [region])
 
     # redo the 2D plots in a slightly nicer way:
     for region in ["dilepton", "qcd", "qcd_sideband"]:

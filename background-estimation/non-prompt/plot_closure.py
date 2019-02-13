@@ -3,21 +3,26 @@ import os
 from ROOT import *
 from plotting import *
 
-def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selected_region = "", data_type = ["Summer16", "Run2016_MET"], variable = "", xlabel = "", extra_text = "", draw_data = False, xmin = False, xmax = False, ymin = False, ymax = False):
+def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selected_region = "", data_types = ["Summer16", "Run2016_MET"], variable = "", xlabel = "", extra_text = "", draw_data = False, xmin = False, xmax = False, ymin = False, ymax = False):
     
     histos = {}
 
-    for data_type in ["Summer16", "Run2016_MET"]:
+    for data_type in data_types:
 
         if "2016" in data_type or "2017" in data_type or "2018" in data_type:
             is_data = True
         else:
             is_data = False
 
-        fin = TFile(folder + "/merged_%s.root" % data_type, "READ")
-        colors = [kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kOrange]
+        try:
+            fin = TFile(folder + "/merged_%s.root" % data_type, "READ")
+        except:
+            print "cannot open", folder + "/merged_%s.root" % data_type
+            return
+        colors = [kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed, kGreen, kGreen+2]
         
-        for ilabel in ["h_region", "h_region_prompt", "h_region_actualfakes", "h_region_xFR_dilepton", "h_region_xFR_qcd", "h_region_noDT", "h_region_noDT_xFR_dilepton", "h_region_noDT_xFR_qcd"]:
+        #for ilabel in ["h_region", "h_region_prompt", "h_region_actualfakes", "h_region_xFR_dilepton", "h_region_xFR_qcd", "h_region_noDT", "h_region_noDT_xFR_dilepton", "h_region_noDT_xFR_qcd"]:
+        for ilabel in ["h_region", "h_region_prompt", "h_region_actualfakes", "h_region_xFR_dilepton", "h_region_xFR_qcd", "h_region_xFR_qcd_sideband", "h_region_noDT", "h_region_noDT_xFR_dilepton", "h_region_noDT_xFR_qcd", "h_region_noDT_xFR_qcd_sideband"]:
 
             if selected_region != "":
                 file_label = ilabel.replace("h_region", "h_%s_region" % selected_region)
@@ -34,6 +39,7 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
 
             ilabel = ilabel + "_%s" % data_type
 
+            #file_label = file_label.replace("qcd", "qcd_sideband")
             histos[ilabel] = fin.Get("hists/" + file_label).Clone()
             histos[ilabel].SetDirectory(0)
             histos[ilabel].SetLineWidth(2)
@@ -116,6 +122,7 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
 
     histos["h_region_noDT_xFR_dilepton_bg"].Draw("same p")
     histos["h_region_noDT_xFR_qcd_bg"].Draw("same p")
+    histos["h_region_noDT_xFR_qcd_sideband_bg"].Draw("same p")
 
     # draw data:
     if draw_data:
@@ -141,12 +148,13 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
         legend.AddEntry(histos["h_region_prompt_bg"], "prompt background in SR (MC Truth)")
     legend.AddEntry(histos["h_region_actualfakes_bg"], "non-prompt background in SR (MC Truth)")
     legend.AddEntry(histos["h_region_noDT_bg"], "control region (MC)")
-    legend.AddEntry(histos["h_region_noDT_xFR_dilepton_bg"], "prediction from MC (Dilepton method)")
-    legend.AddEntry(histos["h_region_noDT_xFR_qcd_bg"], "prediction from MC (QCD method)")
+    legend.AddEntry(histos["h_region_noDT_xFR_dilepton_bg"], "prediction from MC (dilepton region)")
+    legend.AddEntry(histos["h_region_noDT_xFR_qcd_bg"], "prediction from MC (QCD-only)")
+    legend.AddEntry(histos["h_region_noDT_xFR_qcd_sideband_bg"], "prediction from MC (QCD sideband)")
     if draw_data:
         legend.AddEntry(histos["h_region_noDT_data"], "control region (Data)")
-        legend.AddEntry(histos["h_region_noDT_xFR_dilepton_data"], "prediction from Data (Dilepton method)")
-        legend.AddEntry(histos["h_region_noDT_xFR_qcd_data"], "prediction from Data (QCD method)")
+        legend.AddEntry(histos["h_region_noDT_xFR_dilepton_data"], "prediction from Data (dilepton region)")
+        legend.AddEntry(histos["h_region_noDT_xFR_qcd_data"], "prediction from Data (QCD region)")
     legend.SetBorderSize(0)
 
     if extra_text != "":
@@ -179,6 +187,12 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
         ratio_qcd.GetXaxis().SetRangeUser(xmin, xmax)
     ratio_qcd.Draw("same e0")
 
+    ratio_qcd_sideband = histos["h_region_noDT_xFR_qcd_sideband_bg"].Clone()
+    ratio_qcd_sideband.Divide(histos["h_region_actualfakes_bg"])
+    if xmax:
+        ratio_qcd_sideband.GetXaxis().SetRangeUser(xmin, xmax)
+    ratio_qcd_sideband.Draw("same e0")
+
     if xlabel == "":
         xlabel = variable
     if draw_data:
@@ -202,9 +216,10 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
     fout.Close()
 
 
-merge_skim = False
+#for folder in ["output_skim_2016v2_maps", "output_skim_2016v2_nomaps"]:
+for folder in ["output_skim_sideband_bak"]:
 
-for folder in ["output_skim_2016v2_maps", "output_skim_2016v2_nomaps"]:
+    merge_skim = False
 
     os.system("rm " + folder + "/plots/control.root")
 
@@ -237,10 +252,11 @@ for folder in ["output_skim_2016v2_maps", "output_skim_2016v2_nomaps"]:
                 data_type = ["Summer16", "Run2016_SingleElectron"]
                 extra_text = "meta control region"
             elif region == "zeroleptons":
-                data_type = ["Summer16", "Run2016_MET"]
+                data_type = ["Summer16", "Run2016_SingleElectron"]      #FIXME
+                #data_type = ["Summer16", "Run2016_MET"]
                 extra_text = "n_{leptons} = 0"
 
             extra_text += ", skim: %s" % folder.replace("output_skim_", "")
 
-            control_plot(folder, variable, variable = variable, data_type = data_type, selected_region = region, extra_text = extra_text, xmin=xmin, xmax=xmax)
+            control_plot(folder, variable, variable = variable, data_types = data_type, selected_region = region, extra_text = extra_text, xmin=xmin, xmax=xmax)
 
