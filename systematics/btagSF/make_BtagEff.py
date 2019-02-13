@@ -27,7 +27,7 @@ DeepCSVM = 0.6324
 DeepCSVT = 0.8958
 
 # Pt, Eta bins for 2D histo
-xbins = np.array([20,30,50,70,140,200,300,600,1000],dtype='f')
+xbins = np.array([20,30,50,70,100,140,200,300,600,1000],dtype='f')
 nbinsx = len(xbins)-1
 ybins = np.array([-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4],dtype='f')
 nbinsy = len(ybins)-1
