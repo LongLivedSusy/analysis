@@ -82,14 +82,12 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
-def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False, use_fakerate_maps = True):
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
 
     if region_signalcontrol:
         print "\nConfigured for inclusive SR / CR!\n"
     if region_fakerate:
         print "\nConfigured for fake rate estimation region!\n"
-
-    print "use_fakerate_maps:", use_fakerate_maps
 
     tree = TChain(treename)
     for iFile in event_tree_filenames:
@@ -173,9 +171,9 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         integer_branches.append("region")
         integer_branches.append("region_noDT")
         integer_branches.append("meta_CR")
-        integer_branches.append("hemfailure_electron")
-        integer_branches.append("hemfailure_jet")
-        integer_branches.append("hemfailure_dt")
+    integer_branches.append("hemfailure_electron")
+    integer_branches.append("hemfailure_jet")
+    integer_branches.append("hemfailure_dt")
 
     for i in range(1,4):
         integer_branches.append("DT%i_is_pixel_track" % i)
@@ -240,11 +238,14 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         # load fakerate maps:
         fakerate_file = TFile("fakerate.root", "open")
                    
+        fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
+        fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]
+
         # get all fakerate histograms:
         h_fakerates = {}
-        for region in ["dilepton", "qcd", "qcd_sideband"]:
+        for region in fakerate_regions:
                 for category in ["short", "long"]:
-                    for variable in ["HT_n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
+                    for variable in fakerate_variables:
                         if region == "dilepton":
                             variable = variable.replace("HT", "HT_cleaned")
                         else:
@@ -253,8 +254,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         h_fakerates[hist_name] = fakerate_file.Get(hist_name)
         
         # add all raw fakerate branches:        
-        for region in ["dilepton", "qcd", "qcd_sideband"]:
-            for variable in ["HT_n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
+        for region in fakerate_regions:
+            for variable in fakerate_variables:
                 if region == "dilepton":
                     variable = variable.replace("HT", "HT_cleaned")
                 else:
@@ -639,8 +640,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 return value
 
             # fill all fakerate branches:      
-            for variable in ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
-                for fr_region in ["dilepton", "qcd", "qcd_sideband"]:
+            for variable in fakerate_variables:
+                for fr_region in fakerate_regions:
                     if fr_region == "dilepton":
                         variable = variable.replace("HT", "HT_cleaned")
                     else:

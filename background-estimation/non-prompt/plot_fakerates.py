@@ -55,7 +55,8 @@ def do_1D_plot(root_file, path, category, variable, regions = ["dilepton", "qcd"
 
         colors = [kBlack, kRed, kBlue, kGreen, kOrange, ]
 
-        for data_type in ["Summer16", "Fall17", "2016", "2017", "2018"]:
+        #for data_type in ["Summer16", "Fall17", "2016", "2017", "2018"]:
+        for data_type in ["Summer16"]:
             hist_names.append( region + "/" + data_type + "/" + category + "/fakerate_" + variable )
 
         for hist_name in hist_names:
@@ -118,8 +119,8 @@ def do_1D_plot(root_file, path, category, variable, regions = ["dilepton", "qcd"
 
 if __name__ == "__main__":
 
-    root_file = "fakerate.root"
-    path = "output_fakerate_sideband"
+    root_file = "fakerate_new_2016.root"
+    path = "output_fakerate_sideband2"
 
     # do 1D fakerate comparison plots:
     for category in ["short", "long"]:
@@ -130,6 +131,8 @@ if __name__ == "__main__":
                 else:
                     variable = variable.replace("_cleaned", "")
                 do_1D_plot(root_file, path, category, variable, regions = [region])
+
+    quit()    
 
     # redo the 2D plots in a slightly nicer way:
     for region in ["dilepton", "qcd", "qcd_sideband"]:

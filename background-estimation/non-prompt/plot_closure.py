@@ -4,7 +4,7 @@ from ROOT import *
 from plotting import *
 import collections
 
-def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selected_region = "", data = "Summer16", mc = "Run2016_MET", variable = "", xlabel = "", extra_text = "", nBinsX = False, xmin = False, xmax = False, ymin = False, ymax = False, fakerate_map = "HT_cleaned_n_allvertices", base_cuts = "PFCaloMETRatio<5"):
+def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selected_region = "", data = "Summer16", mc = "Run2016_MET", variable = "", xlabel = "", extra_text = "", nBinsX = False, xmin = False, xmax = False, ymin = False, ymax = False, fakerate_map = "HT_n_allvertices", base_cuts = "PFCaloMETRatio<5"):
     
     if selected_region == "zeroleptons":
         base_cuts += " && n_leptons==0 "
@@ -14,20 +14,20 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
     # get all histograms:
     histos = collections.OrderedDict()
     histos["mc"] = get_histogram(variable, base_cuts + " && n_DT>0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
-    histos["mc_actualfakes"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==1) || (n_DT==2 && DT1_actualfake==1 && DT2_actualfake==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
     histos["mc_prompt"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==0) || (n_DT==2 && DT1_actualfake==0 && DT2_actualfake==0))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
+    histos["mc_actualfakes"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==1) || (n_DT==2 && DT1_actualfake==1 && DT2_actualfake==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
     histos["mc_noDT"] = get_histogram(variable, base_cuts + " && n_DT==0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
-    histos["mc_noDT_xFR_dilepton"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
+    histos["mc_noDT_xFR_dilepton"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
     histos["mc_noDT_xFR_qcd"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
     histos["mc_noDT_xFR_qcd_sideband"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
 
     if data:
         histos["data_noDT"] = get_histogram(variable, base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=data)
-        histos["data_noDT_xFR_dilepton"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=data)
+        histos["data_noDT_xFR_dilepton"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=data)
         histos["data_noDT_xFR_qcd"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=data)
         histos["data_noDT_xFR_qcd_sideband"] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=data)
 
-    colors = [kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed, kGreen, kGreen+2, kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed]
+    colors = [kBlack, kBlue, kRed, kBlack, kRed, kGreen, kGreen+2, kBlue+2, kAzure, kRed, kRed, kGreen, kGreen+2, kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed]
 
     for label in histos:
         histos[label].SetLineWidth(2)
@@ -213,13 +213,14 @@ for folder in ["output_skim_sideband2"]:
                  "HT": [20, 0, 1000],
                  "MET": [20, 0, 1000],
                  "MHT": [20, 0, 1000],
-                 "njets": [20, 0, 20],
+                 "n_jets": [20, 0, 20],
                  "n_btags": [15, 0, 15],
                  "n_allvertices": [10, 0, 50],
+                 "n_NVtx": [10, 0, 50],
                  "MinDeltaPhiMhtJets": [15, 0, 4],
                  }
 
-    for region in ["inclusive", "meta", "zeroleptons"]:
+    for region in ["zeroleptons", "inclusive", "meta"]:
 
         for variable in variables:
 

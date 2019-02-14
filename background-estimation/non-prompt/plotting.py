@@ -82,11 +82,17 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     return histo
 
 
-def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=False, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, is_data=False):
+def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=False, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False):
 
     tree = TChain(tree_folder_name)       
     for tree_file in tree_files:
         tree.Add(tree_file)
+
+    if "Run201" in tree_files[0]:
+        is_data = True
+    else:
+        is_data = False
+        print "is MC"
 
     # xsection and puweight scaling:
     if not is_data:
@@ -113,14 +119,9 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     return histo
 
 
-def get_histogram(variable, cutstring, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", is_data=False, selected_sample = "Run2016"):
+def get_histogram(variable, cutstring, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", selected_sample = "Run2016"):
 
     print "Getting histogram for %s, cut = %s (sample: %s)" % (variable, cutstring, selected_sample)
-
-    if "Run201" in selected_sample:
-        is_data = True
-    else:
-        is_data = False
 
     unique = str(uuid.uuid1())
     
@@ -147,9 +148,9 @@ def get_histogram(variable, cutstring, scaling="", nBinsX=False, xmin=False, xma
         filenames = glob.glob(sample + "*root")
 
         if not nBinsY:
-            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, cutstring=cutstring, is_data=is_data, scaling=scaling).Clone()
+            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, cutstring=cutstring, scaling=scaling).Clone()
         else:
-            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, cutstring=cutstring, is_data=is_data, scaling=scaling).Clone()
+            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, cutstring=cutstring, scaling=scaling).Clone()
 
         histogram.SetDirectory(0)
         histogram.SetName(unique)
