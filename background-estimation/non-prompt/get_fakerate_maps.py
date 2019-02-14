@@ -98,7 +98,13 @@ if __name__ == "__main__":
     base_cuts = "PFCaloMETRatio<5"    
     rootfile = "fakerate_newrelease.root"
 
-    for configuration in ["2017/2018", "2016"]:
+    #for configuration in ["2017/2018", "2016"]:
+    for configuration in ["2016MC"]:
+
+        if configuration == "2016MC":
+            path = "output_fakerate_sideband2/"
+            selected_mc = "Summer16"
+            data_periods = []
 
         if configuration == "2016":
             path = "output_fakerate_sideband/"
@@ -115,7 +121,8 @@ if __name__ == "__main__":
         
         #for variable in ["HT:n_allvertices", "n_allvertices"]:
         #for variable in ["MHT", "HT"]:
-        for variable in ["MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
+        #for variable in ["MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
+        for variable in ["HT:n_allvertices", "n_allvertices", "MHT", "HT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
         
             # get fake rate from dilepton region:
             get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_short_track, selected_mc, "combined MC background, pixel-only tracks")    

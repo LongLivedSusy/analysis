@@ -82,53 +82,45 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     return histo
 
 
-def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=False, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, scaling=True):
+def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=False, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, is_data=False):
 
-    is_data = False
     tree = TChain(tree_folder_name)       
-
     for tree_file in tree_files:
         tree.Add(tree_file)
-        if "Run201" in tree_file:
-            is_data = True
+
+    # xsection and puweight scaling:
+    if not is_data:
+        cutstring = "(%s)*CrossSection*puWeight%s" % (cutstring, scaling)
+    elif len(scaling)>0:
+        cutstring = "(%s)%s" % (cutstring, scaling)
 
     if not nBinsY:
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax)
     else:
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax)
 
-    if scaling and not is_data:
-
-        # get number of entries:
+    # divide by number of total events in sample
+    if not is_data:
         nev = 0
-        xsec = 0
         for tree_file in tree_files:
             fin = TFile(tree_file)
-
-            if fin.Get("Nev"):
-                hnev = fin.Get("Nev")
-                i_nev = hnev.GetBinContent(1)
-            elif fin.Get("nev"):
-                hnev = fin.Get("nev")
-                i_nev = hnev.GetBinContent(1)
-            nev += i_nev
-
-            if xsec == 0 and fin.Get("xsec"):
-                hxsec = fin.Get("xsec")
-                xsec = hxsec.GetBinContent(1)
-
+            hnev = fin.Get("nev")
+            nev += hnev.GetBinContent(1)
             fin.Close()
-
-        # scale histogram to 1/fb:
         if nev > 0:
-            histo.Scale(xsec/nev)
+            histo.Scale(1.0/nev)
 
     return histo
 
 
-def get_histogram(variable, cutstring, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", selected_sample = "Run2016"):
+def get_histogram(variable, cutstring, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", is_data=False, selected_sample = "Run2016"):
 
     print "Getting histogram for %s, cut = %s (sample: %s)" % (variable, cutstring, selected_sample)
+
+    if "Run201" in selected_sample:
+        is_data = True
+    else:
+        is_data = False
 
     unique = str(uuid.uuid1())
     
@@ -155,9 +147,9 @@ def get_histogram(variable, cutstring, nBinsX=False, xmin=False, xmax=False, nBi
         filenames = glob.glob(sample + "*root")
 
         if not nBinsY:
-            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, cutstring=cutstring).Clone()
+            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, cutstring=cutstring, is_data=is_data, scaling=scaling).Clone()
         else:
-            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, cutstring=cutstring).Clone()
+            histogram = get_histogram_from_file(filenames, "Events", variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, cutstring=cutstring, is_data=is_data, scaling=scaling).Clone()
 
         histogram.SetDirectory(0)
         histogram.SetName(unique)
