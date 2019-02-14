@@ -138,6 +138,9 @@ if __name__ == "__main__":
                 for variable in ["HT_n_allvertices"]:
                     if region == "dilepton":
                         variable = variable.replace("HT", "HT_cleaned")
+                    else:
+                        variable = variable.replace("_cleaned", "")
+                    
                     hist_name = region + "/" + data_type + "/" + category + "/fakerate_" + variable
 
                     if "201" in data_type:

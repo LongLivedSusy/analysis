@@ -217,9 +217,9 @@ def control_plot(folder, label, rootfile = "control.root", lumi = 135.0, selecte
 
 
 #for folder in ["output_skim_2016v2_maps", "output_skim_2016v2_nomaps"]:
-for folder in ["output_skim_sideband_bak"]:
+for folder in ["output_skim_sideband"]:
 
-    merge_skim = False
+    merge_skim = True
 
     os.system("rm " + folder + "/plots/control.root")
 
@@ -252,8 +252,7 @@ for folder in ["output_skim_sideband_bak"]:
                 data_type = ["Summer16", "Run2016_SingleElectron"]
                 extra_text = "meta control region"
             elif region == "zeroleptons":
-                data_type = ["Summer16", "Run2016_SingleElectron"]      #FIXME
-                #data_type = ["Summer16", "Run2016_MET"]
+                data_type = ["Summer16", "Run2016_MET"]
                 extra_text = "n_{leptons} = 0"
 
             extra_text += ", skim: %s" % folder.replace("output_skim_", "")

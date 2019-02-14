@@ -6,6 +6,8 @@ from plotting import *
 
 def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, selected_sample, extra_text, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel = False, ylabel = False, denominator_cuts = ""):
 
+    print "## Doing", variable, selected_sample, extra_text
+
     if ":" in variable:
         plot2D = True
     else:
@@ -112,7 +114,8 @@ if __name__ == "__main__":
         cut_is_long_track  = " && ((n_DT==1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
         
         #for variable in ["HT:n_allvertices", "n_allvertices"]:
-        for variable in ["MHT", "HT"]:
+        #for variable in ["MHT", "HT"]:
+        for variable in ["MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
         
             # get fake rate from dilepton region:
             get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_short_track, selected_mc, "combined MC background, pixel-only tracks")    

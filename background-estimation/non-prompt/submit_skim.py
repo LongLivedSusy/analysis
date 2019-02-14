@@ -55,9 +55,6 @@ Run2016_ntuples_2016v2 = [
                     "Run2016F-03Feb2017-v1.SingleMuon",
                     "Run2016G-03Feb2017-v1.SingleMuon",
                     "Run2016H-03Feb2017_ver2-v1.SingleMuon",
-                 ]
-
-missing2016 = [
                     "Run2016B-03Feb2017_ver2-v2.MET",
                     "Run2016C-03Feb2017-v1.MET",
                     "Run2016D-03Feb2017-v1.MET",
@@ -65,7 +62,7 @@ missing2016 = [
                     "Run2016F-03Feb2017-v1.MET",
                     "Run2016G-03Feb2017-v1.MET",
                     "Run2016H-03Feb2017_ver2-v1.MET",
-]
+                 ]
 
 Run20172018_ntuples = [
                     #"ProductionRun2v2Run2017B-31Mar2018-v1.JetHT",
@@ -142,10 +139,9 @@ Run20172018_ntuples = [
                  ]
 
 command = "./looper.py $INPUT $OUTPUT 0 1"
-output_folder = "output_skim_sideband"
+output_folder = "output_skim_sideband2"
 commands = []
 commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2, output_folder, command = command, files_per_job = 5)
 commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command, files_per_job = 5)
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", missing2016, output_folder, command = command, files_per_job = 5)
 
 do_submission(commands, output_folder, executable = "looper.py")
