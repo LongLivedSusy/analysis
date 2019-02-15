@@ -98,8 +98,8 @@ if __name__ == "__main__":
     base_cuts = "PFCaloMETRatio<5"    
     rootfile = "fakerate_newrelease.root"
 
-    #for configuration in ["2017/2018", "2016"]:
-    for configuration in ["2016MC"]:
+    for configuration in ["2017/2018", "2016"]:
+    #for configuration in ["2016MC"]:
 
         if configuration == "2016MC":
             path = "output_fakerate_sideband2/"
@@ -107,12 +107,12 @@ if __name__ == "__main__":
             data_periods = []
 
         if configuration == "2016":
-            path = "output_fakerate_sideband/"
+            path = "output_fakerate_sideband3/"
             selected_mc = "Summer16"
             data_periods = ["2016"]
         
         if configuration == "2017/2018":
-            path = "output_fakerate_sideband/"
+            path = "output_fakerate_sideband3/"
             selected_mc = "Fall17"
             data_periods = ["2017", "2018"]
         
@@ -122,15 +122,7 @@ if __name__ == "__main__":
         #for variable in ["HT:n_allvertices", "n_allvertices"]:
         #for variable in ["MHT", "HT"]:
         #for variable in ["MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
-        for variable in ["HT:n_allvertices", "n_allvertices", "MHT", "HT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]:
-        
-            # get fake rate from dilepton region:
-            get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_short_track, selected_mc, "combined MC background, pixel-only tracks")    
-            get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/long" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_long_track, selected_mc, "combined MC background, pixel+strips tracks")
-            
-            for period in data_periods:
-                get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % period, base_cuts + " && dilepton_CR==1", cut_is_short_track, "%s*SingleElectron" % period, "Run%s SingleElectron, pixel-only tracks" % period)
-                get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/long" % period, base_cuts + " && dilepton_CR==1", cut_is_long_track, "%s*SingleElectron" % period, "Run%s SingleElectron, pixel+strips tracks" % period)
+        for variable in ["HT:n_allvertices", "n_allvertices", "MHT", "HT", "MHT:n_allvertices"]:
         
             # get fake rate from QCD-only events:
             get_fakerate(path, variable, rootfile, "qcd/%s/short" % selected_mc, base_cuts + " && qcd_CR==1", cut_is_short_track, selected_mc + "*QCD", "combined MC background, pixel-only tracks")
@@ -148,3 +140,13 @@ if __name__ == "__main__":
                 get_fakerate(path, variable, rootfile, "qcd_sideband/%s/short" % period, base_cuts + " && qcd_sideband_CR==1", cut_is_short_track, "%s*JetHT" % period, "Run%s JetHT, pixel-only tracks" % period)
                 get_fakerate(path, variable, rootfile, "qcd_sideband/%s/long" % period, base_cuts + " && qcd_sideband_CR==1", cut_is_long_track, "%s*JetHT" % period, "Run%s JetHT, pixel+strips tracks" % period)
         
+            continue
+            
+            # get fake rate from dilepton region:
+            get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_short_track, selected_mc, "combined MC background, pixel-only tracks")    
+            get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/long" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_long_track, selected_mc, "combined MC background, pixel+strips tracks")
+            
+            for period in data_periods:
+                get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/short" % period, base_cuts + " && dilepton_CR==1", cut_is_short_track, "%s*SingleElectron" % period, "Run%s SingleElectron, pixel-only tracks" % period)
+                get_fakerate(path, variable.replace("HT", "HT_cleaned"), rootfile, "dilepton/%s/long" % period, base_cuts + " && dilepton_CR==1", cut_is_long_track, "%s*SingleElectron" % period, "Run%s SingleElectron, pixel+strips tracks" % period)
+            

@@ -170,6 +170,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     if region_signalcontrol: 
         integer_branches.append("region")
         integer_branches.append("region_noDT")
+        integer_branches.append("region_noDT_ext")
         integer_branches.append("meta_CR")
     integer_branches.append("hemfailure_electron")
     integer_branches.append("hemfailure_jet")
@@ -195,6 +196,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         float_branches.append("DT%i_mva" % i)
         float_branches.append("DT%i_pt" % i)
         float_branches.append("DT%i_eta" % i)
+        float_branches.append("DT%i_phi" % i)
 
     tree_branch_values = {}
     for variable in float_branches:
@@ -239,7 +241,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         fakerate_file = TFile("fakerate.root", "open")
                    
         fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
-        fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices", "HT:n_NVtx", "n_NVtx"]
+        fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices"] #, "HT:n_NVtx", "n_NVtx"]
 
         # get all fakerate histograms:
         h_fakerates = {}
@@ -251,7 +253,10 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         else:
                             variable = variable.replace("_cleaned", "")
                         hist_name = region + "/" + data_period + "/" + category + "/fakerate_" + variable.replace(":", "_")
-                        h_fakerates[hist_name] = fakerate_file.Get(hist_name)
+                        try:
+                            h_fakerates[hist_name] = fakerate_file.Get(hist_name)
+                        except:
+                            print "Error reading fakerate:", hist_name
         
         # add all raw fakerate branches:        
         for region in fakerate_regions:
@@ -288,7 +293,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                    (len(event.Muons)>0 and (event.Muons[0].Pt() > 30) and bool(event.Muons_tightID[0]) and bool(event.Muons_passIso[0])):
                    meta_CR = True
                    tree_branch_values["meta_CR"][0] = meta_CR
-            
+
         # do HT-binned background stitching:
         current_file_name = tree.GetFile().GetName()
         madHT = -1
@@ -566,6 +571,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values["DT%i_mva" % n_DT][0] = mva
                 tree_branch_values["DT%i_pt" % n_DT][0] = event.tracks[iCand].Pt()
                 tree_branch_values["DT%i_eta" % n_DT][0] = event.tracks[iCand].Eta()
+                tree_branch_values["DT%i_phi" % n_DT][0] = event.tracks[iCand].Phi()
 
                 if verbose:
                     print "**************** DT track info ****************"
@@ -578,7 +584,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
                 # for each DT, check if in HEM failure region:
                 if event.RunNum >= 319077:
-                    if -3.0<event.tracks[iCand].Eta() and event.tracks[iCand].Eta()<-1.4 and -1.57<event.tracks[iCand].Eta() and event.tracks[iCand].Eta()<-0.87:
+                    if -3.0<event.tracks[iCand].Eta() and event.tracks[iCand].Eta()<-1.4 and -1.57<event.tracks[iCand].Phi() and event.tracks[iCand].Phi()<-0.87:
                         tree_branch_values["DT%i_hemfailure" % n_DT][0] = 1
                         tree_branch_values["hemfailure_dt"][0] = 1
 
@@ -595,24 +601,25 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if event.RunNum >= 319077:
             if GetHighestHemObjectPt(event.Jets) > 30:
                 tree_branch_values["hemfailure_jet"][0] = 1
-            if GetHighestHemObjectPt(event.Electrons) > 30:
+            if GetHighestHemObjectPt(event.Electrons) > 10:
                 tree_branch_values["hemfailure_electron"][0] = 1
 
 
         if region_signalcontrol:
 
-            # before filling tree, check if event in signal or control region:
+            # check signal/control region bin:
             if n_DT > 0:
-                #FIXME: event with two DTs 
                 is_pixel_track = tree_branch_values["DT1_is_pixel_track"][0]
                 region = get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track)
-            else:
-                region = 0
-
-            if n_DT == 0:
+                tree_branch_values["region"][0] = region
+            elif n_DT == 0:
                 region_noDT = get_signal_region(event, MinDeltaPhiMhtJets, 1, False)
-            else:
-                region_noDT = 0
+                if region_noDT > 0:
+                    tree_branch_values["region_noDT"][0] = region_noDT
+                    tree_branch_values["region_noDT_ext"][0] = region_noDT + 15
+                region_noDT_multiple = get_signal_region(event, MinDeltaPhiMhtJets, 2, False)
+                if region_noDT_multiple > 0:
+                    tree_branch_values["region_noDT"][0] = region_noDT_multiple
 
             # get fake rate for event:
             def getBinContent_with_overflow_2D(histo, xval, yval):
@@ -653,21 +660,20 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         category = "long"
                         
                     hist_name = fr_region + "/" + data_period + "/" + category + "/fakerate_" + variable.replace(":", "_")
-                                            
-                    if ":" in variable:
-                        xvalue = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
-                        yvalue = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[0])
-                        FR = getBinContent_with_overflow_2D(h_fakerates[hist_name], xvalue, yvalue)
-                    else:
-                        value = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx"))
-                        FR = getBinContent_with_overflow_1D(h_fakerates[hist_name], value)
-            
-                    branch_name = "fakerate_%s_%s" % (fr_region, variable.replace(":", "_"))
-                    tree_branch_values[branch_name][0] = FR
-               
-            tree_branch_values["region"][0] = region
-            tree_branch_values["region_noDT"][0] = region_noDT
-            tree_branch_values["meta_CR"][0] = meta_CR
+                    
+                    try:                 
+                        if ":" in variable:
+                            xvalue = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
+                            yvalue = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[0])
+                            FR = getBinContent_with_overflow_2D(h_fakerates[hist_name], xvalue, yvalue)
+                        else:
+                            value = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx"))
+                            FR = getBinContent_with_overflow_1D(h_fakerates[hist_name], value)
+                        
+                        branch_name = "fakerate_%s_%s" % (fr_region, variable.replace(":", "_"))
+                        tree_branch_values[branch_name][0] = FR
+                    except:
+                        pass
 
         # event-level variables:
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)

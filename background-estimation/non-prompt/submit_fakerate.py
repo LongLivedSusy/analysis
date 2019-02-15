@@ -41,9 +41,6 @@ Run2016_ntuples_2016v2 = [
                     "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-                           ]
-
-Run2016_ntuples_2016v2_data = [
                     "Run2016B-03Feb2017_ver2-v2.SingleElectron",
                     "Run2016C-03Feb2017-v1.SingleElectron",
                     "Run2016D-03Feb2017-v1.SingleElectron",
@@ -143,10 +140,9 @@ Run20172018_ntuples = [
                  ]
 
 command = "./looper.py $INPUT $OUTPUT 0 0"
-output_folder = "output_fakerate_sideband2"
+output_folder = "output_fakerate_sideband3"
 commands = []
-#commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2, output_folder, command = command, files_per_job = 3)
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2_data, output_folder, command = command, files_per_job = 10)
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", Run2016_ntuples_Run2v2, output_folder, command = command, files_per_job = 10)
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command, files_per_job = 10)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2, output_folder, command = command, files_per_job = 8)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2", Run2016_ntuples_Run2v2, output_folder, command = command, files_per_job = 8)
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command, files_per_job = 8)
 do_submission(commands, output_folder, executable = "looper.py")
