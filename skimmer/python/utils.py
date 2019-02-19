@@ -771,7 +771,7 @@ def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
     weight = pData / pMC
     return weight
 
-def get_syst_btagweight(weight_nominal,weight_up,weight_down,nSigma):
+def get_syst(weight_nominal,weight_up,weight_down,nSigma):
     w = weight_nominal
     if nSigma==0 : return w
     else :
@@ -782,36 +782,21 @@ def get_syst_btagweight(weight_nominal,weight_up,weight_down,nSigma):
 	else : w += nSigma*dw_down
     return w
 
-def get_syst_jes(weight_nominal,uncertainty,nSigma):
+def get_syst(weight_nominal,uncertainty,nSigma):
     w = weight_nominal
     if not nSigma==0.: 
 	w*= 1.0 + nSigma*uncertainty
-    return w
-
-def get_syst_jer(weight_nominal,weight_up,weight_down,nSigma):
-    w = weight_nominal
-    if nSigma==0 : return w
-    else :
-	#dw_up = weight_up - weight_nominal
-	#dw_down = weight_nominal - weight_down
-	dw_up = weight_up / weight_nominal
-	dw_down = weight_down / weight_nominal
-	if nSigma >= 0. :
-	    #w += nSigma*dw_up
-	    w *= nSigma*dw_up
-	#else : w += nSigma*dw_down
-	else : w *= nSigma*dw_down
     return w
 
 def jets_rescale_smear(tree,applySmearing,nSigmaJES,nSigmaJER):
     jets_syst = []
     for ijet, jet in enumerate(tree.Jets):
 	newjet = jet.Clone()
-	scaleJES = get_syst_jes(1.0,tree.Jets_jecUnc[ijet],nSigmaJES)
+	scaleJES = get_syst(1.0,tree.Jets_jecUnc[ijet],nSigmaJES)
 	newjet_Pt = jet.Pt() * scaleJES
 	newjet_E = jet.E() * scaleJES
 	if applySmearing : 
-	    scaleJER = get_syst_jer(tree.Jets_jerFactor[ijet],tree.Jets_jerFactorUp[ijet],tree.Jets_jerFactorDown[ijet],nSigmaJER)
+	    scaleJER = get_syst(tree.Jets_jerFactor[ijet],tree.Jets_jerFactorUp[ijet],tree.Jets_jerFactorDown[ijet],nSigmaJER)
 	    newjet_Pt *= scaleJER
 	    newjet_E *= scaleJER
 	newjet.SetPtEtaPhiE(newjet_Pt, jet.Eta(), jet.Phi(), newjet_E)

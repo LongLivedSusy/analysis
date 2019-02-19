@@ -17,6 +17,7 @@ histoStyler(hAnalysisBins, kBlack)
 
 #defaultInfile = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_100.root'
 defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
+#defaultInfile = 'dcap://cluster142.knu.ac.kr//pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
 #defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_52_RA2AnalysisTree.root'
 defaultOutfile = 'skim_'+(defaultInfile.split('/')[-1]).replace('*','')
 
@@ -24,7 +25,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
-parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="input file")
+parser.add_argument("-fin", "--fnamekeyword", type=str, default=defaultInfile, help="input file")
 parser.add_argument("-fout", "--fout", type=str,default=defaultOutfile,help="output file name")
 parser.add_argument("-dojetsyst", "--dojetsyst", action="store_true", help="Do JES, JER systematics")
 parser.add_argument("-applysmearing", "--applysmearing", action="store_true", help="Do JER")
@@ -52,7 +53,6 @@ print 'nsigmajer? ', nsigmajer
 print 'dobtagsf? ', dobtagsf
 print 'nsigmabtagsf? ', nsigmabtagsf
 
-#print 'applysmearing? ', applysmearing
 #smdir = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/'
 #smdir = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/'
 
@@ -131,8 +131,8 @@ else: phase = 0
 #############################################
 # Book new file in which to write skim tree #
 #############################################
-#newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
-newfilename = fout
+newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
+#newfilename = fout
 fnew = TFile(newfilename,'recreate')
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
@@ -299,7 +299,6 @@ else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 c = TChain('TreeMaker2/PreSelection')
 filenamelist = glob(fnamekeyword)
 print 'adding', filenamelist
-filelist = []
 for filename in filenamelist: c.Add(filename.strip())
 
 #c.Show(0)
@@ -423,10 +422,10 @@ for ientry in range(nentries):
             Long = not Short
             if Long: 
                 islong.append(1)
-                nshort+=1
+                nlong+=1
             else: 
                 islong.append(0) 
-                nlong+=1
+                nshort+=1
             disappearingTracks.append(c.tracks[itrack])
             genParticles = []
             for igp, gp in enumerate(c.GenParticles):
@@ -444,9 +443,7 @@ for ientry in range(nentries):
     ## B tagging SYSTEMATICS ##
     ###########################
     if dobtagsf : 
-	var_weight[0] = 1.0*xsecInPb/nentries # initialize weight each event
 	weight_btag = calc_btag_weight(c,nsigmabtagsf,nSigmaBtagFastSimSF,isFastSim)
-	var_weight[0]*=weight_btag
 	#print '%sth event weight_btag : %f'%(ientry,weight_btag)
     
     adjustedMht = TLorentzVector()
