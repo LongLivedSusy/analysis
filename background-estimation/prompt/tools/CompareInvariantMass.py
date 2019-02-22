@@ -5,7 +5,6 @@ gROOT.SetBatch(1)
 
 drawttbar = True
 files = [TFile('RawKappaMaps/RawKapps_AllMC_PixAndStrips.root'),TFile('RawKappaMaps/RawKapps_AllMC_PixOnly.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips.root'), TFile('RawKappaMaps/RawKapps_Run2016_PixOnly.root')]
-#files = [TFile('RawKappaMaps/RawKapps_AllMC_PixAndStrips.root')]
 
 labels = {}
 files[0].ls()
@@ -16,7 +15,7 @@ c1 = mkcanvas('c1')
 newkeys = files[0].GetListOfKeys()
 for file in files:
   lilbit = file.GetName().split('RawKapps_')[1].replace('.root','')
-  fnew__ = TFile('InvMass'+lilbit+'.root','recreate')
+  fnew = TFile('InvMass'+lilbit+'.root','recreate')
   for key_ in newkeys:
 	key = key_.GetName()
 	if not ('hInvMass' in key): continue
@@ -61,7 +60,6 @@ for file in files:
 	range = (etarange+' '+ptrange).replace('to','-').replace('eta', '|eta|=').replace('pt', 'p_{T}=')
 	tl.DrawLatex(0.6,0.7,range)
 	if 'AllMC' in file.GetName():
-		print 'opening', file.GetName().replace('AllMC','TTJets')
 		fCompanion = TFile(file.GetName().replace('AllMC','TTJets'))
 		hCompanion = fCompanion.Get(key.replace('_RECOden','_DTnum'))
 		hCompanion.SetLineColor(kOrange)
@@ -71,13 +69,14 @@ for file in files:
 		if int2>0: hCompanion.Scale(1.0/int2)
 		hCompanion.Draw('same')
 		leg.AddEntry(hCompanion,'t#bar{t} MC','p')
+		print 'yep we just added ttjets stuff'
 		
 	c1.Update()
 	#pause()	
-	fnew__.cd()
+	fnew.cd()
 	c1.Write(shortbit.replace(' ','')+key)
 	print 'making pdf associated with', file	
 	c1.Print(('pdfs/tagandprobe/'+lilbit+key.replace('_RECOden','')).replace('.','p')+'.pdf')
-print 'just created', fnew__.GetName()
-fnew__.Close()
+print 'just created', fnew.GetName()
+fnew.Close()
 exit(0)

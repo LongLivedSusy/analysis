@@ -1,5 +1,6 @@
 from ROOT import *
 from utils import *
+from namelib import *
 import sys
 from random import shuffle
 gROOT.SetBatch(1)
@@ -66,7 +67,7 @@ for key in keys:
     #funcs['f1'+ratname].SetParLimits(3,0, 0.999)
     #funcs['f1'+ratname].SetParLimits(4,200, 400)
             
-    hratio.Fit('f1'+ratname,'','SN',0,2500)
+    hratio.Fit('f1'+ratname,'','SN',30,2500)
     funcs['f1'+ratname].SetLineColor(hratio.GetLineColor())
     leg = mklegend(x1=.22, y1=.66, x2=.79, y2=.82)
     legname = ratname.split('_')[-1].replace('eta','eta ')

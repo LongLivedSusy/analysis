@@ -25,7 +25,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
-parser.add_argument("-fin", "--fnamekeyword", type=str, default=defaultInfile, help="input file")
+#parser.add_argument("-fin", "--fnamekeyword", type=str, default=defaultInfile, help="input file")
+parser.add_argument("-fin", "--fnamekeyword", nargs='*', type=str, help="input file", required=True)
 parser.add_argument("-fout", "--fout", type=str,default=defaultOutfile,help="output file name")
 parser.add_argument("-dojetsyst", "--dojetsyst", action="store_true", help="Do JES, JER systematics")
 parser.add_argument("-applysmearing", "--applysmearing", action="store_true", help="Do JER")
@@ -34,7 +35,8 @@ parser.add_argument("-nsigmajer", "--nsigmajer", type=int, default=0, help="JER 
 parser.add_argument("-dobtagsf", "--dobtagsf", action="store_true", help="Do Btag weight and systematics")
 parser.add_argument("-nsigmabtagsf", "--nsigmabtagsf", type=int, default=0, help="Btag weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 args = parser.parse_args()
-fnamekeyword = args.fnamekeyword.strip()
+#fnamekeyword = args.fnamekeyword.strip()
+fnamekeyword = args.fnamekeyword
 fout = args.fout
 analyzer = args.analyzer
 dojetsyst = args.dojetsyst
@@ -131,8 +133,8 @@ else: phase = 0
 #############################################
 # Book new file in which to write skim tree #
 #############################################
-newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
-#newfilename = fout
+#newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
+newfilename = fout
 fnew = TFile(newfilename,'recreate')
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
@@ -297,7 +299,8 @@ if 'Run2016' in fnamekeyword: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2
 else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 
 c = TChain('TreeMaker2/PreSelection')
-filenamelist = glob(fnamekeyword)
+#filenamelist = glob(fnamekeyword)
+filenamelist = fnamekeyword
 print 'adding', filenamelist
 for filename in filenamelist: c.Add(filename.strip())
 

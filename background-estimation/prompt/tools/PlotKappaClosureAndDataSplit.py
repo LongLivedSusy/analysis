@@ -9,6 +9,8 @@ gROOT.SetBatch(1)
 try: dtmode = sys.argv[1]
 except:	dtmode = 'PixOrStrips'
 
+UseFits = False
+
 print 'dtmode', dtmode
 if dtmode == 'PixOnly': 
 	PixMode = True
@@ -32,13 +34,17 @@ if CombineMode:
 if PixMode:
 	fTTJets = TFile('usefulthings/KappaTTJets_PixOnly.root')
 	fWJetsToLL = TFile('usefulthings/KappaWJets_PixOnly.root')
-	fMethodMC = TFile('usefulthings/KappaAllMC_PixOnly.root')
+	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixOnly.root')
+	#fMethodMC = TFile('usefulthings/KappaAllMC_PixOnly.root')
+	fMethodMC = TFile('usefulthings/KappaDYJets_PixOnly.root')
 	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly.root')]
 	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]
 if PixStripsMode:
 	fTTJets = TFile('usefulthings/KappaTTJets_PixAndStrips.root')
 	fWJetsToLL = TFile('usefulthings/KappaWJets_PixAndStrips.root')
-	fMethodMC = TFile('usefulthings/KappaAllMC_PixAndStrips.root')
+	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixAndStrips.root')
+	#fMethodMC = TFile('usefulthings/KappaAllMC_PixAndStrips.root')
+	fMethodMC = TFile('usefulthings/KappaDYJets_PixAndStrips.root')	
 	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips.root')]
 	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]	
 
@@ -52,7 +58,8 @@ fnew = TFile('ClosureKappaWithData_'+dtmode+'.root', 'recreate')
 
 c1 = mkcanvas('c1')
 c1.SetLogy()
-#c1.SetLogx()
+c1.SetLogx()
+counter = 0
 for name in names_:
 	if not 'hGen' in name: continue
 	if name[0]=='c' or name[0]=='f': continue
@@ -66,45 +73,51 @@ for name in names_:
 	funcMethodData = fMethodData.Get('f1hElProbePtKappa_eta0to1.4442')
 	'''
 	hWJetsToLL = fWJetsToLL.Get(name)
-	funcWJetsToLL = fWJetsToLL.Get('f1'+name)
+	if UseFits: funcWJetsToLL = fWJetsToLL.Get('f1'+name)
 	
 	hTTJets = fTTJets.Get(name)
-	funcTTJets = fTTJets.Get('f1'+name)
+	if UseFits: funcTTJets = fTTJets.Get('f1'+name)
 	hTTJets.SetLineColor(kGreen+2)
-	funcTTJets.SetLineColor(kGreen+2)	
+	if UseFits: funcTTJets.SetLineColor(kGreen+2)	
 	
 	mname = name.replace('Gen','')	
 	MethodMC = fMethodMC.Get(mname)
-	funcMethodMC = fMethodMC.Get('f1'+mname)
+	if UseFits: funcMethodMC = fMethodMC.Get('f1'+mname)
 
-	xrangemax = 200
+	xrangemax = min(500, hWJetsToLL.GetXaxis().GetBinLowEdge(hWJetsToLL.GetXaxis().GetNbins()))
+	print 'arrived at xrangemax', xrangemax
 	leg = mklegend(x1=.41, y1=.69, x2=.89, y2=.87)
 	hWJetsToLL.GetXaxis().SetRangeUser(0,xrangemax)
-	hWJetsToLL.GetYaxis().SetRangeUser(0.00000001,.015)
-	hWJetsToLL.Draw()	
+	hWJetsToLL.GetYaxis().SetRangeUser(0.000001,1.5)
+	hWJetsToLL.Draw()
+	#c1.Update()
+	#pause()		
 	
-	hTTJets.GetXaxis().SetRangeUser(0,xrangemax)
-	hTTJets.GetYaxis().SetRangeUser(0.000001,2)
-	hTTJets.Draw('same')
 		
-	funcWJetsToLL.Draw('same')
+	#hTTJets.GetXaxis().SetRangeUser(0,xrangemax)
+	#hTTJets.GetYaxis().SetRangeUser(0.000001,2)
+	hTTJets.Draw('same e0')
+	
+		
+	if UseFits: funcWJetsToLL.Draw('same')
 	leg.AddEntry(hWJetsToLL, 'MC Truth (W+Jets)')
 	
-	funcTTJets.Draw('same')
+	if UseFits: funcTTJets.Draw('same')
 	leg.AddEntry(hTTJets, 'MC Truth (t#bar{t}+Jets)')
 		
-	MethodMC.Draw('same')
-	funcMethodMC.Draw('same')
+	MethodMC.Draw('same e0')
+	if UseFits: funcMethodMC.Draw('same')
 	leg.AddEntry(MethodMC, 'MC Tag and Probe')
+		
 	
 	for iFile, fMethodData in enumerate(fMethodDataList):
 		MethodData = fMethodData.Get(mname)
-		funcMethodData = fMethodData.Get('f1'+mname)	
+		if UseFits: funcMethodData = fMethodData.Get('f1'+mname)	
 		MethodData.Draw('same')
-		funcMethodData.Draw('same')
+		if UseFits: funcMethodData.Draw('same')
 		MethodData.SetLineColor(kBlack+iFile)
 		MethodData.SetMarkerColor(kBlack+iFile)
-		funcMethodData.SetLineColor(kBlack+iFile)
+		if UseFits: funcMethodData.SetLineColor(kBlack+iFile)
 		yearstr = fMethodData.GetName().split('/')[-1].split('.root')[0].replace('Kappa','').split('_')[0]
 		if 'El' in name: leg.AddEntry(MethodData, yearstr+' Tag and Probe')
 		if 'Mu' in name: leg.AddEntry(MethodData, yearstr+' Tag and Probe')	
@@ -119,10 +132,16 @@ for name in names_:
 	tl.DrawLatex(.2,.69,dtmode.replace('And','+').replace('Only','-only').replace('Pix','pix').replace('Strips','strips'))
 	
 	c1.Update()
+	
+	
+	#pause()
+	
+	
 	fnew.cd()
 	c1.Write(name.replace('hGen','c_').replace('.','p'))
 	namypoo = 'pdfs/closure/tpkappa/'+name.replace('hGen','kappa').replace('.','p')+'_'+dtmode+'.pdf'
 	c1.Print(namypoo)
+	
 
 
 print 'just created'

@@ -26,6 +26,26 @@ else
 fi
 '''
 
+jobscript_forKNU = '''#!/bin/sh
+echo "$QUEUE $JOB $HOST"
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+export SCRAM_ARCH=slc6_amd64_gcc630
+cd CMSBASE
+#cmsenv
+eval `scramv1 runtime -sh`
+echo $CMSSW_BASE
+cd CWD
+export PYTHONPATH=$PYTHONPATH:CWD/../../tools
+export LD_PRELOAD=/usr/lib64/libpdcap.so
+COMMAND
+if [ $? -eq 0 ]
+then
+    echo "Success"
+else
+    echo "Failed"
+fi
+'''
+
 def ShellExec(command):
     os.system(command)
 
@@ -81,7 +101,10 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
 
         if not cmsbase: cmsbase = cwd
 
-        fjob.write(jobscript.replace('CWD',cwd).replace('COMMAND',command).replace('CMSBASE',cmsbase))
+	if 'knu' in os.uname()[1] :
+	    fjob.write(jobscript_forKNU.replace('CWD',cwd).replace('COMMAND',command).replace('CMSBASE',cmsbase))
+	else : 
+	    fjob.write(jobscript.replace('CWD',cwd).replace('COMMAND',command).replace('CMSBASE',cmsbase))
         fjob.close()
         os.chdir(birdDir)
 
@@ -123,6 +146,9 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
             print cmd
         elif os.path.isfile("/usr/sge/bin/lx-amd64/qsub"):
             cmd = 'qsub -l %s -cwd ' % qsubOptions + jobname + '.sh > /dev/null 2>&1 &'
+            print cmd
+	elif 'knu' in os.uname()[1] and os.path.isfile("/usr/bin/qsub"):
+            cmd = 'qsub %s ' % qsubOptions + jobname + '.sh '
             print cmd
         else:
             print "Not a submission node, exiting!"

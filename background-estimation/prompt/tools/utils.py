@@ -1,8 +1,19 @@
 from ROOT import *
 from array import array
 
+r'''
+of the barrel (|eta| < 1.4442). The outer circumferences of the endcaps are obscured by services passing between the barrel and the endcaps, and this area is removed from the fiducial region by excluding the first ring of trigger towers of the endcaps (|eta| > 1.566). The fiducial region terminates at |eta| = 2.5 where the tracker coverage ends.
 
-PtBinEdges = [0,30,33,36,40,50,70,200,2500]
+
+PtBinEdges = [15, 30, 50, 70, 90, 120, 200, 300, 310]#for Akshansh
+EtaBinEdges = [0,1.4442,1.566,2.4]# for Akshansh
+
+PtBinEdges = [20, 30, 60, 120, 200, 220]#try squat little bins
+EtaBinEdges = [0,1.4442,1.566,2.4]
+'''
+
+#PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
+PtBinEdges = [0,20, 30,35,40, 50, 60, 90, 120, 180, 250, 350, 450,550,650,750,850,950,1000,2000,2500]
 EtaBinEdges = [0, 1.4442,1.566, 2.4]
 
 PtBinEdgesForSmearing = [0,20, 30,40, 50, 70, 90, 120, 200, 300, 310]
@@ -23,12 +34,22 @@ originalfont = tl.GetTextFont()
 epsi = "#scale[1.3]{#font[122]{e}}"
 epsilon = 0.0001
 
+#ptbins = [(15, 30), (30,60), (60,90),(90,9999)]
+#etabins = [(0,1.1), (1.1,2.5)]
+
+#ptbins = [(15, 9999)]
+#etabins = [(0, 2.5)]
+
 
 binning = {}
 #binning['Met']=[0,20,50,100,150,250,400,650,800,900,1000]
 binning['Met']=[15,0,1200]
 binning['Mht']=binning['Met']
+#binning['TrkPt']=[15,30,50,100,300]
+#binning['TrkPt']=[15,30,50,70,90,120,200,300,400,410]#good for gen check, and two eta bins
+#binning['TrkPt']=[15,30,50,70,90,120,200,300,310]
 binning['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
+#binning['TrkEta']=[0,1.4442,1.566,2.4]
 binning['TrkEta']=EtaBinEdges
 binning['TrkLen']=[2, 1, 3]
 binning['NJets']=[10,0,10]
@@ -42,7 +63,7 @@ binning['BTags']=[4,0,4]
 binning['Ht']=[10,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['Track1MassFromDedx'] = [25,0,1000]
-binning['BinNumber'] = [33,0,33]
+binning['BinNumber'] = [34,0,34]
 
 
 def histoStyler(h,color=kBlack):
@@ -80,7 +101,7 @@ def makeTh1VB(name, title, nbins, arrayOfBins):
 	histoStyler(h, 1)
 	return h
 	
-def makeTh2_(name, title, nbinsx, lowx, highx, nbinsy, lowy, highy): 
+def makeTh2(name, title, nbinsx, lowx, highx, nbinsy, lowy, highy): 
 	h = TH2F(name, title, nbinsx, lowx, highx, nbinsy, lowy, highy)
 	histoStyler(h)
 	return h
@@ -161,6 +182,8 @@ def findbin(thebins, value):
 			return bin
 	if value>thebins[-1]: return thebins[-1]
 	if value<thebins[0]: return thebins[0]	
+
+
 
 
 selectionsets = {}
@@ -351,6 +374,18 @@ def stamp2(lumi='35.9', showlumi = False):
 	tl.SetTextSize(1.0/0.81*tl.GetTextSize()) 
 
 
+#------------------------------------------------------------------------------
+def mkcdf(hist, minbin=1):
+	hist.Scale(1.0/hist.Integral(1,hist.GetXaxis().GetNbins()))
+	c = [0.0]*(hist.GetNbinsX()-minbin+2+1)
+	j=1
+	for ibin in xrange(minbin, hist.GetNbinsX()+1):
+		c[j] = c[j-1] + hist.GetBinContent(ibin)
+		j += 1
+	c[j] = hist.Integral()
+	return c
+
+
 def calcTrackIso(trk, tracks):
 	ptsum =  -trk.pt()
 	for track in tracks:
@@ -399,7 +434,6 @@ def isMatched_(obj, col, dR=0.02, verbose = False):
 
 def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
 	cGold.cd()
-	
 	pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
 	pad1.SetBottomMargin(0.0)
 	pad1.SetLeftMargin(0.12)
@@ -411,10 +445,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 	pad1.Draw()
 	pad1.cd()
 	for ih in range(1,len(hComponents[1:])+1):
-		#print 'entry inventory', hComponents[ih].Integral(), hComponents[ih-1].Integral()
-		#print 'adding',hComponents[ih-1],'to', hComponents[ih]
 		hComponents[ih].Add(hComponents[ih-1])
-		#print 'entry inventory', hComponents[ih].Integral(), hComponents[ih-1].Integral()        
 	hComponents.reverse()        
 	if abs(hComponents[0].Integral(-1,999)-1)<0.001:
 		hComponents[0].GetYaxis().SetTitle('Normalized')
@@ -446,28 +477,22 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 	hTruth.Draw('p same')
 	hTruth.Draw('e same')    
 	cGold.Update()
-	
-	#hTruth.Draw('E1 same')
 	hComponents[0].Draw('axis same')           
 	leg.Draw()        
 	cGold.Update()
 	stampFab(lumi,datamc)
 	cGold.Update()
 	cGold.cd()
-	
 	pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
 	pad2.SetTopMargin(0.0)
 	pad2.SetBottomMargin(0.3)
 	pad2.SetLeftMargin(0.12)
 	pad2.SetGridx()
-	#pad2.SetLogy()
-	
 	pad2.SetGridy()
 	pad2.Draw()
 	pad2.cd()
-	
 	hTruthCopy = hTruth.Clone('hTruthClone'+hComponents[0].GetName())
-	hRatio = hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
+	hRatio = hTruthCopy.Clone('hRatioClone')#hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
 	hRatio.SetMarkerStyle(20)
 	#hFracDiff = hComponents[0].Clone('hFracDiff')
 	#hFracDiff.SetMarkerStyle(20)
@@ -477,10 +502,10 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 	histoStyler(hTruthCopy, 1)
 	#hFracDiff.Add(hTruthCopy,-1)
 	#hFracDiff.Divide(hTruthCopy)
-	hRatio.Divide(hTruthCopy)
+	#hRatio.Divide(hTruthCopy)
+	hRatio.Divide(hComponents[0])
 	hRatio.GetYaxis().SetRangeUser(0.0,.1)###
 	hRatio.SetTitle('')
-	
 	if 'prediction' in title0: hFracDiff.GetYaxis().SetTitle('(RS-#Delta#phi)/#Delta#phi')
 	else: hRatio.GetYaxis().SetTitle(fractionthing)
 	hRatio.GetXaxis().SetTitleSize(0.12)
@@ -500,7 +525,146 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 	return hRatio
 
 
+def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
+	cGold.cd()
+	pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
+	pad1.SetBottomMargin(0.0)
+	pad1.SetLeftMargin(0.12)
+	if not LinearScale:
+		pad1.SetLogy()
+	
+	#pad1.SetGridx()
+	#pad1.SetGridy()
+	pad1.Draw()
+	pad1.cd()
+	for ih in range(1,len(hComponents[1:])+1):
+		hComponents[ih].Add(hComponents[ih-1])
+	hComponents.reverse()        
+	if abs(hComponents[0].Integral(-1,999)-1)<0.001:
+		hComponents[0].GetYaxis().SetTitle('Normalized')
+	else: hComponents[0].GetYaxis().SetTitle('#Events')
+	cGold.Update()
+	hTruth.GetYaxis().SetTitle('Normalized')
+	hTruth.GetYaxis().SetTitleOffset(1.15)
+	hTruth.SetMarkerStyle(20)
+	histheight = 1.5*max(hComponents[0].GetMaximum(),hTruth.GetMaximum())
+	if LinearScale: low, high = 0, histheight
+	else: low, high = max(0.001,max(hComponents[0].GetMinimum(),hTruth.GetMinimum())), 1000*histheight
+	
+	title0 = hTruth.GetTitle()
+	if datamc=='MC':
+		for hcomp in hComponents: leg.AddEntry(hcomp,hcomp.GetTitle(),'lf')
+		leg.AddEntry(hTruth,hTruth.GetTitle(),'lpf')        
+	else:
+		for ihComp, hComp in enumerate(hComponents):
+			leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
+		leg.AddEntry(hTruth,title0,'lp')    
+	hTruth.SetTitle('')
+	hComponents[0].SetTitle('')	
+	xax = hComponents[0].GetXaxis()
+	hComponentsUp = hComponents[0].Clone(hComponents[0].GetName()+'UpVariation')
+	hComponentsUp.SetLineColor(kWhite)	
+	hComponentsDown = hComponents[0].Clone(hComponents[0].GetName()+'DownVariation')	
+	hComponentsDown.SetFillColor(10)
+	hComponentsDown.SetFillStyle(1001)
+	hComponentsDown.SetLineColor(kWhite)
+	for ibin in range(1, xax.GetNbins()+1):
+		hComponentsUp.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)+hComponents[0].GetBinError(ibin))
+		hComponentsDown.SetBinContent(ibin, hComponents[0].GetBinContent(ibin)-hComponents[0].GetBinError(ibin))		
+	
+	#hComponents[0].Draw('hist')
+	hComponentsUp.Draw('hist')
+	hComponentsDown.Draw('hist same')
+	for h in hComponents[1:]: 
+		print 'there are actually components here!'
+		h.Draw('hist same')
+		cGold.Update()
+		print 'updating stack', h
+	#hComponents[0].Draw('same') 
+	hTruth.Draw('p same')
+	hTruth.Draw('e same')    
+	cGold.Update()
+	hComponents[0].Draw('axis same')           
+	leg.Draw()        
+	cGold.Update()
+	stampFab(lumi,datamc)
+	cGold.Update()
+	cGold.cd()
+	pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
+	pad2.SetTopMargin(0.0)
+	pad2.SetBottomMargin(0.3)
+	pad2.SetLeftMargin(0.12)
+	#pad2.SetGridx()
+	pad2.SetGridy()
+	pad2.Draw()
+	pad2.cd()
+	hTruthCopy = hTruth.Clone('hTruthClone'+hComponents[0].GetName())
+	hRatio = hTruthCopy.Clone('hRatioClone')#hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
+	hRatio.SetMarkerStyle(20)
+	#hFracDiff = hComponents[0].Clone('hFracDiff')
+	#hFracDiff.SetMarkerStyle(20)
+	hTruthCopy.SetMarkerStyle(20)
+	hTruthCopy.SetMarkerColor(1) 
+	#histoStyler(hFracDiff, 1)
+	histoStyler(hTruthCopy, 1)
+	#hFracDiff.Add(hTruthCopy,-1)
+	#hFracDiff.Divide(hTruthCopy)
+	#hRatio.Divide(hTruthCopy)
+	histoByWhichToDivide = hComponents[0].Clone()
+	for ibin in range(1, xax.GetNbins()+1): histoByWhichToDivide.SetBinError(ibin, 0)
+	hRatio.Divide(histoByWhichToDivide)
+	hRatio.GetYaxis().SetRangeUser(0.0,.1)###
+	hRatio.SetTitle('')
+	if 'prediction' in title0: hFracDiff.GetYaxis().SetTitle('(RS-#Delta#phi)/#Delta#phi')
+	else: hRatio.GetYaxis().SetTitle(fractionthing)
+	hRatio.GetXaxis().SetTitleSize(0.12)
+	hRatio.GetXaxis().SetLabelSize(0.11)
+	hRatio.GetYaxis().SetTitleSize(0.12)
+	hRatio.GetYaxis().SetLabelSize(0.12)
+	hRatio.GetYaxis().SetNdivisions(5)
+	hRatio.GetXaxis().SetNdivisions(10)
+	hRatio.GetYaxis().SetTitleOffset(0.5)
+	hRatio.GetXaxis().SetTitleOffset(1.0)
+	hRatio.GetXaxis().SetTitle(hTruth.GetXaxis().GetTitle())
+	hRatio.Draw()
+	
 
+	histoMethodFracErrorNom = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystNom')
+	histoMethodFracErrorNom.SetLineColor(kBlack)
+	histoMethodFracErrorNom.SetFillStyle(1)
+	histoMethodFracErrorUp = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystUp')
+	histoMethodFracErrorUp.SetFillStyle(3001)
+	histoMethodFracErrorUp.SetLineColor(kWhite)	
+	histoMethodFracErrorUp.SetFillColor(hComponents[0].GetFillColor())	
+	histoMethodFracErrorDown = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystDown')
+	histoMethodFracErrorDown.SetLineColor(kWhite)
+	#histoMethodFracErrorDown.SetFillStyle(1001)
+	histoMethodFracErrorDown.SetFillColor(10)
+	for ibin in range(1, xax.GetNbins()+1): 
+		content = histoMethodFracErrorUp.GetBinContent(ibin)
+		if content>0: err = histoMethodFracErrorUp.GetBinError(ibin)/content
+		else: err = 0
+		histoMethodFracErrorUp.SetBinContent(ibin, 1+err)
+		histoMethodFracErrorUp.SetBinError(ibin, 0)
+		histoMethodFracErrorDown.SetBinContent(ibin, 1-err)
+		histoMethodFracErrorDown.SetBinError(ibin, 0)		
+		histoMethodFracErrorNom.SetBinContent(ibin, 1)		
+		histoMethodFracErrorNom.SetBinError(ibin, 0)
+		print 'just set', ibin, err
+	hRatio.GetYaxis().SetRangeUser(-0.2,3.2)	
+	hRatio.Draw('e0')    
+	histoMethodFracErrorUp.Draw('same hist')	
+	histoMethodFracErrorNom.Draw('same')
+	histoMethodFracErrorDown.Draw('same hist')
+	hRatio.Draw('e0 same')
+	hRatio.Draw('axis same')
+	pad1.cd()
+	hComponents.reverse()
+	hTruth.SetTitle(title0)
+	pad1.Update()
+	
+	return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hComponentsDown]
+	
 def stampFab(lumi,datamc='MC'):
 	tl.SetTextFont(cmsTextFont)
 	tl.SetTextSize(1.6*tl.GetTextSize())
@@ -538,7 +702,7 @@ _trackerLayersWithMeasurement_ = array('f',[0])
 _nMissingMiddleHits_ = array('f',[0])
 
 
-def prepareReaderLong(reader, xmlfilename):
+def prepareReaderPixelStrips(reader, xmlfilename):
         reader.AddVariable("dxyVtx",_dxyVtx_)      
         reader.AddVariable("dzVtx",_dzVtx_)          
         reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
@@ -549,7 +713,7 @@ def prepareReaderLong(reader, xmlfilename):
         reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
         reader.BookMVA("BDT", xmlfilename)
         
-def prepareReaderShort(reader, xmlfilename):
+def prepareReaderPixel(reader, xmlfilename):
         reader.AddVariable("dxyVtx",_dxyVtx_)     
         reader.AddVariable("dzVtx",_dzVtx_)           
         reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
@@ -570,7 +734,8 @@ def evaluateBDT(reader, trackfv):
         _ptErrOverPt2_[0] = trackfv[7]
         return  reader.EvaluateMVA("BDT")
     
-'''    
+
+	
 def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):###from Akshansh
         moh_ = c.tracks_nMissingOuterHits[itrack]
         phits = c.tracks_nValidPixelHits[itrack]
@@ -582,25 +747,31 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):#
         pixelStrips = medium or long
         if pixelStrips:
                 if not moh_>=2: return 0
+        #print 'here, testing!'                
         if not (c.tracks_nMissingInnerHits[itrack]==0): return 0
+        #print 'here, testing 2!' 
         if not (pixelOnly or pixelStrips): return 0                                                                                                         
+        #print 'here, testing 3!' 
         if not c.tracks_passPFCandVeto[itrack]: return 0
+        #print 'here, testing 4!' 
         pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
         dxyVtx = abs(c.tracks_dxyVtx[itrack])
-        dzVtx = abs(c.tracks_dzVtx[itrack])        
-        if not (c.tracks_trkRelIso[itrack]<0.2 and dzVtx<0.1 and pterr<10): return 0
+        dzVtx = abs(c.tracks_dzVtx[itrack])   
+        #print 'here, again!'                             
+        if not (c.tracks_trkRelIso[itrack]<0.2 and dzVtx<0.1 and pterr<10 and c.tracks_nMissingMiddleHits[itrack]==0): return 0
         if not (c.tracks_trackQualityHighPurity[itrack]): return 0
         nhits = c.tracks_nValidTrackerHits[itrack]
         nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
         if not (nlayers>=2 and nhits>=2): return 0
-        matchedCalo = c.tracks_matchedCaloEnergy[itrack]        
+        matchedCalo = c.tracks_matchedCaloEnergy[itrack]
+        #print 'before chi2'
+        if not c.tracks_chi2perNdof[itrack]<2.88: return 0
+        #print 'after chi2'        
         if not dxyVtx < 0.1: return 0
-        #if not c.tracks_trackJetIso[itrack]>0.45: return False
-        #if not c.tracks_minDrLetpons[itrack]>0.01: return False	        
         trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr]
         if pixelOnly:
                 mva_ = evaluateBDT(readerPixelOnly, trackfv)
-                if not mva_ > 0.15: return 0###.1
+                if not mva_ > 0.1: return 0###.4
                 else: return 1
         elif pixelStrips:
                 mva_ = evaluateBDT(readerPixelStrips, trackfv)             
@@ -608,58 +779,27 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):#
                 else: return 2
         else:
                 return 0
-
-def isBaselineTrack(track, itrack, c, hMask):
+                
+def isBaselineTrack(track, track_id, c, hMask):
 	if not abs(track.Eta())< 2.4 : return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
-	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
-	if not (c.tracks_ptError[itrack]/(track.Pt()*track.Pt()) < 10): return False
-	if not abs(c.tracks_dxyVtx[itrack]) < 0.1: return False
-	if not abs(c.tracks_dzVtx[itrack]) < 0.1 : return False
-	if not c.tracks_trkRelIso[itrack] < 0.2: return False
-	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False
-	if not c.tracks_nMissingInnerHits[itrack]==0: return False
-	if not c.tracks_nMissingMiddleHits[itrack]==0: return False	
+	if not bool(c.tracks_trackQualityHighPurity[track_id]) : return False
+	if not (c.tracks_ptError[track_id]/(track.Pt()*track.Pt()) < 10): return False
+	if not abs(c.tracks_dxyVtx[track_id]) < 0.02: return False
+	if not abs(c.tracks_dzVtx[track_id]) < 0.01 : return False
+	if not c.tracks_trkRelIso[track_id] < 0.2: return False
+	if not (c.tracks_trackerLayersWithMeasurement[track_id] >= 2 and c.tracks_nValidTrackerHits[track_id] >= 2): return False
+	if not c.tracks_nMissingInnerHits[track_id]==0: return False
 	if hMask!='':
 		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
 		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
-'''                
+	                
 def overflow(h):
     bin = h.GetNbinsX()+1
     c = h.GetBinContent(bin)
     h.AddBinContent((bin-1),c)
-  
-def passQCDHighMETFilter(t):
-    metvec = mkmet(t.MET, t.METPhi)
-    for ijet, jet in enumerate(t.Jets):
-        if not (jet.Pt() > 200): continue
-        if not (t.Jets_muonEnergyFraction[ijet]>0.5):continue 
-        if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
-    return True  
-    
-def mkmet(metPt, metPhi):
-    met = TLorentzVector()
-    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
-    return met
-    
-def passesUniversalSelection(t):
-    if not (bool(t.JetID) and  t.NVtx>0): return False
-    if not (t.Electrons.size()==0 and t.Muons.size()==0 and t.isoElectronTracks==0 and t.isoMuonTracks==0 and t.isoPionTracks==0): return False
-    if not  passQCDHighMETFilter(t): return False
-    if not t.PFCaloMETRatio<2: return False
-    #if not t.globalSuperTightHalo2016Filter: return False
-    if not t.globalTightHalo2016Filter: return False
-    if not t.HBHEIsoNoiseFilter: return False
-    if not t.HBHENoiseFilter: return False
-    if not t.BadChargedCandidateFilter: return False
-    if not t.BadPFMuonFilter: return False
-    if not t.CSCTightHaloFilter: return False
-    #if not t.ecalBadCalibFilter: return False #this says it's deprecated
-    if not t.EcalDeadCellTriggerPrimitiveFilter: return False
-    if not t.eeBadScFilter: return False 
-    return True
     
     
 	

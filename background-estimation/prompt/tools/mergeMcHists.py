@@ -8,6 +8,7 @@ gROOT.SetBatch(1)
 from time import sleep
 lumi = 135000.
 
+useweights = False
 
 ####Note: It's good (safe) to delete all the directories with output/closure* before running this script
 
@@ -22,12 +23,20 @@ try: infiles = sys.argv[2]
 except: infiles = 'output/smallchunks/PromptBkgHists_*Tune*.root'
 
 inputflist = glob(infiles)
+indir = '/'.join(infiles.split('/')[:-1])+'/'
 
 firstfive = infiles.split('/')[-1][:5]
 print firstfive, 'firstfive'
 if 'PixOnly' in infiles: extra = 'PixOnly'
 elif 'PixAndStrips' in infiles: extra = 'PixAndStrips'
 else: extra = ''
+
+
+if 'PU0' in infiles: extra += '*PU0'
+if 'PU14' in infiles: extra += '*PU14'
+if 'PU27' in infiles: extra += '*PU27'
+
+print 'extra', extra
 
 try: fnameOut = sys.argv[2]
 except: fnameOut = 'closure.root'
@@ -52,14 +61,17 @@ for inputname in inputflist:
 	veryshortname = shortname.split('_')[0]
 	if not veryshortname in keysforcontrib: keysforcontrib.append(veryshortname)
 	print 'this should be nice and short:', shortname
-print keysforxsec
+print 'keysforxsec', keysforxsec
 
 keysforxsec = sorted(keysforxsec)
 for xkey in keysforxsec:
 	import os
 	if not os.path.exists("output/closure_lumixsec/"+xkey+'.root'):
 		command = 'python tools/ahadd.py -f output/closure_lumixsec/'+xkey+'.root output/smallchunks/'+firstfive+'*'+xkey+'*'+extra+'*.root'
+		if 'Truth' in infiles: command = command.replace('*.root','*Truth.root')
+		elif not 'TagnProbe' in infiles: command = command.replace('*.root','*Files1.root')
 		print 'first command', command
+		#pause()
 		if not istest: os.system(command)
 while len(glob('output/closure_lumixsec/*.root'))<len(keysforxsec):
 	sleep(1.0)
@@ -81,7 +93,8 @@ for xkey in keysforxsec:
 				if 'hHt'==name: continue
 				h = fOld.Get(name)
 				try:
-					if nentries>0: h.Scale(lumi*1.0/nentries)
+					if useweights:
+						if nentries>0: h.Scale(lumi*1.0/nentries)
 				except:
 					fOld.ls()
 					print 'that didnt work', xkey, name, h

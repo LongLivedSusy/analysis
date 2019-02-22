@@ -5,16 +5,34 @@ from time import sleep
 
 test = False
 
-try: analyzer = sys.argv[1]
-except: analyzer = 'SkimTreeMaker.py'
-analyzer = analyzer.replace('python/','').replace('tools/','')
-    
-try: filenames = sys.argv[2]
-#except: filenames = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/*.root'
-except: filenames = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/Summer16.*.root'
 
-try: otherargs = sys.argv[3:]
-except: otherargs = ['']
+
+import argparse
+parser = argparse.ArgumentParser()
+defaultfkey = 'Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2_28'
+parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
+parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
+parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultfkey,help="file")
+parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
+parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
+parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
+parser.add_argument("-gk", "--useGenKappa", type=bool, default=False,help="use gen-kappa")
+args = parser.parse_args()
+fnamekeyword = args.fnamekeyword.strip()
+filenames = fnamekeyword
+analyzer = args.analyzer
+analyzer = analyzer.replace('python/','').replace('tools/','')
+JerUpDown = args.JerUpDown
+useGenKappa = args.useGenKappa
+    
+
+try: 
+	moreargs = ' '.join(sys.argv)
+	moreargs = moreargs.split('--fnamekeyword')[-1]	
+	moreargs = ' '.join((moreargs.split()[1:]))
+except: moreargs = ''
+moreargs = moreargs.strip()
+print 'moreargs', moreargs
 
 cwd = os.getcwd()
 filelist = glob(filenames)
@@ -32,11 +50,12 @@ def main():
         if (ifname+1)%filesperjob==filesperjob-1:
             print '==='*3
             jobname = analyzer.replace('.py','')+'-'+fname[fname.rfind('/')+1:].replace('.root','_'+str(ijob))
-            fjob = open('bird/'+jobname+'.sh','w')
+            if len(moreargs)>0: jobname = jobname.replace('.root',''.join(moreargs)+'.root')
+            fjob = open('jobs/'+jobname+'.sh','w')
             files = files[:-1]
-            fjob.write(jobscript.replace('CWD',cwd).replace('INFILE',files).replace('ANALYZER',analyzer).replace('OTHERARGS',' '.join(otherargs)))
+            fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',fname).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname))
             fjob.close()
-            os.chdir('bird')
+            os.chdir('jobs')
             command = 'condor_qsub -cwd '+jobname+'.sh &'
             print command
             if not test: os.system(command)
@@ -62,11 +81,10 @@ mkdir $timestamp
 cd $timestamp
 cp -r CWD/tools .
 cp -r CWD/usefulthings .
-python tools/ANALYZER "INFILE" OTHERARGS
+python tools/ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS > CWD/jobs/JOBNAME.out > CWD/jobs/JOBNAME.out 2> CWD/jobs/JOBNAME.err
 mv *.root CWD/output/smallchunks
 cd ../
 rm -rf $timestamp
-
 '''
 
 main()

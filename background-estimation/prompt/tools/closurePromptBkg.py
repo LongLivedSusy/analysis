@@ -6,20 +6,21 @@ from glob import glob
 gStyle.SetOptStat(0)
 gROOT.SetBatch(1)
 from time import sleep
-lumi = 135
+lumi = 135 #just for labeling. this weightw as already applied
 #must agree with lumi in merged...py!
 
 fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
 
 
-listOfVariationFilenames = []#['output/totalweightedbkgsTrueFit.root']
+listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
+#listOfVariationFilenames = []
 listOfVariationFiles = []
 for variationFileName in listOfVariationFilenames: listOfVariationFiles.append(TFile(variationFileName))
 variationColors = [kBlue-1, kBlue, kBlue+1]
 
 drawVariations = False
 usePredictionWithClosureCorrection = False
-CombineLeptons_ = False
+CombineLeptons_ = True
 			
 
 
@@ -108,14 +109,14 @@ for key in sorted(keys):#[:241]:
 	#	hVarMethod.Scale(1.0,'width') #lumi*1.0/hHt.Integral(-1,9999))
 
 	
-	leg = mklegend(x1=.52, y1=.54, x2=.99, y2=.76, color=kWhite)
+	leg = mklegend(x1=.5, y1=.6, x2=.92, y2=.8, color=kWhite)
 	legname = 'single-lep'
 	if 'hEl' in name: legname = legname.replace('lep','electron')
 	if 'hMu' in name: legname = legname.replace('lep','muon')
-	leg.AddEntry(hVarControl,'single-'+lepname,'l')
+	leg.AddEntry(hVarControl,'single-'+lepname,'lp')
 	#hVarMethod.Scale()
-	themax = 1000*max([hVarControl.GetMaximum(),hVarMethod.GetMaximum(),hVarTruth.GetMaximum()])
-	hVarMethod.GetYaxis().SetRangeUser(0.00001,themax)
+	themax = 1000000*max([hVarControl.GetMaximum(),hVarMethod.GetMaximum(),hVarTruth.GetMaximum()])
+	hVarMethod.GetYaxis().SetRangeUser(0.00007,themax)
 	hVarMethod.SetFillStyle(1001)
 	hVarMethod.SetFillColor(hVarMethod.GetLineColor())	
 	hVarTruth.GetYaxis().SetRangeUser(0.01,themax)
@@ -155,10 +156,11 @@ for key in sorted(keys):#[:241]:
 			olderr = hVarMethod.GetBinError(ibin)
 			syst = abs(hVarMethod.GetBinContent(ibin)-hAlt.GetBinContent(ibin))
 			hVarMethod.SetBinError(ibin, TMath.Sqrt(pow(olderr,2)+pow(syst,2)))
-			
-	hratio = FabDraw(c1,leg,hVarTruth,[hVarMethod],datamc='MC',lumi=lumi, title = '', LinearScale=False, fractionthing='method / truth')
+
+	#hratio = FabDraw(c1,leg,hVarTruth,[hVarMethod],datamc='MC',lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+	hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,hVarTruth,[hVarMethod],datamc='MC',lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
 	#hratio.GetYaxis().SetRangeUser(0.0,2.5)
-	hratio.GetYaxis().SetRangeUser(0.001,5.001)	
+	hratio.GetYaxis().SetRangeUser(0.001,3.001)	
 	#hratio.GetYaxis().SetRangeUser(-3,3)		
 	hratio.SetLineColor(kBlack)
 	hratio.SetMarkerColor(kBlack)
@@ -169,7 +171,10 @@ for key in sorted(keys):#[:241]:
 	c1.cd(1)
 	hVarMethod.SetTitle('')
 	hVarTruth.SetTitle('')	
-	hVarControl.SetTitle('')		
+	hVarControl.SetTitle('')
+	hVarControl.SetMarkerColor(hVarControl.GetLineColor())		
+	hVarControl.SetMarkerStyle(23)
+	hVarControl.SetLineColor(kWhite)
 	hVarControl.Draw('same p')
 	if drawVariations:
 		for hvari in hvariations: hvari.Draw('same')
@@ -180,7 +185,7 @@ for key in sorted(keys):#[:241]:
 	c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
 	clist.append(c1)
 	#c1.Delete()
-	hratios.append(hratio)
+	hratios.append([hratio, hmethodsyst])
 	c1.Update()
 	#pause()
 
