@@ -35,7 +35,7 @@ cd CMSBASE
 #cmsenv
 eval `scramv1 runtime -sh`
 echo $CMSSW_BASE
-export PYTHONPATH=$PYTHONPATH:CMSBASE/analysis/tools
+export PYTHONPATH=$PYTHONPATH:CMSBASE/src/analysis/tools
 cd CWD
 COMMAND
 if [ $? -eq 0 ]
