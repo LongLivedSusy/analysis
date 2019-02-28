@@ -13,7 +13,7 @@ EtaBinEdges = [0,1.4442,1.566,2.4]
 '''
 
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
-PtBinEdges = [0,20, 30,35,40, 50, 60, 90, 120, 180, 250, 350, 450,550,650,750,850,950,1000,2000,2500]
+PtBinEdges = [0,20,24,27,30,33,36,40,50,60,90,120,180, 250, 350, 450,550,650,750,850,950,1000,2000,2500]
 EtaBinEdges = [0, 1.4442,1.566, 2.4]
 
 PtBinEdgesForSmearing = [0,20, 30,40, 50, 70, 90, 120, 200, 300, 310]
@@ -650,7 +650,6 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title 
 		histoMethodFracErrorDown.SetBinError(ibin, 0)		
 		histoMethodFracErrorNom.SetBinContent(ibin, 1)		
 		histoMethodFracErrorNom.SetBinError(ibin, 0)
-		print 'just set', ibin, err
 	hRatio.GetYaxis().SetRangeUser(-0.2,3.2)	
 	hRatio.Draw('e0')    
 	histoMethodFracErrorUp.Draw('same hist')	
@@ -736,7 +735,7 @@ def evaluateBDT(reader, trackfv):
     
 
 	
-def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):###from Akshansh
+def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
         moh_ = c.tracks_nMissingOuterHits[itrack]
         phits = c.tracks_nValidPixelHits[itrack]
         thits = c.tracks_nValidTrackerHits[itrack]
@@ -769,13 +768,14 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):#
         #print 'after chi2'        
         if not dxyVtx < 0.1: return 0
         trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr]
+        shortmvathresh, longmvathresh = threshes
         if pixelOnly:
                 mva_ = evaluateBDT(readerPixelOnly, trackfv)
-                if not mva_ > 0.1: return 0###.4
+                if not mva_ > shortmvathresh: return 0
                 else: return 1
         elif pixelStrips:
                 mva_ = evaluateBDT(readerPixelStrips, trackfv)             
-                if not mva_ > 0.25:return 0###.25
+                if not mva_ > longmvathresh:return 0
                 else: return 2
         else:
                 return 0

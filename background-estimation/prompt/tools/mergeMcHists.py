@@ -8,7 +8,7 @@ gROOT.SetBatch(1)
 from time import sleep
 lumi = 135000.
 
-useweights = False
+
 
 ####Note: It's good (safe) to delete all the directories with output/closure* before running this script
 
@@ -30,6 +30,9 @@ print firstfive, 'firstfive'
 if 'PixOnly' in infiles: extra = 'PixOnly'
 elif 'PixAndStrips' in infiles: extra = 'PixAndStrips'
 else: extra = ''
+
+if 'Tag' in infiles: useweights = False
+else: useweights = True
 
 
 if 'PU0' in infiles: extra += '*PU0'
@@ -55,7 +58,8 @@ keysforxsec = []
 keysforcontrib = []
 print 'for inputname in inputflist:'
 for inputname in inputflist:
-	shortname = inputname.split('Hists_')[-1].split('CUET')[0]
+	if 'CUET' in inputname: shortname = inputname.split('Hists_')[-1].split('CUET')[0]
+	else: shortname = inputname.split('Hists_')[-1].split('CP5')[0]
 	if not shortname in keysforxsec: keysforxsec.append(shortname)
 	else: continue	
 	veryshortname = shortname.split('_')[0]

@@ -1,4 +1,4 @@
-import sys
+import os, sys
 import time
 import numpy as np
 from ROOT import *
@@ -7,15 +7,12 @@ from glob import glob
 from random import shuffle
 import random
 
-#fix this to csvs! and correct values
-BTAG_CSV = 0.8838#2017
-BTAG_CSV = 0.8484#2016
-
 #gROOT.SetBatch(1)
 gROOT.SetStyle('Plain')
 
 
 defaultInfile_ = "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2_285_RA2AnalysisTree.root"
+#/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v2RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8_78_RA2AnalysisTree.root
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
@@ -37,17 +34,31 @@ RelaxGenKin = True
 ClosureMode = True #false means run as if real data
 SmearLeps = False
 UseFits = False
+UseDeep = False
 verbose = False
 
 c = TChain("TreeMaker2/PreSelection")
 mZ = 91
 
 isdata = 'Run20' in inputFileNames
-if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames:
-	phase = 0
-else:
-	phase = 1
+if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames: phase = 0
+else: phase = 1
 
+
+if phase==0: 
+    BTAG_CSVv2 = 0.8484
+    BTAG_deepCSV = 0.6324
+if phase==1: 
+    BTAG_CSVv2 = 0.8838
+    BTAG_deepCSV = 0.4941
+
+if UseDeep: btag_cut = BTAG_deepCSV
+else: btag_cut = BTAG_CSVv2
+
+if phase==0: mvathreshes=[.1,.25]
+else: mvathreshes=[0.15,0.0]
+
+print 'phase', phase
 
 if isdata: ClosureMode = False
 
@@ -178,10 +189,10 @@ else: madranges = [(0, inf)]
 #pause()
 #fname = '/nfs/dust/cms/user/singha/LLCh/BACKGROUNDII/CMSSW_8_0_20/src/MCTemplatesBinned/BinnedTemplatesIIDY_WJ_TT.root'
 if isdata: fsmearname = 'usefulthings/DataDrivenSmear_2016Data.root'
-else: fsmearname = 'usefulthings/DataDrivenSmear_2016MC.root'
+else: fsmearname = 'usefulthings/DataDrivenSmear_2016MC.root' ##this is different from tag/probe
 fSmear  = TFile(fsmearname)
 fMask = TFile('usefulthings/Masks.root')
-if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskRun2016')
+if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
 else: 
 	#hMask = fMask.Get('hEtaVsPhiDTRun2016')
 	hMask = ''
@@ -202,13 +213,13 @@ def getSmearFactor(Eta, Pt, Draw = False):
 	print 'returning 1', Eta, Pt, dResponseHist
 	return 1
 
-
+import os
 if phase==0:
 	pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
 	pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
 else:
-	pixelXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'    
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
 readerPixelOnly = TMVA.Reader()
 readerPixelStrips = TMVA.Reader()
 prepareReaderPixel(readerPixelOnly, pixelXml)
@@ -216,16 +227,28 @@ prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
 
 
 if isdata: 
-	fileKappaPixOnly = 'usefulthings/KappaRun2016_PixOnly.root'
-	fileKappaPixAndStrips = 'usefulthings/KappaRun2016_PixAndStrips.root' 
-	fileKappaPixOnlyGen = 'usefulthings/KappaWJets_PixOnly.root'
-	fileKappaPixAndStripsGen = 'usefulthings/KappaWJets_PixAndStrips.root'
+	if phase==0:
+		fileKappaPixOnly = 'usefulthings/KappaRun2016_PixOnly.root'
+		fileKappaPixAndStrips = 'usefulthings/KappaRun2016_PixAndStrips.root' 
+		fileKappaPixOnlyGen = 'usefulthings/KappaSummer16.WJets_PixOnly.root'
+		fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips.root'
+	else:
+		fileKappaPixOnly = 'usefulthings/KappaRun2016_PixOnly.root'
+		#fileKappaPixAndStrips = 'usefulthings/KappaRun2016_PixAndStrips.root' 
+		#fileKappaPixOnlyGen = 'usefulthings/KappaSummer16.WJets_PixOnly.root'
+		#fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips.root'		
    
 else: 
-	fileKappaPixOnly = 'usefulthings/KappaDYJets_PixOnly.root'#should be updated to All
-	fileKappaPixAndStrips = 'usefulthings/KappaDYJets_PixAndStrips.root'
-	fileKappaPixOnlyGen = 'usefulthings/KappaWJets_PixOnly.root'
-	fileKappaPixAndStripsGen = 'usefulthings/KappaWJets_PixAndStrips.root' 
+	if phase==0:
+		fileKappaPixOnly = 'usefulthings/KappaSummer16.DYJets_PixOnly.root'#should be updated to All
+		fileKappaPixAndStrips = 'usefulthings/KappaSummer16.DYJets_PixAndStrips.root'
+		fileKappaPixOnlyGen = 'usefulthings/KappaSummer16.WJets_PixOnly.root'
+		fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips.root' 
+	else:
+		fileKappaPixOnly = 'usefulthings/KappaFall17.DYJets_PixOnly.root'#should be updated to All
+		fileKappaPixAndStrips = 'usefulthings/KappaFall17.DYJets_PixAndStrips.root'
+		fileKappaPixOnlyGen = 'usefulthings/KappaFall17.WJets_PixOnly.root'
+		fileKappaPixAndStripsGen = 'usefulthings/KappaFall17.WJets_PixAndStrips.root' 
 
 
 fKappaPixOnly  = TFile(fileKappaPixOnly)
@@ -349,8 +372,8 @@ for ientry in range(nentries):
 	hHt.Fill(c.HT)
 	if isdata: weight = 1
 	else: 
-		#weight = c.CrossSection*c.puWeight
-		weight = c.puWeight
+		weight = c.CrossSection*c.puWeight
+		#weight = c.puWeight
 	hHtWeighted.Fill(c.HT,weight)
 
 
@@ -404,7 +427,7 @@ for ientry in range(nentries):
 		basicTracks.append([track,c.tracks_charge[itrack], itrack])
 		if not (track.Pt() > lepPtCut and track.Pt()<lepPtUpperCut): continue     
 		if verbose: print 'still in the woods', itrack, 'pt', track.Pt(), 'eta', track.Eta()           
-		dtstatus = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
+		dtstatus = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, mvathreshes)
 		if dtstatus==0: continue
 		drlep = 99
 		passeslep = True
@@ -413,7 +436,6 @@ for ientry in range(nentries):
 			if drlep<0.01: 
 				passeslep = False
 				break            
-		print 'here we are, almost there'
 		if not passeslep: continue        
 		#print 'found disappearing track w pT =', track.Pt() 
 		if dtstatus==1: nShort+=1
@@ -512,7 +534,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>BTAG_CSV: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -576,7 +598,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>BTAG_CSV: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -636,7 +658,7 @@ for ientry in range(nentries):
 			if not jet.DeltaR(dt)>0.4: continue###update to include second disappearing track
 			adjustedMht-=jet
 			if not abs(jet.Eta())<2.4: continue###update to 2.4            
-			if c.Jets_bDiscriminatorCSV[ijet]>BTAG_CSV: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 			adjustedJets.append(jet)
 			adjustedHt+=jet.Pt()
 		adjustedNJets = len(adjustedJets)

@@ -49,6 +49,8 @@ for key in keys:
 	binNumbers2remove.reverse()
 	for binNumber in binNumbers2remove:
 		del newbins[binNumber-1]
+		#a = 1
+		#del newbins[binNumber]		
 	
 	if len(newbins)>=2: 
 		print 'old bins', PtBinEdges

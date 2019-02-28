@@ -9,30 +9,38 @@ from time import sleep
 lumi = 135 #just for labeling. this weightw as already applied
 #must agree with lumi in merged...py!
 
-fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
+makefolders = False
 
+phase = 0
 
-listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
+if phase==0:
+	fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
+	listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
+	
+if phase==1:
+	fCentralMC = 'output/totalweightedbkgsDataDrivenMCPhase1.root'
+	listOfVariationFilenames = ['output/totalweightedbkgsTrueKappaPhase1.root']	
 #listOfVariationFilenames = []
 listOfVariationFiles = []
 for variationFileName in listOfVariationFilenames: listOfVariationFiles.append(TFile(variationFileName))
 variationColors = [kBlue-1, kBlue, kBlue+1]
 
-drawVariations = False
+drawVariations = True
 usePredictionWithClosureCorrection = False
 CombineLeptons_ = True
 			
 
 
-
+testscale = 1.0
 
 
 infile = TFile(fCentralMC)
 infile.ls()
 
-fout = 'closure.root'
+fout = 'closure_phase'+str(phase)+'.root'
 
 fnew = TFile(fout,'recreate')
+
 c1 = mkcanvas('c1')
 
 applyClosureCorrection = False
@@ -89,12 +97,16 @@ for key in sorted(keys):#[:241]:
 	methodname = methodname.replace('barBarf','barControl')
 			
 	hVarMethod = infile.Get(methodname)
+	hVarMethod.Scale(testscale)
 	if 'hMu'==name[:3]: 
 		hVarMethod.SetLineColor(kViolet+1)
 		hVarControl.SetLineColor(kRed+2)
 	else:
 		hVarMethod.SetLineColor(kGreen+2)
-	if CombineLeptons_: hVarMethod.Add(infile.Get(methodname.replace('hEl','hMu')))
+	if CombineLeptons_: 
+		h2add = infile.Get(methodname.replace('hEl','hMu'))
+		h2add.Scale(testscale)
+		hVarMethod.Add(h2add)
 	hVarMethod.SetTitle('weighted single '+lepname)
 	shortname = name[1:].replace('Control','').replace('Truth','').replace('Method','')
 	varname = shortname.split('_')[-1]
@@ -125,17 +137,18 @@ for key in sorted(keys):#[:241]:
 	fnew.cd()
 	plotname = shortname.replace('_','')
 	c1 = mkcanvas('c_'+plotname)
-	fnew.mkdir(shortname.replace('_',''))
-	if 'Bin' in name: 
-		hVarMethodCorrected, hVarCorrectionFactor = makeClosureCorrectionAndUncertainty(hVarMethod, hVarTruth)
-		fnew.cd()
-		hVarMethodCorrected.Write()
-		if usePredictionWithClosureCorrection:
-			fnew.cd(plotname) 
-			hVarCorrectionFactor.Write()		
-			fnew.cd('../')				
-			#for ibin in range(1, xax.GetNbins()+1): print 'after', ibin, hVarCorrectionFactor.GetBinContent(ibin)
-			hVarMethod = hVarMethodCorrected
+	if makefolders:
+		fnew.mkdir(shortname.replace('_',''))
+		if 'Bin' in name: 
+			hVarMethodCorrected, hVarCorrectionFactor = makeClosureCorrectionAndUncertainty(hVarMethod, hVarTruth)
+			fnew.cd()
+			hVarMethodCorrected.Write()
+			if usePredictionWithClosureCorrection:
+				fnew.cd(plotname) 
+				hVarCorrectionFactor.Write()		
+				fnew.cd('../')				
+				#for ibin in range(1, xax.GetNbins()+1): print 'after', ibin, hVarCorrectionFactor.GetBinContent(ibin)
+				hVarMethod = hVarMethodCorrected
 			
 	hvariations = []
 	for f in listOfVariationFiles:
@@ -147,10 +160,11 @@ for key in sorted(keys):#[:241]:
 		hRatioVariation = hAlt.Clone()
 		hRatioVariation.Divide(hVarMethod)
 		fnew.cd()
-		fnew.cd(plotname)
-		hAlt.Write(methodname+'variation')
-		hRatioVariation.Write(methodname+'varyRatio')
-		fnew.cd('../')
+		if makefolders: 
+			fnew.cd(plotname)
+			hAlt.Write(methodname+'variation')
+			hRatioVariation.Write(methodname+'varyRatio')
+			fnew.cd('../')
 		hvariations.append(hAlt)
 		for ibin in range(1, xax.GetNbins()+1): 
 			olderr = hVarMethod.GetBinError(ibin)

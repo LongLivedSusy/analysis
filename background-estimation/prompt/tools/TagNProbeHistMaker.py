@@ -1,11 +1,11 @@
 from ROOT import *
-import sys
+import os, sys
 import numpy as np
 from glob import glob
 from utils import *
 gROOT.SetBatch()
 gROOT.SetStyle('Plain')
-
+zmass = 91
 
 
 defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_391_RA2AnalysisTree.root"
@@ -31,6 +31,8 @@ GenOnly = False
 RelaxGenKin = True
 verbose = False
 SmearLeps = False
+SmearLeps4Zed = False
+DoGenMatching = False
 
 puwindows = {'Nom':[-inf, inf],'Low':[0, 14],'Med':[14, 27],'High':[27, inf]}
 puwindow = puwindows[pileup]
@@ -47,7 +49,11 @@ else: isdata = False
 if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames:
 	phase = 0
 else:
+	print 'phase 1'
 	phase = 1
+
+if phase==0: mvathreshes=[.1,.25]
+else: mvathreshes=[0.15,0.0]
 
 print 'dtmode', dtmode
 if dtmode == 'PixOnly': 
@@ -63,7 +69,8 @@ elif dtmode == 'PixOrStrips':
 	PixStripsMode = False
 	CombineMode = True	
 	
-lepPtCut = 30
+lepPtCut = 25
+lepPtUpperCut = 6499
 
 c = TChain("TreeMaker2/PreSelection")
 #if isdata: fsmearname = 'usefulthings/DataDrivenSmear_2016Data.root'
@@ -95,6 +102,7 @@ for iPtBinEdge, PtBinEdge in enumerate(PtBinEdgesForSmearing[:-1]):
    
 print 'smearing factors', dResponseHist_el, dResponseHist_mu
 def getSmearFactor(Eta, Pt, dResponseHist):
+	if SmearLeps4Zed: return 1
 	for histkey in  dResponseHist:
 	   if abs(Eta) > histkey[0][0] and abs(Eta) < histkey[0][1] and Pt > histkey[1][0] and Pt < histkey[1][1]:
 		   SF_trk = 10**(dResponseHist[histkey].GetRandom())
@@ -180,8 +188,8 @@ if phase==0:
 	pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
 	pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
 else:
-	pixelXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'	
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
 readerPixelOnly = TMVA.Reader()
 readerPixelStrips = TMVA.Reader()
 prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
@@ -272,8 +280,8 @@ for ientry in range(nentries):
 	   if not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue
 	   if not isBaselineTrack(track, itrack, c, hMask): continue
 	   basicTracks.append([track,c.tracks_charge[itrack], itrack])
-	   if not (track.Pt()>lepPtCut and track.Pt()<9999): continue
-	   dtstatus = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
+	   if not (track.Pt()>lepPtCut and track.Pt()<lepPtUpperCut): continue
+	   dtstatus = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, mvathreshes)
 	   if dtstatus==0: continue
 	   if PixMode:
 		   if not dtstatus==1: continue
@@ -288,7 +296,7 @@ for ientry in range(nentries):
 			 break
 	   if not passeslep: continue
 	   fillth2(hEtaVsPhiDT, track.Phi(), track.Eta())
-	   print 'found disappearing track w pT =', track.Pt()       
+	   print ientry, 'found disappearing track w pT =', track.Pt(), dtstatus
 	   disappearingTracks.append([track,itrack])
 	  
 		
@@ -314,8 +322,9 @@ for ientry in range(nentries):
 	   smear = getSmearFactor(abs(matchedTrack.Eta()), min(matchedTrack.Pt(),299.999), dResponseHist_el)
 	   smearedEl = TLorentzVector()          
 	   smearedEl.SetPtEtaPhiE(smear*matchedTrack.Pt(),matchedTrack.Eta(),matchedTrack.Phi(),smear*matchedTrack.E())
-	   if not (smearedEl.Pt()>lepPtCut and smearedEl.Pt()<9999): continue
-	   SmearedElectrons.append([smearedEl, c.Electrons_charge[ilep], matchedTrack])
+	   #smearedEl.SetPtEtaPhiE(smear*lep.Pt(),lep.Eta(),lep.Phi(),smear*lep.E())
+	   if not (smearedEl.Pt()>lepPtCut and smearedEl.Pt()<lepPtUpperCut): continue
+	   SmearedElectrons.append([smearedEl, c.Electrons_charge[ilep], lep.Clone()])# matchedTrack])
    
 		
 	SmearedMuons = []
@@ -340,27 +349,10 @@ for ientry in range(nentries):
 	   smear = getSmearFactor(abs(matchedTrack.Eta()), min(matchedTrack.Pt(),299.999), dResponseHist_mu)
 	   smearedMu = TLorentzVector()          
 	   smearedMu.SetPtEtaPhiE(smear*matchedTrack.Pt(),matchedTrack.Eta(),matchedTrack.Phi(),smear*matchedTrack.E())
-	   if not (smearedMu.Pt()>lepPtCut and smearedMu.Pt()<9999): continue
-	   SmearedMuons.append([smearedMu, c.Muons_charge[ilep], matchedTrack])
+	   #smearedMu.SetPtEtaPhiE(smear*lep.Pt(),lep.Eta(),lep.Phi(),smear*lep.E())
+	   if not (smearedMu.Pt()>lepPtCut and smearedMu.Pt()<lepPtUpperCut): continue
+	   SmearedMuons.append([smearedMu, c.Muons_charge[ilep], lep.Clone()])# matchedTrack])
 				
-	adjustedHt = 0
-	adjustedMht = TLorentzVector()
-	adjustedMht.SetPxPyPzE(0,0,0,0)
-	adjustedNJets = 0
-	for jet in c.Jets:
-	   if not jet.Pt()>30: continue
-	   if not abs(jet.Eta())<5: continue
-	   if len(SmearedElectrons)>0:
-		  if not jet.DeltaR(SmearedElectrons[0][0])>0.5: continue
-	   if len(SmearedMuons)>0:
-		  if not jet.DeltaR(SmearedMuons[0][0])>0.5: continue
-	   if len(disappearingTracks)>0:
-		  if not jet.DeltaR(disappearingTracks[0][0])>0.5: continue
-	   adjustedMht-=jet
-	   if not abs(jet.Eta())<2.4: continue####update to 2.4       
-	   adjustedHt+=jet.Pt()
-	   adjustedNJets+=1
-	if not adjustedNJets<3: continue
 	  
 	for igen, genlep in enumerate(genels):
 		for idistrk, distrk in enumerate(disappearingTracks):
@@ -406,7 +398,7 @@ for ientry in range(nentries):
 		idlep   = -1
 		drminSmearedlepGenlep = 9999
 		gotthematch = False      
-		for ie, lep in enumerate(SmearedMuons):
+		for imu, lep in enumerate(SmearedMuons):
 			dr = genlep[0].DeltaR(lep[0])
 			if not dr < 0.02: continue #here we have a probe dt
 			if SmearLeps: pt = lep[0].Pt()
@@ -439,7 +431,7 @@ for ientry in range(nentries):
 				if (IMleplep < 0): 
 					print 'something horribly wrong, space-like event'
 					continue
-				dIM = abs(IMleplep - 91)
+				dIM = abs(IMleplep - zmass)
 				if(dIM < dmMin):
 					dmMin = dIM
 					IM = IMleplep
@@ -449,18 +441,18 @@ for ientry in range(nentries):
 					probeIsReco = False          
 			for iSmearedEl, smearedEl in enumerate(SmearedElectrons):
 				if not (tag[1] + smearedEl[1] == 0): continue
-				if smearedEl[0].DeltaR(tag[0])<0.01: continue                
+				if smearedEl[0].DeltaR(tag[0])<0.02: continue                
 				IMleplep = (tag[0] + smearedEl[0]).M()
-				dIM = abs(IMleplep - 91)
+				dIM = abs(IMleplep - zmass)
 				if(dIM < dmMin):
 					dmMin = dIM
-					IM    = IMleplep
+					IM = IMleplep
 					if SmearLeps: probeTlv  = smearedEl[0]
 					else: probeTlv = smearedEl[2]
 					probeIsReco = True
 					probeIsDt = False                    
 
-			if (IM > 60 and IM < 120):
+			if dmMin<20:
 				fillth1(hElTagPt, TagPt, weight)
 				fillth1(hElTagEta, TagEta, weight)
 				if probeIsDt:
@@ -470,7 +462,8 @@ for ientry in range(nentries):
 					ProbeEta = abs(probeTlv.Eta())
 					if not isdata: isgenmatched  = isGenMatched(probeTlv, 11)
 					else: isgenmatched = 1
-					#if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
+					if DoGenMatching:
+						if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
 
 					for histkey in  dInvMassElDTHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
@@ -484,8 +477,9 @@ for ientry in range(nentries):
 
 				if probeIsReco:
 					if not isdata: isgenmatched  = isGenMatched(probeTlv, 11)
-					else: isgenmatched = 1                    
-					#if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
+					else: isgenmatched = 1    
+					if DoGenMatching:                
+						if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
 					ProbePt   = probeTlv.Pt()
 					ProbeEta = abs(probeTlv.Eta())
 					for histkey in  dInvMassElRECOHist:
@@ -513,10 +507,10 @@ for ientry in range(nentries):
 				if (IMleplep < 0): 
 					print 'something horribly wrong, space-like event'
 					continue
-				dIM = abs(IMleplep - 91)
+				dIM = abs(IMleplep - zmass)
 				if(dIM < dmMin):
-					dmMin = dIM
 					IM = IMleplep
+					dmMin = dIM
 					probeTlv =  dt[0]
 					dtindex = dt[1]
 					probeIsDt = True
@@ -524,18 +518,18 @@ for ientry in range(nentries):
 					probeIsReco = False          
 			for iSmearedMu, smearedMu in enumerate(SmearedMuons):
 				if not (tag[1] + smearedMu[1] == 0): continue
-				if smearedMu[0].DeltaR(tag[0])<0.01: continue                
+				if smearedMu[0].DeltaR(tag[0])<0.02: continue                
 				IMleplep = (tag[0] + smearedMu[0]).M()
-				dIM = abs(IMleplep - 91)
+				dIM = abs(IMleplep - zmass)
 				if(dIM < dmMin):
 					dmMin = dIM
-					IM    = IMleplep
+					IM = IMleplep					
 					if SmearLeps: probeTlv = smearedMu[0]
 					else: probeTlv = smearedMu[2]
 					probeIsReco = True
 					probeIsDt = False                    
 
-			if (IM > 60 and IM < 120):
+			if dmMin<20:
 				fillth1(hMuTagPt, TagPt, weight)
 				fillth1(hMuTagEta, TagEta, weight)
 				if probeIsDt:
@@ -545,7 +539,8 @@ for ientry in range(nentries):
 					ProbeEta = abs(probeTlv.Eta())
 					if not isdata: isgenmatched  = isGenMatched(probeTlv, 13)
 					else: isgenmatched = 1
-					#if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
+					if DoGenMatching:
+						if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
 					print 'here at the muon threshold', ProbePt, ProbeEta
 					for histkey in  dInvMassMuDTHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
@@ -559,8 +554,9 @@ for ientry in range(nentries):
 
 				if probeIsReco:
 					if not isdata: isgenmatched  = isGenMatched(probeTlv, 13)
-					else: isgenmatched = 1                
-					#if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
+					else: isgenmatched = 1 
+					if DoGenMatching:               
+						if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
 					ProbePt   = probeTlv.Pt()
 					ProbeEta = abs(probeTlv.Eta())
 					for histkey in  dInvMassMuRECOHist:
