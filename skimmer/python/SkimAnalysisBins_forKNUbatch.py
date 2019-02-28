@@ -12,32 +12,27 @@ from distracklibs import *
 #distracklibs = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
 #execfile(distracklibs)
 
+hNev = TH1D('EvtNum','Number of events',1,0,1)
 hAnalysisBins = TH1F('hAnalysisBins','hAnalysisBins',33,0,33)
 histoStyler(hAnalysisBins, kBlack)
-
-#defaultInfile = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar/g1800_chi1400_27_200970_step4_100.root'
-defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
-#defaultInfile = 'dcap://cluster142.knu.ac.kr//pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/g1800_chi1400_27_200970_step4_100.root'
-#defaultInfile = '/pnfs/knu.ac.kr/data/cms/store/user/ssekmen/distrack/BGMC/Production2016v2/Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_52_RA2AnalysisTree.root'
-defaultOutfile = 'skim_'+(defaultInfile.split('/')[-1]).replace('*','')
 
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
-#parser.add_argument("-fin", "--fnamekeyword", type=str, default=defaultInfile, help="input file")
-parser.add_argument("-fin", "--fnamekeyword", nargs='*', type=str, help="input file", required=True)
-parser.add_argument("-fout", "--fout", type=str,default=defaultOutfile,help="output file name")
+parser.add_argument("-fin", "--inputfile", type=str, help="input file", required=True)
+parser.add_argument("-fout", "--outputfile", type=str, help="output file name", required=True)
 parser.add_argument("-dojetsyst", "--dojetsyst", action="store_true", help="Do JES, JER systematics")
 parser.add_argument("-applysmearing", "--applysmearing", action="store_true", help="Do JER")
 parser.add_argument("-nsigmajes", "--nsigmajes", type=int, default=0, help="JES systematics  (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 parser.add_argument("-nsigmajer", "--nsigmajer", type=int, default=0, help="JER systematics  (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 parser.add_argument("-dobtagsf", "--dobtagsf", action="store_true", help="Do Btag weight and systematics")
 parser.add_argument("-nsigmabtagsf", "--nsigmabtagsf", type=int, default=0, help="Btag weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+parser.add_argument("-doPU", "--doPUsyst", type=int, default=0, help="PU weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+
 args = parser.parse_args()
-#fnamekeyword = args.fnamekeyword.strip()
-fnamekeyword = args.fnamekeyword
-fout = args.fout
+inputfile = args.inputfile
+outputfile = args.outputfile
 analyzer = args.analyzer
 dojetsyst = args.dojetsyst
 applysmearing = args.applysmearing
@@ -47,23 +42,21 @@ dobtagsf = args.dobtagsf
 nsigmabtagsf = args.nsigmabtagsf
 nSigmaBtagFastSimSF = 1.0
 isFastSim = False
+isPrivateSignal = True
 
+#cross sections can be looked up on the SUSY xsec working group page:
+#https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections#Cross_sections_for_various_S_AN2
+if isPrivateSignal: 
+	xsecInPb = 0.00276133
+	#lumi = 135
+
+print 'inputfile : ', inputfile
 print 'dojetsyst? ', dojetsyst
 print 'applysmearing? ', applysmearing
 print 'nsigmajes? ', nsigmajes
 print 'nsigmajer? ', nsigmajer
 print 'dobtagsf? ', dobtagsf
 print 'nsigmabtagsf? ', nsigmabtagsf
-
-#smdir = '/nfs/dust/cms/user/beinsam/CommonNtuples/MC_SM/'
-#smdir = '/pnfs/desy.de/cms/tier2/store/user/sbein/CommonNtuples/'
-
-isPrivateSignal = True
-#cross sections can be looked up on the SUSY xsec working group page:
-#https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections#Cross_sections_for_various_S_AN2
-if isPrivateSignal: 
-	xsecInPb = 0.00276133
-	#lumi = 135
 print 'isPrivateSignal?', isPrivateSignal
 
 lepPtCut = 20
@@ -79,8 +72,6 @@ csv_b = 0.6324
 
 2018  0.8838     0.4941
 '''
-
-
 
 
 def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):###from Akshansh
@@ -127,15 +118,14 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):#
 # files specified with optional wildcards @ command line #
 ##########################################################
 
-if 'Fall17' in fnamekeyword or 'Run2017' in fnamekeyword: phase = 1
+if 'Fall17' in inputfile or 'Run2017' in inputfile: phase = 1
 else: phase = 0
 
 #############################################
 # Book new file in which to write skim tree #
 #############################################
-#newfilename = 'skim_'+(fnamekeyword.split('/')[-1]).replace('*','')
-newfilename = fout
-fnew = TFile(newfilename,'recreate')
+outputfilename = outputfile
+fnew = TFile(outputfilename,'recreate')
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 histoStyler(hHt,kBlack)
@@ -277,32 +267,28 @@ def getBinNumber(fv):
 # declare readers and selection code for BDT #
 ##############################################
 if phase==0:
-    #pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
-    #LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
-    pixelXml = '../../disappearing-track-tag/cmssw8-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
-    LongXml = '../../disappearing-track-tag/cmssw8-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'
+    pixelXml = '../../disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+    LongXml = '../../disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml'
 else:
-    pixelXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel3-200-4-short/weights/TMVAClassification_BDT.weights.xml'
-    LongXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw10-newpresel2-200-4-medium/weights/TMVAClassification_BDT.weights.xml'    
+    pixelXml = '../../disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+    LongXml = '../../disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
 readerShort = TMVA.Reader()
 readerLong = TMVA.Reader()
 prepareReaderShort(readerShort, pixelXml)
 prepareReaderLong(readerLong, LongXml)
-
-###############################
-# Btagging SF load from csv
-##############################
+# For btag systematics 
 if dobtagsf : prepareReaderBtagSF()
 
 fMask = TFile('../usefulthings/Masks.root')
-if 'Run2016' in fnamekeyword: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
+if 'Run2016' in inputfile: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
 else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 
 c = TChain('TreeMaker2/PreSelection')
-#filenamelist = glob(fnamekeyword)
-filenamelist = fnamekeyword
-print 'adding', filenamelist
-for filename in filenamelist: c.Add(filename.strip())
+with open (inputfile,"r") as filenamelists : 
+    filenamelist = filenamelists.readlines()
+for filename in filenamelist:
+    c.Add(filename.strip())
+    print 'adding', filenamelist
 
 #c.Show(0)
 nentries = min(9999999,c.GetEntries())
@@ -321,7 +307,8 @@ for ientry in range(nentries):
     weight = c.CrossSection
     hHt.Fill(c.HT)
     hHtWeighted.Fill(c.HT, weight)
-
+    hNev.Fill(0)
+    
     if not (c.MET>120): continue
     if not (c.NJets>0): continue
     if not passesUniversalSelection(c): continue
@@ -442,13 +429,6 @@ for ientry in range(nentries):
             
     if len(mvas)==0: continue
     
-    ###########################
-    ## B tagging SYSTEMATICS ##
-    ###########################
-    if dobtagsf : 
-	weight_btag = calc_btag_weight(c,nsigmabtagsf,nSigmaBtagFastSimSF,isFastSim)
-	#print '%sth event weight_btag : %f'%(ientry,weight_btag)
-    
     adjustedMht = TLorentzVector()
     adjustedMht.SetPxPyPzE(0,0,0,0)
     adjustedJets = []
@@ -475,6 +455,13 @@ for ientry in range(nentries):
     fv.append(binnumber)
     var_SearchBin[0] = binnumber
     
+    # Btag weight calculation 
+    if dobtagsf : 
+	weight_btag = calc_btag_weight(c,nsigmabtagsf,nSigmaBtagFastSimSF,isFastSim)
+	#print '%sth event weight_btag : %f'%(ientry,weight_btag)
+    
+
+    # Fill histos
     fillth1(hAnalysisBins, binnumber, var_weight[0])
             
     if len(mvas)==1:
@@ -525,6 +512,7 @@ for ientry in range(nentries):
 
 fnew.cd()
 tEvent.Write()
+hNev.Write()
 hAnalysisBins.Write()
 print 'just created', fnew.GetName()
 hHt.Write()
