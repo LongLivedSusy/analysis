@@ -30,13 +30,13 @@ jobscript_forKNU = '''#!/bin/sh
 echo "$QUEUE $JOB $HOST"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 export SCRAM_ARCH=slc6_amd64_gcc630
+#export LD_PRELOAD=/usr/lib64/libpdcap.so
 cd CMSBASE
 #cmsenv
 eval `scramv1 runtime -sh`
 echo $CMSSW_BASE
+export PYTHONPATH=$PYTHONPATH:CMSBASE/src/analysis/tools
 cd CWD
-export PYTHONPATH=$PYTHONPATH:CWD/../../tools
-export LD_PRELOAD=/usr/lib64/libpdcap.so
 COMMAND
 if [ $? -eq 0 ]
 then
