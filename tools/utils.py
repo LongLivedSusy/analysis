@@ -675,8 +675,8 @@ def passesUniversalSelection(t):
 def prepareReaderBtagSF():
     # load b tag sf from csv file
     import ROOT
-    ROOT.gROOT.ProcessLine('.L ../btagSF/BTagCalibrationStandalone.cpp+')
-    calib = ROOT.BTagCalibration('deepcsv', '../btagSF/DeepCSV_Moriond17_B_H.csv')
+    ROOT.gROOT.ProcessLine('.L ./BTagCalibrationStandalone.cpp+')
+    calib = ROOT.BTagCalibration('deepcsv', './DeepCSV_Moriond17_B_H.csv')
     # making a std::vector<std::string>> in python is a bit awkward, 
     # but works with root (needed to load other sys types):
     v_sys = getattr(ROOT, 'std::vector<string>')()
@@ -707,8 +707,8 @@ def prepareReaderBtagSF():
     )
 
 def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
-    #fbeff = TFile("../btagSF/BTagEfficiency_Summer16_TTJets.root")
-    fbeff = TFile("../btagSF/BTagEfficiency_g1800_chi1400_27_200970.root")
+    #fbeff = TFile("./BTagEfficiency_Summer16_TTJets.root")
+    fbeff = TFile("./BTagEfficiency_g1800_chi1400_27_200970.root")
     pMC = 1.0
     pData = 1.0
     
