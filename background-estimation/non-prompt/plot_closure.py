@@ -4,20 +4,17 @@ from ROOT import *
 from plotting import *
 import collections
 
-def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, selected_region = "", data = "Summer16", mc = "Run2016_MET", variable = "", xlabel = "", extra_text = "", nBinsX = False, xmin = False, xmax = False, ymin = False, ymax = False, fakerate_map = "HT_n_allvertices", base_cuts = "PFCaloMETRatio<5"):
+def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, selected_region = "", data = "Summer16", mc = "Run2016_MET", variable = "", xlabel = "", extra_text = "", nBinsX = False, xmin = False, xmax = False, ymin = False, ymax = False, fakerate_map = "HT_n_allvertices", base_cuts = "PFCaloMETRatio<5", numevents = -1):
     
     if selected_region == "zeroleptons":
         base_cuts += " && n_leptons==0 "
+    elif selected_region == "onelepton":
+        base_cuts += " && n_leptons==1 "
     elif selected_region == "meta":
         base_cuts += " && meta_CR==1 "
 
-    first_n_files = 1
-
     # get all histograms:
     histos = collections.OrderedDict()
-    histos["mc"] = get_histogram(variable, base_cuts + " && n_DT>0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
-    histos["mc_prompt"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==0) || (n_DT==2 && DT1_actualfake==0 && DT2_actualfake==0))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
-    histos["mc_actualfakes"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==1) || (n_DT==2 && DT1_actualfake==1 && DT2_actualfake==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=mc)
     for data_type in ["mc", "data"]:
 
         if data_type == "mc":
@@ -27,14 +24,43 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
         if not selected_sample: continue
 
         if variable != "region":
-            histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample)
+
+            histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+
         else:
-            histos["%s_noDT" % data_type] = get_histogram("region_noDT", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample)
-            h_region_ext = get_histogram("region_noDT_ext", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample)
+
+            histos["%s_noDT" % data_type] = get_histogram("region_noDT", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext = get_histogram("region_noDT_ext", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
             histos["%s_noDT" % data_type].Add(h_region_ext)
-        histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample)
-        histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample)
-        histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample)
+            histos["%s_noDT" % data_type].Add(h_region_ext2)
+
+            histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram("region_noDT", base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext = get_histogram("region_noDT_ext", base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_dilepton" % data_type].Add(h_region_ext)
+            histos["%s_noDT_xFR_dilepton" % data_type].Add(h_region_ext2)
+
+            histos["%s_noDT_xFR_qcd" % data_type] = get_histogram("region_noDT", base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext = get_histogram("region_noDT_ext", base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_qcd" % data_type].Add(h_region_ext)
+            histos["%s_noDT_xFR_qcd" % data_type].Add(h_region_ext2)
+
+            histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram("region_noDT", base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext = get_histogram("region_noDT_ext", base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_qcd_sideband" % data_type].Add(h_region_ext)
+            histos["%s_noDT_xFR_qcd_sideband" % data_type].Add(h_region_ext2)
+
+    histos["mc"] = get_histogram(variable, base_cuts + " && n_DT>0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
+    #histos["mc_prompt"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==0) || (n_DT==2 && DT1_actualfake==0 && DT2_actualfake==0))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
+    #histos["mc_actualfakes"] = get_histogram(variable, base_cuts + " && ((n_DT==1 && DT1_actualfake==1) || (n_DT==2 && DT1_actualfake==1 && DT2_actualfake==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
+    histos["mc_prompt"] = get_histogram(variable, base_cuts + " && n_DT>0 && n_DT_actualfake==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
+    histos["mc_actualfakes"] = get_histogram(variable, base_cuts + " && n_DT>0 && n_DT_actualfake>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
 
     colors = [kBlack, kBlue, kRed, kBlack, kRed, kGreen, kGreen+2, kBlue+2, kAzure, kRed, kRed, kGreen, kGreen+2, kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed]
 
@@ -56,7 +82,7 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
     # plotting:
     fout = TFile("%s/plots/%s" % (folder, rootfile), "update")
 
-    canvas = TCanvas("closure_%s" % file_label, "closure_%s" % file_label, 800, 800)
+    canvas = TCanvas(file_label, file_label, 800, 800)
     canvas.SetRightMargin(0.06)
     canvas.SetLeftMargin(0.12)
     canvas.SetLogy(True)
@@ -87,7 +113,7 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
                 global_ymax = histos[histo].GetMaximum()
 
         if not ymax:
-            ymin = global_ymin * 1e2
+            ymin = global_ymin * 1e-1
             ymax = global_ymax * 1e1
 
     histos["mc_noDT"].Draw("hist e")
@@ -202,52 +228,60 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
 
     canvas.Write()
     if not os.path.exists("%s/plots" % folder): os.mkdir("%s/plots" % folder)
-    canvas.SaveAs("%s/plots/closure_%s.pdf" % (folder, file_label))
+    canvas.SaveAs("%s/plots/%s.pdf" % (folder, file_label))
 
     fout.Close()
 
 
-for folder in ["output_skim_sideband5"]:
+for folder in ["output_skim10/merged/"]:
 
-    os.system("rm " + folder + "/plots/control.root")
+    #os.system("rm " + folder + "/plots/control.root")
 
-    variables = {"region": [32, 1, 33],
+    variables = {#"region": [32, 1, 33],
                  "HT": [20, 0, 1000],
-                 "MET": [20, 0, 1000],
+                 #"MET": [20, 0, 1000],
                  "MHT": [20, 0, 1000],
-                 "n_jets": [20, 0, 20],
-                 "n_btags": [15, 0, 15],
-                 "n_allvertices": [10, 0, 50],
-                 "n_NVtx": [10, 0, 50],
-                 "MinDeltaPhiMhtJets": [15, 0, 4],
+                 #"n_jets": [20, 0, 20],
+                 #"n_btags": [15, 0, 15],
+                 #"n_allvertices": [10, 0, 50],
+                 #"n_NVtx": [10, 0, 50],
+                 #"MinDeltaPhiMhtJets": [15, 0, 4],
                  }
 
-    for region in ["zeroleptons", "inclusive"]: #, "meta"]:
+    #for fakerate_map in ["HT_n_allvertices", "n_allvertices", "HT", "MHT", "MHT_n_allvertices"]:
+    for fakerate_map in ["HT_n_allvertices"]:
 
-        for variable in variables:
+        #for region in ["zeroleptons", "onelepton"]:
+        for region in ["zeroleptons"]:
 
-            nBinsX = variables[variable][0]
-            xmin = variables[variable][1]
-            xmax = variables[variable][2]
+            for variable in variables:
 
-            # fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices"] #, "HT:n_NVtx", "n_NVtx"]
+                nBinsX = variables[variable][0]
+                xmin = variables[variable][1]
+                xmax = variables[variable][2]
 
-            fakerate_map = "HT_n_allvertices"
-            mc = "Summer16"; period = "2016"
-            #mc = "Fall17"; period = "2017"
-            #mc = "Fall17"; period = "2018"
-     
-            if region == "inclusive":
-                data = "Run%s_SingleElectron" % period
-                extra_text = "n_{leptons} #geq 0"
-            elif region == "meta":
-                data = "Run%s_SingleElectron" % period
-                extra_text = "meta control region"
-            elif region == "zeroleptons":
-                data_type = "Run%s_MET" % period
-                extra_text = "n_{leptons} = 0"
+                mc = "Summer16.QCD"; period = "2016"
+                
+                base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100"
+                #mc = "Fall17"; period = "2017"
+                #mc = "Fall17"; period = "2018"
+         
+                if region == "onelepton":
+                    data = "Run%s_SingleElectron" % period
+                    extra_text = "n_{leptons} = 1"
+                elif region == "zeroleptons":
+                    data = "Run%s_MET" % period
+                    extra_text = "n_{leptons} = 0"
+                elif region == "meta":
+                    data = "Run%s_SingleElectron" % period
+                    extra_text = "meta control region"
 
-            extra_text += ", skim: %s" % folder.replace("output_skim_", "")
+                extra_text += ", cuts: %s" % base_cuts.replace("passesUniversalSelection", "passFilters")
 
-            control_plot(folder, period + "_" + fakerate_map + "_" + region + "_" + variable, variable = variable, data = False, mc = mc, selected_region = region, extra_text = extra_text, nBinsX=nBinsX, xmin=xmin, xmax=xmax, fakerate_map = fakerate_map)
+                plotname = "talk_qcdonly_" + "closure_" + period + "_" + fakerate_map + "_" + region + "_" + variable
 
+                if os.path.exists(folder + "/plots/%s.pdf" % plotname):
+                    print "already done :-)"
+                    continue
+            
+                control_plot(folder, plotname, variable=variable, data=False, mc=mc, selected_region=region, extra_text=extra_text, nBinsX=nBinsX, xmin=xmin, xmax=xmax, fakerate_map=fakerate_map, base_cuts=base_cuts)

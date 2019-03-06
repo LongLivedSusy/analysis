@@ -65,28 +65,28 @@ Run2016_ntuples_2016v2 = [
                  ]
 
 Run20172018_ntuples = [
-                    #"ProductionRun2v2Run2017B-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017B-31Mar2018-v1.MET",
-                    "ProductionRun2v2Run2017B-31Mar2018-v1.SingleElectron",
-                    "ProductionRun2v2Run2017B-31Mar2018-v1.SingleMuon",
-                    #"ProductionRun2v2Run2017C-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017C-31Mar2018-v1.MET",
-                    "ProductionRun2v2Run2017C-31Mar2018-v1.SingleElectron",
-                    "ProductionRun2v2Run2017C-31Mar2018-v1.SingleMuon",
-                    #"ProductionRun2v2Run2017D-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017D-31Mar2018-v1.MET",
-                    #"ProductionRun2v2Run2017E-31Mar2018-v1.JetHT",
-                    #"ProductionRun2v2Run2017F-31Mar2018-v1.JetHT",
-                    "ProductionRun2v2Run2017F-31Mar2018-v1.MET",
-                    #"Run2018A-17Sep2018-v1.JetHT",
-                    "Run2018A-17Sep2018-v1.MET",
-                    "Run2018A-17Sep2018-v1.SingleMuon",
-                    #"Run2018B-17Sep2018-v1.JetHT",
-                    "Run2018B-17Sep2018-v1.MET",
-                    "Run2018B-17Sep2018-v1.SingleMuon",
-                    #"Run2018C-17Sep2018-v1.JetHT",
-                    "Run2018C-17Sep2018-v1.MET",
-                    "Run2018C-17Sep2018-v1.SingleMuon",
+                    ##"ProductionRun2v2Run2017B-31Mar2018-v1.JetHT",
+                    #"ProductionRun2v2Run2017B-31Mar2018-v1.MET",
+                    #"ProductionRun2v2Run2017B-31Mar2018-v1.SingleElectron",
+                    #"ProductionRun2v2Run2017B-31Mar2018-v1.SingleMuon",
+                    ##"ProductionRun2v2Run2017C-31Mar2018-v1.JetHT",
+                    #"ProductionRun2v2Run2017C-31Mar2018-v1.MET",
+                    #"ProductionRun2v2Run2017C-31Mar2018-v1.SingleElectron",
+                    #"ProductionRun2v2Run2017C-31Mar2018-v1.SingleMuon",
+                    ##"ProductionRun2v2Run2017D-31Mar2018-v1.JetHT",
+                    #"ProductionRun2v2Run2017D-31Mar2018-v1.MET",
+                    ##"ProductionRun2v2Run2017E-31Mar2018-v1.JetHT",
+                    ##"ProductionRun2v2Run2017F-31Mar2018-v1.JetHT",
+                    #"ProductionRun2v2Run2017F-31Mar2018-v1.MET",
+                    ##"Run2018A-17Sep2018-v1.JetHT",
+                    #"Run2018A-17Sep2018-v1.MET",
+                    #"Run2018A-17Sep2018-v1.SingleMuon",
+                    ##"Run2018B-17Sep2018-v1.JetHT",
+                    #"Run2018B-17Sep2018-v1.MET",
+                    #"Run2018B-17Sep2018-v1.SingleMuon",
+                    ##"Run2018C-17Sep2018-v1.JetHT",
+                    #"Run2018C-17Sep2018-v1.MET",
+                    #"Run2018C-17Sep2018-v1.SingleMuon",
                     "ProductionRun2v2RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8",
                     "ProductionRun2v2RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
                     "ProductionRun2v2RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8",
@@ -139,7 +139,7 @@ Run20172018_ntuples = [
                  ]
 
 command = "./looper.py $INPUT $OUTPUT 0 1"
-output_folder = "output_skim_sideband5"
+output_folder = "output_skim10"
 commands = []
 commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2, output_folder, command = command, files_per_job = 4)
 commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command, files_per_job = 4)

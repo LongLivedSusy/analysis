@@ -82,6 +82,36 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
+def passQCDHighMETFilter(t):
+    metvec = mkmet(t.MET, t.METPhi)
+    for ijet, jet in enumerate(t.Jets):
+        if not (jet.Pt() > 200): continue
+        if not (t.Jets_muonEnergyFraction[ijet]>0.5):continue 
+        if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
+    return True  
+    
+def mkmet(metPt, metPhi):
+    met = TLorentzVector()
+    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
+    return met
+
+def passesUniversalSelection(t):
+    if not (bool(t.JetID) and  t.NVtx>0): return False
+    if not  passQCDHighMETFilter(t): return False
+    if not t.PFCaloMETRatio<2: return False
+    #if not t.globalSuperTightHalo2016Filter: return False
+    if not t.globalTightHalo2016Filter: return False
+    if not t.HBHEIsoNoiseFilter: return False
+    if not t.HBHENoiseFilter: return False
+    if not t.BadChargedCandidateFilter: return False
+    if not t.BadPFMuonFilter: return False
+    if not t.CSCTightHaloFilter: return False
+    #if not t.ecalBadCalibFilter: return False #this says it's deprecated
+    if not t.EcalDeadCellTriggerPrimitiveFilter: return False
+    if not t.eeBadScFilter: return False 
+    return True
+
+
 def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
 
     if region_signalcontrol:
@@ -171,10 +201,12 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         integer_branches.append("region")
         integer_branches.append("region_noDT")
         integer_branches.append("region_noDT_ext")
+        integer_branches.append("region_noDT_ext2")
         integer_branches.append("meta_CR")
     integer_branches.append("hemfailure_electron")
     integer_branches.append("hemfailure_jet")
     integer_branches.append("hemfailure_dt")
+    integer_branches.append("passesUniversalSelection")
 
     for i in range(1,4):
         integer_branches.append("DT%i_is_pixel_track" % i)
@@ -187,6 +219,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         integer_branches.append("DT%i_nValidPixelHits" % i)
         integer_branches.append("DT%i_nValidTrackerHits" % i)
         integer_branches.append("DT%i_actualfake" % i)
+        integer_branches.append("DT%i_promptbg" % i)
+        integer_branches.append("DT%i_taubg" % i)
         integer_branches.append("DT%i_hemfailure" % i)
         float_branches.append("DT%i_dxyVtx" % i)
         float_branches.append("DT%i_dzVtx" % i)
@@ -213,7 +247,11 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     preselection_pixelstrips = ""
 
     tmva_variables = {}
-    bdt_folders = ["../../disappearing-track-tag/short-tracks", "../../disappearing-track-tag/long-tracks"]
+
+    if data_period == "Summer16" or data_period == "2016":
+        bdt_folders = ["../../disappearing-track-tag/2016-short-tracks", "../../disappearing-track-tag/2016-long-tracks"]
+    elif data_period == "Fall17" or data_period == "2017" or data_period == "2018":
+        bdt_folders = ["../../disappearing-track-tag/2017-short-tracks", "../../disappearing-track-tag/2017-long-tracks"]
 
     for i_category, category in enumerate(["pixelonly", "pixelstrips"]):
 
@@ -527,23 +565,29 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
             # check if actual fake track (no genparticle in cone around track):
             charged_genparticle_in_track_cone = False
+            is_prompt_bg = False
+            is_tau_bg = False
             if is_disappearing_track and tree.GetBranch("GenParticles"):
                 for k in range(len(event.GenParticles)):
 
+                    if charged_genparticle_in_track_cone: break
+
                     deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
-                    if deltaR < 0.02 and event.GenParticles_Status[k] != 1:
+                    if deltaR < 0.02:
                            
                         gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
-                        if gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13:
+                        if (gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13) and event.GenParticles_Status[k] == 1:
                             charged_genparticle_in_track_cone = True
+                            is_prompt_bg = True
                             break
                         elif gen_track_cone_pdgid == 15 and tree.GetBranch("GenTaus_LeadTrk"):
                             # if genTau, check if the track matches with a GenTaus_LeadTrk track:
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
-                                if deltaR < 0.01:
+                                if deltaR < 0.02:
                                     print "That's a tau leading track"
                                     charged_genparticle_in_track_cone = True
+                                    is_tau_bg = True
                                     break
                 
             if is_disappearing_track:
@@ -551,6 +595,9 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 n_DT += 1
                 if not charged_genparticle_in_track_cone:
                     n_DT_actualfake += 1
+                #print "found a fake DT! event", iEv, is_pixel_track
+                #else:
+                #    print "found a prompt DT! event", iEv, is_pixel_track
 
                 # save track-level properties:
                 tree_branch_values["DT%i_is_pixel_track" % n_DT][0] = is_pixel_track
@@ -572,6 +619,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values["DT%i_pt" % n_DT][0] = event.tracks[iCand].Pt()
                 tree_branch_values["DT%i_eta" % n_DT][0] = event.tracks[iCand].Eta()
                 tree_branch_values["DT%i_phi" % n_DT][0] = event.tracks[iCand].Phi()
+                tree_branch_values["DT%i_promptbg" % n_DT][0] = is_prompt_bg
+                tree_branch_values["DT%i_taubg" % n_DT][0] = is_tau_bg                
 
                 if verbose:
                     print "**************** DT track info ****************"
@@ -619,7 +668,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     tree_branch_values["region_noDT_ext"][0] = region_noDT + 15
                 region_noDT_multiple = get_signal_region(event, MinDeltaPhiMhtJets, 2, False)
                 if region_noDT_multiple > 0:
-                    tree_branch_values["region_noDT"][0] = region_noDT_multiple
+                    tree_branch_values["region_noDT_ext2"][0] = region_noDT_multiple
 
             # get fake rate for event:
             def getBinContent_with_overflow_2D(histo, xval, yval):
@@ -676,6 +725,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         pass
 
         # event-level variables:
+        tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
         tree_branch_values["n_btags"][0] = event.BTags
         tree_branch_values["n_DT"][0] = n_DT

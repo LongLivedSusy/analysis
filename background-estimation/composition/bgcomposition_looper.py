@@ -259,13 +259,14 @@ def loop(event_tree_filenames, track_tree_output, bdt_folders, nevents = -1, tre
             if is_disappearing_track and tree.GetBranch("GenParticles"):
                 for k in range(len(event.GenParticles)):
                     deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
-                    if deltaR < 0.01:
+                    if deltaR < 0.02:
+
+                        gen_track_cone_pdgid = event.GenParticles_PdgId[k]
+
 
                         # we only need genparticles with status 1:
                         if event.GenParticles_Status[k] != 1:
                             continue
-
-                        gen_track_cone_pdgid = event.GenParticles_PdgId[k]
 
                         # ignore certain non-charged genparticles (neutrinos, gluons and photons):
                         if abs(gen_track_cone_pdgid) == 12 or abs(gen_track_cone_pdgid) == 14 or abs(gen_track_cone_pdgid) == 16 or abs(gen_track_cone_pdgid) == 21 or abs(gen_track_cone_pdgid) == 22:
