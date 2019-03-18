@@ -27,9 +27,9 @@ datasets = [
     '/g1800_chi1400_27_200970_step4_100',
     {'b':    [[30,50,70,100,140,200,300,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
      'c':    [[30,50,70,100,140,200,300,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
-     'udsg': [[30,50,70,100,140,200,300,600,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
-    'DeepCSVM'
-  ],
+     'udsg': [[30,50,70,100,140,200,300,600,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]]},
+     'DeepCSVM'
+  ]
 ]
 #----------------------------------------------------------------------------------
 
@@ -82,12 +82,14 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, suffix):
     dict_partonFlavor = {0:'b', 1:'c', 2:'udsg'} 
     denominatorHisto=[]
     numeratorHisto=[]
+    efficiencyHisto=[]
     for key, value in dict_partonFlavor.iteritems():
         binsX = array('d', dataset[1][value][0])
         binsY = array('d', dataset[1][value][1])
         
         denominatorHisto.append(TH2D('denominator_' + value, '', (len(binsX)-1), binsX, (len(binsY)-1), binsY))
         numeratorHisto.append(TH2D('numerator_' + value, '', (len(binsX)-1), binsX, (len(binsY)-1), binsY))
+        efficiencyHisto.append(TH2D())
     
     # Loop events
     for ientry in range(nentries):
