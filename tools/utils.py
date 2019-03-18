@@ -651,7 +651,7 @@ def prepareReaderBtagSF():
 
 def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
     #fbeff = TFile("./BTagEfficiency_Summer16_TTJets.root")
-    fbeff = TFile("./BTagEfficiency_g1800_chi1400_27_200970.root")
+    fbeff = TFile("./g1800_chi1400_27_200970_step4_100_DeepCSVM_bTaggingEfficiencyMap.root")
     pMC = 1.0
     pData = 1.0
     
@@ -752,9 +752,11 @@ def jets_rescale_smear(tree,applySmearing,nSigmaJES,nSigmaJER):
 
 def get_isr_weight(tree,nSigmaISR):
     w = 1
-    #d = 1.121
-    #d = 1.0
-    d = 1.16012021
+    fname = tree.GetFile().GetName()
+    #d = 1.0	# Before determine D value
+    #d = 1.121	# T2tt
+    if 'g1800_chi1400' in fname : d = 1.15598 # g1800_chi1400
+    else : d = 1
     n = tree.NJetsISR
     w_nom = 0
     
