@@ -40,7 +40,7 @@ def main() :
     #inputfiles = glob(inputDir+"/Input_*.txt")
     inputfiles = glob(inputDir+"/Input_pMSSM12_MCMC1_12_865833_step4_TREEMAKER_RA2AnalysisTree.txt")
     
-    sigmas = read_syst("Systematics.txt")
+    sigmas = read_syst("Sigma_systematics.txt")
 
     commands = []
 
