@@ -6,17 +6,20 @@ from GridEngineTools import runParallel
 def main() :
     
     inputDir = "./inputs"
-    outputDir = "./output_btagsf_nsig1"
+    #outputDir = "./output"
+    outputDir = "./output_test"
     
     #inputfiles = glob(inputDir+"/Input_*.txt")
     inputfiles = glob(inputDir+"/Input_g1800_chi1400_27_200970_step4_100.txt")
     if not os.path.exists(outputDir) : 
 	os.system("mkdir -p "+outputDir)
     else: 
-	os.system("mv "+outputDir + " " + outputDir+"_old")
+	os.system("rm -rf "+outputDir)
 	os.system("mkdir -p "+outputDir)
 	
-    syst_args = "-dobtagsf -nsigmabtagsf 1"	    # for systematics(eg. --dojetsyst --nsigmajes 1)
+    #syst_args = ""	    # for systematics(eg. --dojetsyst --nsigmajes 1)
+    #syst_args = "-dobtagsf -nsigmabtagsf 1"	    # for systematics(eg. --dojetsyst --nsigmajes 1)
+    syst_args = "-doISR -nsigmaISR 1"	    # for systematics(eg. --dojetsyst --nsigmajes 1)
     
     commands = []
     

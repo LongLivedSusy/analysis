@@ -4,7 +4,9 @@ gStyle.SetOptStat(0)
 gROOT.SetBatch(1)
 
 drawttbar = True
-files = [TFile('RawKappaMaps/RawKapps_AllMC_PixAndStrips.root'),TFile('RawKappaMaps/RawKapps_AllMC_PixOnly.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips.root'), TFile('RawKappaMaps/RawKapps_Run2016_PixOnly.root')]
+Season = 'Fall17'
+Season = 'Summer16'
+files = [TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixAndStrips.root'),TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixOnly.root'),TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixAndStrips.root')]#, TFile('RawKappaMaps/RawKapps_Run2016_PixOnly.root')]
 
 labels = {}
 files[0].ls()

@@ -8,15 +8,8 @@ from utils import *
 import os, sys
 from glob import glob
 from distracklibs import *
-
-#distracklibs = os.environ['CMSSW_BASE']+'/src/analysis/tools/distracklibs.py'
-#execfile(distracklibs)
-
-hNev = TH1D('EvtNum','Number of events',1,0,1)
-hAnalysisBins = TH1F('hAnalysisBins','hAnalysisBins',33,0,33)
-histoStyler(hAnalysisBins, kBlack)
-
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
@@ -29,6 +22,8 @@ parser.add_argument("-nsigmajer", "--nsigmajer", type=int, default=0, help="JER 
 parser.add_argument("-dobtagsf", "--dobtagsf", action="store_true", help="Do Btag weight and systematics")
 parser.add_argument("-nsigmabtagsf", "--nsigmabtagsf", type=int, default=0, help="Btag weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 parser.add_argument("-doPU", "--doPUsyst", type=int, default=0, help="PU weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+parser.add_argument("-doISR", "--doISR", action="store_true", help="ISR weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
+parser.add_argument("-nsigmaISR", "--nsigmaISR", type=int, default=0, help="ISR weight systematics (0:Nominal, +1: 1 Sigma Up, -1: 1 Sigma Down)")
 
 args = parser.parse_args()
 inputfile = args.inputfile
@@ -40,24 +35,32 @@ nsigmajes = args.nsigmajes
 nsigmajer = args.nsigmajer
 dobtagsf = args.dobtagsf
 nsigmabtagsf = args.nsigmabtagsf
-nSigmaBtagFastSimSF = 1.0
+nsigmaBtagFastSimSF = 1.0
 isFastSim = False
+doPU = args.doPUsyst
+doISR = args.doISR
+nsigmaISR = args.nsigmaISR
 isPrivateSignal = True
 
 #cross sections can be looked up on the SUSY xsec working group page:
 #https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections#Cross_sections_for_various_S_AN2
 if isPrivateSignal: 
+    if 'g1800_chi1400' in inputfile :
 	xsecInPb = 0.00276133
+    else : xsecInPb = 1.0
 	#lumi = 135
 
-print 'inputfile : ', inputfile
-print 'dojetsyst? ', dojetsyst
-print 'applysmearing? ', applysmearing
-print 'nsigmajes? ', nsigmajes
-print 'nsigmajer? ', nsigmajer
-print 'dobtagsf? ', dobtagsf
-print 'nsigmabtagsf? ', nsigmabtagsf
-print 'isPrivateSignal?', isPrivateSignal
+#print 'inputfile : ', inputfile
+#print 'dojetsyst? ', dojetsyst
+#print 'applysmearing? ', applysmearing
+#print 'nsigmajes? ', nsigmajes
+#print 'nsigmajer? ', nsigmajer
+#print 'dobtagsf? ', dobtagsf
+#print 'nsigmabtagsf? ', nsigmabtagsf
+#print 'doISR? ', doISR
+#print 'nsigmaISR? ', nsigmaISR
+#print 'isPrivateSignal?', isPrivateSignal
+print args
 
 lepPtCut = 20
 #csv_b = 0.8484
@@ -72,47 +75,6 @@ csv_b = 0.6324
 
 2018  0.8838     0.4941
 '''
-
-
-def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips):###from Akshansh
-        moh_ = c.tracks_nMissingOuterHits[itrack]
-        phits = c.tracks_nValidPixelHits[itrack]
-        thits = c.tracks_nValidTrackerHits[itrack]
-        tlayers = c.tracks_trackerLayersWithMeasurement[itrack]
-        pixelOnly = phits>0 and thits==phits
-        medium = tlayers< 7 and (thits-phits)>0
-        long   = tlayers>=7 and (thits-phits)>0
-        pixelStrips = medium or long
-        if pixelStrips:
-                if not moh_>=2: return 0
-        if not (c.tracks_nMissingInnerHits[itrack]==0): return 0
-        if not (pixelOnly or pixelStrips): return 0                                                                                                         
-        if not c.tracks_passPFCandVeto[itrack]: return 0
-        pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
-        dxyVtx = abs(c.tracks_dxyVtx[itrack])
-        dzVtx = abs(c.tracks_dzVtx[itrack])        
-        if not (c.tracks_trkRelIso[itrack]<0.2 and dzVtx<0.1 and pterr<10): return 0
-        if not (c.tracks_trackQualityHighPurity[itrack]): return 0
-        nhits = c.tracks_nValidTrackerHits[itrack]
-        nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
-        if not (nlayers>=2 and nhits>=2): return 0
-        matchedCalo = c.tracks_matchedCaloEnergy[itrack]        
-        if not dxyVtx < 0.1: return 0
-        #if not c.tracks_trackJetIso[itrack]>0.4: return False
-        #print c.tracks_trackJetIso[itrack]
-        #if not c.tracks_minDrLetpons[itrack]>0.01: return False	        
-        trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr]
-        if pixelOnly:
-                mva_ = evaluateBDT(readerPixelOnly, trackfv)
-                if not mva_ > -0.2: return 0###.1
-                else: return 1
-        elif pixelStrips:
-                mva_ = evaluateBDT(readerPixelStrips, trackfv)             
-                if not mva_ > 0:return 0###.25
-                else: return 2
-        else:
-                return 0
-                
                 
 ##########################################################
 # files specified with optional wildcards @ command line #
@@ -126,57 +88,64 @@ else: phase = 0
 #############################################
 outputfilename = outputfile
 fnew = TFile(outputfilename,'recreate')
+hNev = TH1D('Nev','Number of events',1,0,1)
+hNev_passAllSel = TH1D('Nev_passAllSel','Number of events passed all selection',1,0,1)
+hAnalysisBins = TH1F('hAnalysisBins','hAnalysisBins',33,0,33)
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 histoStyler(hHt,kBlack)
+histoStyler(hAnalysisBins, kBlack)
 
 ########################################
 # create data containers for the trees #
 ########################################
 import numpy as np
-var_Met = np.zeros(1,dtype=float)
-var_Mht = np.zeros(1,dtype=float)
-var_Ht = np.zeros(1,dtype=float)
-var_MinDeltaPhiMhtJets = np.zeros(1,dtype=float)
-var_NJets = np.zeros(1,dtype=int)
-var_BTags = np.zeros(1,dtype=int)
-var_NLeptons = np.zeros(1,dtype=int)
-var_NPhotons = np.zeros(1,dtype=int)
-var_NTags = np.zeros(1,dtype=int)
-var_NShortTags = np.zeros(1,dtype=int)
-var_NLongTags = np.zeros(1,dtype=int)
-var_DPhiMhtSumTags = np.zeros(1,dtype=float)
-var_Track1BdtScore = np.zeros(1,dtype=float)
-var_Track1Dedx = np.zeros(1,dtype=float)
-var_Track1Dxy = np.zeros(1,dtype=float)
-var_Track1Chisquare = np.zeros(1,dtype=float)
-var_Track1Pt = np.zeros(1,dtype=float)
-var_Track1Eta = np.zeros(1,dtype=float)
-var_Track1Phi = np.zeros(1,dtype=float)
-var_Track2Phi = np.zeros(1,dtype=float)
-var_Track2BdtScore = np.zeros(1,dtype=float)
-var_Track1Dedx = np.zeros(1,dtype=float)
-var_Track2Dedx = np.zeros(1,dtype=float)
-var_Track1MassFromDedx = np.zeros(1,dtype=float)
-var_Track2MassFromDedx = np.zeros(1,dtype=float)
-var_Track2Dxy = np.zeros(1,dtype=float)
-var_Track2Chisquare = np.zeros(1,dtype=float)
-var_Track2Pt = np.zeros(1,dtype=float)
-var_Track2Eta = np.zeros(1,dtype=float)
-var_Track1IsLong = np.zeros(1,dtype=int)
-var_Track2IsLong = np.zeros(1,dtype=int)
-var_Track1IsGenMatched = np.zeros(1,dtype=int)
-var_Track2IsGenMatched = np.zeros(1,dtype=int)
-var_SearchBin = np.zeros(1,dtype=int)
-var_SumTagPtOverMht = np.zeros(1,dtype=float)
-var_CrossSection = np.zeros(1,dtype=float)
-if dobtagsf : var_weight_btag = np.zeros(1,dtype=float)
-if isPrivateSignal: var_weight = np.zeros(1,dtype=float)
+var_NVtx		= np.zeros(1,dtype=float)
+var_Met			= np.zeros(1,dtype=float)
+var_Mht			= np.zeros(1,dtype=float)
+var_Ht			= np.zeros(1,dtype=float)
+var_MinDeltaPhiMhtJets	= np.zeros(1,dtype=float)
+var_NJets		= np.zeros(1,dtype=int)
+var_BTags   		= np.zeros(1,dtype=int)
+var_NLeptons		= np.zeros(1,dtype=int)
+var_NPhotons 		= np.zeros(1,dtype=int)
+var_NTags		= np.zeros(1,dtype=int)
+var_NShortTags		= np.zeros(1,dtype=int)
+var_NLongTags		= np.zeros(1,dtype=int)
+var_DPhiMhtSumTags	= np.zeros(1,dtype=float)
+var_Track1BdtScore	= np.zeros(1,dtype=float)
+var_Track1Dedx		= np.zeros(1,dtype=float)
+var_Track1Dxy		= np.zeros(1,dtype=float)
+var_Track1Chisquare	= np.zeros(1,dtype=float)
+var_Track1Pt		= np.zeros(1,dtype=float)
+var_Track1Eta		= np.zeros(1,dtype=float)
+var_Track1Phi		= np.zeros(1,dtype=float)
+var_Track2Phi		= np.zeros(1,dtype=float)
+var_Track2BdtScore	= np.zeros(1,dtype=float)
+var_Track1Dedx		= np.zeros(1,dtype=float)
+var_Track2Dedx 		= np.zeros(1,dtype=float)
+var_Track1MassFromDedx	= np.zeros(1,dtype=float)
+var_Track2MassFromDedx 	= np.zeros(1,dtype=float)
+var_Track2Dxy		= np.zeros(1,dtype=float)
+var_Track2Chisquare	= np.zeros(1,dtype=float)
+var_Track2Pt		= np.zeros(1,dtype=float)
+var_Track2Eta		= np.zeros(1,dtype=float)
+var_Track1IsLong	= np.zeros(1,dtype=int)
+var_Track2IsLong 	= np.zeros(1,dtype=int)
+var_Track1IsGenMatched	= np.zeros(1,dtype=int)
+var_Track2IsGenMatched 	= np.zeros(1,dtype=int)
+var_SearchBin		= np.zeros(1,dtype=int)
+var_SumTagPtOverMht	= np.zeros(1,dtype=float)
+var_CrossSection	= np.zeros(1,dtype=float)
+var_weight		= np.zeros(1,dtype=float)
+var_weight_btag		= np.zeros(1,dtype=float)
+var_weight_ISR		= np.zeros(1,dtype=float)
 
 #####################################################
 # declare tree and associate branches to containers #
 #####################################################
 tEvent = TTree('tEvent','tEvent')
+tEvent.Branch('NVtx', var_NVtx,'NVtx/D')
 tEvent.Branch('Met', var_Met,'Met/D')
 tEvent.Branch('Mht', var_Mht,'Mht/D')
 tEvent.Branch('Ht', var_Ht,'Ht/D')
@@ -211,8 +180,9 @@ tEvent.Branch('Track2IsGenMatched', var_Track2IsGenMatched,'Track2IsGenMatched/I
 tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
 tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
 tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
-if dobtagsf : tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
-if isPrivateSignal: tEvent.Branch('weight', var_weight,'weight/D')
+tEvent.Branch('weight', var_weight,'weight/D')
+tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
+tEvent.Branch('weight_ISR', var_weight_ISR,'weight_ISR/D')
 
 
 ##############################################
@@ -267,11 +237,11 @@ def getBinNumber(fv):
 # declare readers and selection code for BDT #
 ##############################################
 if phase==0:
-    pixelXml = '../../disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml'
-    LongXml = '../../disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml'
+    pixelXml = '../disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+    LongXml = '../disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml'
 else:
-    pixelXml = '../../disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
-    LongXml = '../../disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
+    pixelXml = '../disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+    LongXml = '../disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
 readerShort = TMVA.Reader()
 readerLong = TMVA.Reader()
 prepareReaderShort(readerShort, pixelXml)
@@ -279,7 +249,7 @@ prepareReaderLong(readerLong, LongXml)
 # For btag systematics 
 if dobtagsf : prepareReaderBtagSF()
 
-fMask = TFile('../usefulthings/Masks.root')
+fMask = TFile('../skimmer/usefulthings/Masks.root')
 if 'Run2016' in inputfile: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
 else: hMask = fMask.Get('hEtaVsPhiDT_maskMC-2016MC-2016')
 
@@ -294,21 +264,38 @@ for filename in filenamelist:
 nentries = min(9999999,c.GetEntries())
 print 'will analyze', nentries
 
-if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
+#if isPrivateSignal: var_weight[0] = 1.0*xsecInPb/nentries
 verbosity = 1000
 
-for ientry in range(nentries):
-#for ientry in range(10):
+#for ientry in range(nentries):
+for ientry in range(100):
 
     if ientry%verbosity==0: 
         print 'analyzing event %d of %d' % (ientry, nentries)+ '....%f'%(100.*ientry/nentries)+'%'
+
+    #print ientry,'th event'
+    
+    # Initialize weight
+    weight = 1.0 / nentries
+    weight_btag = 1.0
+    weight_ISR = 1.0
     
     c.GetEntry(ientry)
-    weight = c.CrossSection
     hHt.Fill(c.HT)
     hHtWeighted.Fill(c.HT, weight)
     hNev.Fill(0)
     
+    # ISR weight syst
+    if doISR : 
+	weight_ISR = get_isr_weight(c, nsigmaISR)
+	weight *= weight_ISR
+    
+    # Jet collection variation against systematics
+    if dojetsyst : 
+	jetcollection = jets_rescale_smear(c,applysmearing,nsigmajes,nsigmajer) # JEC & JER applied jet?
+    else : jetcollection = c.Jets  # only JEC applied jet?
+
+    # Start Selection 
     if not (c.MET>120): continue
     if not (c.NJets>0): continue
     if not passesUniversalSelection(c): continue
@@ -322,15 +309,7 @@ for ientry in range(nentries):
     elif 'WJetsToLNu_HT' in filenamelist[0]:
      if not c.madHT>100: continue            
     
-    #print ientry,'th event'
-
-    #############################################
-    #Jet collection variation against systematics
-    #############################################
-    if dojetsyst : 
-	jetcollection = jets_rescale_smear(c,applysmearing,nsigmajes,nsigmajer) # JEC & JER applied jet?
-    else : jetcollection = c.Jets  # only JEC applied jet?
-
+    var_NVtx[0] = c.NVtx
     var_Met[0] = c.MET
     metvec = TLorentzVector()
     metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET)
@@ -458,11 +437,9 @@ for ientry in range(nentries):
     # Btag weight calculation 
     if dobtagsf : 
 	weight_btag = calc_btag_weight(c,nsigmabtagsf,nSigmaBtagFastSimSF,isFastSim)
+	weight *= weight_btag
 	#print '%sth event weight_btag : %f'%(ientry,weight_btag)
     
-
-    # Fill histos
-    fillth1(hAnalysisBins, binnumber, var_weight[0])
             
     if len(mvas)==1:
         var_Track1BdtScore[0] = mvas[0]
@@ -506,15 +483,23 @@ for ientry in range(nentries):
     var_SumTagPtOverMht[0] = sumtagvec.Pt()/mhtvec.Pt()
 
     var_CrossSection[0] = c.CrossSection
-    if dobtagsf: var_weight_btag[0] = weight_btag
+    var_weight[0] = weight
+    var_weight_btag[0] = weight_btag
+    var_weight_ISR[0] = weight_ISR
     tEvent.Fill()
+
+    # Fill histos
+    fillth1(hAnalysisBins, binnumber, var_weight[0])
+    hNev_passAllSel.Fill(0,weight)
+
 
 
 fnew.cd()
 tEvent.Write()
 hNev.Write()
+hNev_passAllSel.Write()
 hAnalysisBins.Write()
-print 'just created', fnew.GetName()
 hHt.Write()
 hHtWeighted.Write()
 fnew.Close()
+print 'just created', fnew.GetName()

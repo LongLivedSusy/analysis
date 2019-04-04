@@ -26,26 +26,27 @@ else:
 	CombineMode = True	
 	
 if CombineMode:
-	fTTJets = TFile('usefulthings/KappaTTJets_PixOrStrips.root')
-	fWJetsToLL = TFile('usefulthings/KappaWJets_PixOrStrips.root')
-	fMethodMC = TFile('usefulthings/KappaAllMC_PixOrStrips.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOrStrips.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOrStrips.root')
+	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOrStrips.root')
 	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOrStrips.root')]
 	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]
 if PixMode:
-	fTTJets = TFile('usefulthings/KappaTTJets_PixOnly.root')
-	fWJetsToLL = TFile('usefulthings/KappaWJets_PixOnly.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixOnly.root')
 	#fMethodMC = TFile('usefulthings/KappaAllMC_PixOnly.root')
-	fMethodMC = TFile('usefulthings/KappaDYJets_PixOnly.root')
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly.root')]
-	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]
+	fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly.root')
+	#fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly.root')]
+	fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly.root')]
 if PixStripsMode:
-	fTTJets = TFile('usefulthings/KappaTTJets_PixAndStrips.root')
-	fWJetsToLL = TFile('usefulthings/KappaWJets_PixAndStrips.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixAndStrips.root')
 	#fMethodMC = TFile('usefulthings/KappaAllMC_PixAndStrips.root')
-	fMethodMC = TFile('usefulthings/KappaDYJets_PixAndStrips.root')	
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips.root')]
+	fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips.root')	
+	#fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips.root')]
+	fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips.root')]	
 	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]	
 
 
