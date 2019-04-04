@@ -83,6 +83,9 @@ def update_samples_with_filenames(tree_folder, configuration_file):
                 samples[sample]["filenames"].append(file_name)
                 break
 
+    print samples
+    quit()
+
     for sample in samples.keys():
         if sample != "global":
             if "filenames" not in samples[sample]:

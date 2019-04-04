@@ -10,6 +10,7 @@ gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
 # a collection of generic functions to retrieve a 1D or 2D histogram from a collection of files containing a TTree
+# comments @ viktor.kutzner@desy.de
 
 def stamp_plot():
 
@@ -97,7 +98,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     # xsection and puweight scaling:
     if not is_data:
         cutstring = "(%s)*CrossSection*puWeight%s" % (cutstring, scaling)
-    elif len(scaling)>0:
+    else:
         cutstring = "(%s)%s" % (cutstring, scaling)
 
     if numevents>0:
@@ -130,60 +131,6 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     return histo
 
 
-def get_histogram_like_a_turtle(variable, cutstring, tree_folder_name="Events", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", selected_sample = "Run2016", numevents=-1):
-
-    # old-fashioned singlethreading, can be removed later
-
-    print "Getting histogram for %s, cut = %s" % (variable, cutstring)
-
-    unique = str(uuid.uuid1())
-    
-    histograms = {}
-    h_combined = 0
-    file_names = glob.glob(path + "/*root")
-    
-    samples = []
-    for file_name in file_names:
-        
-        if "merged" not in path:
-            identifier = "_".join(file_name.split("_")[:-3])
-        else:
-            identifier = file_name.replace(".root", "")
-    
-        selectors = selected_sample.split("*")
-        count = 0
-        for selector in selectors:
-            if selector in identifier:
-                count += 1
-        if count == len(selectors):
-            samples.append(identifier)
-            
-    samples = list(set(samples))
-    print "Found samples matching ''%s'':" % selected_sample, samples
-
-    for i_sample, sample in enumerate(samples):
-
-        filenames = glob.glob(sample + "*root")
-
-        if not nBinsY:
-            histogram = get_histogram_from_file(filenames, tree_folder_name, variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, cutstring=cutstring, scaling=scaling, numevents=numevents).Clone()
-        else:
-            histogram = get_histogram_from_file(filenames, tree_folder_name, variable, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, cutstring=cutstring, scaling=scaling, numevents=numevents).Clone()
-
-        histogram.SetDirectory(0)
-        histogram.SetName(unique)
-               
-        if h_combined == 0:
-            h_combined = histogram
-        else:
-            h_combined.Add(histogram)
-
-        print "%i percent" % ( 100.0*int(i_sample)/len(samples) )
-
-    print "h_combined.GetEntries()", str(h_combined.GetEntries())
-    return h_combined
-
-
 def get_histogram_from_file_wrapper(args):
 
     tree_files = args[0]
@@ -212,7 +159,7 @@ def get_histogram_from_file_wrapper(args):
 
 def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", selected_sample = "Run2016", numevents=-1, threads=-1):
 
-    print "[MULTITHREAD] Getting histogram for %s, cut = %s" % (variable, cutstring)
+    print "[multithreaded] Getting histogram for %s, cut = %s" % (variable, cutstring)
 
     unique = str(uuid.uuid1())
     
@@ -231,12 +178,19 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         selectors = selected_sample.split("*")
         count = 0
         for selector in selectors:
-            if selector in identifier:
+
+            if "|" in selector:
+                for or_selector in selector.split("|"):
+                    if or_selector in identifier:
+                        count += 1
+                        break
+            elif selector in identifier:
                 count += 1
         if count == len(selectors):
             samples.append(identifier)
-            
+
     samples = list(set(samples))
+    print "selected_sample:", selected_sample
     print "Found samples matching ''%s'':" % selected_sample, samples
 
     pool_args = []
@@ -249,21 +203,28 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         else:
             pool_args.append( [filenames, tree_folder_name, variable, nBinsX, xmin, xmax, nBinsY, ymin, ymax, cutstring, scaling, numevents] )
 
-    if threads == -1:
-        pool = multiprocessing.Pool(int(multiprocessing.cpu_count()/2.0))
-    else:
-        pool = multiprocessing.Pool(threads)
+    try:
 
-    threads = 10 #FIXME
-
-    all_histograms = pool.map(get_histogram_from_file_wrapper, pool_args)
-           
-    for histogram in all_histograms:   
-
-        if h_combined == 0:
-            h_combined = histogram
+        if threads == -1:
+            pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.5))
         else:
-            h_combined.Add(histogram)
+            pool = multiprocessing.Pool(threads)
+        
+        all_histograms = pool.map(get_histogram_from_file_wrapper, pool_args)
+               
+        for histogram in all_histograms:   
+        
+            if h_combined == 0:
+                h_combined = histogram
+            else:
+                h_combined.Add(histogram)
+        
+        pool.close()
+        
+    except Exception, error:    
+        
+        print str(error)
+        quit()
 
     print "h_combined.GetEntries()", str(h_combined.GetEntries())
     return h_combined

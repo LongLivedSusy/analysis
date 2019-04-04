@@ -242,8 +242,10 @@ def convert_chiCands_to_tracktree(event_tree_filename, track_tree_output, catego
                                     break
                     except: pass
 
-                    if matched: tout.Fill()
-
+                    if matched:
+                        print "matched"
+                        tout.Fill()
+ 
             else:
 
                 # background

@@ -41,6 +41,9 @@ Run2016_ntuples_2016v2 = [
                     "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                     "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+                 ]
+
+Run2016_ntuples_2016v2_data = [        
                     "Run2016B-03Feb2017_ver2-v2.SingleElectron",
                     "Run2016C-03Feb2017-v1.SingleElectron",
                     "Run2016D-03Feb2017-v1.SingleElectron",
@@ -64,29 +67,37 @@ Run2016_ntuples_2016v2 = [
                     "Run2016H-03Feb2017_ver2-v1.MET",
                  ]
 
+signal = [
+                    "g1800_chi1400_27_200970_step4_10",
+                    "g1800_chi1400_27_200970_step4_30",
+                    "g1800_chi1400_27_200970_step4_50",
+                    "g1800_chi1400_27_200970_step4_100",
+                    "g1800_chi1400_27_200970_step4_1000",
+]
+
 Run20172018_ntuples = [
-                    ##"ProductionRun2v2Run2017B-31Mar2018-v1.JetHT",
-                    #"ProductionRun2v2Run2017B-31Mar2018-v1.MET",
-                    #"ProductionRun2v2Run2017B-31Mar2018-v1.SingleElectron",
-                    #"ProductionRun2v2Run2017B-31Mar2018-v1.SingleMuon",
-                    ##"ProductionRun2v2Run2017C-31Mar2018-v1.JetHT",
-                    #"ProductionRun2v2Run2017C-31Mar2018-v1.MET",
-                    #"ProductionRun2v2Run2017C-31Mar2018-v1.SingleElectron",
-                    #"ProductionRun2v2Run2017C-31Mar2018-v1.SingleMuon",
-                    ##"ProductionRun2v2Run2017D-31Mar2018-v1.JetHT",
-                    #"ProductionRun2v2Run2017D-31Mar2018-v1.MET",
-                    ##"ProductionRun2v2Run2017E-31Mar2018-v1.JetHT",
-                    ##"ProductionRun2v2Run2017F-31Mar2018-v1.JetHT",
-                    #"ProductionRun2v2Run2017F-31Mar2018-v1.MET",
-                    ##"Run2018A-17Sep2018-v1.JetHT",
-                    #"Run2018A-17Sep2018-v1.MET",
-                    #"Run2018A-17Sep2018-v1.SingleMuon",
-                    ##"Run2018B-17Sep2018-v1.JetHT",
-                    #"Run2018B-17Sep2018-v1.MET",
-                    #"Run2018B-17Sep2018-v1.SingleMuon",
-                    ##"Run2018C-17Sep2018-v1.JetHT",
-                    #"Run2018C-17Sep2018-v1.MET",
-                    #"Run2018C-17Sep2018-v1.SingleMuon",
+                    #"ProductionRun2v2Run2017B-31Mar2018-v1.JetHT",
+                    "ProductionRun2v2Run2017B-31Mar2018-v1.MET",
+                    "ProductionRun2v2Run2017B-31Mar2018-v1.SingleElectron",
+                    "ProductionRun2v2Run2017B-31Mar2018-v1.SingleMuon",
+                    #"ProductionRun2v2Run2017C-31Mar2018-v1.JetHT",
+                    "ProductionRun2v2Run2017C-31Mar2018-v1.MET",
+                    "ProductionRun2v2Run2017C-31Mar2018-v1.SingleElectron",
+                    "ProductionRun2v2Run2017C-31Mar2018-v1.SingleMuon",
+                    #"ProductionRun2v2Run2017D-31Mar2018-v1.JetHT",
+                    "ProductionRun2v2Run2017D-31Mar2018-v1.MET",
+                    #"ProductionRun2v2Run2017E-31Mar2018-v1.JetHT",
+                    #"ProductionRun2v2Run2017F-31Mar2018-v1.JetHT",
+                    "ProductionRun2v2Run2017F-31Mar2018-v1.MET",
+                    #"Run2018A-17Sep2018-v1.JetHT",
+                    "Run2018A-17Sep2018-v1.MET",
+                    "Run2018A-17Sep2018-v1.SingleMuon",
+                    #"Run2018B-17Sep2018-v1.JetHT",
+                    "Run2018B-17Sep2018-v1.MET",
+                    "Run2018B-17Sep2018-v1.SingleMuon",
+                    #"Run2018C-17Sep2018-v1.JetHT",
+                    "Run2018C-17Sep2018-v1.MET",
+                    "Run2018C-17Sep2018-v1.SingleMuon",
                     "ProductionRun2v2RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8",
                     "ProductionRun2v2RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
                     "ProductionRun2v2RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8",
@@ -138,10 +149,14 @@ Run20172018_ntuples = [
                     "ProductionRun2v2RunIIFall17MiniAODv2.ttHJetTobb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8",
                  ]
 
-command = "./looper.py $INPUT $OUTPUT 0 1"
-output_folder = "output_skim10"
-commands = []
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2, output_folder, command = command, files_per_job = 4)
-commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command, files_per_job = 4)
 
-do_submission(commands, output_folder, executable = "looper.py")
+command = "./looper.py $INPUT $OUTPUT 0 1"
+output_folder = "output_skim18_interpolated"
+commands = []
+commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2", Run2016_ntuples_2016v2, output_folder, command = command, files_per_job = 2)
+commands += prepare_command_list("/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar", signal, output_folder, command = command, files_per_job = 1, nowildcard=True)
+#commands += prepare_command_list("/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", Run20172018_ntuples, output_folder, command = command, files_per_job = 4)
+
+do_submission(commands, output_folder, executable = "looper.py", dontCheckOnJobs = False)
+
+os.system(" ./merge_samples.py %s/" % output_folder)

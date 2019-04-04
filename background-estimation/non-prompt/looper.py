@@ -112,6 +112,43 @@ def passesUniversalSelection(t):
     return True
 
 
+# check HEM failure for electrons and jets:
+def GetHighestHemObjectPt(particles):
+    highestPt = 0
+    for particle in particles:
+        if -3.0<particle.Eta() and particle.Eta()<-1.4 and -1.57<particle.Phi() and particle.Phi()<-0.87:
+            if particle.Pt()>highestPt:
+                highestPt = particle.Pt()
+    return highestPt
+
+
+# get fake rate for event:
+def getBinContent_with_overflow_2D(histo, xval, yval):
+    # get bin content from 2D histogram with overflows:
+    if xval >= histo.GetXaxis().GetXmax() and yval < histo.GetYaxis().GetXmax():
+        xbins = histo.GetXaxis().GetNbins()
+        value = histo.GetBinContent(xbins, histo.GetYaxis().FindBin(yval))
+    elif xval < histo.GetXaxis().GetXmax() and yval >= histo.GetYaxis().GetXmax():
+        ybins = histo.GetYaxis().GetNbins()
+        value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), ybins)
+    elif xval >= histo.GetXaxis().GetXmax() or yval >= histo.GetYaxis().GetXmax():
+        xbins = histo.GetXaxis().GetNbins()
+        ybins = histo.GetYaxis().GetNbins()
+        value = histo.GetBinContent(xbins, ybins)
+    else:
+        value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
+    return value
+    
+
+# get bin content from 2D histogram with overflows:
+def getBinContent_with_overflow_1D(histo, xval):
+    if xval >= histo.GetXaxis().GetXmax():
+        value = histo.GetBinContent(histo.GetXaxis().GetNbins())
+    else:
+        value = histo.GetBinContent(histo.GetXaxis().FindBin(xval))
+    return value
+
+
 def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
 
     if region_signalcontrol:
@@ -148,6 +185,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     elif "Run2018" in event_tree_filenames[0]:
         data_period = "2018"
         is_data = True
+    elif "chi1400" in event_tree_filenames[0]:
+        data_period = "Summer16"
     else:
         print "Can't determine data/MC era"
         quit(1)
@@ -207,6 +246,10 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     integer_branches.append("hemfailure_jet")
     integer_branches.append("hemfailure_dt")
     integer_branches.append("passesUniversalSelection")
+    integer_branches.append("n_genLeptons")
+    integer_branches.append("n_genElectrons")
+    integer_branches.append("n_genMuons")
+    integer_branches.append("n_genTaus")
 
     for i in range(1,4):
         integer_branches.append("DT%i_is_pixel_track" % i)
@@ -220,8 +263,12 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         integer_branches.append("DT%i_nValidTrackerHits" % i)
         integer_branches.append("DT%i_actualfake" % i)
         integer_branches.append("DT%i_promptbg" % i)
-        integer_branches.append("DT%i_taubg" % i)
+        integer_branches.append("DT%i_promptelectron" % i)
+        integer_branches.append("DT%i_promptmuon" % i)
+        integer_branches.append("DT%i_prompttau" % i)
+        integer_branches.append("DT%i_prompttau_wideDR" % i)
         integer_branches.append("DT%i_hemfailure" % i)
+        float_branches.append("DT%i_passpionveto" % i)
         float_branches.append("DT%i_dxyVtx" % i)
         float_branches.append("DT%i_dzVtx" % i)
         float_branches.append("DT%i_matchedCaloEnergy" % i)
@@ -279,7 +326,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         fakerate_file = TFile("fakerate.root", "open")
                    
         fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
-        fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices"] #, "HT:n_NVtx", "n_NVtx"]
+        #fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices"] #, "HT:n_NVtx", "n_NVtx"]
+        fakerate_variables = ["n_DT", "HT:n_allvertices", "HT:n_allvertices_interpolated", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]
 
         # get all fakerate histograms:
         h_fakerates = {}
@@ -290,12 +338,14 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                             variable = variable.replace("HT", "HT_cleaned")
                         else:
                             variable = variable.replace("_cleaned", "")
-                        hist_name = region + "/" + data_period + "/" + category + "/fakerate_" + variable.replace(":", "_")
-                        try:
-                            h_fakerates[hist_name] = fakerate_file.Get(hist_name)
-                        except:
-                            print "Error reading fakerate:", hist_name
-        
+
+                        for htype in ["fakerate"]:
+                            hist_name = region + "/" + data_period + "/" + category + "/%s_" % htype + variable.replace(":", "_")
+                            try:
+                                h_fakerates[hist_name] = fakerate_file.Get(hist_name)
+                            except:
+                                print "Error reading fakerate:", hist_name
+
         # add all raw fakerate branches:        
         for region in fakerate_regions:
             for variable in fakerate_variables:
@@ -303,9 +353,11 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     variable = variable.replace("HT", "HT_cleaned")
                 else:
                     variable = variable.replace("_cleaned", "")
-                branch_name = "fakerate_%s_%s" % (region, variable.replace(":", "_"))
-                tree_branch_values[branch_name] = array( 'f', [ 0 ] )
-                tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
+
+                for htype in ["fakerate"]:
+                    branch_name = "%s_%s_%s" % (htype, region, variable.replace(":", "_"))
+                    tree_branch_values[branch_name] = array( 'f', [ 0 ] )
+                    tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
 
     # loop over events
     for iEv, event in enumerate(tree):
@@ -566,38 +618,57 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             # check if actual fake track (no genparticle in cone around track):
             charged_genparticle_in_track_cone = False
             is_prompt_bg = False
+            is_prompt_electron = False
+            is_prompt_muon = False
             is_tau_bg = False
+            is_tau_bg_wideDR = False
             if is_disappearing_track and tree.GetBranch("GenParticles"):
                 for k in range(len(event.GenParticles)):
 
                     if charged_genparticle_in_track_cone: break
 
                     deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
+                    gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
+
                     if deltaR < 0.02:
-                           
-                        gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
+                          
                         if (gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13) and event.GenParticles_Status[k] == 1:
                             charged_genparticle_in_track_cone = True
                             is_prompt_bg = True
+                            if gen_track_cone_pdgid == 11: 
+                                is_prompt_electron = True
+                            if gen_track_cone_pdgid == 13: 
+                                is_prompt_muon = True
                             break
                         elif gen_track_cone_pdgid == 15 and tree.GetBranch("GenTaus_LeadTrk"):
                             # if genTau, check if the track matches with a GenTaus_LeadTrk track:
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
-                                if deltaR < 0.02:
+                                if deltaR < 0.04:
                                     print "That's a tau leading track"
                                     charged_genparticle_in_track_cone = True
                                     is_tau_bg = True
                                     break
-                
+
+                    # if track seems to be fake, check again with wider DR for gentau:
+                    if gen_track_cone_pdgid == 15 and deltaR < 0.4:
+                        is_tau_bg_wideDR = True
+                        print "Found tau within a wide cone"
+                        charged_genparticle_in_track_cone = True
+                        break
+           
             if is_disappearing_track:
+
+                passpionveto = True
+                for k in range(len(event.TAPPionTracks)):
+                    deltaR = event.tracks[iCand].DeltaR(event.TAPPionTracks[k])
+                    if deltaR < 0.03:
+                        passpionveto = False
+                        break
                
                 n_DT += 1
                 if not charged_genparticle_in_track_cone:
                     n_DT_actualfake += 1
-                #print "found a fake DT! event", iEv, is_pixel_track
-                #else:
-                #    print "found a prompt DT! event", iEv, is_pixel_track
 
                 # save track-level properties:
                 tree_branch_values["DT%i_is_pixel_track" % n_DT][0] = is_pixel_track
@@ -620,7 +691,11 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values["DT%i_eta" % n_DT][0] = event.tracks[iCand].Eta()
                 tree_branch_values["DT%i_phi" % n_DT][0] = event.tracks[iCand].Phi()
                 tree_branch_values["DT%i_promptbg" % n_DT][0] = is_prompt_bg
-                tree_branch_values["DT%i_taubg" % n_DT][0] = is_tau_bg                
+                tree_branch_values["DT%i_promptelectron" % n_DT][0] = is_prompt_electron
+                tree_branch_values["DT%i_promptmuon" % n_DT][0] = is_prompt_muon
+                tree_branch_values["DT%i_prompttau" % n_DT][0] = is_tau_bg
+                tree_branch_values["DT%i_prompttau_wideDR" % n_DT][0] = is_tau_bg_wideDR
+                tree_branch_values["DT%i_passpionveto" % n_DT][0] = passpionveto
 
                 if verbose:
                     print "**************** DT track info ****************"
@@ -636,16 +711,6 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     if -3.0<event.tracks[iCand].Eta() and event.tracks[iCand].Eta()<-1.4 and -1.57<event.tracks[iCand].Phi() and event.tracks[iCand].Phi()<-0.87:
                         tree_branch_values["DT%i_hemfailure" % n_DT][0] = 1
                         tree_branch_values["hemfailure_dt"][0] = 1
-
-
-        # check HEM failure for electrons and jets:
-        def GetHighestHemObjectPt(particles):
-            highestPt = 0
-            for particle in particles:
-                if -3.0<particle.Eta() and particle.Eta()<-1.4 and -1.57<particle.Phi() and particle.Phi()<-0.87:
-                    if particle.Pt()>highestPt:
-                        highestPt = particle.Pt()
-            return highestPt
 
         if event.RunNum >= 319077:
             if GetHighestHemObjectPt(event.Jets) > 30:
@@ -670,31 +735,6 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 if region_noDT_multiple > 0:
                     tree_branch_values["region_noDT_ext2"][0] = region_noDT_multiple
 
-            # get fake rate for event:
-            def getBinContent_with_overflow_2D(histo, xval, yval):
-                # get bin content from 2D histogram with overflows:
-                if xval >= histo.GetXaxis().GetXmax() and yval < histo.GetYaxis().GetXmax():
-                    xbins = histo.GetXaxis().GetNbins()
-                    value = histo.GetBinContent(xbins, histo.GetYaxis().FindBin(yval))
-                elif xval < histo.GetXaxis().GetXmax() and yval >= histo.GetYaxis().GetXmax():
-                    ybins = histo.GetYaxis().GetNbins()
-                    value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), ybins)
-                elif xval >= histo.GetXaxis().GetXmax() or yval >= histo.GetYaxis().GetXmax():
-                    xbins = histo.GetXaxis().GetNbins()
-                    ybins = histo.GetYaxis().GetNbins()
-                    value = histo.GetBinContent(xbins, ybins)
-                else:
-                    value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
-                return value
-                
-            # get bin content from 2D histogram with overflows:
-            def getBinContent_with_overflow_1D(histo, xval):
-                if xval >= histo.GetXaxis().GetXmax():
-                    value = histo.GetBinContent(histo.GetXaxis().GetNbins())
-                else:
-                    value = histo.GetBinContent(histo.GetXaxis().FindBin(xval))
-                return value
-
             # fill all fakerate branches:      
             for variable in fakerate_variables:
                 for fr_region in fakerate_regions:
@@ -702,27 +742,61 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         variable = variable.replace("HT", "HT_cleaned")
                     else:
                         variable = variable.replace("_cleaned", "")
-                        
+                    
+                    is_pixel_track = tree_branch_values["DT1_is_pixel_track"][0]    
                     if is_pixel_track:
                         category = "short"
                     else:
                         category = "long"
+
+                    for htype in ["fakerate"]:
                         
-                    hist_name = fr_region + "/" + data_period + "/" + category + "/fakerate_" + variable.replace(":", "_")
-                    
-                    try:                 
-                        if ":" in variable:
-                            xvalue = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
-                            yvalue = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[0])
-                            FR = getBinContent_with_overflow_2D(h_fakerates[hist_name], xvalue, yvalue)
-                        else:
-                            value = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx"))
-                            FR = getBinContent_with_overflow_1D(h_fakerates[hist_name], value)
+                        hist_name = fr_region + "/" + data_period + "/" + category + "/%s_" % htype + variable.replace(":", "_")
                         
-                        branch_name = "fakerate_%s_%s" % (fr_region, variable.replace(":", "_"))
-                        tree_branch_values[branch_name][0] = FR
-                    except:
-                        pass
+                        try:
+
+                            if variable == "n_DT":
+                                FR = getBinContent_with_overflow_1D(h_fakerates[hist_name], 1)
+    
+                            elif ":" in variable:
+                                                                
+                                xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
+                                yvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[0])
+                                                        
+                                FR = getBinContent_with_overflow_2D(h_fakerates[hist_name], xvalue, yvalue)
+                            else:
+                                value = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx"))
+                                FR = getBinContent_with_overflow_1D(h_fakerates[hist_name], value)
+                            
+                            branch_name = "%s_%s_%s" % (htype, fr_region, variable.replace(":", "_"))
+                            tree_branch_values[branch_name][0] = FR
+
+                        except:
+                            pass
+
+        # check if genLeptons are present in event:
+        n_genLeptons = 0
+        n_genElectrons = 0
+        n_genMuons = 0
+        n_genTaus = 0
+        for k in range(len(event.GenParticles)):
+
+            absPdgId = abs(event.GenParticles_PdgId[k])
+            
+            if absPdgId == 11:
+                n_genElectrons += 1
+                n_genLeptons += 1
+            elif absPdgId == 13:
+                n_genMuons += 1
+                n_genLeptons += 1
+            elif absPdgId == 15:
+                n_genTaus += 1
+                n_genLeptons += 1
+                
+            tree_branch_values["n_genLeptons"][0] = n_genLeptons
+            tree_branch_values["n_genElectrons"][0] = n_genElectrons
+            tree_branch_values["n_genMuons"][0] = n_genMuons
+            tree_branch_values["n_genTaus"][0] = n_genTaus
 
         # event-level variables:
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)

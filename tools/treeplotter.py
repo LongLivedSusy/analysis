@@ -119,7 +119,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
 def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.0, unweighted=False, suffix="", debug=False, folder=".", root_file = False):
 
     print "\nStacking histograms:", var
-
+    
     first = True
 
     # get lumi from data cfg:
@@ -132,7 +132,8 @@ def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.
         signal_scaling_factor = samples["global"]["signalscalingfactor"]
         print "using signal_scaling_factor:", signal_scaling_factor
 
-    canvas = TCanvas("canvas", "canvas", 900, 800)
+    #canvas = TCanvas("canvas", "canvas", 900, 800)
+    canvas = TCanvas("canvas", "canvas", 300, 300)
 
     l = canvas.GetLeftMargin()
     t = canvas.GetTopMargin()
@@ -155,8 +156,8 @@ def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.
 
     #legend = TLegend(0.40, 0.70, 0.94, 0.94)
     #legend = TLegend(0.70, 0.70, 0.94, 0.94)
-    legend = TLegend(0.50, 0.70, 0.94, 0.94)
-    legend.SetTextSize(0.03)
+    legend = TLegend(0.50, 0.60, 0.94, 0.94)
+    legend.SetTextSize(0.04)
     minimum_y_value = 1e6
 
     global_minimum = -1
@@ -260,8 +261,14 @@ def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.
         global_maximum_scale = 1
     
     mcstack.SetMaximum(global_maximum_scale * global_maximum)
-    mcstack.GetYaxis().SetTitleOffset(1.3)
-    mcstack.GetXaxis().SetTitleOffset(1.3)
+    mcstack.GetYaxis().SetTitleOffset(1.2)
+    mcstack.GetXaxis().SetTitleOffset(1.07)
+
+    mcstack.GetXaxis().SetTitleSize(.05)
+    mcstack.GetXaxis().SetLabelSize(.05)
+    mcstack.GetXaxis().SetNdivisions(5)
+    mcstack.GetYaxis().SetTitleSize(.05)
+    mcstack.GetYaxis().SetLabelSize(.05)    
     
     # plot signal:
     for sample in samples:
@@ -270,7 +277,7 @@ def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.
         if samples[sample]["type"] == 's':
             color = samples[sample]["color"]
             histos[sample].SetLineColor(color)
-            histos[sample].SetLineWidth(2)
+            histos[sample].SetLineWidth(3)
             histos[sample].SetFillColor(0)
 
             if not unweighted and samples[sample]["nev"]>0:
@@ -360,12 +367,12 @@ def stack_histograms(histos, samples, plot_config, var, signal_scaling_factor=1.
     
     latex.SetTextSize(0.35*t)
     latex.SetTextFont(52)
-    #latex.DrawLatex(0.4, 1-0.5*t+0.15*0.5*t, "CMS Simulation")
+    latex.DrawLatex(0.45, 1-0.5*t+0.15*0.5*t, "CMS Work in Progress")
     
     if folder != ".":
         os.system("mkdir -p %s" % folder)
     canvas.SaveAs("%s/%s%s.pdf" % (folder, var, suffix))
-    canvas.SaveAs("%s/%s%s.root" % (folder, var, suffix))
+    #canvas.SaveAs("%s/%s%s.root" % (folder, var, suffix))
 
     if root_file:
         output_file = TFile(folder + root_file, "update")

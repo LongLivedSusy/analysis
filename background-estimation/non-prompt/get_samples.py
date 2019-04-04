@@ -1,14 +1,16 @@
 #!/bin/env python
 import os, glob
+from optparse import OptionParser
 
-# use this script to get a list of unique sample names for a large folder full of ntuples.
+parser = OptionParser()
+(options, args) = parser.parse_args()
+folders = []
+if len(args) > 0:
+    for folder in args:
+        folders.append(folder)
 
-folders = ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub", "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v2"]
 
 for folder in folders:
-
-    print folder
-    print "*****************************"
 
     samples = []
     for item in glob.glob(folder + "/*root"):
@@ -20,4 +22,3 @@ for folder in folders:
     for item in sorted(samples):
         print '"' + item + '",'
 
-    print "\n\n"

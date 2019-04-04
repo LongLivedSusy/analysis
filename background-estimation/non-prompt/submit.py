@@ -2,13 +2,16 @@
 import os, glob
 from GridEngineTools import runParallel
 
-def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./looper.py $INPUT $OUTPUT 0 0"):
+def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./looper.py $INPUT $OUTPUT 0 0", nowildcard=False):
 
     commands = []
 
     for sample in samples:
 
         ifile_list = sorted(glob.glob(ntuples_folder + "/" + sample + "*.root"))
+
+        if nowildcard:
+            ifile_list = sorted(glob.glob(ntuples_folder + "/" + sample + ".root"))
         
         if files_per_sample != -1:
             ifile_list = ifile_list[:files_per_sample]
@@ -30,10 +33,10 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
     return commands
 
 
-def do_submission(commands, output_folder, executable = "looper.py", runmode = "grid"):
+def do_submission(commands, output_folder, executable = "looper.py", runmode = "grid", dontCheckOnJobs=True):
 
-    raw_input("submit %s jobs?" % len(commands))
+    raw_input("submit %s jobs? Output folder will be %s." % (len(commands), output_folder))
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
-    runParallel(commands, runmode, dontCheckOnJobs=True)
+    runParallel(commands, runmode, dontCheckOnJobs=dontCheckOnJobs)
 
