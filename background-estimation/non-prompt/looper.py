@@ -5,9 +5,12 @@ from array import array
 from optparse import OptionParser
 import tmva_tools
 import collections
+import json
 
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
+
+runs = {}
 
 def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track):
   
@@ -373,6 +376,15 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             line = "[" + PercentProcessed*"#" + (20-PercentProcessed)*" " + "]\t" + "Processing event %s / %s" % (iEv + 1, nev)
             print line
 
+        # collect lumisections:
+        if is_data:
+            runnum = event.RunNum
+            lumisec = event.LumiBlockNum
+            if runnum not in runs:
+                runs[runnum] = []
+            if lumisec not in runs[runnum]:
+                runs[runnum].append(lumisec)
+
         if region_signalcontrol:
                         
             # check if in meta CR:
@@ -622,7 +634,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             is_prompt_muon = False
             is_tau_bg = False
             is_tau_bg_wideDR = False
-            if is_disappearing_track and tree.GetBranch("GenParticles"):
+            if is_disappearing_track and not is_data:
                 for k in range(len(event.GenParticles)):
 
                     if charged_genparticle_in_track_cone: break
@@ -640,7 +652,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                             if gen_track_cone_pdgid == 13: 
                                 is_prompt_muon = True
                             break
-                        elif gen_track_cone_pdgid == 15 and tree.GetBranch("GenTaus_LeadTrk"):
+                        elif gen_track_cone_pdgid == 15:
                             # if genTau, check if the track matches with a GenTaus_LeadTrk track:
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
@@ -775,28 +787,29 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                             pass
 
         # check if genLeptons are present in event:
-        n_genLeptons = 0
-        n_genElectrons = 0
-        n_genMuons = 0
-        n_genTaus = 0
-        for k in range(len(event.GenParticles)):
+        if not is_data:
+            n_genLeptons = 0
+            n_genElectrons = 0
+            n_genMuons = 0
+            n_genTaus = 0
+            for k in range(len(event.GenParticles)):
 
-            absPdgId = abs(event.GenParticles_PdgId[k])
-            
-            if absPdgId == 11:
-                n_genElectrons += 1
-                n_genLeptons += 1
-            elif absPdgId == 13:
-                n_genMuons += 1
-                n_genLeptons += 1
-            elif absPdgId == 15:
-                n_genTaus += 1
-                n_genLeptons += 1
+                absPdgId = abs(event.GenParticles_PdgId[k])
                 
-            tree_branch_values["n_genLeptons"][0] = n_genLeptons
-            tree_branch_values["n_genElectrons"][0] = n_genElectrons
-            tree_branch_values["n_genMuons"][0] = n_genMuons
-            tree_branch_values["n_genTaus"][0] = n_genTaus
+                if absPdgId == 11:
+                    n_genElectrons += 1
+                    n_genLeptons += 1
+                elif absPdgId == 13:
+                    n_genMuons += 1
+                    n_genLeptons += 1
+                elif absPdgId == 15:
+                    n_genTaus += 1
+                    n_genLeptons += 1
+                    
+                tree_branch_values["n_genLeptons"][0] = n_genLeptons
+                tree_branch_values["n_genElectrons"][0] = n_genElectrons
+                tree_branch_values["n_genMuons"][0] = n_genMuons
+                tree_branch_values["n_genTaus"][0] = n_genTaus
 
         # event-level variables:
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
@@ -835,6 +848,25 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     fout.Write()
 
     fout.Close()
+
+    # write JSON containing lumisections:
+    if len(runs) > 0:
+        runs_compacted = {}
+        for run in runs:
+            if run not in runs_compacted:
+                runs_compacted[run] = []
+            for lumisec in runs[run]:
+                if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
+                    runs_compacted[run][-1][-1] = lumisec
+                else:
+                    runs_compacted[run].append([lumisec, lumisec])
+
+        json_content = json.dumps(runs_compacted)
+        print json_content
+
+        with open(track_tree_output.replace(".root", ".json"), "w") as fo:
+            fo.write(json_content)
+
 
 if __name__ == "__main__":
 
