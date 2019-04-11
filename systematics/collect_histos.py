@@ -22,7 +22,8 @@ def collect_histos(sampleName):
 def main():
     if not os.path.exists('./result'):
 	os.system('mkdir -p result')
-    
+   
+    # Collect SR histograms in each sample 
     collect_histos('skim_g1800_chi1400_27_200970_step4_100.root')
     
 
