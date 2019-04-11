@@ -5,7 +5,6 @@ from utils import *
 import os, sys
 from glob import glob
 from distracklibs import *
-import argparse
 
 gStyle.SetOptStat(111111)
 
@@ -66,7 +65,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	    tree.Add(filename.strip())
 	    print 'adding', filename
 
-    nentries = min(999999,tree.GetEntries())
+    nentries = min(10000000,tree.GetEntries())
     print 'will analyze', nentries
 
     csv_b = 0.6324
@@ -223,6 +222,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	weight_btag = calc_btag_weight(tree,sigmaBtag,sigmaBtagFastSim,isFastSim)
 	weight_ISR = get_isr_weight(tree, sigmaISR)
 	weight *= weight_btag * weight_ISR 
+	print 'weight:%.2f, weight_btag:%.2f, weight_ISR:%.2f'%(weight,weight_btag,weight_ISR)
 	
 	applysmearing = True
 	if applysmearing : 
@@ -386,7 +386,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 if __name__ == "__main__" :
     inputfile = sys.argv[1]
     outputdir = sys.argv[2]
-    sigmas = sys.argv[3].strip('[]').split(',')
+    sigmas = sys.argv[3].strip('[]').replace('\'','') .split(',')
     
     sigmaBtag= int(sigmas[0])
     sigmaJES = int(sigmas[1])
