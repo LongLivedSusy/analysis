@@ -15,22 +15,6 @@ def read_syst(txt) :
 
     return list_systs
 
-#def outputDirMaker(sigma) : 
-#    outputDir = "outputs"
-#    n = len(sigma)
-#    if sigma[0]==0 and sigma[1]==0 and sigma[2]==0 and sigma[3]==0 : outputDir+='_nominal'
-#    if sigma[0] >0  : outputDir+='_btag_%sUp'%sigma[0]
-#    if sigma[1] >0  : outputDir+='_jes_%sUp'%sigma[1]
-#    if sigma[2] >0  : outputDir+='_jer_%sUp'%sigma[2]
-#    if sigma[3] >0  : outputDir+='_isr_%sUp'%sigma[3]
-#    if sigma[0] <0  : outputDir+='_btag_%sDown'%abs(sigma[0])
-#    if sigma[1] <0  : outputDir+='_jes_%sDown'%abs(sigma[1])
-#    if sigma[2] <0  : outputDir+='_jer_%sDown'%abs(sigma[2])
-#    if sigma[3] <0  : outputDir+='_isr_%sDown'%abs(sigma[3])
-#    if not os.path.exists(outputDir):
-#	os.system("mkdir -p "+outputDir)
-#    return outputDir
-
 def main() :
     
     inputDir = "./inputs"
