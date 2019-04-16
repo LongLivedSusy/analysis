@@ -35,7 +35,8 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
 
 def do_submission(commands, output_folder, executable = "looper.py", runmode = "grid", dontCheckOnJobs=True):
 
-    raw_input("submit %s jobs? Output folder will be %s." % (len(commands), output_folder))
+    print "Submitting %s jobs, output folder will be %s." % (len(commands), output_folder)
+    raw_input("Continue?")
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
     runParallel(commands, runmode, dontCheckOnJobs=dontCheckOnJobs)

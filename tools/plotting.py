@@ -99,7 +99,8 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     if not is_data:
         cutstring = "(%s)*CrossSection*puWeight%s" % (cutstring, scaling)
     else:
-        cutstring = "(%s)%s" % (cutstring, scaling)
+        if scaling != "":
+            cutstring = "(%s)*%s" % (cutstring, scaling)
 
     if numevents>0:
         print "Limiting to %s events" % numevents

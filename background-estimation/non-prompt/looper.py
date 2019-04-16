@@ -85,6 +85,11 @@ def isBaselineTrack(track, itrack, c, hMask):
 		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
+def mkmet(metPt, metPhi):
+    met = TLorentzVector()
+    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
+    return met
+
 def passQCDHighMETFilter(t):
     metvec = mkmet(t.MET, t.METPhi)
     for ijet, jet in enumerate(t.Jets):
@@ -93,11 +98,6 @@ def passQCDHighMETFilter(t):
         if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
     return True  
     
-def mkmet(metPt, metPhi):
-    met = TLorentzVector()
-    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
-    return met
-
 def passesUniversalSelection(t):
     if not (bool(t.JetID) and  t.NVtx>0): return False
     if not  passQCDHighMETFilter(t): return False
@@ -152,7 +152,7 @@ def getBinContent_with_overflow_1D(histo, xval):
     return value
 
 
-def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = "Masks.root", region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
+def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", maskfile = False, region_fakerate = False, region_signalcontrol = True, verbose = False, iEv_start = False):
 
     if region_signalcontrol:
         print "\nConfigured for inclusive SR / CR!\n"
@@ -170,7 +170,6 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     h_nev = TH1F("nev", "nev", 1, 0, 1)
     h_nev.Fill(0, nev)
     h_nev.Write()
-    #xsec_written = False
 
     # check if data:
     data_period = ""
@@ -193,7 +192,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     else:
         print "Can't determine data/MC era"
         quit(1)
-    print "data_period", data_period, "is_data", is_data
+    print "data_period:", data_period
 
     tout = TTree("Events", "tout")
  
@@ -207,6 +206,8 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
     # prepare variables for output tree   
     float_branches = []
+    integer_branches = []
+
     if not is_data:
         float_branches.append("madHT")
         float_branches.append("CrossSection")
@@ -217,13 +218,7 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     float_branches.append("HT")
     float_branches.append("MinDeltaPhiMhtJets")
     float_branches.append("PFCaloMETRatio")
-    if region_fakerate:
-        float_branches.append("dilepton_invmass")
-        float_branches.append("MHT_cleaned")
-        float_branches.append("HT_cleaned")
-        float_branches.append("MinDeltaPhiMhtJets_cleaned")
-       
-    integer_branches = []
+    float_branches.append("dilepton_invmass")
     integer_branches.append("n_DT")
     integer_branches.append("n_DT_actualfake")
     integer_branches.append("n_jets")
@@ -232,13 +227,22 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     integer_branches.append("n_allvertices")
     integer_branches.append("n_NVtx")
     integer_branches.append("EvtNumEven")
+    integer_branches.append("dilepton_CR")
+    integer_branches.append("qcd_CR")
+    integer_branches.append("qcd_sideband_CR")
+    integer_branches.append("dilepton_leptontype")
+    float_branches.append("dilepton_leptonpt1")
+    float_branches.append("dilepton_leptonpt2")
+    float_branches.append("dilepton_leptoneta1")
+    float_branches.append("dilepton_leptoneta2")
+    float_branches.append("dilepton_leptonphi1")
+    float_branches.append("dilepton_leptonphi2")
     if region_fakerate:
+        float_branches.append("MHT_cleaned")
+        float_branches.append("HT_cleaned")
+        float_branches.append("MinDeltaPhiMhtJets_cleaned")
         integer_branches.append("n_jets_cleaned")
         integer_branches.append("n_btags_cleaned")
-        integer_branches.append("dilepton_CR")
-        integer_branches.append("qcd_CR")
-        integer_branches.append("qcd_sideband_CR")
-        integer_branches.append("dilepton_leptontype")
     if region_signalcontrol: 
         integer_branches.append("region")
         integer_branches.append("region_noDT")
@@ -326,11 +330,12 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     if region_signalcontrol:
         
         # load fakerate maps:
-        fakerate_file = TFile("fakerate.root", "open")
+        fakerate_file = TFile("output_fakerate_v3_2_merged/fakerate_newrelease.root", "open")
                    
         fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
         #fakerate_variables = ["HT:n_allvertices", "n_allvertices", "HT", "MHT", "MHT:n_allvertices"] #, "HT:n_NVtx", "n_NVtx"]
-        fakerate_variables = ["n_DT", "HT:n_allvertices", "HT:n_allvertices_interpolated", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]
+        #fakerate_variables = ["n_DT", "HT:n_allvertices", "HT:n_allvertices_interpolated", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]
+        fakerate_variables = ["NumInteractions", "HT:n_allvertices", "HT:n_allvertices_interpolated", "n_DT"]
 
         # get all fakerate histograms:
         h_fakerates = {}
@@ -397,39 +402,40 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                    tree_branch_values["meta_CR"][0] = meta_CR
 
         # do HT-binned background stitching:
+        #      ("TTJets_Tune" in current_file_name and madHT>600) or \
         current_file_name = tree.GetFile().GetName()
         madHT = -1
         if tree.GetBranch("madHT"):
             madHT = event.madHT
             if (madHT>0) and \
                ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
-               ("TTJets_Tune" in current_file_name and madHT>600) or \
-               ("100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
-               ("100To200_" in current_file_name and (madHT<100 or madHT>200)) or \
-               ("200to300_" in current_file_name and (madHT<200 or madHT>300)) or \
-               ("200To300_" in current_file_name and (madHT<200 or madHT>300)) or \
-               ("200to400_" in current_file_name and (madHT<200 or madHT>400)) or \
-               ("200To400_" in current_file_name and (madHT<200 or madHT>400)) or \
-               ("300to500_" in current_file_name and (madHT<300 or madHT>500)) or \
-               ("300To500_" in current_file_name and (madHT<300 or madHT>500)) or \
-               ("400to600_" in current_file_name and (madHT<400 or madHT>600)) or \
-               ("400To600_" in current_file_name and (madHT<400 or madHT>600)) or \
-               ("500to700_" in current_file_name and (madHT<500 or madHT>700)) or \
-               ("500To700_" in current_file_name and (madHT<500 or madHT>700)) or \
-               ("600to800_" in current_file_name and (madHT<600 or madHT>800)) or \
-               ("600To800_" in current_file_name and (madHT<600 or madHT>800)) or \
-               ("700to1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
-               ("700To1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
-               ("800to1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
-               ("800To1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
-               ("1000to1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
-               ("1000To1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
-               ("1200to2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
-               ("1200To2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
-               ("1500to2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
-               ("1500To2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
-               ("2500toInf_" in current_file_name and madHT<2500) or \
-               ("2500ToInf_" in current_file_name and madHT<2500):
+               ("WJetsToLNu_TuneCUETP8M1_13TeV" in current_file_name and madHT>100) or \
+               ("HT-100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
+               ("HT-200to300_" in current_file_name and (madHT<200 or madHT>300)) or \
+               ("HT-200to400_" in current_file_name and (madHT<200 or madHT>400)) or \
+               ("HT-300to500_" in current_file_name and (madHT<300 or madHT>500)) or \
+               ("HT-400to600_" in current_file_name and (madHT<400 or madHT>600)) or \
+               ("HT-600to800_" in current_file_name and (madHT<600 or madHT>800)) or \
+               ("HT-800to1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
+               ("HT-1200to2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
+               ("HT-2500toInf_" in current_file_name and madHT<2500) or \
+               ("HT-500to700_" in current_file_name and (madHT<500 or madHT>700)) or \
+               ("HT-700to1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
+               ("HT-1000to1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
+               ("HT-1500to2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
+               ("HT-100To200_" in current_file_name and (madHT<100 or madHT>200)) or \
+               ("HT-200To300_" in current_file_name and (madHT<200 or madHT>300)) or \
+               ("HT-200To400_" in current_file_name and (madHT<200 or madHT>400)) or \
+               ("HT-300To500_" in current_file_name and (madHT<300 or madHT>500)) or \
+               ("HT-400To600_" in current_file_name and (madHT<400 or madHT>600)) or \
+               ("HT-500To700_" in current_file_name and (madHT<500 or madHT>700)) or \
+               ("HT-600To800_" in current_file_name and (madHT<600 or madHT>800)) or \
+               ("HT-700To1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
+               ("HT-800To1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
+               ("HT-1000To1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
+               ("HT-1200To2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
+               ("HT-1500To2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
+               ("HT-2500ToInf_" in current_file_name and madHT<2500):
                 continue
                   
         # reset all branch values:
@@ -439,51 +445,62 @@ def loop(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             else:
                 tree_branch_values[label][0] = -1
 
+        # check for fake rate determination regions
+
+        # to get the fake rate, consider dilepton region or QCD-only events. Check which applies for this event
+
+        # set selection flags (veto event later if it does not fit into any selection):
+        dilepton_CR = False
+        qcd_CR = False
+        qcd_sideband_CR = False
+
+        min_lepton_pt = 30.0
+        invariant_mass = 0
+        if (len(event.Electrons) == 2 and len(event.Muons) == 0):
+            if (event.Electrons[0].Pt() > min_lepton_pt):
+                if bool(event.Electrons_mediumID[0]) and bool(event.Electrons_mediumID[1]):
+                    if (event.Electrons_charge[0] * event.Electrons_charge[1] < 0):
+                        invariant_mass = (event.Electrons[0] + event.Electrons[1]).M()
+                        if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
+                            if bool(event.Electrons_passIso[0]) and bool(event.Electrons_passIso[1]):
+                                tree_branch_values["dilepton_invmass"][0] = invariant_mass
+                                tree_branch_values["dilepton_leptontype"][0] = 11
+                                tree_branch_values["dilepton_leptonpt1"][0] = event.Electrons[0].Pt()
+                                tree_branch_values["dilepton_leptonpt2"][0] = event.Electrons[1].Pt()
+                                tree_branch_values["dilepton_leptoneta1"][0] = event.Electrons[0].Eta()
+                                tree_branch_values["dilepton_leptoneta2"][0] = event.Electrons[1].Eta()
+                                tree_branch_values["dilepton_leptonphi1"][0] = event.Electrons[0].Phi()
+                                tree_branch_values["dilepton_leptonphi2"][0] = event.Electrons[1].Phi()
+                                tree_branch_values["dilepton_CR"][0] = 1
+                                dilepton_CR = True       
+        elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
+            if (event.Muons[0].Pt() > min_lepton_pt):
+                if (bool(event.Muons_tightID[0]) and bool(event.Muons_tightID[1])):
+                    if (event.Muons_charge[0] * event.Muons_charge[1] < 0):
+                        invariant_mass = (event.Muons[0] + event.Muons[1]).M()            
+                        if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
+                            if bool(event.Muons_passIso[0]) and bool(event.Muons_passIso[1]):
+                                tree_branch_values["dilepton_invmass"][0] = invariant_mass
+                                tree_branch_values["dilepton_leptontype"][0] = 13
+                                tree_branch_values["dilepton_leptonpt1"][0] = event.Muons[0].Pt()
+                                tree_branch_values["dilepton_leptonpt2"][0] = event.Muons[1].Pt()
+                                tree_branch_values["dilepton_leptoneta1"][0] = event.Muons[0].Eta()
+                                tree_branch_values["dilepton_leptoneta2"][0] = event.Muons[1].Eta()
+                                tree_branch_values["dilepton_leptonphi1"][0] = event.Muons[0].Phi()
+                                tree_branch_values["dilepton_leptonphi2"][0] = event.Muons[1].Phi()
+                                tree_branch_values["dilepton_CR"][0] = 1
+                                dilepton_CR = True
+
+        # check if low-MHT, QCD-only samples:
+        if "QCD" in current_file_name or "JetHT" in current_file_name:
+            if event.MHT < 200:
+                tree_branch_values["qcd_CR"][0] = 1
+                qcd_CR = True
+            if event.MHT > 100 and event.MHT < 200:
+                tree_branch_values["qcd_sideband_CR"][0] = 1
+                qcd_sideband_CR = True
+
         if region_fakerate:
-
-            # to get the fake rate, consider dilepton region or QCD-only events. Check which applies for this event
-
-            # set selection flags (veto event later if it does not fit into any selection):
-            dilepton_CR = False
-            qcd_CR = False
-            qcd_sideband_CR = False
-
-            # do the following for all MC, but only for SingleLepton datastreams:
-            if not is_data or "SingleElectron" in current_file_name or "SingleMuon" in current_file_name:
-                min_lepton_pt = 30.0
-                invariant_mass = 0
-                if (len(event.Electrons) == 2 and len(event.Muons) == 0):
-                    if (event.Electrons[0].Pt() > min_lepton_pt):
-                        if bool(event.Electrons_mediumID[0]) and bool(event.Electrons_mediumID[1]):
-                            if (event.Electrons_charge[0] * event.Electrons_charge[1] < 0):
-                                invariant_mass = (event.Electrons[0] + event.Electrons[1]).M()
-                                if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                                    if bool(event.Electrons_passIso[0]) and bool(event.Electrons_passIso[1]):
-                                        tree_branch_values["dilepton_invmass"][0] = invariant_mass
-                                        tree_branch_values["dilepton_leptontype"][0] = 11
-                                        tree_branch_values["dilepton_CR"][0] = 1
-                                        dilepton_CR = True       
-                elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
-                    if (event.Muons[0].Pt() > min_lepton_pt):
-                        if (bool(event.Muons_tightID[0]) and bool(event.Muons_tightID[1])):
-                            if (event.Muons_charge[0] * event.Muons_charge[1] < 0):
-                                invariant_mass = (event.Muons[0] + event.Muons[1]).M()            
-                                if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                                    if bool(event.Muons_passIso[0]) and bool(event.Muons_passIso[1]):
-                                        tree_branch_values["dilepton_invmass"][0] = invariant_mass
-                                        tree_branch_values["dilepton_leptontype"][0] = 13
-                                        tree_branch_values["dilepton_CR"][0] = 1
-                                        dilepton_CR = True
-
-            # check if low-MHT, QCD-only samples:
-            if "QCD" in current_file_name or "JetHT" in current_file_name:
-                if event.MHT < 200:
-                    tree_branch_values["qcd_CR"][0] = 1
-                    qcd_CR = True
-                if event.MHT > 100 and event.MHT < 200:
-                    tree_branch_values["qcd_sideband_CR"][0] = 1
-                    qcd_sideband_CR = True
-
             # CHECK: event selection
             if not dilepton_CR and not qcd_CR and not qcd_sideband_CR: continue
                 

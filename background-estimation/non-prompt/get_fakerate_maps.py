@@ -3,6 +3,38 @@ from __future__ import division
 import os
 from ROOT import *
 from plotting import *
+import uuid
+
+def get_interpolated_histogram(histo):
+
+    graph = TGraph2D()
+
+    nBinsX = histo.GetXaxis().GetNbins()
+    nBinsY = histo.GetYaxis().GetNbins()
+
+    xmin = histo.GetXaxis().GetXmin()
+    xmax = histo.GetXaxis().GetXmax()
+    ymin = histo.GetYaxis().GetXmin()
+    ymax = histo.GetYaxis().GetXmax()
+
+    for xbin in range(1,nBinsX+2):
+        for ybin in range(1,nBinsY+2):            
+            xval = histo.GetXaxis().GetBinLowEdge(xbin)
+            yval = histo.GetYaxis().GetBinLowEdge(ybin)
+            zval = histo.GetBinContent(xbin, ybin)
+            if zval>0:
+                graph.SetPoint(graph.GetN(), xval, yval, zval)
+
+    hName = str(uuid.uuid1()).replace("-", "")
+    interpolated_histo = TH2F(hName, hName, nBinsX, xmin, xmax, nBinsY, ymin, ymax)
+    
+    graph.SetHistogram(interpolated_histo)
+    graph.Draw("surf4")
+    interpolated_histo = graph.GetHistogram()
+    interpolated_histo.SetDirectory(0)
+         
+    return interpolated_histo
+
 
 def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, selected_sample, extra_text, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False, denominator_cuts=""):
 
@@ -84,8 +116,14 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
     fake_rate.SetName("fakerate_%s" % (variable.replace(":", "_")))
     fake_rate.SetDirectory(gDirectory)
     fake_rate.Write()
+    
+    # also save interpolated histogram:
+    if plot2D:
+        fake_rate_interpolated = get_interpolated_histogram(fake_rate)
+        fake_rate_interpolated.SetName("fakerate_%s_interpolated" % (variable.replace(":", "_")))
+        fake_rate_interpolated.SetDirectory(gDirectory)
+        fake_rate_interpolated.Write()
 
-    if plot2D:  
         canvas = TCanvas("fakerate", "fakerate", 800, 800)  
         canvas.SetRightMargin(0.16)
         canvas.SetLeftMargin(0.14)
@@ -101,68 +139,78 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         latex.SetTextAlign(13)
         latex.SetTextFont(52)
         
-        fake_rate.GetZaxis().SetTitleOffset(1.5)
-        fake_rate.GetZaxis().SetRangeUser(1e-6, 1e-1)
-        fake_rate.Draw("COLZ")
-        latex.DrawLatex(0.18, 0.87, extra_text)
-        stamp_plot()
-        canvas.Write("canvas_%s" % (variable.replace(":", "_")))
-        if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
-        canvas.SaveAs("%s/plots/fakeratemap_%s_%s.pdf" % (path, foldername.replace("/", "_"), variable.replace(":", "_")))
+        for i, histogram in enumerate([fake_rate, fake_rate_interpolated]):
+            histogram.GetZaxis().SetTitleOffset(1.5)
+            histogram.GetZaxis().SetRangeUser(1e-6, 1e-1)
+            histogram.Draw("COLZ")
+            latex.DrawLatex(0.18, 0.87, extra_text)
+            stamp_plot()
+            if i == 0:
+                canvas.Write("canvas_%s" % (variable.replace(":", "_")))
+                if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
+                canvas.SaveAs("%s/plots/fakeratemap_%s_%s.pdf" % (path, foldername.replace("/", "_"), variable.replace(":", "_")))
+            else:
+                canvas.Write("canvas_%s_interpolated" % (variable.replace(":", "_")))
+                if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
+                canvas.SaveAs("%s/plots/fakeratemap_%s_%s_interpolated.pdf" % (path, foldername.replace("/", "_"), variable.replace(":", "_")))
 
     fout.Close()
 
 
 if __name__ == "__main__":
 
-    base_cuts = "PFCaloMETRatio<5"    
-    rootfile = "fakerate_newrelease_v3.root"
-
+    path = "output_fakerate_ng_3_merged/"
+    #path = "output_fakerate_ng_3_loosedxy_merged/"
+    #base_cuts = "PFCaloMETRatio<5"
+    base_cuts = "HT>0"        
+    rootfile = path + "/fakerate.root"
+    
     for configuration in ["2016MC"]:
 
         if configuration == "2016MC":
-            path = "output_fakerate_v3_merged/"
             selected_mc = "Summer16"
             data_periods = []
 
         if configuration == "2016":
-            path = "output_fakerate_v3_merged/"
             selected_mc = "Summer16"
-            data_periods = ["2016"]
+            data_periods = ["Run2016"]
         
         if configuration == "2017/2018":
-            path = "output_fakerate_v3_merged/"
             selected_mc = "Fall17"
-            data_periods = ["2017", "2018"]
+            data_periods = ["Run2017", "Run2018"]
         
-        cut_is_short_track = " && ((n_DT==1 && DT1_passpionveto == 1 && DT1_is_pixel_track == 1) || (n_DT==2 && DT1_passpionveto == 1 && DT2_passpionveto == 1 && DT1_is_pixel_track == 1 && DT2_is_pixel_track == 1)) "
-        cut_is_long_track  = " && ((n_DT==1 && DT1_passpionveto == 1 && DT1_is_pixel_track == 0) || (n_DT==2 && DT1_passpionveto == 1 && DT2_passpionveto == 1 && DT1_is_pixel_track == 0 && DT2_is_pixel_track == 0)) "
+        cut_is_short_track = " && tracks_is_pixel_track==1 "
+        cut_is_long_track  = " && tracks_is_pixel_track==0 "
+               
+        variable_original = ""
+ 
+        #for variable in ["HT:n_allvertices", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets", "n_DT"]:
+        for variable in ["HT", "n_allvertices", "HT:n_allvertices", "n_DT"]:
+        #for variable in ["HT"]:
+            
+            #for region in ["qcd", "qcd_sideband", "dilepton"]:
+            for region in ["dilepton"]:
+            
+                current_selected_mc = selected_mc
+                if "qcd" in region:
+                    current_selected_mc = "*QCD"
+                    data_stream = "JetHT"
+                elif "dilepton" in region:
+                    data_stream = "SingleElectron"
+
+                if "dilepton" in region:
+                    variable_original = variable
+                    variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned") 
+
+                get_fakerate(path, variable, rootfile, "%s/%s" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, "", current_selected_mc, "MC")
+                #get_fakerate(path, variable, rootfile, "%s/%s/short" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_short_track, current_selected_mc, "MC, pixel-only tracks")
+                #get_fakerate(path, variable, rootfile, "%s/%s/long" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_long_track, current_selected_mc, "MC, pixel+strips tracks")
                 
-        for variable in ["n_DT", "HT:n_allvertices", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]:
-                
-            # get fake rate from QCD-only events:
-            get_fakerate(path, variable, rootfile, "qcd/%s/short" % selected_mc, base_cuts + " && qcd_CR==1", cut_is_short_track, selected_mc + "*QCD", "combined MC background, pixel-only tracks")
-            get_fakerate(path, variable, rootfile, "qcd/%s/long" % selected_mc, base_cuts + " && qcd_CR==1", cut_is_long_track, selected_mc + "*QCD", "combined MC background, pixel+strips tracks")
-            
-            for period in data_periods:
-                get_fakerate(path, variable, rootfile, "qcd/%s/short" % period, base_cuts + " && qcd_CR==1", cut_is_short_track, "%s*JetHT" % period, "Run%s JetHT, pixel-only tracks" % period)
-                get_fakerate(path, variable, rootfile, "qcd/%s/long" % period, base_cuts + " && qcd_CR==1", cut_is_long_track, "%s*JetHT" % period, "Run%s JetHT, pixel+strips tracks" % period)
-                
-            # get fake rate from QCD sideband region:          
-            get_fakerate(path, variable, rootfile, "qcd_sideband/%s/short" % selected_mc, base_cuts + " && qcd_sideband_CR==1", cut_is_short_track, selected_mc + "*QCD", "combined MC background, pixel-only tracks")
-            get_fakerate(path, variable, rootfile, "qcd_sideband/%s/long" % selected_mc, base_cuts + " && qcd_sideband_CR==1", cut_is_long_track, selected_mc + "*QCD", "combined MC background, pixel+strips tracks")
-            
-            for period in data_periods:
-                get_fakerate(path, variable, rootfile, "qcd_sideband/%s/short" % period, base_cuts + " && qcd_sideband_CR==1", cut_is_short_track, "%s*JetHT" % period, "Run%s JetHT, pixel-only tracks" % period)
-                get_fakerate(path, variable, rootfile, "qcd_sideband/%s/long" % period, base_cuts + " && qcd_sideband_CR==1", cut_is_long_track, "%s*JetHT" % period, "Run%s JetHT, pixel+strips tracks" % period)
-            
-            # get fake rate from dilepton region:
-            variable_cleaned = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned") 
-            
-            get_fakerate(path, variable_cleaned, rootfile, "dilepton/%s/short" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_short_track, selected_mc, "combined MC background, pixel-only tracks")    
-            get_fakerate(path, variable_cleaned, rootfile, "dilepton/%s/long" % selected_mc, base_cuts + " && dilepton_CR==1", cut_is_long_track, selected_mc, "combined MC background, pixel+strips tracks")
-            
-            for period in data_periods:
-                get_fakerate(path, variable_cleaned, rootfile, "dilepton/%s/short" % period, base_cuts + " && dilepton_CR==1", cut_is_short_track, "%s*SingleElectron" % period, "Run%s SingleElectron, pixel-only tracks" % period)
-                get_fakerate(path, variable_cleaned, rootfile, "dilepton/%s/long" % period, base_cuts + " && dilepton_CR==1", cut_is_long_track, "%s*SingleElectron" % period, "Run%s SingleElectron, pixel+strips tracks" % period)
-            
+                for period in data_periods:
+                    get_fakerate(path, variable, rootfile, "%s/%s" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, "", "%s*%s" % (period, data_stream), "%s" % period)
+                    #get_fakerate(path, variable, rootfile, "%s/%s/short" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_short_track, "%s*%s" % (period, data_stream), "%s, pixel-only tracks" % period)
+                    #get_fakerate(path, variable, rootfile, "%s/%s/long" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_long_track, "%s*%s" % (period, data_stream), "%s, pixel+strips tracks" % period)
+
+                if "dilepton" in region:
+                    variable = variable_original
+                   

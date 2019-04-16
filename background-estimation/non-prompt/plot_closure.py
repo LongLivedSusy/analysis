@@ -25,10 +25,15 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
 
         if variable != "region":
 
-            histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            #histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            #histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            #histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            #histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+
+            histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
 
         else:
 
@@ -58,7 +63,7 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
 
     passpionveto = " && ((n_DT==1 && DT1_passpionveto==1) || (n_DT==2 && DT1_passpionveto==1 && DT2_passpionveto==1)) "
 
-    histos["mc"] = get_histogram(variable, base_cuts + passpionveto + " && n_DT>0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
+    #histos["mc"] = get_histogram(variable, base_cuts + passpionveto + " && n_DT>0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
     histos["mc_prompt"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_promptbg==1) || (n_DT==2 && DT1_promptbg==1 && DT2_promptbg==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
     #histos["mc_tau"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_prompttau==1) || (n_DT==2 && DT1_prompttau==1 && DT2_prompttau==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
     #histos["mc_tauwide"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_prompttau==0 && DT1_prompttau_wideDR==1) || (n_DT==2 && DT1_prompttau==0 && DT1_prompttau_wideDR==1 && DT2_prompttau==0 && DT2_prompttau_wideDR==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
@@ -133,8 +138,8 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
     histos["mc_noDT"].SetTitle(";;events")
 
     if not data:
-        histos["mc"].Draw("same hist e")
-        histos["mc"].SetFillStyle(3003)
+        #histos["mc"].Draw("same hist e")
+        #histos["mc"].SetFillStyle(3003)
         histos["mc_prompt"].Draw("same hist e")
         histos["mc_prompt"].SetFillStyle(3003)
         #histos["mc_tau"].Draw("same hist e")
@@ -170,7 +175,7 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
     legend.SetTextSize(0.025)
     legend.AddEntry(histos["mc_noDT"], "control region (CR) / 100")
     if not data:
-        legend.AddEntry(histos["mc"], "signal region (SR)")
+        #legend.AddEntry(histos["mc"], "signal region (SR)")
         legend.AddEntry(histos["mc_prompt"], "prompt background in SR (MC Truth)")
         #legend.AddEntry(histos["mc_tau"], "#tau background in SR (MC Truth)")
         #legend.AddEntry(histos["mc_tauwide"], "#tau wide DR background in SR (MC Truth)")
@@ -241,27 +246,30 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
     fout.Close()
 
 
-for folder in ["output_skim19_v3_merged/"]:
+for folder in ["output_skim22_merged/"]:
 
     #os.system("rm " + folder + "/plots/control.root")
 
     variables = {#"region": [32, 1, 33],
-                 "HT": [10, 0, 1000],
+                 #"HT": [10, 0, 1000],
                  #"MET": [20, 0, 1000],
-                 "MHT": [10, 0, 1000],
+                 #"MHT": [10, 0, 1000],
                  #"n_jets": [20, 0, 20],
                  #"n_btags": [15, 0, 15],
                  #"n_allvertices": [10, 0, 50],
                  #"n_NVtx": [10, 0, 50],
                  #"MinDeltaPhiMhtJets": [15, 0, 4],
                  #"DT1_is_pixel_track": [2, 0, 2],
+                 "n_DT": [2, 0, 2],
                  }
 
     #for fakerate_map in ["HT_n_allvertices", "n_allvertices", "HT", "MHT", "MHT_n_allvertices"]:
     #for fakerate_map in ["HT_n_allvertices_interpolated"]:
     #for fakerate_map in ["HT_n_allvertices"]:
-    #for fakerate_map in ["n_DT"]:
-    for fakerate_map in ["n_DT", "HT_n_allvertices_interpolated", "HT:n_allvertices", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]:
+    for fakerate_map in ["n_DT"]:
+    #for fakerate_map in ["n_DT", "HT_n_allvertices_interpolated", "HT:n_allvertices", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]:
+    #for fakerate_map in ["NumInteractions", "HT_n_allvertices", "HT_n_allvertices_interpolated", "n_DT"]:
+    #for fakerate_map in ["HT_n_allvertices", "HT_n_allvertices_interpolated", "n_DT"]:
 
         #for region in ["zeroleptons", "onelepton"]:
         for region in ["zeroleptons"]:
@@ -273,13 +281,14 @@ for folder in ["output_skim19_v3_merged/"]:
                 xmin = variables[variable][1]
                 xmax = variables[variable][2]
 
-                #base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100 && n_genLeptons==0"
+                base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100 && n_genLeptons==0"
                 #mc = "Summer16*QCD|ZJetsToNuNu"; period = "2016"
-                #plotname = "QCD_ZJetsToNuNu_HT100_noGenLeptons_"
+                mc = "Summer16.QCD_HT200to300"; period = "2016"
+                plotname = "QCD_HT200to300_HT100_noGenLeptons_"
                 
-                base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100"
-                mc = "Summer16"; period = "2016"
-                plotname = "orig_"
+                #base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100"
+                #mc = "Summer16"; period = "2016"
+                #plotname = "orig_"
 
                 #base_cuts = "MHT<200"
                 #mc = "Summer16.QCD"; period = "2016"
