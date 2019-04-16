@@ -1,11 +1,11 @@
 #Each law is nSigma variation(1:up, -1:down)
-#Btag	JES JER	ISR 
-0   0	0   0
-1   0	0   0
-0   1 	0   0	
-0   0 	1   0
-0   0 	0   1
--1  0	0   0
-0   -1	0   0	
-0   0	-1  0
-0   0	0   -1
+#Line start with '#' will be ignored in code
+Nominal	    0   0   0   0
+BtagUp	    1   0   0   0
+JesUp	    0   1   0   0	
+JerUp	    0   0   1   0
+IsrUp	    0   0   0   1
+BtagDown    -1  0   0   0
+JesDown	    0   -1  0   0	
+JerDown	    0   0   -1  0
+IsrDown	    0   0   0   -1
