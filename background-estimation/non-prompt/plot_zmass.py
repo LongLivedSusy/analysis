@@ -12,7 +12,7 @@ samples = {
     "rare": {"select": "Summer16.ST|Summer16.GJets", "type": "bg", "color": 15},
           }
 
-folder = "output_skim22_merged"
+folder = "output_skim_23_merged"
 
 cuts_cr = "passesUniversalSelection==1 && HT>100 && PFCaloMETRatio<5 && MHT>250 && n_jets>0 && n_leptons==0 && n_DT==0"
 

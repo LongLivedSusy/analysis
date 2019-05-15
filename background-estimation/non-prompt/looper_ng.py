@@ -146,7 +146,11 @@ def getBinContent_with_overflow_1D(histo, xval):
     return value
 
 
-def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, only_fakerate = False, verbose = False, iEv_start = False, fakerate_regions = ["dilepton", "qcd"], fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "n_DT"], loose_dxy = False):
+def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, only_fakerate = False, verbose = False, iEv_start = False, loose_dxy = False):
+
+    #fakerate_regions = ["dilepton", "qcd", "dilepton_short", "dilepton_long", "qcd_short", "qcd_long"]
+    fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
+    fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated", "n_DT"]
 
     if not only_fakerate and not fakerate_file:
         print "Missing fake rate file! Ignoring..."
@@ -205,6 +209,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     integer_branches.append("dilepton_CR")
     integer_branches.append("qcd_CR")
     integer_branches.append("qcd_sideband_CR")
+    integer_branches.append("meta_CR")
     integer_branches.append("dilepton_leptontype")
     if only_fakerate:
         float_branches.append("MHT_cleaned")
@@ -217,7 +222,6 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         integer_branches.append("region_noDT")
         integer_branches.append("region_noDT_ext")
         integer_branches.append("region_noDT_ext2")
-        integer_branches.append("meta_CR")
     integer_branches.append("passesUniversalSelection")
     integer_branches.append("n_genLeptons")
     integer_branches.append("n_genElectrons")
@@ -265,6 +269,20 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks_is_disappearing_track"] = 0
     tree_branch_values["tracks_is_reco_lepton"] = 0
 
+    tree_branch_values["tracks_trkMiniRelIso"] = 0    
+    tree_branch_values["tracks_trackJetIso"] = 0
+    tree_branch_values["tracks_ptError"] = 0
+    tree_branch_values["tracks_passPFCandVeto"] = 0
+    tree_branch_values["tracks_neutralPtSum"] = 0
+    tree_branch_values["tracks_neutralWithoutGammaPtSum"] = 0
+    tree_branch_values["tracks_minDrLepton"] = 0
+    tree_branch_values["tracks_matchedCaloEnergyJets"] = 0
+    tree_branch_values["tracks_deDxHarmonic2pixel"] = 0
+    tree_branch_values["tracks_deDxHarmonic2strips"] = 0
+    tree_branch_values["tracks_chi2perNdof"] = 0
+    tree_branch_values["tracks_chargedPtSum"] = 0
+    tree_branch_values["tracks_charge"] = 0
+
     #tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
     tout.Branch('tracks_is_pixel_track', 'std::vector<int>', tree_branch_values["tracks_is_pixel_track"])
     tout.Branch('tracks_pixelLayersWithMeasurement', 'std::vector<int>', tree_branch_values["tracks_pixelLayersWithMeasurement"])
@@ -298,8 +316,19 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tout.Branch('tracks_is_disappearing_track', 'std::vector<int>', tree_branch_values["tracks_is_disappearing_track"])
     tout.Branch('tracks_is_reco_lepton', 'std::vector<int>', tree_branch_values["tracks_is_reco_lepton"])
 
-    # for each event, first fill this list for each track         
-    track_level_output = []
+    tout.Branch('tracks_trkMiniRelIso', 'std::vector<double>', tree_branch_values["tracks_trkMiniRelIso"])
+    tout.Branch('tracks_trackJetIso', 'std::vector<double>', tree_branch_values["tracks_trackJetIso"])
+    tout.Branch('tracks_ptError', 'std::vector<double>', tree_branch_values["tracks_ptError"])
+    tout.Branch('tracks_passPFCandVeto', 'std::vector<int>', tree_branch_values["tracks_passPFCandVeto"])
+    tout.Branch('tracks_neutralPtSum', 'std::vector<double>', tree_branch_values["tracks_neutralPtSum"])
+    tout.Branch('tracks_neutralWithoutGammaPtSum', 'std::vector<double>', tree_branch_values["tracks_neutralWithoutGammaPtSum"])
+    tout.Branch('tracks_minDrLepton', 'std::vector<double>', tree_branch_values["tracks_minDrLepton"])
+    tout.Branch('tracks_matchedCaloEnergyJets', 'std::vector<double>', tree_branch_values["tracks_matchedCaloEnergyJets"])
+    tout.Branch('tracks_deDxHarmonic2pixel', 'std::vector<double>', tree_branch_values["tracks_deDxHarmonic2pixel"])
+    tout.Branch('tracks_deDxHarmonic2strips', 'std::vector<double>', tree_branch_values["tracks_deDxHarmonic2strips"])
+    tout.Branch('tracks_chi2perNdof', 'std::vector<double>', tree_branch_values["tracks_chi2perNdof"])
+    tout.Branch('tracks_chargedPtSum', 'std::vector<double>', tree_branch_values["tracks_chargedPtSum"])
+    tout.Branch('tracks_charge', 'std::vector<int>', tree_branch_values["tracks_charge"])
 
     # BDT configuration:
     readerPixelOnly = 0
@@ -347,19 +376,19 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         # get all fakerate histograms:
         h_fakerates = {}
         for region in fakerate_regions:
-                for category in ["short", "long"]:
+                for category in ["", "short", "long"]:
                     for variable in fakerate_variables:
                         if region == "dilepton":
                             variable = variable.replace("HT", "HT_cleaned")
                         else:
                             variable = variable.replace("_cleaned", "")
 
-                        for htype in ["fakerate"]:
-                            hist_name = region + "/" + data_period + "/" + category + "/%s_" % htype + variable.replace(":", "_")
-                            try:
-                                h_fakerates[hist_name] = fakerate_file.Get(hist_name)
-                            except:
-                                print "Error reading fakerate:", hist_name
+                        hist_name = region + "/" + data_period + "/" + category + "/fakerate_" + variable.replace(":", "_")
+                        hist_name = hist_name.replace("//", "/")
+                        try:
+                            h_fakerates[hist_name] = fakerate_file.Get(hist_name)
+                        except:
+                            print "Error reading fakerate:", hist_name
 
         # add all raw fakerate branches:        
         for region in fakerate_regions:
@@ -369,10 +398,9 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 else:
                     variable = variable.replace("_cleaned", "")
 
-                for htype in ["fakerate"]:
-                    branch_name = "%s_%s_%s" % (htype, region, variable.replace(":", "_"))
-                    tree_branch_values[branch_name] = array( 'f', [ 0 ] )
-                    tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
+                branch_name = "fakerate_%s_%s" % (region, variable.replace(":", "_"))
+                tree_branch_values[branch_name] = array( 'f', [ 0 ] )
+                tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
 
     # main loop over events:
     for iEv, event in enumerate(tree):
@@ -550,6 +578,9 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         n_DT = 0
         n_DT_actualfake = 0
 
+        # for each event, first fill this list for each track         
+        track_level_output = []
+
         for iCand in range(len(event.tracks)):
 
             # set up booleans
@@ -632,6 +663,8 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             is_tau_bg_wideDR = False
             if keep_track:
 
+                #print "Found DT"
+
                 # check MC Truth for prompt/non-prompt background:
                 if not is_data:
                     for k in range(len(event.GenParticles)):
@@ -684,7 +717,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
                     print "Found disappearing track in event %s, charged genLeptons in cone: %s" % (iEv, charged_genlepton_in_track_cone)
 
-                track_level_output.append(
+                    track_level_output.append(
                                            {
                                              #"tracks": event.tracks[iCand],
                                              "tracks_is_pixel_track": is_pixel_track,
@@ -715,8 +748,25 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                              "tracks_is_baseline_track": is_baseline_track,
                                              "tracks_is_disappearing_track": is_disappearing_track,
                                              "tracks_is_reco_lepton": is_reco_lepton,
+                                             "tracks_trkMiniRelIso": event.tracks_trkMiniRelIso[iCand],
+                                             "tracks_trackJetIso": event.tracks_trackJetIso[iCand],
+                                             "tracks_ptError": event.tracks_ptError[iCand],
+                                             "tracks_passPFCandVeto": bool(event.tracks_passPFCandVeto[iCand]),
+                                             "tracks_neutralPtSum": event.tracks_neutralPtSum[iCand],
+                                             "tracks_neutralWithoutGammaPtSum": event.tracks_neutralWithoutGammaPtSum[iCand],
+                                             "tracks_minDrLepton": event.tracks_minDrLepton[iCand],
+                                             "tracks_matchedCaloEnergyJets": event.tracks_matchedCaloEnergyJets[iCand],
+                                             "tracks_deDxHarmonic2pixel": event.tracks_deDxHarmonic2pixel[iCand],
+                                             "tracks_deDxHarmonic2strips": event.tracks_deDxHarmonic2strips[iCand],
+                                             "tracks_chi2perNdof": event.tracks_chi2perNdof[iCand],
+                                             "tracks_chargedPtSum": event.tracks_chargedPtSum[iCand],
+                                             "tracks_charge": event.tracks_charge[iCand],
                                            }
                                           )
+
+        # for loose selection, don't store events without DTs
+        #if only_fakerate and loose_dxy and n_DT==0:
+        #    continue
 
         # evaluate fake rate for each event:
         if not only_fakerate and fakerate_file:
@@ -743,13 +793,16 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     else:
                         variable = variable.replace("_cleaned", "")
                     
+                    #FIXME: no interpolation available for dilepton FRR
+                    if fr_region == "dilepton" and "interpolated" in variable:
+                        continue
+                    
                     hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
                     
                     if variable == "n_DT":
                         FR = getBinContent_with_overflow_1D(h_fakerates[hist_name], 1)
 
                     elif ":" in variable:
-                                                        
                         xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
                         yvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[0])
                                                 
@@ -763,6 +816,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
         # check if genLeptons are present in event:
         if not only_fakerate and not is_data:
+
             n_genLeptons = 0
             n_genElectrons = 0
             n_genMuons = 0
@@ -833,7 +887,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values["tracks_nValidPixelHits"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_nValidTrackerHits"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_nValidPixelHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nValidTrackerHits"] = ROOT.std.vector(int)(n_tracks)
+        tree_branch_values["tracks_nValidTrackerHits"] = ROOT.std.vector(int)(n_tracks)        
         tree_branch_values["tracks_actualfake"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_promptbg"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_promptelectron"] = ROOT.std.vector(int)(n_tracks)
@@ -853,6 +907,20 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values["tracks_is_baseline_track"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_is_disappearing_track"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_is_reco_lepton"] = ROOT.std.vector(int)(n_tracks)
+        tree_branch_values["tracks_trkMiniRelIso"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_trackJetIso"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_ptError"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_passPFCandVeto"] = ROOT.std.vector(int)(n_tracks)
+        tree_branch_values["tracks_neutralPtSum"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_neutralWithoutGammaPtSum"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_minDrLepton"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_matchedCaloEnergyJets"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_deDxHarmonic2pixel"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_deDxHarmonic2strips"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_chi2perNdof"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_chargedPtSum"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_charge"] = ROOT.std.vector(int)(n_tracks)
+        
 
         # register track-level branches:
         for label in tree_branch_values:

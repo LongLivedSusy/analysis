@@ -3,73 +3,40 @@ import os
 from ROOT import *
 from plotting import *
 import collections
+import multiprocessing 
 
-def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, selected_region = "", data = "Summer16", mc = "Run2016_MET", variable = "", xlabel = "", extra_text = "", nBinsX = False, xmin = False, xmax = False, ymin = False, ymax = False, fakerate_map = "HT_n_allvertices", base_cuts = "PFCaloMETRatio<5", numevents = -1):
-    
-    if selected_region == "zeroleptons":
-        base_cuts += " && n_leptons==0 "
-    elif selected_region == "onelepton":
-        base_cuts += " && n_leptons==1 "
-    elif selected_region == "meta":
-        base_cuts += " && meta_CR==1 "
-
-    # get all histograms:
+def closure_plot(variable, folder, file_label, regions, selected_mc, selected_data, base_cuts, fakerate_map, extra_text, nBinsX, xmin, xmax, category, rootfile="control.root", lumi=135.0, xlabel=False, ymin=False, ymax=False, autoscaling=True, numevents=-1):
+   
     histos = collections.OrderedDict()
+
+    category_cuts = ""
+    if category == "short":
+        category_cuts = " && tracks_is_pixel_track==1"
+    elif category == "long":
+        category_cuts = " && tracks_is_pixel_track==0"
+
+    histos["mc_prompt"] = get_histogram(variable, base_cuts + category_cuts + " && n_DT>0 && n_DT_actualfake==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_mc, numevents=numevents)
+    histos["mc_nonprompt"] = get_histogram(variable, base_cuts + category_cuts + " && n_DT==n_DT_actualfake && n_DT_actualfake>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_mc, numevents=numevents)
+
     for data_type in ["mc", "data"]:
 
+        if data_type == "data" and selected_data == "":
+            continue
+
         if data_type == "mc":
-            selected_sample = mc
+            selected_sample = selected_mc
         else:
-            selected_sample = data
-        if not selected_sample: continue
+            selected_sample = selected_data
 
-        if variable != "region":
+        histos["%s_CR" % data_type] = get_histogram(variable, base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample, numevents=numevents)
+        for region in regions:
 
-            #histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            #histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            #histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            #histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts + " && n_DT==0", scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
+            if len(category)>0: region = region + "_" + category
 
-            histos["%s_noDT" % data_type] = get_histogram(variable, base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram(variable, base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_qcd" % data_type] = get_histogram(variable, base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram(variable, base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-
-        else:
-
-            histos["%s_noDT" % data_type] = get_histogram("region_noDT", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            h_region_ext = get_histogram("region_noDT_ext", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT" % data_type].Add(h_region_ext)
-            histos["%s_noDT" % data_type].Add(h_region_ext2)
-
-            histos["%s_noDT_xFR_dilepton" % data_type] = get_histogram("region_noDT", base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            h_region_ext = get_histogram("region_noDT_ext", base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, scaling="*fakerate_dilepton_%s" % fakerate_map.replace("HT", "HT_cleaned"), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_dilepton" % data_type].Add(h_region_ext)
-            histos["%s_noDT_xFR_dilepton" % data_type].Add(h_region_ext2)
-                    
-            histos["%s_noDT_xFR_qcd" % data_type] = get_histogram("region_noDT", base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            h_region_ext = get_histogram("region_noDT_ext", base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, scaling="*fakerate_qcd_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-            histos["%s_noDT_xFR_qcd" % data_type].Add(h_region_ext)
-            histos["%s_noDT_xFR_qcd" % data_type].Add(h_region_ext2)
-                
-        histos["%s_noDT_xFR_qcd_sideband" % data_type] = get_histogram("region_noDT", base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-        h_region_ext = get_histogram("region_noDT_ext", base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-        h_region_ext2 = get_histogram("region_noDT_ext2", base_cuts, scaling="*fakerate_qcd_sideband_%s" % fakerate_map, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=selected_sample)
-        histos["%s_noDT_xFR_qcd_sideband" % data_type].Add(h_region_ext)
-        histos["%s_noDT_xFR_qcd_sideband" % data_type].Add(h_region_ext2)
-
-    passpionveto = " && ((n_DT==1 && DT1_passpionveto==1) || (n_DT==2 && DT1_passpionveto==1 && DT2_passpionveto==1)) "
-
-    #histos["mc"] = get_histogram(variable, base_cuts + passpionveto + " && n_DT>0 ", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
-    histos["mc_prompt"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_promptbg==1) || (n_DT==2 && DT1_promptbg==1 && DT2_promptbg==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
-    #histos["mc_tau"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_prompttau==1) || (n_DT==2 && DT1_prompttau==1 && DT2_prompttau==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
-    #histos["mc_tauwide"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_prompttau==0 && DT1_prompttau_wideDR==1) || (n_DT==2 && DT1_prompttau==0 && DT1_prompttau_wideDR==1 && DT2_prompttau==0 && DT2_prompttau_wideDR==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
-    histos["mc_actualfakes"] = get_histogram(variable, base_cuts + passpionveto + " && ((n_DT==1 && DT1_actualfake==1) || (n_DT==2 && DT1_actualfake==1 && DT2_actualfake==1))", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, numevents=numevents, selected_sample=mc)
-
+            histos["%s_prediction_%s" % (data_type, region)] = get_histogram(variable, base_cuts, scaling="*fakerate_%s_%s" % (region, fakerate_map), nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_sample, numevents=numevents)
+         
     colors = [kBlack, kBlue, kRed, kBlack, kRed, kGreen, kGreen+2, kBlue+2, kAzure, kRed, kRed, kGreen, kGreen+2, kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed]
+
 
     for label in histos:
         histos[label].SetLineWidth(2)
@@ -79,7 +46,7 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
         if not "data" in label:
             histos[label].Scale(lumi)
 
-        if "xFR" in label or "data" in label:
+        if "prediction" in label or "data" in label:
             histos[label].SetMarkerStyle(22)
             histos[label].SetMarkerColor(color)
             histos[label].SetMarkerSize(1)
@@ -104,8 +71,7 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
     pad2.Draw()
     pad1.cd()
 
-    # y axis autoscaler
-    if True:
+    if autoscaling:
         global_ymin = 1e10
         global_ymax = 1e-10
         for histo in histos:
@@ -123,74 +89,42 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
             ymin = global_ymin * 1e-1
             ymax = global_ymax
 
-    histos["mc_noDT"].Draw("hist e")
-    histos["mc_noDT"].SetFillColor(0)
-    if not data:
-        histos["mc_noDT"].SetLineColor(16)
-    else:
-        histos["mc_noDT"].SetLineColor(1)
-    histos["mc_noDT"].Scale(1.0/1e2)
+    histos["mc_CR"].Draw("hist e")
+    histos["mc_CR"].SetFillColor(0)
+    histos["mc_CR"].SetLineColor(16)
+
     if xmax:
-        histos["mc_noDT"].GetXaxis().SetRangeUser(xmin, xmax)
+        histos["mc_CR"].GetXaxis().SetRangeUser(xmin, xmax)
     if ymax:
-        histos["mc_noDT"].GetYaxis().SetRangeUser(ymin, ymax)
-    histos["mc_noDT"].GetXaxis().SetLabelSize(0)   
-    histos["mc_noDT"].SetTitle(";;events")
+        histos["mc_CR"].GetYaxis().SetRangeUser(ymin, ymax)
+    histos["mc_CR"].GetXaxis().SetLabelSize(0)   
+    histos["mc_CR"].SetTitle(";;events")
 
-    if not data:
-        #histos["mc"].Draw("same hist e")
-        #histos["mc"].SetFillStyle(3003)
-        histos["mc_prompt"].Draw("same hist e")
-        histos["mc_prompt"].SetFillStyle(3003)
-        #histos["mc_tau"].Draw("same hist e")
-        #histos["mc_tau"].SetFillStyle(3003)
-        #histos["mc_tauwide"].Draw("same hist e")
-        #histos["mc_tauwide"].SetFillStyle(3003)
-
-    histos["mc_actualfakes"].Draw("same hist e")
-    histos["mc_actualfakes"].SetFillStyle(3003)
-
-    histos["mc_noDT_xFR_dilepton"].Draw("same p")
-    histos["mc_noDT_xFR_qcd"].Draw("same p")
-    histos["mc_noDT_xFR_qcd_sideband"].Draw("same p")
-
-    # draw data:
-    if data:
-        histos["data_noDT_xFR_dilepton"].Draw("same p")
-        histos["data_noDT_xFR_dilepton"].SetMarkerStyle(20)
-        histos["data_noDT_xFR_dilepton"].SetMarkerColor(kRed)
-        histos["data_noDT_xFR_dilepton"].SetLineColorAlpha(0, 0)
-
-        histos["data_noDT_xFR_qcd"].Draw("same p")
-        histos["data_noDT_xFR_qcd"].SetMarkerStyle(20)
-        histos["data_noDT_xFR_qcd"].SetMarkerColor(kOrange)
-        histos["data_noDT_xFR_qcd"].SetLineColorAlpha(0, 0)
-
-        histos["data_noDT"].Draw("same p")
-        histos["data_noDT"].SetMarkerStyle(20)
-        histos["data_noDT"].SetMarkerColor(kBlack)
-        histos["data_noDT"].SetLineColorAlpha(0, 0)
+    histos["mc_prompt"].Draw("same hist e")
+    histos["mc_prompt"].SetFillStyle(3003)
+    histos["mc_nonprompt"].Draw("same hist e")
+    histos["mc_nonprompt"].SetFillStyle(3003)
 
     legend = TLegend(0.4, 0.7, 0.89, 0.89)
+    legend.SetHeader(extra_text)
     legend.SetTextSize(0.025)
-    legend.AddEntry(histos["mc_noDT"], "control region (CR) / 100")
-    if not data:
-        #legend.AddEntry(histos["mc"], "signal region (SR)")
-        legend.AddEntry(histos["mc_prompt"], "prompt background in SR (MC Truth)")
-        #legend.AddEntry(histos["mc_tau"], "#tau background in SR (MC Truth)")
-        #legend.AddEntry(histos["mc_tauwide"], "#tau wide DR background in SR (MC Truth)")
-    legend.AddEntry(histos["mc_actualfakes"], "non-prompt background in SR (MC Truth)")
-    legend.AddEntry(histos["mc_noDT_xFR_dilepton"], "prediction using CR (dilepton region)")
-    legend.AddEntry(histos["mc_noDT_xFR_qcd"], "prediction using CR (QCD-only)")
-    legend.AddEntry(histos["mc_noDT_xFR_qcd_sideband"], "prediction using CR (QCD sideband)")
-    if data:
-        legend.AddEntry(histos["data_noDT"], "control region (Data)")
-        legend.AddEntry(histos["data_noDT_xFR_dilepton"], "prediction from data (dilepton region)")
-        legend.AddEntry(histos["data_noDT_xFR_qcd"], "prediction from data (QCD region)")
+    legend.AddEntry(histos["mc_CR"], "control region (CR)")
+    legend.AddEntry(histos["mc_prompt"], "prompt background in SR (MC Truth)")
+    legend.AddEntry(histos["mc_nonprompt"], "non-prompt background in SR (MC Truth)")
     legend.SetBorderSize(0)
 
-    if extra_text != "":
-        legend.SetHeader(extra_text)
+    for label in histos:
+        if "prediction" in label:
+
+            legend.AddEntry(histos[label], label)
+
+            if "mc" in label:
+                histos[label].Draw("same p")   
+
+            if "data" in label:
+                histos[label].SetMarkerStyle(20)
+                histos[label].SetMarkerColor(kOrange)
+                histos[label].SetLineColorAlpha(0, 0)
 
     legend.Draw()
 
@@ -207,111 +141,129 @@ def control_plot(folder, file_label, rootfile = "control.root", lumi = 135.0, se
 
     # plot ratios
     pad2.cd()
-    ratio_dilepton = histos["mc_noDT_xFR_dilepton"].Clone()
-    ratio_dilepton.Divide(histos["mc_actualfakes"])
-    if xmax:
-        ratio_dilepton.GetXaxis().SetRangeUser(xmin, xmax)
-    ratio_dilepton.Draw("e0")
 
-    ratio_qcd = histos["mc_noDT_xFR_qcd"].Clone()
-    ratio_qcd.Divide(histos["mc_actualfakes"])
-    if xmax:
-        ratio_qcd.GetXaxis().SetRangeUser(xmin, xmax)
-    ratio_qcd.Draw("same e0")
-
-    ratio_qcd_sideband = histos["mc_noDT_xFR_qcd_sideband"].Clone()
-    ratio_qcd_sideband.Divide(histos["mc_actualfakes"])
-    if xmax:
-        ratio_qcd_sideband.GetXaxis().SetRangeUser(xmin, xmax)
-    ratio_qcd_sideband.Draw("same e0")
-
-    if xlabel == "":
+    if not xlabel:
         xlabel = variable
 
-    ratio_dilepton.SetTitle(";%s;Pred./Truth" % xlabel)
+    ratios = collections.OrderedDict()
+    for i, label in enumerate(histos):
+        if "prediction" in label:
+            ratios[label] = histos[label].Clone()
+            ratios[label].Divide(histos["mc_nonprompt"])
+            if xmax:
+                ratios[label].GetXaxis().SetRangeUser(xmin, xmax)
+
+            if i==0:
+                ratios[label].Draw("e0")
+            else:
+                ratios[label].Draw("same e0")
+
+            ratios[label].SetTitle(";%s;Pred./Truth" % xlabel)
+            ratios[label].GetXaxis().SetTitleSize(0.13)
+            ratios[label].GetYaxis().SetTitleSize(0.13)
+            ratios[label].GetYaxis().SetTitleOffset(0.38)
+            ratios[label].GetYaxis().SetRangeUser(0,2)
+            ratios[label].GetYaxis().SetNdivisions(4)
+            ratios[label].GetXaxis().SetLabelSize(0.15)
+            ratios[label].GetYaxis().SetLabelSize(0.15)
+
     pad2.SetGridx(True)
     pad2.SetGridy(True)
-    ratio_dilepton.GetXaxis().SetTitleSize(0.13)
-    ratio_dilepton.GetYaxis().SetTitleSize(0.13)
-    ratio_dilepton.GetYaxis().SetTitleOffset(0.38)
-    ratio_dilepton.GetYaxis().SetRangeUser(0,2)
-    ratio_dilepton.GetYaxis().SetNdivisions(4)
-    ratio_dilepton.GetXaxis().SetLabelSize(0.15)
-    ratio_dilepton.GetYaxis().SetLabelSize(0.15)
 
     canvas.Write()
     if not os.path.exists("%s/plots" % folder): os.mkdir("%s/plots" % folder)
     canvas.SaveAs("%s/plots/%s.pdf" % (folder, file_label))
 
+    print "\n ### plot saved in %s/plots/%s.pdf \n" % (folder, file_label)
+
     fout.Close()
 
 
-for folder in ["output_skim22_merged/"]:
+def closure_plot_wrapper(args):
+    return closure_plot(*args)
 
-    #os.system("rm " + folder + "/plots/control.root")
 
-    variables = {#"region": [32, 1, 33],
-                 #"HT": [10, 0, 1000],
+if __name__ == "__main__":
+
+    folder = "output_skim_24_merged/"
+
+    os.system("rm " + folder + "/plots/control.root")
+
+    variables = {
+                 #"region": [32, 1, 33],
+                 "HT": [10, 0, 1000],
+                 #"HT_cleaned": [10, 0, 1000],
                  #"MET": [20, 0, 1000],
                  #"MHT": [10, 0, 1000],
-                 #"n_jets": [20, 0, 20],
+                 #"n_jets": [50, 0, 50],
                  #"n_btags": [15, 0, 15],
-                 #"n_allvertices": [10, 0, 50],
+                 #"n_allvertices": [20, 0, 100],
                  #"n_NVtx": [10, 0, 50],
                  #"MinDeltaPhiMhtJets": [15, 0, 4],
                  #"DT1_is_pixel_track": [2, 0, 2],
-                 "n_DT": [2, 0, 2],
-                 }
+                 #"n_DT": [2, 0, 2],
+                }
 
-    #for fakerate_map in ["HT_n_allvertices", "n_allvertices", "HT", "MHT", "MHT_n_allvertices"]:
-    #for fakerate_map in ["HT_n_allvertices_interpolated"]:
-    #for fakerate_map in ["HT_n_allvertices"]:
-    for fakerate_map in ["n_DT"]:
-    #for fakerate_map in ["n_DT", "HT_n_allvertices_interpolated", "HT:n_allvertices", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets"]:
-    #for fakerate_map in ["NumInteractions", "HT_n_allvertices", "HT_n_allvertices_interpolated", "n_DT"]:
-    #for fakerate_map in ["HT_n_allvertices", "HT_n_allvertices_interpolated", "n_DT"]:
+    cuts = {
+            #"dilepton": ["PFCaloMETRatio<5 && dilepton_CR==1", "Summer16", ""],
+            #"QCD_ZJets_MHT": ["PFCaloMETRatio<5 && MHT<200 && n_leptons==0", "Summer16.QCD|Summer16.ZJetsToNuNu", ""],
+            #"QCD_ZJets_MHT_nogen": ["PFCaloMETRatio<5 && MHT<200 && n_leptons==0 && n_genLeptons==0", "Summer16.QCD", ""],
+            #"QCD_sideband_ZJets_MHT_nogen": ["PFCaloMETRatio<5 && n_leptons==0 && n_genLeptons==0 && qcd_sideband_CR==1", "Summer16.QCD", ""],
+            #"QCD_ZJets_MHT_nogen_test": ["PFCaloMETRatio<5 && n_leptons==0 && n_genLeptons==0", "Summer16.QCD|Summer16.ZJetsToNuNu", ""],
+            #"QCD_ZJets_MHT_nogen": ["PFCaloMETRatio<5", "Summer16", ""],
+            #"QCD_single_lepton": ["PFCaloMETRatio<5 && n_leptons==0 ", "Summer16.QCD_HT200to300", ""],
+            #"QCD_single_lepton_filters": ["PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100 && n_leptons==0 ", "Summer16.QCD", ""],
+            #"QCD_single_lepton_nogen": ["PFCaloMETRatio<5 && n_leptons==0 && n_genLeptons==0", "Summer16.QCD", ""],
+            #"new_QCD_MHT_nogen": ["PFCaloMETRatio<5 && MHT<200 && n_leptons==0 && n_genLeptons==0", "Summer16.QCD", ""],
+            "new_QCD_nogen": ["PFCaloMETRatio<5 && n_leptons==0 && n_genLeptons==0", "Summer16.QCD|Summer16.ZJetsToNuNu", ""],
+           }
 
-        #for region in ["zeroleptons", "onelepton"]:
-        for region in ["zeroleptons"]:
-        #for region in ["onelepton"]:
+    regions = [
+               "qcd",
+               "qcd_sideband",
+               #"dilepton",
+              ]
 
-            for variable in variables:
+    fakerate_maps = [
+                     #"HT",
+                     #"n_allvertices",
+                     "HT_n_allvertices", 
+                     #"n_DT"
+                     #"HT_cleaned",
+                     #"HT_cleaned_n_allvertices", 
+                    ]
 
-                nBinsX = variables[variable][0]
-                xmin = variables[variable][1]
-                xmax = variables[variable][2]
+    categories = [
+                    "",
+                    #"short",
+                    #"long",
+                 ]
 
-                base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100 && n_genLeptons==0"
-                #mc = "Summer16*QCD|ZJetsToNuNu"; period = "2016"
-                mc = "Summer16.QCD_HT200to300"; period = "2016"
-                plotname = "QCD_HT200to300_HT100_noGenLeptons_"
+    overwrite = True
+
+    args = []
+
+    for variable in variables:
+        for fakerate_map in fakerate_maps:
+            for cut in cuts:
+                for category in categories:
+
+                    nBinsX = variables[variable][0]
+                    xmin = variables[variable][1]
+                    xmax = variables[variable][2]
+                    extra_text = cut
+                    plotname = "closure_" + cut + "_" + fakerate_map + "_" + variable + category
+                    base_cuts = cuts[cut][0]
+                    selected_mc = cuts[cut][1]
+                    selected_data = cuts[cut][2]
+             
+                    if not overwrite and os.path.exists(folder + "/plots/%s.pdf" % plotname):
+                        print "already done!"
+                        continue
+
+                    #args.append([variable, folder, plotname, regions, selected_mc, selected_data, base_cuts, fakerate_map, extra_text, nBinsX, xmin, xmax, category])
                 
-                #base_cuts = "PFCaloMETRatio<5 && passesUniversalSelection==1 && HT>100"
-                #mc = "Summer16"; period = "2016"
-                #plotname = "orig_"
+                    closure_plot(variable, folder, plotname, regions, selected_mc, selected_data, base_cuts, fakerate_map, extra_text, nBinsX, xmin, xmax, category)
 
-                #base_cuts = "MHT<200"
-                #mc = "Summer16.QCD"; period = "2016"
-                #mc = "Fall17"; period = "2017"
-                #mc = "Fall17"; period = "2018"
-                #plotname = "QCD_check_"
-         
-                if region == "onelepton":
-                    data = "Run%s_SingleElectron" % period
-                    extra_text = "n_{leptons} = 1"
-                elif region == "zeroleptons":
-                    data = "Run%s_MET" % period
-                    extra_text = "n_{leptons} = 0"
-                elif region == "meta":
-                    data = "Run%s_SingleElectron" % period
-                    extra_text = "meta control region"
-
-                extra_text += ", cuts: %s" % base_cuts.replace("passesUniversalSelection", "passFilters")
-
-                plotname += "closure_" + period + "_" + fakerate_map + "_" + region + "_" + variable
-
-                if False and os.path.exists(folder + "/plots/%s.pdf" % plotname):
-                    print "already done :-)"
-                    continue
-            
-                control_plot(folder, plotname, variable=variable, data=False, mc=mc, selected_region=region, extra_text=extra_text, nBinsX=nBinsX, xmin=xmin, xmax=xmax, fakerate_map=fakerate_map, base_cuts=base_cuts)
+#pool = multiprocessing.Pool(int(multiprocessing.cpu_count() * 0.5))
+#pool.map(closure_plot_wrapper, args) 

@@ -215,9 +215,9 @@ ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sid
         "g1800_chi1400_27_200970_step4_1000",
 ]
 
-#command = "./looper_ng.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
-command = "./looper_ng.py --input $INPUT --output $OUTPUT --only_fakerate"
-output_folder = "output_fakerate_ng_3"
+command = "./looper_ng.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
+#command = "./looper_ng.py --input $INPUT --output $OUTPUT --only_fakerate"
+output_folder = "output_fakerate_5_loose"
 commands = []
 for folder in ntuples:
 

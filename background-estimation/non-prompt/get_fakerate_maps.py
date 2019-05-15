@@ -36,7 +36,7 @@ def get_interpolated_histogram(histo):
     return interpolated_histo
 
 
-def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, selected_sample, extra_text, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False, denominator_cuts=""):
+def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, selected_sample, extra_text, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False, denominator_cuts="", threads=-1):
 
     print "## Doing", variable, selected_sample, extra_text
 
@@ -76,11 +76,11 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         ymax = binning[variable2][2]
         
     if plot2D:
-        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts + " && n_DT>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample)
-        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts + " && n_DT==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample)
+        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts + " && n_DT>0 && tracks_dxyVtx<0.02", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts + " && n_DT==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
     else:
-        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts + " && n_DT>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
-        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts + " && n_DT==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
+        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts + " && n_DT>0 && tracks_dxyVtx<0.02", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts + " && n_DT==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
 
     try:
         print fakes_numerator.GetEntries()
@@ -118,7 +118,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
     fake_rate.Write()
     
     # also save interpolated histogram:
-    if plot2D:
+    if False and plot2D:
         fake_rate_interpolated = get_interpolated_histogram(fake_rate)
         fake_rate_interpolated.SetName("fakerate_%s_interpolated" % (variable.replace(":", "_")))
         fake_rate_interpolated.SetDirectory(gDirectory)
@@ -159,12 +159,13 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 if __name__ == "__main__":
 
-    path = "output_fakerate_ng_3_merged/"
+    path = "output_fakerate_4_loose_merged/"
     #path = "output_fakerate_ng_3_loosedxy_merged/"
-    #base_cuts = "PFCaloMETRatio<5"
-    base_cuts = "HT>0"        
+    base_cuts = "PFCaloMETRatio<5"        
     rootfile = path + "/fakerate.root"
     
+    #os.system("rm %s" % rootfile)
+
     for configuration in ["2016MC"]:
 
         if configuration == "2016MC":
@@ -182,35 +183,38 @@ if __name__ == "__main__":
         cut_is_short_track = " && tracks_is_pixel_track==1 "
         cut_is_long_track  = " && tracks_is_pixel_track==0 "
                
-        variable_original = ""
- 
         #for variable in ["HT:n_allvertices", "MHT:n_allvertices", "n_allvertices", "MHT", "HT", "NumInteractions", "n_jets", "n_btags", "MinDeltaPhiMhtJets", "n_DT"]:
         for variable in ["HT", "n_allvertices", "HT:n_allvertices", "n_DT"]:
+        #for variable in ["HT:n_allvertices", "n_DT"]:
         #for variable in ["HT"]:
             
-            #for region in ["qcd", "qcd_sideband", "dilepton"]:
-            for region in ["dilepton"]:
+            for region in ["qcd", "qcd_sideband"]:
+            #for region in ["dilepton"]:
             
+                cuts = ""
+                if base_cuts == "":
+                    cuts = " %s_CR==1" % region
+                else:
+                    cuts = base_cuts + " && %s_CR==1" % region
+
                 current_selected_mc = selected_mc
                 if "qcd" in region:
-                    current_selected_mc = "*QCD"
+                    current_selected_mc += "*QCD"
                     data_stream = "JetHT"
                 elif "dilepton" in region:
                     data_stream = "SingleElectron"
 
                 if "dilepton" in region:
-                    variable_original = variable
-                    variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned") 
+                    my_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned") 
+                else:
+                    my_variable = variable
 
-                get_fakerate(path, variable, rootfile, "%s/%s" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, "", current_selected_mc, "MC")
-                #get_fakerate(path, variable, rootfile, "%s/%s/short" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_short_track, current_selected_mc, "MC, pixel-only tracks")
-                #get_fakerate(path, variable, rootfile, "%s/%s/long" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_long_track, current_selected_mc, "MC, pixel+strips tracks")
+                get_fakerate(path, my_variable, rootfile, "%s/%s" % (region, selected_mc), cuts, "", current_selected_mc, "MC")
+                get_fakerate(path, my_variable, rootfile, "%s_short/%s" % (region, selected_mc), cuts, cut_is_short_track, current_selected_mc, "MC, pixel-only tracks")
+                get_fakerate(path, my_variable, rootfile, "%s_long/%s" % (region, selected_mc), cuts, cut_is_long_track, current_selected_mc, "MC, pixel+strips tracks")
                 
                 for period in data_periods:
-                    get_fakerate(path, variable, rootfile, "%s/%s" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, "", "%s*%s" % (period, data_stream), "%s" % period)
-                    #get_fakerate(path, variable, rootfile, "%s/%s/short" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_short_track, "%s*%s" % (period, data_stream), "%s, pixel-only tracks" % period)
-                    #get_fakerate(path, variable, rootfile, "%s/%s/long" % (region, current_selected_mc), base_cuts + " && %s_CR==1" % region, cut_is_long_track, "%s*%s" % (period, data_stream), "%s, pixel+strips tracks" % period)
-
-                if "dilepton" in region:
-                    variable = variable_original
+                    get_fakerate(path, my_variable, rootfile, "%s/%s" % (region, selected_mc), cuts, "", "%s*%s" % (period, data_stream), "%s" % period)
+                    get_fakerate(path, my_variable, rootfile, "%s_short/%s" % (region, selected_mc), cuts, cut_is_short_track, "%s*%s" % (period, data_stream), "%s, pixel-only tracks" % period)
+                    get_fakerate(path, my_variable, rootfile, "%s_long/%s" % (region, selected_mc), cuts, cut_is_long_track, "%s*%s" % (period, data_stream), "%s, pixel+strips tracks" % period)
                    

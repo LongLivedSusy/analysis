@@ -43,16 +43,21 @@ def stamp_plot():
     tl.SetTextSize(1.0/0.81*tl.GetTextSize())
 
 
-def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False):
+def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1):
 
     hName = str(uuid.uuid1()).replace("-", "")
+
+    canvas = TCanvas("c_" + hName)
 
     if not nBinsY:
         histo = TH1F(hName, hName, nBinsX, xmin, xmax)
     else:
         histo = TH2F(hName, hName, nBinsX, xmin, xmax, nBinsY, ymin, ymax)
 
-    tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions)
+    if numevents>0:
+        tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions, numevents)
+    else:
+        tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions)
 
     # add overflow bin(s) for 1D and 2D histograms:
     if not nBinsY:
@@ -104,12 +109,11 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
 
     if numevents>0:
         print "Limiting to %s events" % numevents
-        cutstring += " && Entry$<%s " % numevents
 
     if not nBinsY:
-        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax)
+        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, numevents=numevents)
     else:
-        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax)
+        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
 
     # divide by number of total events in sample
     if not is_data:
@@ -206,21 +210,30 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
 
     try:
 
-        if threads == -1:
-            pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.5))
+        all_histograms = []
+
+        if threads != 1:
+            if threads == -1:
+                # start thread pool with half of all cores
+                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.33))
+            else:
+                # start thread pool with specified number of cores
+                pool = multiprocessing.Pool(threads)
+            all_histograms = pool.map(get_histogram_from_file_wrapper, pool_args)       
+           
+            pool.close()
+
         else:
-            pool = multiprocessing.Pool(threads)
-        
-        all_histograms = pool.map(get_histogram_from_file_wrapper, pool_args)
-               
+            # don't use multithreading
+            for pool_arg in pool_args:
+                all_histograms.append( get_histogram_from_file_wrapper(pool_arg) )
+
         for histogram in all_histograms:   
         
             if h_combined == 0:
                 h_combined = histogram
             else:
-                h_combined.Add(histogram)
-        
-        pool.close()
+                h_combined.Add(histogram)   
         
     except Exception, error:    
         

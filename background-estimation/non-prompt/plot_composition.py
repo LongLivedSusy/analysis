@@ -150,40 +150,24 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
    
 if __name__ == "__main__":
 
-    #for CR in [False, "qcd_CR", "qcd_sideband_CR", "dilepton_CR"]:
-    for CR in [False]:
+    #path = "output_fakerate5_merged/"  
+    path = "output_skim22_merged/"
+    base_cuts = "PFCaloMETRatio<5"
+    selected_sample = "Summer16"
 
-        #path = "output_fakerate5_merged/"  
-        path = "output_skim21_v3_merged/"
-        if CR:
-            base_cuts = "PFCaloMETRatio<5 && %s" % (CR + "==1")
-        else:
-            base_cuts = "PFCaloMETRatio<5"
-        selected_sample = "Summer16"
+    base_cuts += " && passesUniversalSelection==1 && PFCaloMETRatio<5 && MHT>250 && n_jets>0 && n_leptons==0"
 
-        #extra_text = base_cuts.replace(" && ", ", ")
-        #extra_text = "n_{lepton}=0, MHT>250 GeV"
+    extra_text = "signal region"
+    suffix = ""
+    
+    # do stacked background plots (stacked by background type):
 
-        if CR and CR=="qcd_CR":
-            extra_text = "QCD events only"
-            suffix = "_QCD"
-        elif CR and CR=="qcd_sideband_CR":
-            extra_text = "QCD events only, 100<MHT<200 GeV"
-            suffix = "_QCD_sideband"
-        elif CR and CR=="dilepton_CR":
-            extra_text = "dilepton region"
-            suffix = "_dilepton"
-        else:
-            extra_text = ""
-            suffix = ""
-        
-        # do stacked background plots (stacked by background type):
+    categories = {"short": " && DT1_is_pixel_track==1", "long": " && DT1_is_pixel_track==0"}
 
-        stack_gendisapptrks("n_DT", 1, 0, 3, xlabel="n_{DT}", path=path, selected_sample=selected_sample, base_cuts = base_cuts, extra_text=extra_text, suffix=suffix)       
-        #stack_gendisapptrks("HT", 50, 0, 1000, xlabel="H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts, extra_text=extra_text, suffix=suffix)
-        #stack_gendisapptrks("MHT", 50, 0, 1000, xlabel="missing H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts, extra_text=extra_text, suffix=suffix)
-        #stack_gendisapptrks("DT1_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + " && DT1_is_pixel_track==1", extra_text=extra_text, suffix=suffix + "_short", ymin=1e-2)
-        #stack_gendisapptrks("DT1_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + " && DT1_is_pixel_track==0", extra_text=extra_text, suffix=suffix + "_long", ymin=1e-2)
-        #stack_gendisapptrks("DT1_is_pixel_track", 1, 0, 2, ymin=5e-3, xlabel="pixel-only track", path=path, selected_sample=selected_sample, base_cuts = base_cuts, extra_text=extra_text, suffix=suffix)    
-        #stack_gendisapptrks("DT1_DT1_passpionveto==1", 1, 0, 2, xlabel="#DeltaR(DT, pion)", path=path, selected_sample=selected_sample, base_cuts = base_cuts, extra_text=extra_text, suffix=suffix)
+    for label in categories:
+        stack_gendisapptrks("n_DT", 1, 0, 3, xlabel="n_{DT}", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)       
+        stack_gendisapptrks("HT", 50, 0, 1000, xlabel="H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
+        stack_gendisapptrks("MHT", 50, 0, 1000, xlabel="missing H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
+        stack_gendisapptrks("DT1_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label, ymin=1e-2)
+
 
