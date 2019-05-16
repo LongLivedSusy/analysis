@@ -237,7 +237,8 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
 
     # add our track vectors:
-    #tree_branch_values["tracks"] = 0
+
+    tree_branch_values["tracks"] = 0
     tree_branch_values["tracks_is_pixel_track"] = 0
     tree_branch_values["tracks_pixelLayersWithMeasurement"] = 0
     tree_branch_values["tracks_trackerLayersWithMeasurement"] = 0
@@ -263,6 +264,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks_ptErrOverPt2"] = 0
     tree_branch_values["tracks_mva"] = 0
     tree_branch_values["tracks_pt"] = 0
+    tree_branch_values["tracks_P"] = 0
     tree_branch_values["tracks_eta"] = 0
     tree_branch_values["tracks_phi"] = 0
     tree_branch_values["tracks_is_baseline_track"] = 0
@@ -283,7 +285,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks_chargedPtSum"] = 0
     tree_branch_values["tracks_charge"] = 0
 
-    #tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
+    tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
     tout.Branch('tracks_is_pixel_track', 'std::vector<int>', tree_branch_values["tracks_is_pixel_track"])
     tout.Branch('tracks_pixelLayersWithMeasurement', 'std::vector<int>', tree_branch_values["tracks_pixelLayersWithMeasurement"])
     tout.Branch('tracks_trackerLayersWithMeasurement', 'std::vector<int>', tree_branch_values["tracks_trackerLayersWithMeasurement"])
@@ -309,6 +311,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tout.Branch('tracks_ptErrOverPt2', 'std::vector<double>', tree_branch_values["tracks_ptErrOverPt2"])
     tout.Branch('tracks_mva', 'std::vector<double>', tree_branch_values["tracks_mva"])
     tout.Branch('tracks_pt', 'std::vector<double>', tree_branch_values["tracks_pt"])
+    tout.Branch('tracks_P', 'std::vector<double>', tree_branch_values["tracks_P"])
     tout.Branch('tracks_eta', 'std::vector<double>', tree_branch_values["tracks_eta"])
     tout.Branch('tracks_phi', 'std::vector<double>', tree_branch_values["tracks_phi"])
 
@@ -719,7 +722,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
                     track_level_output.append(
                                            {
-                                             #"tracks": event.tracks[iCand],
+                                             "tracks": event.tracks[iCand],
                                              "tracks_is_pixel_track": is_pixel_track,
                                              "tracks_pixelLayersWithMeasurement": event.tracks_pixelLayersWithMeasurement[iCand],
                                              "tracks_trackerLayersWithMeasurement": event.tracks_trackerLayersWithMeasurement[iCand],
@@ -737,6 +740,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                              "tracks_ptErrOverPt2": ptErrOverPt2,
                                              "tracks_mva": mva,
                                              "tracks_pt": event.tracks[iCand].Pt(),
+                                             "tracks_P": event.tracks[iCand].P(),
                                              "tracks_eta": event.tracks[iCand].Eta(),
                                              "tracks_phi": event.tracks[iCand].Phi(),
                                              "tracks_promptbg": is_prompt_bg,
@@ -876,7 +880,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
      
         # tree-level variables:
         n_tracks = len(track_level_output)
-        #tree_branch_values["tracks"] = ROOT.std.vector(TLorentzVector)(n_tracks)
+        tree_branch_values["tracks"] = ROOT.std.vector(TLorentzVector)(n_tracks)
         tree_branch_values["tracks_is_pixel_track"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_pixelLayersWithMeasurement"] = ROOT.std.vector(int)(n_tracks)
         tree_branch_values["tracks_trackerLayersWithMeasurement"] = ROOT.std.vector(int)(n_tracks)
@@ -902,6 +906,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values["tracks_ptErrOverPt2"] = ROOT.std.vector(double)(n_tracks)
         tree_branch_values["tracks_mva"] = ROOT.std.vector(double)(n_tracks)
         tree_branch_values["tracks_pt"] = ROOT.std.vector(double)(n_tracks)
+        tree_branch_values["tracks_P"] = ROOT.std.vector(double)(n_tracks)
         tree_branch_values["tracks_eta"] = ROOT.std.vector(double)(n_tracks)
         tree_branch_values["tracks_phi"] = ROOT.std.vector(double)(n_tracks)
         tree_branch_values["tracks_is_baseline_track"] = ROOT.std.vector(int)(n_tracks)
