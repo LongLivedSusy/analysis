@@ -270,7 +270,6 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks_is_baseline_track"] = 0
     tree_branch_values["tracks_is_disappearing_track"] = 0
     tree_branch_values["tracks_is_reco_lepton"] = 0
-
     tree_branch_values["tracks_trkMiniRelIso"] = 0    
     tree_branch_values["tracks_trackJetIso"] = 0
     tree_branch_values["tracks_ptError"] = 0
@@ -314,11 +313,9 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tout.Branch('tracks_P', 'std::vector<double>', tree_branch_values["tracks_P"])
     tout.Branch('tracks_eta', 'std::vector<double>', tree_branch_values["tracks_eta"])
     tout.Branch('tracks_phi', 'std::vector<double>', tree_branch_values["tracks_phi"])
-
     tout.Branch('tracks_is_baseline_track', 'std::vector<int>', tree_branch_values["tracks_is_baseline_track"])
     tout.Branch('tracks_is_disappearing_track', 'std::vector<int>', tree_branch_values["tracks_is_disappearing_track"])
     tout.Branch('tracks_is_reco_lepton', 'std::vector<int>', tree_branch_values["tracks_is_reco_lepton"])
-
     tout.Branch('tracks_trkMiniRelIso', 'std::vector<double>', tree_branch_values["tracks_trkMiniRelIso"])
     tout.Branch('tracks_trackJetIso', 'std::vector<double>', tree_branch_values["tracks_trackJetIso"])
     tout.Branch('tracks_ptError', 'std::vector<double>', tree_branch_values["tracks_ptError"])
