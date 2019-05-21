@@ -6,6 +6,7 @@ from optparse import OptionParser
 import tmva_tools
 import collections
 import json
+import xmltodict
 
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
@@ -81,10 +82,10 @@ def isBaselineTrack(track, itrack, c, hMask, loose_dxy = False):
 	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False
 	if not c.tracks_nMissingInnerHits[itrack]==0: return False
 	if not c.tracks_nMissingMiddleHits[itrack]==0: return False	
-	#if hMask:
-	#	xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
-    #		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
-	#	if hMask.GetBinContent(ibinx, ibiny)==0: return False
+	if hMask:
+		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
+    		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
+		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
 def mkmet(metPt, metPhi):
@@ -148,13 +149,6 @@ def getBinContent_with_overflow_1D(histo, xval):
 
 def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, only_fakerate = False, verbose = False, iEv_start = False, loose_dxy = False):
 
-    #fakerate_regions = ["dilepton", "qcd", "dilepton_short", "dilepton_long", "qcd_short", "qcd_long"]
-    fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
-    fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated", "n_DT"]
-
-    if not only_fakerate and not fakerate_file:
-        print "Missing fake rate file! Ignoring..."
-
     # load tree
     tree = TChain(treename)
     for iFile in event_tree_filenames:
@@ -184,49 +178,20 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tout = TTree("Events", "tout")
 
     # prepare variables for output tree   
-    float_branches = []
-    integer_branches = []
+    float_branches = ["MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass"]
+    integer_branches = ["n_DT", "n_DT_actualfake", "n_jets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "meta_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
     if not is_data:
         float_branches.append("madHT")
         float_branches.append("CrossSection")
         float_branches.append("puWeight")
         float_branches.append("NumInteractions")
-    float_branches.append("MET")
-    float_branches.append("MHT")
-    float_branches.append("HT")
-    float_branches.append("MinDeltaPhiMhtJets")
-    float_branches.append("PFCaloMETRatio")
-    float_branches.append("dilepton_invmass")
-    integer_branches.append("n_DT")
-    integer_branches.append("n_DT_actualfake")
-    integer_branches.append("n_jets")
-    integer_branches.append("n_btags")
-    integer_branches.append("n_leptons")
-    integer_branches.append("n_allvertices")
-    integer_branches.append("n_NVtx")
-    integer_branches.append("EvtNumEven")
-    integer_branches.append("dilepton_CR")
-    integer_branches.append("qcd_CR")
-    integer_branches.append("qcd_sideband_CR")
-    integer_branches.append("meta_CR")
-    integer_branches.append("dilepton_leptontype")
     if only_fakerate:
         float_branches.append("MHT_cleaned")
         float_branches.append("HT_cleaned")
         float_branches.append("MinDeltaPhiMhtJets_cleaned")
         integer_branches.append("n_jets_cleaned")
         integer_branches.append("n_btags_cleaned")
-    else:
-        integer_branches.append("region")
-        integer_branches.append("region_noDT")
-        integer_branches.append("region_noDT_ext")
-        integer_branches.append("region_noDT_ext2")
-    integer_branches.append("passesUniversalSelection")
-    integer_branches.append("n_genLeptons")
-    integer_branches.append("n_genElectrons")
-    integer_branches.append("n_genMuons")
-    integer_branches.append("n_genTaus")
 
     tree_branch_values = {}
     for variable in float_branches:
@@ -235,6 +200,23 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     for variable in integer_branches:
         tree_branch_values[variable] = array( 'i', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
+
+    # add regions vector:
+    region_output = []
+    region_noDT_output = []
+    tree_branch_values["region"] = 0
+    tree_branch_values["region_noDT"] = 0
+    tout.Branch("region", 'std::vector<int>', tree_branch_values["region"])
+    tout.Branch("region_noDT", 'std::vector<int>', tree_branch_values["region_noDT"])
+
+    # get variables of tree
+    track_variables = []
+    for i in range(len(tree.GetListOfBranches())):
+        label = tree.GetListOfBranches()[i].GetName()
+        if "tracks_" in label:
+            track_variables.append(label)
+
+    # todo: use track_variables to get all track properties automatically
 
     # add our track vectors:
     tree_branch_values["tracks"] = 0
@@ -249,6 +231,10 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
+
+    with open('tags.xml') as fd:
+        doc = xmltodict.parse(fd.read())
+    print doc
 
     # BDT configuration:
     readerPixelOnly = 0
@@ -285,10 +271,12 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         if "Run2016" in event_tree_filenames[0]:
             h_mask = mask_file.Get("hEtaVsPhiDT_maskedData-2016Data-2016")
     else:
-        h_mask = ""
+        h_mask = False
 
     # load fake rate histograms:
-    if not only_fakerate:
+    fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
+    fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated", "n_DT"]
+    if not only_fakerate and fakerate_file:
         
         # load fakerate maps:
         fakerate_file = TFile(fakerate_file, "open")
@@ -383,7 +371,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                   
         # reset all branch values:
         for label in tree_branch_values:
-            if "tracks" in label:
+            if "tracks" in label or "region" in label:
                 continue
             if "fakerate" in label:
                 tree_branch_values[label][0] = 0
@@ -700,11 +688,11 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             elif n_DT == 0:
                 region_noDT = get_signal_region(event, MinDeltaPhiMhtJets, 1, False)
                 if region_noDT > 0:
-                    tree_branch_values["region_noDT"][0] = region_noDT
-                    tree_branch_values["region_noDT_ext"][0] = region_noDT + 15
+                    region_noDT_output.append(region_noDT)
+                    region_noDT_output.append(region_noDT + 15)
                 region_noDT_multiple = get_signal_region(event, MinDeltaPhiMhtJets, 2, False)
                 if region_noDT_multiple > 0:
-                    tree_branch_values["region_noDT_ext2"][0] = region_noDT_multiple
+                    region_noDT_output.append(region_noDT_multiple)
 
             # fill all fakerate branches:
             for variable in fakerate_variables:
@@ -818,7 +806,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
      
     fout.cd()
 
-    if not only_fakerate:
+    if not only_fakerate and fakerate_file:
         fakerate_file.Close()
     if mask_file:
         mask_file.Close()
