@@ -237,98 +237,18 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
 
     # add our track vectors:
-
     tree_branch_values["tracks"] = 0
-    tree_branch_values["tracks_is_pixel_track"] = 0
-    tree_branch_values["tracks_pixelLayersWithMeasurement"] = 0
-    tree_branch_values["tracks_trackerLayersWithMeasurement"] = 0
-    tree_branch_values["tracks_nMissingInnerHits"] = 0
-    tree_branch_values["tracks_nMissingMiddleHits"] = 0
-    tree_branch_values["tracks_nMissingOuterHits"] = 0
-    tree_branch_values["tracks_trackQualityHighPurity"] = 0
-    tree_branch_values["tracks_nValidPixelHits"] = 0
-    tree_branch_values["tracks_nValidTrackerHits"] = 0
-    tree_branch_values["tracks_nValidPixelHits"] = 0
-    tree_branch_values["tracks_nValidTrackerHits"] = 0
-    tree_branch_values["tracks_actualfake"] = 0
-    tree_branch_values["tracks_promptbg"] = 0
-    tree_branch_values["tracks_promptelectron"] = 0
-    tree_branch_values["tracks_promptmuon"] = 0
-    tree_branch_values["tracks_prompttau"] = 0
-    tree_branch_values["tracks_prompttau_wideDR"] = 0
-    tree_branch_values["tracks_passpionveto"] = 0    
-    tree_branch_values["tracks_dxyVtx"] = 0
-    tree_branch_values["tracks_dzVtx"] = 0
-    tree_branch_values["tracks_matchedCaloEnergy"] = 0
-    tree_branch_values["tracks_trkRelIso"] = 0
-    tree_branch_values["tracks_ptErrOverPt2"] = 0
-    tree_branch_values["tracks_mva"] = 0
-    tree_branch_values["tracks_pt"] = 0
-    tree_branch_values["tracks_P"] = 0
-    tree_branch_values["tracks_eta"] = 0
-    tree_branch_values["tracks_phi"] = 0
-    tree_branch_values["tracks_is_baseline_track"] = 0
-    tree_branch_values["tracks_is_disappearing_track"] = 0
-    tree_branch_values["tracks_is_reco_lepton"] = 0
-    tree_branch_values["tracks_trkMiniRelIso"] = 0    
-    tree_branch_values["tracks_trackJetIso"] = 0
-    tree_branch_values["tracks_ptError"] = 0
-    tree_branch_values["tracks_passPFCandVeto"] = 0
-    tree_branch_values["tracks_neutralPtSum"] = 0
-    tree_branch_values["tracks_neutralWithoutGammaPtSum"] = 0
-    tree_branch_values["tracks_minDrLepton"] = 0
-    tree_branch_values["tracks_matchedCaloEnergyJets"] = 0
-    tree_branch_values["tracks_deDxHarmonic2pixel"] = 0
-    tree_branch_values["tracks_deDxHarmonic2strips"] = 0
-    tree_branch_values["tracks_chi2perNdof"] = 0
-    tree_branch_values["tracks_chargedPtSum"] = 0
-    tree_branch_values["tracks_charge"] = 0
-
     tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
-    tout.Branch('tracks_is_pixel_track', 'std::vector<int>', tree_branch_values["tracks_is_pixel_track"])
-    tout.Branch('tracks_pixelLayersWithMeasurement', 'std::vector<int>', tree_branch_values["tracks_pixelLayersWithMeasurement"])
-    tout.Branch('tracks_trackerLayersWithMeasurement', 'std::vector<int>', tree_branch_values["tracks_trackerLayersWithMeasurement"])
-    tout.Branch('tracks_nMissingInnerHits', 'std::vector<int>', tree_branch_values["tracks_nMissingInnerHits"])
-    tout.Branch('tracks_nMissingMiddleHits', 'std::vector<int>', tree_branch_values["tracks_nMissingMiddleHits"])
-    tout.Branch('tracks_nMissingOuterHits', 'std::vector<int>', tree_branch_values["tracks_nMissingOuterHits"])
-    tout.Branch('tracks_trackQualityHighPurity', 'std::vector<int>', tree_branch_values["tracks_trackQualityHighPurity"])
-    tout.Branch('tracks_nValidPixelHits', 'std::vector<int>', tree_branch_values["tracks_nValidPixelHits"])
-    tout.Branch('tracks_nValidTrackerHits', 'std::vector<int>', tree_branch_values["tracks_nValidTrackerHits"])
-    tout.Branch('tracks_nValidPixelHits', 'std::vector<int>', tree_branch_values["tracks_nValidPixelHits"])
-    tout.Branch('tracks_nValidTrackerHits', 'std::vector<int>', tree_branch_values["tracks_nValidTrackerHits"])
-    tout.Branch('tracks_actualfake', 'std::vector<int>', tree_branch_values["tracks_actualfake"])
-    tout.Branch('tracks_promptbg', 'std::vector<int>', tree_branch_values["tracks_promptbg"])
-    tout.Branch('tracks_promptelectron', 'std::vector<int>', tree_branch_values["tracks_promptelectron"])
-    tout.Branch('tracks_promptmuon', 'std::vector<int>', tree_branch_values["tracks_promptmuon"])
-    tout.Branch('tracks_prompttau', 'std::vector<int>', tree_branch_values["tracks_prompttau"])
-    tout.Branch('tracks_prompttau_wideDR', 'std::vector<int>', tree_branch_values["tracks_prompttau_wideDR"])
-    tout.Branch('tracks_passpionveto', 'std::vector<int>', tree_branch_values["tracks_passpionveto"])
-    tout.Branch('tracks_dxyVtx', 'std::vector<double>', tree_branch_values["tracks_dxyVtx"])
-    tout.Branch('tracks_dzVtx', 'std::vector<double>', tree_branch_values["tracks_dzVtx"])
-    tout.Branch('tracks_matchedCaloEnergy', 'std::vector<double>', tree_branch_values["tracks_matchedCaloEnergy"])
-    tout.Branch('tracks_trkRelIso', 'std::vector<double>', tree_branch_values["tracks_trkRelIso"])
-    tout.Branch('tracks_ptErrOverPt2', 'std::vector<double>', tree_branch_values["tracks_ptErrOverPt2"])
-    tout.Branch('tracks_mva', 'std::vector<double>', tree_branch_values["tracks_mva"])
-    tout.Branch('tracks_pt', 'std::vector<double>', tree_branch_values["tracks_pt"])
-    tout.Branch('tracks_P', 'std::vector<double>', tree_branch_values["tracks_P"])
-    tout.Branch('tracks_eta', 'std::vector<double>', tree_branch_values["tracks_eta"])
-    tout.Branch('tracks_phi', 'std::vector<double>', tree_branch_values["tracks_phi"])
-    tout.Branch('tracks_is_baseline_track', 'std::vector<int>', tree_branch_values["tracks_is_baseline_track"])
-    tout.Branch('tracks_is_disappearing_track', 'std::vector<int>', tree_branch_values["tracks_is_disappearing_track"])
-    tout.Branch('tracks_is_reco_lepton', 'std::vector<int>', tree_branch_values["tracks_is_reco_lepton"])
-    tout.Branch('tracks_trkMiniRelIso', 'std::vector<double>', tree_branch_values["tracks_trkMiniRelIso"])
-    tout.Branch('tracks_trackJetIso', 'std::vector<double>', tree_branch_values["tracks_trackJetIso"])
-    tout.Branch('tracks_ptError', 'std::vector<double>', tree_branch_values["tracks_ptError"])
-    tout.Branch('tracks_passPFCandVeto', 'std::vector<int>', tree_branch_values["tracks_passPFCandVeto"])
-    tout.Branch('tracks_neutralPtSum', 'std::vector<double>', tree_branch_values["tracks_neutralPtSum"])
-    tout.Branch('tracks_neutralWithoutGammaPtSum', 'std::vector<double>', tree_branch_values["tracks_neutralWithoutGammaPtSum"])
-    tout.Branch('tracks_minDrLepton', 'std::vector<double>', tree_branch_values["tracks_minDrLepton"])
-    tout.Branch('tracks_matchedCaloEnergyJets', 'std::vector<double>', tree_branch_values["tracks_matchedCaloEnergyJets"])
-    tout.Branch('tracks_deDxHarmonic2pixel', 'std::vector<double>', tree_branch_values["tracks_deDxHarmonic2pixel"])
-    tout.Branch('tracks_deDxHarmonic2strips', 'std::vector<double>', tree_branch_values["tracks_deDxHarmonic2strips"])
-    tout.Branch('tracks_chi2perNdof', 'std::vector<double>', tree_branch_values["tracks_chi2perNdof"])
-    tout.Branch('tracks_chargedPtSum', 'std::vector<double>', tree_branch_values["tracks_chargedPtSum"])
-    tout.Branch('tracks_charge', 'std::vector<int>', tree_branch_values["tracks_charge"])
+
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_actualfake', 'tracks_promptbg', 'tracks_promptelectron', 'tracks_promptmuon', 'tracks_prompttau', 'tracks_prompttau_wideDR', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_disappearing_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
+    for branch in vector_int_branches:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
+
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_mva', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_chi2perNdof', 'tracks_chargedPtSum']
+    for branch in vector_float_branches:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
 
     # BDT configuration:
     readerPixelOnly = 0
@@ -878,51 +798,11 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         # tree-level variables:
         n_tracks = len(track_level_output)
         tree_branch_values["tracks"] = ROOT.std.vector(TLorentzVector)(n_tracks)
-        tree_branch_values["tracks_is_pixel_track"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_pixelLayersWithMeasurement"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_trackerLayersWithMeasurement"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nMissingInnerHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nMissingMiddleHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nMissingOuterHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_trackQualityHighPurity"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nValidPixelHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nValidTrackerHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nValidPixelHits"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_nValidTrackerHits"] = ROOT.std.vector(int)(n_tracks)        
-        tree_branch_values["tracks_actualfake"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_promptbg"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_promptelectron"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_promptmuon"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_prompttau"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_prompttau_wideDR"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_passpionveto"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_dxyVtx"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_dzVtx"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_matchedCaloEnergy"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_trkRelIso"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_ptErrOverPt2"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_mva"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_pt"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_P"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_eta"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_phi"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_is_baseline_track"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_is_disappearing_track"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_is_reco_lepton"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_trkMiniRelIso"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_trackJetIso"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_ptError"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_passPFCandVeto"] = ROOT.std.vector(int)(n_tracks)
-        tree_branch_values["tracks_neutralPtSum"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_neutralWithoutGammaPtSum"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_minDrLepton"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_matchedCaloEnergyJets"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_deDxHarmonic2pixel"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_deDxHarmonic2strips"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_chi2perNdof"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_chargedPtSum"] = ROOT.std.vector(double)(n_tracks)
-        tree_branch_values["tracks_charge"] = ROOT.std.vector(int)(n_tracks)
-        
+      
+        for branch in vector_int_branches:
+            tree_branch_values[branch] = ROOT.std.vector(int)(n_tracks)
+        for branch in vector_float_branches:
+            tree_branch_values[branch] = ROOT.std.vector(double)(n_tracks)
 
         # register track-level branches:
         for label in tree_branch_values:
