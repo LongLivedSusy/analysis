@@ -6,7 +6,6 @@ from optparse import OptionParser
 import tmva_tools
 import collections
 import json
-import xmltodict
 
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
@@ -232,10 +231,6 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
 
-    with open('tags.xml') as fd:
-        doc = xmltodict.parse(fd.read())
-    print doc
-
     # BDT configuration:
     readerPixelOnly = 0
     readerPixelStrips = 0
@@ -244,12 +239,12 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
     tmva_variables = {}
 
-    if data_period == "Summer16" or data_period == "2016":
+    if data_period == "Summer16" or data_period == "Run2016":
         if not loose_dxy:
             bdt_folders = ["../../disappearing-track-tag/2016-short-tracks", "../../disappearing-track-tag/2016-long-tracks"]
         else:
             bdt_folders = ["../../disappearing-track-tag/2016-short-tracks-loose", "../../disappearing-track-tag/2016-long-tracks-loose"]
-    elif data_period == "Fall17" or data_period == "2017" or data_period == "2018":
+    elif data_period == "Fall17" or data_period == "Run2017" or data_period == "Run2018":
         bdt_folders = ["../../disappearing-track-tag/2017-short-tracks", "../../disappearing-track-tag/2017-long-tracks"]
 
     for i_category, category in enumerate(["pixelonly", "pixelstrips"]):
