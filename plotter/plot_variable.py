@@ -44,7 +44,7 @@ if __name__=="__main__":
     
     # Folder
     #folder = "output_skim_merged"
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/background-estimation/non-prompt/output_skim_5_loose_merged"
+    folder = "../skimmer/python/output_Summer16_merged"
     
     # Samples
     samples = {
