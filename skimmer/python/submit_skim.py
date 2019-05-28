@@ -119,13 +119,14 @@ if __name__ == "__main__":
     #command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
     #command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
     #dataset = "*"
-    dataset = "Summer16*"
+    dataset = "Summer16.g1800*"
     output_folder = "output_Summer16"
     options.nfiles = 50
     ######## configure skim here ########
 
     commands = []
     ntuples = get_ntuple_datasets(dataset)
+    print ntuples
     for folder in ntuples:
     
         def is_string_in_list(text, mylist):
@@ -141,4 +142,4 @@ if __name__ == "__main__":
     
         commands += prepare_command_list(folder, ntuples[folder], output_folder, command=command, files_per_job=options.files_per_job, nowildcard=nowildcard)
     
-    do_submission(commands, output_folder, executable = command.split()[0], noconfirm=options.noconfirm)
+    #do_submission(commands, output_folder, executable = command.split()[0], noconfirm=options.noconfirm)
