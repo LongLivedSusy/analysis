@@ -3,7 +3,7 @@ import os, glob
 from optparse import OptionParser
 from GridEngineTools import runParallel
 
-def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./skimmer.py --input $INPUT --output $OUTPUT", nowildcard=False):
+def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./looper.py $INPUT $OUTPUT 0 0", nowildcard=False):
 
     commands = []
 
@@ -82,14 +82,14 @@ def get_ntuple_datasets(globstring):
     
     # add signals:
     
-    #ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar"] = [
-    #    "g1800_chi1400_27_200970_step4_10",
-    #    "g1800_chi1400_27_200970_step4_30",
-    #    "g1800_chi1400_27_200970_step4_50",
-    #    "g1800_chi1400_27_200970_step4_100",
-    #    "g1800_chi1400_27_200970_step4_1000",
-    #]
-    
+    ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar"] = [
+        "g1800_chi1400_27_200970_step4_10",
+        "g1800_chi1400_27_200970_step4_30",
+        "g1800_chi1400_27_200970_step4_50",
+        "g1800_chi1400_27_200970_step4_100",
+        "g1800_chi1400_27_200970_step4_1000",
+    ]
+        
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
         "Summer16.g1800_chi1400_27_200970_step4_10AODSIM",
         "Summer16.g1800_chi1400_27_200970_step4_30AODSIM",
@@ -97,12 +97,12 @@ def get_ntuple_datasets(globstring):
         "Summer16.g1800_chi1400_27_200970_step4_100AODSIM",
     ]
     
-    #ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-    #    "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM",
-    #]
+    ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
+        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM",
+        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM",
+        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM",
+        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM",
+    ]
     
     return ntuples
     
@@ -118,18 +118,17 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     ######## configure skim here ########
-    options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root --loose_dxy"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
-    options.dataset = "Summer16.*"
-    options.output_folder = "output_Summer16"
+    #options.dataset = "*"
+    #options.output_folder = "output_skim_10"
     #options.files_per_job = 75
     ######## configure skim here ########
 
     commands = []
     ntuples = get_ntuple_datasets(options.dataset)
-    #print ntuples
     for folder in ntuples:
     
         def is_string_in_list(text, mylist):
@@ -145,4 +144,4 @@ if __name__ == "__main__":
     
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=options.files_per_job, nowildcard=nowildcard)
     
-    do_submission(commands, options.output_folder, executable = options.command.split()[0], noconfirm=options.noconfirm)
+    do_submission(commands, options.output_folder, executable = command.split()[0], noconfirm=options.noconfirm)
