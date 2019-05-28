@@ -48,6 +48,7 @@ def do_submission(commands, output_folder, executable = "looper.py", runmode = "
 def get_data_sample_names(folder, globstring = "*"):
     
     samples = []
+        
     for item in glob.glob(folder + "/" + globstring + ".root"):
                 
         sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-2] )
@@ -90,17 +91,17 @@ def get_ntuple_datasets(globstring):
     ]
         
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
-        "Summer16.g1800_chi1400_27_200970_step4_10AODSIM",
-        "Summer16.g1800_chi1400_27_200970_step4_30AODSIM",
-        "Summer16.g1800_chi1400_27_200970_step4_50AODSIM",
-        "Summer16.g1800_chi1400_27_200970_step4_100AODSIM",
+        "Summer16.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
     
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM",
-        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM",
-        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM",
-        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM",
+        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
     
     return ntuples
@@ -111,21 +112,23 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--nfiles", dest="files_per_job", default=50)
     parser.add_option("--noconfirm", dest="noconfirm", action="store_true")
+    parser.add_option("--command", dest="command")
+    parser.add_option("--dataset", dest="dataset", default="*")
+    parser.add_option("--output_folder", dest="output_folder")
     (options, args) = parser.parse_args()
 
     ######## configure skim here ########
-    command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
-    #command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root --loose_dxy"
-    #command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
-    #command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
-    #dataset = "*"
-    dataset = "RunIIFall17*"
-    output_folder = "output_skim_10"
-    options.nfiles = 75
+    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root --loose_dxy"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
+    options.dataset = "XXX"
+    options.output_folder = "output_skim_10"
+    options.files_per_job = 1
     ######## configure skim here ########
 
     commands = []
-    ntuples = get_ntuple_datasets(dataset)
+    ntuples = get_ntuple_datasets(options.dataset)
     for folder in ntuples:
     
         def is_string_in_list(text, mylist):
@@ -139,6 +142,6 @@ if __name__ == "__main__":
         else:
             nowildcard = False
     
-        commands += prepare_command_list(folder, ntuples[folder], output_folder, command=command, files_per_job=options.files_per_job, nowildcard=nowildcard)
+        commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=options.files_per_job, nowildcard=nowildcard)
     
-    do_submission(commands, output_folder, executable = command.split()[0], noconfirm=options.noconfirm)
+    do_submission(commands, options.output_folder, executable = options.command.split()[0], noconfirm=options.noconfirm)
