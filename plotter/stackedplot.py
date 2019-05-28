@@ -7,7 +7,6 @@ import uuid
 import os
 
 gStyle.SetOptStat(0);
-#gStyle.SetOptFit(1111);
 gROOT.SetBatch(True)
     
 def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax):
@@ -19,7 +18,6 @@ def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmi
 
     return histos
 
-#def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, blind=False):
 def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", logx=False, logy=True, blind=False):
     
     canvas = TCanvas("canvas", "canvas", 900, 800)
@@ -46,9 +44,6 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     canvas.SetLeftMargin(1.2*l)
     canvas.SetRightMargin(0.7*r)
    
-    #canvas.SetLogx(logx)
-    #canvas.SetLogy(logy)
-    
     legend = TLegend(0.50, 0.70, 0.94, 0.94)
     legend.SetTextSize(0.03)
     minimum_y_value = 1e6
@@ -62,19 +57,18 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
 
     # get lumi value:
     #lumi = -1
-    lumi = 35600
+    lumi = 35900
     for label in sorted(histos):
 	# check data in sample list for blinding
-        #if samples[label]["type"] == "data":
         if samples[label]["type"] == "data" and not blind:
             lumi = samples[label]["lumi"]
 
     # plot backgrounds:
     for label in sorted(histos):
 
-        #if samples[label]["type"] == "bg" or samples[label]["type"] == "sg":
         if samples[label]["type"] == "bg":
 	    histos[label].Scale(lumi)
+	## signal scaling factor : cross-section in pb
         if samples[label]["type"] == "sg":
 	    histos[label].Scale(lumi*signal_scaling_factor)
 
@@ -193,22 +187,6 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     latex.SetTextFont(52)
     latex.DrawLatex(0.4, 1-0.5*t+0.15*0.5*t, "CMS Work in Progress")
     
-    #h = TH1F('hgaus', '', 50,-3,3)
-    #h2 = TH1F('hgaus', '', 50,-3,3)
-    #h.Sumw2()
-    #h.FillRandom('gaus', 1000)
-    #h2.FillRandom('gaus', 3000)
-    #h.Fit('gaus')
-    #h2.Fit('gaus')
-    #h.Draw()
-    #h2.Draw("same")
-    #canvas.Update()
-    #
-    #import sys
-    #sys.stdout.flush() 
-    #raw_input('')
-
-    
     # plot ratio
     pad2.cd()
     
@@ -234,7 +212,6 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     ratio.Draw("same e0")
 
 
-    #ratio.SetTitle(";%s;Pred./Truth" % xlabel)
     ratio.SetTitle(";%s;Data/MC" % xlabel)
     pad2.SetGridx(True)
     pad2.SetGridy(True)
@@ -246,7 +223,5 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     ratio.GetXaxis().SetLabelSize(0.15)
     ratio.GetYaxis().SetLabelSize(0.15)
     
-    #os.system("mkdir -p %s/plots" % outputdir)
-    #canvas.SaveAs("%s/plots/%s%s.pdf" % (outputdir, variable, suffix))
     os.system("mkdir -p %s/%s" % (outputdir,cut))
     canvas.SaveAs("%s/%s/%s%s.pdf" % (outputdir, cut, variable, suffix))
