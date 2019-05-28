@@ -91,17 +91,17 @@ def get_ntuple_datasets(globstring):
     ]
         
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
-        "Summer16.g1800_chi1400_27_200970_step4_10AODSIM",
-        "Summer16.g1800_chi1400_27_200970_step4_30AODSIM",
-        "Summer16.g1800_chi1400_27_200970_step4_50AODSIM",
-        "Summer16.g1800_chi1400_27_200970_step4_100AODSIM",
+        "Summer16.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
     
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM",
-        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM",
-        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM",
-        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM",
+        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
     
     return ntuples
@@ -118,13 +118,13 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     ######## configure skim here ########
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
+    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root --loose_dxy"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
-    #options.dataset = "*"
-    #options.output_folder = "output_skim_10"
-    #options.files_per_job = 75
+    options.dataset = "XXX"
+    options.output_folder = "output_skim_10"
+    options.files_per_job = 1
     ######## configure skim here ########
 
     commands = []
@@ -144,4 +144,4 @@ if __name__ == "__main__":
     
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=options.files_per_job, nowildcard=nowildcard)
     
-    do_submission(commands, options.output_folder, executable = command.split()[0], noconfirm=options.noconfirm)
+    do_submission(commands, options.output_folder, executable = options.command.split()[0], noconfirm=options.noconfirm)
