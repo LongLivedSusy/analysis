@@ -7,7 +7,7 @@ import tmva_tools
 import collections
 import json
 
-gStyle.SetOptStat(0)
+#gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
 # store runs for JSON output:
@@ -164,7 +164,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     # check if data:
     data_period = ""
     is_data = False
-    for label in ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]:
+    for label in ["Summer16", "Fall17", "Autumn18", "Run2016", "Run2017", "Run2018"]:
         if label in event_tree_filenames[0]:
             data_period = label
             if "Run201" in label:
@@ -244,7 +244,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             bdt_folders = ["../../disappearing-track-tag/2016-short-tracks", "../../disappearing-track-tag/2016-long-tracks"]
         else:
             bdt_folders = ["../../disappearing-track-tag/2016-short-tracks-loose", "../../disappearing-track-tag/2016-long-tracks-loose"]
-    elif data_period == "Fall17" or data_period == "Run2017" or data_period == "Run2018":
+    elif data_period == "Fall17" or data_period == "Autumn18" or data_period == "Run2017" or data_period == "Run2018":
         bdt_folders = ["../../disappearing-track-tag/2017-short-tracks", "../../disappearing-track-tag/2017-long-tracks"]
 
     for i_category, category in enumerate(["pixelonly", "pixelstrips"]):
@@ -618,7 +618,17 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     if not charged_genlepton_in_track_cone:
                         n_DT_actualfake += 1
 
-                    print "Found disappearing track in event %s, charged genLeptons in cone: %s" % (iEv, charged_genlepton_in_track_cone)
+                    tracks_deDxHarmonics2WeightedByValidHits = (event.tracks_deDxHarmonic2pixel[iCand]*event.tracks_nValidPixelHits[iCand] + event.tracks_deDxHarmonic2strips[iCand]*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand])
+		    tracks_massfromdeDxPixel = TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
+            	    tracks_massfromdeDxStrips = TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
+            	    tracks_massfromdeDxWeightedByValidHits = (tracks_massfromdeDxStrips * event.tracks_nValidPixelHits[iCand] + tracks_massfromdeDxStrips*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand])
+            	    
+            	    if not tracks_deDxHarmonics2WeightedByValidHits > 0: tracks_deDxHarmonics2WeightedByValidHits = -1
+            	    if not tracks_massfromdeDxPixel > 0: tracks_massfromdeDxPixel = -1
+            	    if not tracks_massfromdeDxStrips > 0: tracks_massfromdeDxStrips = -1
+            	    if not tracks_massfromdeDxWeightedByValidHits > 0: tracks_massfromdeDxWeightedByValidHits = -1
+                    
+		    print "Found disappearing track in event %s, charged genLeptons in cone: %s" % (iEv, charged_genlepton_in_track_cone)
 
                     track_level_output.append(
                                            {
@@ -662,10 +672,10 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                              "tracks_matchedCaloEnergyJets": event.tracks_matchedCaloEnergyJets[iCand],
                                              "tracks_deDxHarmonic2pixel": event.tracks_deDxHarmonic2pixel[iCand],
                                              "tracks_deDxHarmonic2strips": event.tracks_deDxHarmonic2strips[iCand],
-                                             "tracks_deDxHarmonics2WeightedByValidHits": (event.tracks_deDxHarmonic2pixel[iCand]*event.tracks_nValidPixelHits[iCand] + event.tracks_deDxHarmonic2strips[iCand]*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand]),
-                                             "tracks_massfromdeDxPixel": TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579),
-                                             "tracks_massfromdeDxStrips": TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579),
-                                             "tracks_massfromdeDxWeightedByValidHits": (TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)*event.tracks_nValidPixelHits[iCand] + TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand]),
+                                             "tracks_deDxHarmonics2WeightedByValidHits": tracks_deDxHarmonics2WeightedByValidHits,
+                                             "tracks_massfromdeDxPixel": tracks_massfromdeDxPixel,
+                                             "tracks_massfromdeDxStrips": tracks_massfromdeDxStrips,
+                                             "tracks_massfromdeDxWeightedByValidHits": tracks_massfromdeDxWeightedByValidHits,
                                              "tracks_chi2perNdof": event.tracks_chi2perNdof[iCand],
                                              "tracks_chargedPtSum": event.tracks_chargedPtSum[iCand],
                                              "tracks_charge": event.tracks_charge[iCand],
