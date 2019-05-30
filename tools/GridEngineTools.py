@@ -1,5 +1,5 @@
 #!/bin/env python
-# by viktor.kutzner@desy.de
+# comments: viktor.kutzner@desy.de
 
 import os, sys
 from glob import glob
@@ -7,48 +7,6 @@ from time import sleep
 import datetime
 import subprocess
 import multiprocessing
-
-jobscript = '''#!/bin/zsh
-echo "$QUEUE $JOB $HOST"
-source /cvmfs/cms.cern.ch/cmsset_default.sh
-export SCRAM_ARCH=slc6_amd64_gcc530
-cd CMSBASE
-#cmsenv
-eval `scramv1 runtime -sh`
-echo $CMSSW_BASE
-cd CWD
-COMMAND
-if [ $? -eq 0 ]
-then
-    echo "Success"
-else
-    echo "Failed"
-fi
-'''
-
-jobscript_forKNU = '''#!/bin/sh
-echo "$QUEUE $JOB $HOST"
-source /cvmfs/cms.cern.ch/cmsset_default.sh
-export SCRAM_ARCH=slc6_amd64_gcc630
-#export LD_PRELOAD=/usr/lib64/libpdcap.so
-cd CMSBASE
-#cmsenv
-eval `scramv1 runtime -sh`
-echo $CMSSW_BASE
-export PYTHONPATH=$PYTHONPATH:CMSBASE/src/analysis/tools
-cd CWD
-COMMAND
-if [ $? -eq 0 ]
-then
-    echo "Success"
-else
-    echo "Failed"
-fi
-'''
-
-def ShellExec(command):
-    os.system(command)
-
 
 def runParallel(commands, runmode, dryrun=False, cmsbase=False, qsubOptions=False, ncores_percentage=0.70, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, burst_mode=False):
 
@@ -66,8 +24,8 @@ def runParallel(commands, runmode, dryrun=False, cmsbase=False, qsubOptions=Fals
             if "CMSSW_BASE" in os.environ:
                 cmsbase = os.environ["CMSSW_BASE"]
             else:
-                print "No CMSSW environment set, you probably want to do this. Let's stop here..."
-                return False
+                print "Warning, no CMSSW environment set!"
+                cmsbase = False
 
         print "Using CMSSW base", cmsbase
 
@@ -76,8 +34,30 @@ def runParallel(commands, runmode, dryrun=False, cmsbase=False, qsubOptions=Fals
 
 def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, burst_mode=False):
 
-    print "Starting submission..."
-
+    jobscript = '''#!/bin/bash
+    echo "$QUEUE $JOB $HOST"
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    export SCRAM_ARCH=slc6_amd64_gcc530
+    cd CMSBASE
+    eval `scramv1 runtime -sh`
+    echo $CMSSW_BASE
+    cd CWD
+    PROCESSNUM=$(($1 + 1))
+    CMD=$(sed ''"$PROCESSNUM"'q;d' BIRDDIR/args)
+    eval $CMD
+    if [ $? -eq 0 ]
+    then
+        echo "Success"
+    else
+        echo "Failed"
+    fi
+    '''
+    
+    # make some adjustments for running at KNU:
+    if 'knu' in os.uname()[1] :
+        jobscript = jobscript.replace("slc6_amd64_gcc530", "slc6_amd64_gcc630")
+        jobscript = jobscript.replace("cd CWD", "cd CWD \n export PYTHONPATH=$PYTHONPATH:CMSBASE/src/analysis/tools")
+    
     cwd = os.getcwd()
 
     if qsubOptions == False:
@@ -85,81 +65,52 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
 
     os.system("mkdir -p %s" % birdDir)
 
-    jobs = []
-    nJobsDone = 0
-    nJobsFailed = 0
+    with open("%s/args" % birdDir, "w+") as fout:
+        fout.write("\n".join(commands) + "\n")
 
-    timestamp = datetime.datetime.now().strftime("%y-%m-%d-%H-%M-%S")
-    for ifname, command in enumerate(commands):
+    with open("%s/runjobs.sh" % birdDir, "w+") as fout:
+        jobscript = jobscript.replace('CWD',cwd)
+        jobscript = jobscript.replace('BIRDDIR', birdDir)
+        if cmsbase:
+            jobscript = jobscript.replace('CMSBASE',cmsbase)
+        fout.write(jobscript)
 
-        JobsPercentProcessed = int( 80 * float(ifname) / len(commands) )
-        print "[" + JobsPercentProcessed * "#" + (80 - JobsPercentProcessed) * " " + "]"
+    os.chdir(birdDir)
 
-        jobname = "job_%s_%s" % (timestamp, ifname)
-        jobs.append(jobname)
-        fjob = open('%s/' % birdDir + jobname + '.sh','w')
+    additional_parameters = ""
+    if use_more_mem:
+        if use_more_mem == 1:
+            use_more_mem = 4096
+        additional_parameters += "RequestMemory = %s\n" % use_more_mem
+    if use_more_time:
+        if use_more_time == 1:
+            use_more_time = 86400
+        additional_parameters += "+RequestRuntime = %s\n" % use_more_time
 
-        if not cmsbase: cmsbase = cwd
+    submission_file_content = """
+        universe = vanilla
+        should_transfer_files = IF_NEEDED
+        log = $(Process).log
+        executable = /bin/bash
+        arguments = runjobs.sh $(Process)
+        initialdir = %s
+        error = $(Process).sh.e
+        output = $(Process).sh.o
+        notification = Never
+        %s
+        max_materialize = 1000
+        priority = 0
+        Queue %s
+    """ % (cwd + "/" + birdDir, additional_parameters, len(commands))
 
-	if 'knu' in os.uname()[1] :
-	    fjob.write(jobscript_forKNU.replace('CWD',cwd).replace('COMMAND',command).replace('CMSBASE',cmsbase))
-	else : 
-	    fjob.write(jobscript.replace('CWD',cwd).replace('COMMAND',command).replace('CMSBASE',cmsbase))
-        fjob.close()
-        os.chdir(birdDir)
+    with open("runjobs.submit", 'w') as outfile:
+        outfile.write(submission_file_content)
 
-        # actual job submission depending on host:
-        if os.path.isfile("/usr/bin/condor_qsub"):
+    print "Starting submission..."
+    os.system("condor_submit runjobs.submit")
+    os.chdir("..")
 
-            additional_parameters = ""
-            if use_more_mem:
-                if use_more_mem == 1:
-                    use_more_mem = 4096
-                additional_parameters += "RequestMemory = %s\n" % use_more_mem
-            if use_more_time:
-                if use_more_time == 1:
-                    use_more_time = 86400
-                additional_parameters += "+RequestRuntime = %s\n" % use_more_time
-
-            submission_file_content = """
-                universe = vanilla
-                should_transfer_files = IF_NEEDED
-                log = %s.sh.log$(Cluster)
-                executable = /bin/bash
-                arguments = %s.sh
-                initialdir = %s
-                error = %s.sh.e$(Cluster)
-                output = %s.sh.o$(Cluster)
-                notification = Never
-                %s
-                priority = 0
-                Queue
-            """ % (jobname, jobname, cwd + "/" + birdDir, jobname, jobname, additional_parameters)
-
-            with open(jobname + ".submit", 'w') as outfile:
-                outfile.write(submission_file_content)
-
-            cmd = "condor_submit %s.submit" % jobname
-            if burst_mode:
-                cmd = cmd + " &"
-
-            print cmd
-        elif os.path.isfile("/usr/sge/bin/lx-amd64/qsub"):
-            cmd = 'qsub -l %s -cwd ' % qsubOptions + jobname + '.sh > /dev/null 2>&1 &'
-            print cmd
-	elif 'knu' in os.uname()[1] and os.path.isfile("/usr/bin/qsub"):
-            cmd = 'qsub %s ' % qsubOptions + jobname + '.sh '
-            print cmd
-        else:
-            print "Not a submission node, exiting!"
-            quit()
-
-        if not dryrun:
-            os.system(cmd)
-            
-        os.chdir('..')
-
-    print "Jobs are running..."
+    print "Jobs are running!"
 
     if dontCheckOnJobs: return
 
