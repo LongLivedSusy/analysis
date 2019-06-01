@@ -55,7 +55,7 @@ if __name__=="__main__":
         "Diboson": {"select": "Summer16.WW_TuneCUETP8M1|Summer16.WZ_TuneCUETP8M1|Summer16.ZZ_TuneCUETP8M1", "type": "bg", "color": 51},
         "TT": {"select": "Summer16.TTJets_TuneCUETP8M1", "type": "bg", "color": 8}, 
         "rare": {"select": "Summer16.ST|Summer16.GJets", "type": "bg", "color": 15},
-        "signal": {"select": "Summer16.g1800_chi1400", "type": "sg", "color": kBlue},
+        "g1800_chi1400": {"select": "Summer16.g1800_chi1400", "type": "sg", "color": kBlue},
               }
     if not blind: 
         if "dilepton_invmass" in variable:
@@ -67,7 +67,7 @@ if __name__=="__main__":
     
     # Cuts 
     cuts =  {
-	    "FullMhtNJet" : "passesUniversalSelection==1 && HT>100 && MHT>250 && n_jets>0 && n_DT>0 && tracks_dxyVtx < 0.02",
+	    "FullMhtNJet" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_DT>0",
 	    #"Mhtgt250_Njet1" : "passesUniversalSelection==1 && HT>100 && MHT>250 && n_jets==1 && n_DT>0",
 	    #"Mhtgt250_Njet2to5" : "passesUniversalSelection==1 && HT>100 && MHT>250 && n_jets>=2 && n_jets<=5 && n_DT>0",
 	    #"Mhtgt250_Njet6toInf" : "passesUniversalSelection==1 && HT>100 && MHT>250 && n_jets>=6 && n_DT>0",
@@ -75,10 +75,10 @@ if __name__=="__main__":
     
     # Variables
     variables =	{
-	    #"TrackMassFromDedxPixel":["TMath::Sqrt((tracks_deDxHarmonic2pixel-2.557)*TMath::Power(tracks_P,2)/2.579)",50, 0, 2000, cuts],
-	    #"TrackMassFromDedxStrips":["TMath::Sqrt((tracks_deDxHarmonic2strips-2.557)*TMath::Power(tracks_P,2)/2.579)",50, 0, 2000, cuts],
-	    "Log_TrackMassFromDedxPixel":["TMath::Log10(TMath::Sqrt((tracks_deDxHarmonic2pixel-2.557)*TMath::Power(tracks_P,2)/2.579))",15, 1.5, 4.5, cuts],
-	    "Log_TrackMassFromDedxStrips":["TMath::Log10(TMath::Sqrt((tracks_deDxHarmonic2strips-2.557)*TMath::Power(tracks_P,2)/2.579))",15, 1.5, 4.5, cuts],
+	    #"TrackMassFromDedxPixel":["tracks_massfromdeDxPixel",50, 0, 2000, cuts],
+	    #"TrackMassFromDedxStrips":["tracks_massfromdeDxStrips",50, 0, 2000, cuts],
+	    "Log_TrackMassFromDedxPixel":["TMath::Log10(tracks_massfromdeDxPixel)",15, 1.5, 4.5, cuts],
+	    "Log_TrackMassFromDedxStrips":["TMath::Log10(tracks_massfromdeDxStrips)",15, 1.5, 4.5, cuts],
 		}
 
     # Make histogram and save
