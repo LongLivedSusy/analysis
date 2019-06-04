@@ -452,7 +452,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         h_mask = False
 
     # load fake rate histograms:
-    fakerate_regions = ["dilepton", "qcd", "qcd_sideband"]
+    fakerate_regions = ["dilepton", "qcd", "qcd_sideband", "dilepton_short", "qcd_short", "qcd_sideband_short", "dilepton_long", "qcd_long", "qcd_sideband_long"]
     fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated"]
     if not only_fakerate and fakerate_file:
         
@@ -462,24 +462,25 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         # get all fakerate histograms:
         h_fakerates = {}
         for region in fakerate_regions:
-                for category in ["", "short", "long"]:
-                    for variable in fakerate_variables:
-                        if region == "dilepton":
-                            variable = variable.replace("HT", "HT_cleaned")
-                        else:
-                            variable = variable.replace("_cleaned", "")
-
-                        hist_name = region + "/" + data_period + "/" + category + "/fakerate_" + variable.replace(":", "_")
-                        hist_name = hist_name.replace("//", "/")
-                        try:
-                            h_fakerates[hist_name] = fakerate_file.Get(hist_name)
-                        except:
-                            print "Error reading fakerate:", hist_name
+                for variable in fakerate_variables:
+                    if "dilepton" in region:
+                        variable = variable.replace("HT", "HT_cleaned")
+                    else:
+                        variable = variable.replace("_cleaned", "")
+                        
+                    #hist_name = region + category + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
+                    hist_name = region + "/" + "Summer16" + "/fakerate_" + variable.replace(":", "_")
+                    
+                    hist_name = hist_name.replace("//", "/")
+                    try:
+                        h_fakerates[hist_name] = fakerate_file.Get(hist_name)
+                    except:
+                        print "Error reading fakerate:", hist_name
 
         # add all raw fakerate branches:        
         for region in fakerate_regions:
             for variable in fakerate_variables:
-                if region == "dilepton":
+                if "dilepton" in region:
                     variable = variable.replace("HT", "HT_cleaned")
                 else:
                     variable = variable.replace("_cleaned", "")
@@ -488,6 +489,9 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values[branch_name] = array( 'f', [ 0 ] )
                 tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
 
+
+    print "Looping over %s events" % nev
+
     # main loop over events:
     for iEv, event in enumerate(tree):
 
@@ -495,7 +499,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
         if nevents > 0 and iEv > nevents: break
         
-        if (iEv+1) % 500 == 0:
+        if (iEv+1) % 1000 == 0:
             PercentProcessed = int( 20 * iEv / nev )
             line = "[" + PercentProcessed*"#" + (20-PercentProcessed)*" " + "]\t" + "Processing event %s / %s" % (iEv + 1, nev)
             print line
@@ -803,17 +807,18 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             # fill all fakerate branches:
             for variable in fakerate_variables:
                 for fr_region in fakerate_regions:
-                    if fr_region == "dilepton":
+                    if "dilepton" in fr_region:
                         variable = variable.replace("HT", "HT_cleaned")
                     else:
                         variable = variable.replace("_cleaned", "")
                     
                     #FIXME: no interpolation available for dilepton FRR
-                    if fr_region == "dilepton" and "interpolated" in variable:
-                        continue
+                    #if fr_region == "dilepton" and "interpolated" in variable:
+                    #    continue
                     
-                    hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                    
+                    #hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
+                    hist_name = fr_region + "/Summer16/fakerate_" + variable.replace(":", "_")
+                                        
                     if ":" in variable:
                         xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
                         yvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[0])

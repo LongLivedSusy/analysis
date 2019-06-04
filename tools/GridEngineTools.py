@@ -8,7 +8,7 @@ import datetime
 import subprocess
 import multiprocessing
 
-def runParallel(commands, runmode, dryrun=False, cmsbase=False, qsubOptions=False, ncores_percentage=0.70, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, burst_mode=False):
+def runParallel(commands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.70, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False):
 
     if runmode == "multi":
 
@@ -29,10 +29,10 @@ def runParallel(commands, runmode, dryrun=False, cmsbase=False, qsubOptions=Fals
 
         print "Using CMSSW base", cmsbase
 
-        return runCommands(commands, dryrun=dryrun, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, burst_mode=burst_mode)
+        return runCommands(commands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time)
 
 
-def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, burst_mode=False):
+def runCommands(commands, condorDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False):
 
     jobscript = '''#!/bin/bash
     echo "$QUEUE $JOB $HOST"
@@ -48,8 +48,10 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
     if [ $? -eq 0 ]
     then
         echo "Success"
+        exit 0
     else
         echo "Failed"
+        exit 112
     fi
     '''
     
@@ -63,19 +65,19 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
     if qsubOptions == False:
         qsubOptions = "h_vmem=4G,h_fsize=100G"
 
-    os.system("mkdir -p %s" % birdDir)
+    os.system("mkdir -p %s" % condorDir)
 
-    with open("%s/args" % birdDir, "w+") as fout:
+    with open("%s/args" % condorDir, "w+") as fout:
         fout.write("\n".join(commands) + "\n")
 
-    with open("%s/runjobs.sh" % birdDir, "w+") as fout:
+    with open("%s/runjobs.sh" % condorDir, "w+") as fout:
         jobscript = jobscript.replace('CWD',cwd)
-        jobscript = jobscript.replace('BIRDDIR', birdDir)
+        jobscript = jobscript.replace('BIRDDIR', condorDir)
         if cmsbase:
             jobscript = jobscript.replace('CMSBASE',cmsbase)
         fout.write(jobscript)
 
-    os.chdir(birdDir)
+    os.chdir(condorDir)
 
     additional_parameters = ""
     if use_more_mem:
@@ -101,7 +103,7 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
         max_materialize = 1000
         priority = 0
         Queue %s
-    """ % (cwd + "/" + birdDir, additional_parameters, len(commands))
+    """ % (cwd + "/" + condorDir, additional_parameters, len(commands))
 
     with open("runjobs.submit", 'w') as outfile:
         outfile.write(submission_file_content)
@@ -126,7 +128,7 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
             nJobsFailed = 0
             for job in jobs:
                 try:
-                    jobOutputFile = glob("%s/%s.sh.o*" % (birdDir,job))[0]
+                    jobOutputFile = glob("%s/%s.sh.o*" % (condorDir,job))[0]
                     ofile = open(jobOutputFile)
                     ofileContents = ofile.read()
                     if "Success" in ofileContents:
@@ -174,7 +176,7 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
                 nJobsFailed = 0
                 for job in jobs:
                     try:
-                        jobOutputFile = glob("%s/%s.sh.o*" % (birdDir,job))[0]
+                        jobOutputFile = glob("%s/%s.sh.o*" % (condorDir,job))[0]
                         ofile = open(jobOutputFile)
                         ofileContents = ofile.read()
                         if "Success" in ofileContents:
@@ -196,12 +198,12 @@ def runCommands(commands, dryrun=False, birdDir="bird", cmsbase=False, qsubOptio
     if nJobsFailed>0:
 
         print "There were failed jobs. Check error output files:\n"
-        jobErrorFiles = glob("%s/%s.sh.e*" % (birdDir,job))
+        jobErrorFiles = glob("%s/%s.sh.e*" % (condorDir,job))
         for jobErrorFile in jobErrorFiles:
             print jobErrorFile
 
         print "\nAfter checking, resubmit with the following commands:"
-        for shFile in glob("%s/%s.sh" % (birdDir,job)):
+        for shFile in glob("%s/%s.sh" % (condorDir,job)):
             print 'qsub -l %s -cwd ' % qsubOptions + shFile + '&'
 
         quit()

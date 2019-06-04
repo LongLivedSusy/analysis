@@ -1,5 +1,6 @@
 #!/bin/env python
 from __future__ import division
+from optparse import OptionParser
 import os
 from ROOT import *
 from plotting import *
@@ -69,31 +70,14 @@ def get_interpolated_histogram(histo):
     return interpolated_histo
 
 
-def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, denominator_cuts, selected_sample, extra_text, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False):
+def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, denominator_cuts, selected_sample, extra_text, binning, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False):
 
     print "## Doing", variable, selected_sample, extra_text
 
+    plot2D = False
     if ":" in variable:
         plot2D = True
-    else:
-        plot2D = False
-        
-    binning = {
-                "n_DT": [1, 0, 10],
-                "HT": [10, 0, 1000],
-                "HT_cleaned": [10, 0, 1000],
-                "MHT": [10, 0, 1000],
-                "MHT_cleaned": [10, 0, 1000],
-                "n_allvertices": [20, 0, 100],
-                "NumInteractions": [20, 0, 100],
-                "n_jets": [50, 0, 50],
-                "n_jets_cleaned": [50, 0, 50],
-                "n_btags": [50, 0, 50],
-                "n_btags_cleaned": [50, 0, 50],
-                "MinDeltaPhiMhtJets": [100, 0, 5],                    
-                "MinDeltaPhiMhtJets_cleaned": [100, 0, 5],
-    }
-    
+                 
     if not plot2D:
         nBinsX = binning[variable][0]
         xmin = binning[variable][1]
@@ -162,52 +146,105 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 if __name__ == "__main__":
 
-    path = "output_fakerate_5_loose_merged/"
-    base_cuts = "PFCaloMETRatio<5"        
+    parser = OptionParser()
+    parser.add_option("--input", dest="inputfiles")
+    (options, args) = parser.parse_args()
+
+    ### start of configuration ###
+
+    path = "output_skim_31_fakerate_merged/"
     rootfile = path + "/fakerate.root"
-        
-    cut_is_short_track = " && tracks_is_pixel_track==1 "
-    cut_is_long_track  = " && tracks_is_pixel_track==0 "
-    numerator_cuts = " && tracks_dxyVtx<=0.02"
-    denominator_cuts = " && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.5"
+    
+    binning = {
+                "n_DT": [1, 0, 10],
+                "HT": [10, 0, 1000],
+                "HT_cleaned": [10, 0, 1000],
+                "MHT": [10, 0, 1000],
+                "MHT_cleaned": [10, 0, 1000],
+                "n_allvertices": [20, 0, 100],
+                "NumInteractions": [20, 0, 100],
+                "n_jets": [50, 0, 50],
+                "n_jets_cleaned": [50, 0, 50],
+                "n_btags": [50, 0, 50],
+                "n_btags_cleaned": [50, 0, 50],
+                "MinDeltaPhiMhtJets": [100, 0, 5],                    
+                "MinDeltaPhiMhtJets_cleaned": [100, 0, 5],
+    }
 
-    selected_datasets = ["Summer16"]
-    variables = ["HT", "n_allvertices", "HT:n_allvertices", "n_DT"]
-    regions = ["dilepton", "qcd", "qcd_sideband"]
+    regioncuts = {
+                    "tight": {
+                                "base_cuts" = "passesUniversalSelection==1",
+                                "cut_is_short_track": " && tracks_is_pixel_track==1 ",
+                                "cut_is_long_track": " && tracks_is_pixel_track==0 ",
+                                "numerator_cuts": " && tracks_tagged_bdt>=1 ",
+                                "denominator_cuts": " && tracks_tagged_bdt==0",
+                              },
+                    "loose1": {
+                                "base_cuts" = "passesUniversalSelection==1",
+                                "cut_is_short_track": " && tracks_is_pixel_track==1 ",
+                                "cut_is_long_track": " && tracks_is_pixel_track==0 ",
+                                "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx>0.01 && tracks_dxyVtx<0.25",
+                              },
+                    "loose2": {
+                                "base_cuts" = "passesUniversalSelection==1",
+                                "cut_is_short_track": " && tracks_is_pixel_track==1 ",
+                                "cut_is_long_track": " && tracks_is_pixel_track==0 ",
+                                "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.25",
+                              },
+                 }
 
+    selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
+    variables = ["HT", "n_allvertices", "HT:n_allvertices"]
+    regions = {
+               "dilepton": " && dilepton_invmass>0",
+               "qcd": " && qcd_CR==1",
+               "qcd_sideband": " && qcd_sideband_CR==1",
+              }
+
+
+    ### end of configuration ###
+    
     counter = 0
-    total_number_of_combinations = len(selected_datasets) * len(variables) * len(regions)
+    total_number_of_combinations = len(selected_datasets) * len(variables) * len(regions) * len(regioncuts)
 
-    for selected_dataset in selected_datasets:
-        for variable in variables:          
-            for region in regions:
-            
-                cuts = ""
-                if base_cuts == "":
-                    cuts = " %s_CR==1" % region
-                else:
-                    cuts = base_cuts + " && %s_CR==1" % region
+    for label in regioncuts:
 
-                current_selected_dataset = selected_dataset
-                if "Run201" in selected_dataset:
-                    # running on data
-                    if "qcd" in region:
-                        current_selected_dataset += "*JetHT"
-                    elif "dilepton" in region:
-                        current_selected_dataset += "*SingleMuon"
-                else:
-                    # running on MC
-                    if "qcd" in region:
-                        current_selected_dataset += "*QCD"
+        cut_is_short_track = regioncuts[label]["cut_is_short_track"]
+        cut_is_long_track = regioncuts[label]["cut_is_long_track"]
+        numerator_cuts = regioncuts[label]["numerator_cuts"]
+        denominator_cuts = regioncuts[label]["denominator_cuts"]
+        base_cuts = regioncuts[label]["base_cuts"]
 
-                current_variable = variable
-                if "dilepton" in region:
-                    current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
-
-                counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
-                get_fakerate(path, current_variable, rootfile, "%s/%s" % (region, selected_dataset), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC")
-                counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
-                get_fakerate(path, current_variable, rootfile, "%s_short/%s" % (region, selected_dataset), cuts + cut_is_short_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks")
-                counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
-                get_fakerate(path, current_variable, rootfile, "%s_long/%s" % (region, selected_dataset), cuts + cut_is_long_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks")
+        for selected_dataset in selected_datasets:
+            for variable in variables:          
+                for region in regions:
                 
+                    cuts = base_cuts + regions[region]
+
+                    current_selected_dataset = selected_dataset
+                    if "Run201" in selected_dataset:
+                        # running on data
+                        if "qcd" in region:
+                            current_selected_dataset += "*JetHT"
+                        elif "dilepton" in region:
+                            current_selected_dataset += "*Single"
+                    else:
+                        # running on MC
+                        if "qcd" in region:
+                            current_selected_dataset += "*QCD"
+
+                    current_variable = variable
+                    if "dilepton" in region:
+                        current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
+
+                    counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
+                    get_fakerate(path, current_variable, rootfile, "%s_%s/%s" % (region, label, selected_dataset), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC", binning)
+
+                    counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
+                    get_fakerate(path, current_variable, rootfile, "%s_%s_short/%s" % (region, label, selected_dataset), cuts + cut_is_short_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning)
+
+                    counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
+                    get_fakerate(path, current_variable, rootfile, "%s_%s_long/%s" % (region, label, selected_dataset), cuts + cut_is_long_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks", binning)
+                    

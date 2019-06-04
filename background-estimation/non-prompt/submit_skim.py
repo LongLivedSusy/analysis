@@ -34,7 +34,7 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
     return commands
 
 
-def do_submission(commands, output_folder, executable = "looper.py", runmode = "grid", dontCheckOnJobs=True, noconfirm=False):
+def do_submission(commands, output_folder, condorDir = "bird", executable = "looper.py", runmode = "grid", dontCheckOnJobs=True, noconfirm=False):
 
     print "command example:", commands[0]
     print "Submitting \033[1m%s jobs\033[0m, output folder will be \033[1m%s\033[0m." % (len(commands), output_folder)
@@ -42,7 +42,7 @@ def do_submission(commands, output_folder, executable = "looper.py", runmode = "
         raw_input("Continue?")    
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
-    runParallel(commands, runmode, dontCheckOnJobs=dontCheckOnJobs)
+    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs)
 
 
 def get_data_sample_names(folder, globstring = "*"):
@@ -69,7 +69,9 @@ def get_userlist():
     return userlist
 
 
-def get_ntuple_datasets(globstring):
+def get_ntuple_datasets(globstring_list):
+
+    globstrings = globstring_list.split(",")
 
     ntuples = {}
     for user in get_userlist():
@@ -78,7 +80,10 @@ def get_ntuple_datasets(globstring):
             folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v4" % user
         else:
             folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user
-        ntuples[folder] = get_data_sample_names(folder, globstring = globstring)
+        if folder not in ntuples:
+            ntuples[folder] = []
+        for i_globstring in globstrings:
+            ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
     
     # add signals:
     
@@ -96,14 +101,14 @@ def get_ntuple_datasets(globstring):
         "Summer16.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
         "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
-    
+   
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
         "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
         "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
         "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
         "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
-    
+  
     return ntuples
     
 
@@ -118,13 +123,16 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     ######## configure skim here ########
-    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root --loose_dxy"
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_skim_30_fakerate_merged/fakerate.root"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
-    options.dataset = "XXX"
-    options.output_folder = "output_skim_10"
-    options.files_per_job = 1
+
+    # preset: fake rate determination
+    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
+    options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
+    options.output_folder = "output_skim_31_fakerate"
+    options.files_per_job = 75
     ######## configure skim here ########
 
     commands = []
@@ -144,4 +152,4 @@ if __name__ == "__main__":
     
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=options.files_per_job, nowildcard=nowildcard)
     
-    do_submission(commands, options.output_folder, executable = options.command.split()[0], noconfirm=options.noconfirm)
+    do_submission(commands, options.output_folder, condorDir=options.output_folder + "_condor", executable=options.command.split()[0], noconfirm=options.noconfirm)

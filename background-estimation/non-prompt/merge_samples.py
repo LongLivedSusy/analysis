@@ -23,7 +23,7 @@ for item in glob.glob(folder + "/*root"):
 
     # ignore broken HT binning labels
     ignore_item = False
-    ignore_list = ["HT-100to20", "HT-10to200", "HT-200to40", "HT-20to400", "HT-40to600", "HT-600to80", "HT-20To400", "HT-400To60", "HT-40To600", "HT100to1500", "HT1500to200", "HT200toInf", "Zpt-200toInf"]
+    ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "-60ToInf_", "Run218", "Run217", "Run216"]
     for i_ignore in ignore_list:
         if i_ignore in item:
             ignore_item = True
@@ -32,6 +32,11 @@ for item in glob.glob(folder + "/*root"):
     sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-3] )
     sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","")
     sample_name = sample_name.replace("AOD","")
+
+    if "Run201" in sample_name:
+        if sample_name[-1].isdigit():
+            sample_name = sample_name[:-1]
+
     samples.append(sample_name)
 
 samples = list(set(samples))
