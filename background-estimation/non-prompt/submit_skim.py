@@ -122,18 +122,20 @@ if __name__ == "__main__":
     parser.add_option("--output_folder", dest="output_folder")
     (options, args) = parser.parse_args()
 
-    ######## configure skim here ########
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root"
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_fakerate_5_loose_merged/fakerate.root --loose_dxy"
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_skim_30_fakerate_merged/fakerate.root"
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
-
-    # preset: fake rate determination
-    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
-    options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
-    options.output_folder = "output_skim_31_fakerate"
-    options.files_per_job = 75
-    ######## configure skim here ########
+    ######## some presets you can enable/disable ########
+    if False:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
+        #options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
+        options.dataset = "RunIIFall17*,Run2017*JetHT*,Run2017*SingleElectron*,Run2017*SingleMuon*,Run2018*JetHT*,Run2018*SingleElectron*,Run2018*SingleMuon*"
+        options.output_folder = "output_skim_31_fakerate"
+        options.files_per_job = 25
+        
+    if True:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
+        options.dataset = "Summer16*,RunIIFall17*,*MET*"
+        options.output_folder = "output_skim_31"
+        options.files_per_job = 25
+    ######## some presets you can enable/disable ########
 
     commands = []
     ntuples = get_ntuple_datasets(options.dataset)

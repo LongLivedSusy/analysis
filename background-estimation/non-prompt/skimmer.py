@@ -352,14 +352,14 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     phase = 0
     data_period = ""
     is_data = False
-    for label in ["Summer16", "Fall17", "Autumn18", "Run2016", "Run2017", "Run2018"]:
+    for label in ["Summer16", "RunIIFall17MiniAODv2", "Autumn18", "Run2016", "Run2017", "Run2018"]:
         if label in event_tree_filenames[0]:
             data_period = label
             if "Run201" in label:
                 is_data = True
             if label == "Summer16" or label == "Run2016":
                 phase = 0
-            elif label == "Fall17" or label == "Autumn18" or label == "Run2017" or label == "Run2018":
+            elif label == "RunIIFall17MiniAODv2" or label == "Autumn18" or label == "Run2017" or label == "Run2018":
                 phase = 1
     if len(data_period) == 0:
         print "Can't determine data/MC era"
@@ -452,7 +452,16 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         h_mask = False
 
     # load fake rate histograms:
-    fakerate_regions = ["dilepton", "qcd", "qcd_sideband", "dilepton_short", "qcd_short", "qcd_sideband_short", "dilepton_long", "qcd_long", "qcd_sideband_long"]
+    fakerate_regions = []
+    for i_region in ["dilepton", "qcd", "qcd_sideband"]:
+        for i_cond in ["tight", "loose1", "loose2"]:
+            #for i_cat in ["", "_short", "_long"]:
+            for i_cat in ["_short", "_long"]:
+                fakerate_regions.append(i_region + "_" + i_cond + i_cat)
+
+    #fakerate_regions = ["dilepton", "qcd", "qcd_sideband",
+    #                    "dilepton_short", "qcd_short", "qcd_sideband_short",
+    #                    "dilepton_long", "qcd_long", "qcd_sideband_long"]
     fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated"]
     if not only_fakerate and fakerate_file:
         
@@ -462,20 +471,19 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         # get all fakerate histograms:
         h_fakerates = {}
         for region in fakerate_regions:
-                for variable in fakerate_variables:
-                    if "dilepton" in region:
-                        variable = variable.replace("HT", "HT_cleaned")
-                    else:
-                        variable = variable.replace("_cleaned", "")
-                        
-                    #hist_name = region + category + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                    hist_name = region + "/" + "Summer16" + "/fakerate_" + variable.replace(":", "_")
+            for variable in fakerate_variables:
+                if "dilepton" in region:
+                    variable = variable.replace("HT", "HT_cleaned")
+                else:
+                    variable = variable.replace("_cleaned", "")
                     
-                    hist_name = hist_name.replace("//", "/")
-                    try:
-                        h_fakerates[hist_name] = fakerate_file.Get(hist_name)
-                    except:
-                        print "Error reading fakerate:", hist_name
+                hist_name = region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
+                
+                hist_name = hist_name.replace("//", "/")
+                try:
+                    h_fakerates[hist_name] = fakerate_file.Get(hist_name)
+                except:
+                    print "Error reading fakerate:", hist_name
 
         # add all raw fakerate branches:        
         for region in fakerate_regions:
@@ -656,6 +664,9 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 if not isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = loose):
                     continue
 
+                # no loose BDT for phase 2
+                if "loose" in dt_tag_label and phase != 0: continue
+
                 disappearing_track_tags[dt_tag_label] = check_is_disappearing_track(event, iCand, readers, loose = loose)
 
             keep_track = False
@@ -808,7 +819,8 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             for variable in fakerate_variables:
                 for fr_region in fakerate_regions:
                     if "dilepton" in fr_region:
-                        variable = variable.replace("HT", "HT_cleaned")
+                        if "cleaned" not in variable:
+                            variable = variable.replace("HT", "HT_cleaned")
                     else:
                         variable = variable.replace("_cleaned", "")
                     
@@ -816,8 +828,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     #if fr_region == "dilepton" and "interpolated" in variable:
                     #    continue
                     
-                    #hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                    hist_name = fr_region + "/Summer16/fakerate_" + variable.replace(":", "_")
+                    hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
                                         
                     if ":" in variable:
                         xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("n_allvertices", "nAllVertices").replace("_cleaned", "").replace("n_NVtx", "NVtx").split(":")[1])
@@ -970,8 +981,8 @@ if __name__ == "__main__":
     
     main(options.inputfiles,
          options.outputfiles,
-         nevents = options.nev,
+         nevents = int(options.nev),
          only_fakerate = options.only_fakerate,
          mask_file = options.maskfile,
-         iEv_start = options.iEv_start,
+         iEv_start = int(options.iEv_start),
          fakerate_file = options.fakerate_file)

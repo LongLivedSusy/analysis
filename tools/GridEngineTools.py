@@ -67,6 +67,10 @@ def runCommands(commands, condorDir="bird", cmsbase=False, qsubOptions=False, do
 
     os.system("mkdir -p %s" % condorDir)
 
+    jobs = []
+    nJobsDone = 0
+    nJobsFailed = 0
+
     with open("%s/args" % condorDir, "w+") as fout:
         fout.write("\n".join(commands) + "\n")
 

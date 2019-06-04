@@ -5,39 +5,7 @@ import os
 from ROOT import *
 from plotting import *
 import uuid
-
-def save_2d_plots(fake_rate, fake_rate_interpolated):
-
-    canvas = TCanvas("fakerate", "fakerate", 800, 800)  
-    canvas.SetRightMargin(0.16)
-    canvas.SetLeftMargin(0.14)
-    canvas.SetLogz(True)
-    
-    latex=TLatex()
-    latex.SetNDC()
-    latex.SetTextAngle(0)
-    latex.SetTextColor(kBlack)
-    latex.SetTextFont(62)
-    latex.SetTextAlign(31)
-    latex.SetTextSize(0.03)
-    latex.SetTextAlign(13)
-    latex.SetTextFont(52)
-    
-    for i, histogram in enumerate([fake_rate, fake_rate_interpolated]):
-        histogram.GetZaxis().SetTitleOffset(1.5)
-        histogram.GetZaxis().SetRangeUser(1e-6, 1e-1)
-        histogram.Draw("COLZ")
-        latex.DrawLatex(0.18, 0.87, extra_text)
-        stamp_plot()
-        if i == 0:
-            canvas.Write("canvas_%s" % (variable.replace(":", "_")))
-            if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
-            canvas.SaveAs("%s/plots/fakeratemap_%s_%s.pdf" % (path, foldername.replace("/", "_"), variable.replace(":", "_")))
-        else:
-            canvas.Write("canvas_%s_interpolated" % (variable.replace(":", "_")))
-            if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
-            canvas.SaveAs("%s/plots/fakeratemap_%s_%s_interpolated.pdf" % (path, foldername.replace("/", "_"), variable.replace(":", "_")))
-
+from GridEngineTools import runParallel
 
 def get_interpolated_histogram(histo):
 
@@ -70,7 +38,7 @@ def get_interpolated_histogram(histo):
     return interpolated_histo
 
 
-def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, denominator_cuts, selected_sample, extra_text, binning, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False):
+def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, denominator_cuts, selected_sample, extra_text, binning, threads, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False):
 
     print "## Doing", variable, selected_sample, extra_text
 
@@ -93,11 +61,11 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         ymax = binning[variable2][2]
         
     if plot2D:
-        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample)
-        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample)
+        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
     else:
-        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
-        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
+        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
 
     try:
         print fakes_numerator.GetEntries()
@@ -144,13 +112,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
     fout.Close()
 
 
-if __name__ == "__main__":
-
-    parser = OptionParser()
-    parser.add_option("--input", dest="inputfiles")
-    (options, args) = parser.parse_args()
-
-    ### start of configuration ###
+def get_configurations(threads):
 
     path = "output_skim_31_fakerate_merged/"
     rootfile = path + "/fakerate.root"
@@ -173,21 +135,21 @@ if __name__ == "__main__":
 
     regioncuts = {
                     "tight": {
-                                "base_cuts" = "passesUniversalSelection==1",
+                                "base_cuts": "passesUniversalSelection==1",
                                 "cut_is_short_track": " && tracks_is_pixel_track==1 ",
                                 "cut_is_long_track": " && tracks_is_pixel_track==0 ",
                                 "numerator_cuts": " && tracks_tagged_bdt>=1 ",
-                                "denominator_cuts": " && tracks_tagged_bdt==0",
+                                "denominator_cuts": "",
                               },
                     "loose1": {
-                                "base_cuts" = "passesUniversalSelection==1",
+                                "base_cuts": "passesUniversalSelection==1",
                                 "cut_is_short_track": " && tracks_is_pixel_track==1 ",
                                 "cut_is_long_track": " && tracks_is_pixel_track==0 ",
                                 "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.01",
                                 "denominator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx>0.01 && tracks_dxyVtx<0.25",
                               },
                     "loose2": {
-                                "base_cuts" = "passesUniversalSelection==1",
+                                "base_cuts": "passesUniversalSelection==1",
                                 "cut_is_short_track": " && tracks_is_pixel_track==1 ",
                                 "cut_is_long_track": " && tracks_is_pixel_track==0 ",
                                 "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.02",
@@ -195,19 +157,15 @@ if __name__ == "__main__":
                               },
                  }
 
-    selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
+    selected_datasets = ["Summer16", "RunIIFall17MiniAODv2", "Run2016", "Run2017", "Run2018"]
     variables = ["HT", "n_allvertices", "HT:n_allvertices"]
     regions = {
                "dilepton": " && dilepton_invmass>0",
                "qcd": " && qcd_CR==1",
                "qcd_sideband": " && qcd_sideband_CR==1",
               }
-
-
-    ### end of configuration ###
     
-    counter = 0
-    total_number_of_combinations = len(selected_datasets) * len(variables) * len(regions) * len(regioncuts)
+    configurations = []
 
     for label in regioncuts:
 
@@ -238,13 +196,30 @@ if __name__ == "__main__":
                     current_variable = variable
                     if "dilepton" in region:
                         current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
+                    configurations.append([path, current_variable, rootfile, "%s_%s/%s" % (region, label, selected_dataset), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC", binning, threads])
+                    configurations.append([path, current_variable, rootfile, "%s_%s_short/%s" % (region, label, selected_dataset), cuts + cut_is_short_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning, threads])
+                    configurations.append([path, current_variable, rootfile, "%s_%s_long/%s" % (region, label, selected_dataset), cuts + cut_is_long_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks", binning, threads])
 
-                    counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
-                    get_fakerate(path, current_variable, rootfile, "%s_%s/%s" % (region, label, selected_dataset), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC", binning)
+    return configurations
 
-                    counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
-                    get_fakerate(path, current_variable, rootfile, "%s_%s_short/%s" % (region, label, selected_dataset), cuts + cut_is_short_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning)
 
-                    counter += 1; print "\n Getting fake rate %s / %s \n" % (counter, total_number_of_combinations)
-                    get_fakerate(path, current_variable, rootfile, "%s_%s_long/%s" % (region, label, selected_dataset), cuts + cut_is_long_track, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks", binning)
+if __name__ == "__main__":
+
+    parser = OptionParser()
+    parser.add_option("--index", dest="index", default=False)
+    parser.add_option("--threads", dest="threads", default=5)
+    parser.add_option("--hadd", dest="hadd", action="store_true")
+    (options, args) = parser.parse_args()
+
+    configurations = get_configurations(options.threads)
+
+    if options.index:
+        configurations[int(options.index)][2] = "fakerate_pt%s.root" % options.index
+        get_fakerate(*configurations[int(options.index)])
+        
+    else:
+        commands = []
+        for i in range(len(configurations)):
+            commands.append("./get_fakerate.py --index %s" % i)
+        runParallel(commands, "grid", condorDir = "get_fakerate_condor")
                     

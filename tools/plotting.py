@@ -215,7 +215,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         if threads != 1:
             if threads == -1:
                 # start thread pool with half of all cores
-                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.33))
+                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.4))
             else:
                 # start thread pool with specified number of cores
                 pool = multiprocessing.Pool(threads)

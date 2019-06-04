@@ -4,58 +4,67 @@ from optparse import OptionParser
 import commands
 from natsort import natsorted, ns
 import sys
+from GridEngineTools import runParallel
 
-# merge skim output
+def main(folder, runmode):
 
-parser = OptionParser()
-(options, args) = parser.parse_args()
-if len(args) > 0:
-    folder = args[0]
-else:
-    print "usage: ./merge_samples.py <folder>"
-    quit()
+    # merge skim output:
 
-if folder[-1] == "/":
-    folder = folder[:-1]
+    if folder[-1] == "/":
+        folder = folder[:-1]
 
-samples = []
-for item in glob.glob(folder + "/*root"):
+    samples = []
+    for item in glob.glob(folder + "/Run2017*root") + glob.glob(folder + "/Run2018*root") + glob.glob(folder + "/RunIIFall17MiniAODv2*root"):
 
-    # ignore broken HT binning labels
-    ignore_item = False
-    ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "-60ToInf_", "Run218", "Run217", "Run216"]
-    for i_ignore in ignore_list:
-        if i_ignore in item:
-            ignore_item = True
-    if ignore_item: continue
+        # ignore broken HT binning labels
+        ignore_item = False
+        ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "-60ToInf_", "Run218", "Run217", "Run216"]
+        for i_ignore in ignore_list:
+            if i_ignore in item:
+                ignore_item = True
+        if ignore_item: continue
 
-    sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-3] )
-    sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","")
-    sample_name = sample_name.replace("AOD","")
+        sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-3] )
+        sample_name = sample_name.replace("_ext1AOD","").replace("_ext2AOD","").replace("_ext3AOD","")
+        sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","")
+        #sample_name = sample_name.replace("RunIIFall17MiniAODv2","Fall17")
+        #sample_name = sample_name.replace("AOD","")
 
-    if "Run201" in sample_name:
-        if sample_name[-1].isdigit():
-            sample_name = sample_name[:-1]
+        if "Run201" in sample_name:
+            if sample_name[-1].isdigit():
+                sample_name = sample_name[:-1]
 
-    samples.append(sample_name)
+        if sample_name[-3:] == "AOD":
+            sample_name = sample_name[:-3]
 
-samples = list(set(samples))
+        samples.append(sample_name)
 
-print "Merging samples of folder %s:" % folder
-for sample in samples:
-    print sample
+    samples = list(set(samples))
 
-os.system("mkdir -p %s_merged" % folder)
-for sample in samples:
-    os.system("hadd -f %s_merged/%s.root %s/%s*.root" % (folder, sample, folder, sample))
+    #for sample in samples:
+    #    print sample
+    #quit()
 
-os.system("cp %s/*py %s_merged/" % (folder, folder))
+    print "Merging samples of folder %s:" % folder
+    for sample in samples:
+        print sample
 
+    cmds = []
+    os.system("mkdir -p %s_merged" % folder)
+    for i, sample in enumerate(samples):
+        cmds.append("hadd -f %s_merged/%s.root %s/%s*.root" % (folder, sample, folder, sample))
 
-# merge lumisection JSON:
-print "merging jsons..."
+    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged_condor" % folder, dontCheckOnJobs=False)
+
+    os.system("cp %s/*py %s_merged/" % (folder, folder))
+
 
 def get_json(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"]):
+
+    if folder[-1] == "/":
+        folder = folder[:-1]
+
+    # merge lumisection JSON:
 
     json_cleaning = True
 
@@ -119,6 +128,20 @@ def get_json(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "
                 print "%s written" % filename
       
 
-get_json(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])    
+if __name__ == "__main__":
 
+    parser = OptionParser()
+    parser.add_option("--add_jsons", dest="add_jsons", action="store_true", default=False)
+    parser.add_option("--runmode", dest="runmode", default="grid")
+    (options, args) = parser.parse_args()
+    if len(args) > 0:
+        folder = args[0]
+    else:
+        print "usage: ./merge_samples.py <folder>"
+        quit()
+
+    if not options.add_jsons:
+        main(folder, options.runmode)
+    else:
+        get_json(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
 
