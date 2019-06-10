@@ -55,20 +55,23 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
 
     tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions)
 
-    # add overflow bin(s) for 1D and 2D histograms:
+    # add underflow/overflow bin(s) for 1D and 2D histograms:
     if not nBinsY:
-        bin = histo.GetNbinsX()+1
-        overflow = histo.GetBinContent(bin)
-        histo.AddBinContent((bin-1), overflow)
+        underflow = histo.GetBinContent(0)
+        overflowbin = histo.GetNbinsX()+1
+        overflow = histo.GetBinContent(overflowbin)
+        histo.AddBinContent(1, underflow)
+        histo.AddBinContent((overflowbin-1), overflow)
     else:
-        binX = histo.GetNbinsX()+1
-        binY = histo.GetNbinsX()+1
+	#FIXME (underflow/overflow for 2D hist)
+        overflowbinX = histo.GetNbinsX()+1
+        overflowbinY = histo.GetNbinsX()+1
 
         # read and set overflow x values:
         for x in range(0, binX-1):
-            overflow_up = histo.GetBinContent(x, binY)
-            bin = histo.GetBin(x, binY-1)
-            histo.SetBinContent(bin, overflow_up)
+            overflow_up = histo.GetBinContent(x, overflowbinY)
+            overflowbin = histo.GetBin(x, overflowbinY-1)
+            histo.SetBinContent(overflowbin, overflow_up)
 
         # read and set overflow y values:
         for y in range(0, binY-1):
@@ -107,6 +110,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
         print "Limiting to %s events" % numevents
         cutstring += " && Entry$<%s " % numevents
 
+
     if not nBinsY:
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax)
     else:
@@ -133,6 +137,17 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
 
     return histo
 
+#FIXME
+#def get_eventlist(tree_files,cutstring):
+#   
+#    print 'get eventlist tree_file:%s, cut:%s'%(tree_files,cutstring)
+#    os.system('mkdir -p eventlist')
+#    # TEventList
+#    tree.Draw(">>myList", cutstring)
+#    evlist = gDirectory.Get("myList")
+#    evlistout = TFile("evlistout.root","recreate")
+#    evlist.Write()
+
 
 def get_histogram_from_file_wrapper(args):
 
@@ -150,6 +165,8 @@ def get_histogram_from_file_wrapper(args):
     numevents = args[11]
 
     print "Thread started..."
+
+    #eventlist = get_eventlist(tree_files,cutstring)
 
     histogram = get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, file_contains_histograms=False, numevents=numevents)
 
@@ -200,12 +217,10 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
     for i_sample, sample in enumerate(samples):
 
         filenames = glob.glob(sample + "*root")
-
         if not nBinsY:
             pool_args.append( [filenames, tree_folder_name, variable, nBinsX, xmin, xmax, False, False, False, cutstring, scaling, numevents] )
         else:
             pool_args.append( [filenames, tree_folder_name, variable, nBinsX, xmin, xmax, nBinsY, ymin, ymax, cutstring, scaling, numevents] )
-
     try:
 
         if threads == -1:
@@ -214,8 +229,8 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
             pool = multiprocessing.Pool(threads)
         
         all_histograms = pool.map(get_histogram_from_file_wrapper, pool_args)
-               
-        for histogram in all_histograms:   
+        
+	for histogram in all_histograms:   
         
             if h_combined == 0:
                 h_combined = histogram
@@ -229,6 +244,13 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         print str(error)
         quit()
 
-    print "h_combined.GetEntries()", str(h_combined.GetEntries())
     return h_combined
 
+def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax):
+
+    histos = {}
+
+    for label in samples:
+        histos[label] = get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"])
+
+    return histos

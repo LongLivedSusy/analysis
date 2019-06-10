@@ -9,16 +9,7 @@ import os
 gStyle.SetOptStat(0);
 gROOT.SetBatch(True)
     
-def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax):
-
-    histos = {}
-
-    for label in samples:
-        histos[label] = plotting.get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"])
-
-    return histos
-
-def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", logx=False, logy=True, blind=False):
+def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, blind=False):
     
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
@@ -57,7 +48,7 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
 
     # get lumi value:
     #lumi = -1
-    lumi = 35900
+    lumi = 135900
     for label in sorted(histos):
 	# check data in sample list for blinding
         if samples[label]["type"] == "data" and not blind:
@@ -91,7 +82,7 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     print "Stacking"
     for label in Sort(samples_for_sorting, 1):
         mcstack.Add(histos[label[0]])
-        legend.AddEntry(histos[label[0]], label[0])
+        legend.AddEntry(histos[label[0]], label[0]+'(%0.2f)'%(histos[label[0]].Integral()))
                                 
     mcstack.Draw("hist")
     mcstack.GetXaxis().SetLabelSize(0)   
@@ -224,4 +215,4 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     ratio.GetYaxis().SetLabelSize(0.15)
     
     os.system("mkdir -p %s/%s" % (outputdir,cut))
-    canvas.SaveAs("%s/%s/%s%s.pdf" % (outputdir, cut, variable, suffix))
+    canvas.SaveAs("%s/%s/%s%s.%s" % (outputdir, cut, variable, suffix, outformat))
