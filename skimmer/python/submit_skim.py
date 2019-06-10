@@ -55,7 +55,7 @@ def get_data_sample_names(folder, globstring = "*"):
         
 	# ignore broken HT binning labels
         ignore_item = False
-        ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "-60ToInf_", "Run218", "Run217", "Run216"]
+        ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-400to60_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "-60ToInf_", "Run218", "Run217", "Run216"]
         for i_ignore in ignore_list:
             if i_ignore in sample_name:
                 ignore_item = True
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate --loose_dxy"
     options.dataset = "Summer16.DY*"
     #options.dataset = "RunIIFall17*"
-    options.output_folder = "output_Summer16"
+    options.output_folder = "output_Summer16_DY"
     #options.output_folder = "output_Fall17"
     #options.files_per_job = 100
 
