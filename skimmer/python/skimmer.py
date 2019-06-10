@@ -221,7 +221,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks"] = 0
     tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_actualfake', 'tracks_promptbg', 'tracks_promptelectron', 'tracks_promptmuon', 'tracks_prompttau', 'tracks_prompttau_wideDR', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_disappearing_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_is_tracker_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_actualfake', 'tracks_promptbg', 'tracks_promptelectron', 'tracks_promptmuon', 'tracks_prompttau', 'tracks_prompttau_wideDR', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_disappearing_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
     for branch in vector_int_branches:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
@@ -639,6 +639,7 @@ def loop(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                            {
                                              "tracks": event.tracks[iCand],
                                              "tracks_is_pixel_track": is_pixel_track,
+                                             "tracks_is_tracker_track": is_tracker_track,
                                              "tracks_pixelLayersWithMeasurement": event.tracks_pixelLayersWithMeasurement[iCand],
                                              "tracks_trackerLayersWithMeasurement": event.tracks_trackerLayersWithMeasurement[iCand],
                                              "tracks_actualfake": not charged_genlepton_in_track_cone,
