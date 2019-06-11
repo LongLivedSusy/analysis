@@ -5,16 +5,15 @@ import commands
 from natsort import natsorted, ns
 import sys
 from GridEngineTools import runParallel
+import json
 
-def main(folder, runmode):
-
-    # merge skim output:
+def hadd_histograms(folder, runmode):
 
     if folder[-1] == "/":
         folder = folder[:-1]
 
     samples = []
-    for item in glob.glob(folder + "/Run2017*root") + glob.glob(folder + "/Run2018*root") + glob.glob(folder + "/RunIIFall17MiniAODv2*root"):
+    for item in glob.glob(folder + "/Run2016*root") + glob.glob(folder + "/Summer16*root"):
 
         # ignore broken HT binning labels
         ignore_item = False
@@ -27,8 +26,6 @@ def main(folder, runmode):
         sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-3] )
         sample_name = sample_name.replace("_ext1AOD","").replace("_ext2AOD","").replace("_ext3AOD","")
         sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","")
-        #sample_name = sample_name.replace("RunIIFall17MiniAODv2","Fall17")
-        #sample_name = sample_name.replace("AOD","")
 
         if "Run201" in sample_name:
             if sample_name[-1].isdigit():
@@ -40,10 +37,6 @@ def main(folder, runmode):
         samples.append(sample_name)
 
     samples = list(set(samples))
-
-    #for sample in samples:
-    #    print sample
-    #quit()
 
     print "Merging samples of folder %s:" % folder
     for sample in samples:
@@ -59,14 +52,10 @@ def main(folder, runmode):
     os.system("cp %s/*py %s_merged/" % (folder, folder))
 
 
-def get_json(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"]):
+def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
 
     if folder[-1] == "/":
         folder = folder[:-1]
-
-    # merge lumisection JSON:
-
-    json_cleaning = True
 
     for year in years:
         for datastream in datastreams:
@@ -111,14 +100,7 @@ def get_json(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "
                                 cleaned_list.append(combined_json[run][i])
               
                         combined_json[run] = cleaned_list
-            
-            #if json_cleaning:
-            #    # compact lumisections:
-            #    combined_json_compacted = []
-            #    for i in range(len(combined_json[run])):
-            #        if len(combined_json_compacted) == 0:
-            #            combined_json_compacted.append()
-            
+                        
             combined_json_text = str(combined_json).replace("'", '"')
             filename = "%s_merged/Run%s_%s.json" % (folder, year, datastream)
         
@@ -126,13 +108,56 @@ def get_json(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "
                 fout.write(combined_json_text)
         
                 print "%s written" % filename
-      
+
+
+def get_lumi_from_bril(json_file_name, cern_username, retry=False):
+    
+    status, out = commands.getstatusoutput('ps axu | grep "itrac5117-v.cern.ch:1012" | grep -v grep')
+    if status != 0:
+        print "Opening SSH tunnel for brilcalc..."
+        os.system("ssh -f -N -L 10121:itrac5117-v.cern.ch:10121 %s@lxplus.cern.ch" % cern_username)
+    else:
+        print "Existing tunnel for brilcalc found"
+        
+    print "Getting lumi for %s..." % json_file_name
+    
+    status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s > %s.briloutput; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name, json_file_name))
+    
+    if status != 0:
+        if not retry:
+            print "Trying to re-establish the tunnel..."
+            os.system("pkill -f lxplus")
+            get_lumi_from_bril(json_file_name, cern_username, retry=True)
+        else:
+            print "Error while running brilcalc!"
+            if cern_username == "vkutzner":
+                print "Did you set your CERN username with '--cern_username'?"
+        lumi = -1
+    else:
+        lumi = float(out.split("|")[-2])
+    
+    print "lumi:", lumi
+    return lumi
+
+
+def get_lumis(folder, cern_username):
+
+    lumis = {}
+    for json_file in glob.glob("%s_merged/*json" % folder):
+        lumi = get_lumi_from_bril(json_file, cern_username)
+        lumis[json_file.split("/")[-1].split(".json")[0]] = lumi
+        
+    with open("%s_merged/luminosity.py" % folder, "w+") as fout:
+        fout.write(json.dumps(lumis))
+
 
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--add_jsons", dest="add_jsons", action="store_true", default=False)
+    parser.add_option("--add_jsons", dest="add_jsons", action="store_true")
+    parser.add_option("--bril", dest="bril", action="store_true")
     parser.add_option("--runmode", dest="runmode", default="grid")
+    parser.add_option("--cern_username", dest="cern_username", default="vkutzner")
     (options, args) = parser.parse_args()
     if len(args) > 0:
         folder = args[0]
@@ -140,8 +165,11 @@ if __name__ == "__main__":
         print "usage: ./merge_samples.py <folder>"
         quit()
 
-    if not options.add_jsons:
-        main(folder, options.runmode)
+    if options.add_jsons:
+        merge_json_files(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+    elif options.bril:
+        get_lumis(folder, options.cern_username)
     else:
-        get_json(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-
+        hadd_histograms(folder, options.runmode)
+        merge_json_files(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        get_lumis(folder, options.cern_username)
