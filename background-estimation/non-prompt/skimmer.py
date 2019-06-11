@@ -186,17 +186,50 @@ def passesUniversalSelection(t):
     if not (bool(t.JetID) and  t.NVtx>0): return False
     if not  passQCDHighMETFilter(t): return False
     if not t.PFCaloMETRatio<2: return False
-    #if not t.globalSuperTightHalo2016Filter: return False
     if not t.globalTightHalo2016Filter: return False
     if not t.HBHEIsoNoiseFilter: return False
     if not t.HBHENoiseFilter: return False
-    if not t.BadChargedCandidateFilter: return False
     if not t.BadPFMuonFilter: return False
     if not t.CSCTightHaloFilter: return False
-    #if not t.ecalBadCalibFilter: return False #this says it's deprecated
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False
     if not t.eeBadScFilter: return False 
     return True
+
+
+def particle_is_in_HEM_failure_region(particle):
+
+    eta = particle.Eta()
+    phi = particle.Phi()
+
+    if -3.2<eta and eta<-1.2 and -1.77<phi and phi<-0.67:
+        return True
+    else:
+        return False
+
+
+def get_highest_HEM_object_pt(objects):
+
+    # check HEM failure for electrons and jets:
+    highestPt = 0
+    for particle in objects:
+        if particle_is_in_HEM_failure_region(particle):
+            if particle.Pt()>highestPt:
+                highestPt = particle.Pt()
+    return highestPt
+
+
+def get_minDeltaPhi_MHT_HEMJets(objects, MHT):
+
+    lowestDPhi = 10
+    for jet in objects:
+        if not jet.Pt()>30: continue
+        if particle_is_in_HEM_failure_region(jet):
+            if abs(jet.DeltaPhi(mht))<lowestDPhi:
+                lowestDPhi = abs(jet.DeltaPhi(mht))
+    if lowestDPhi<0:
+        return 10
+    else:
+        return lowestDPhi
 
 
 def getBinContent_with_overflow(histo, xval, yval = False):
@@ -947,6 +980,9 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
     # write JSON containing lumisections:
     if len(runs) > 0:
+
+        print "runs before compacting:", runs
+
         runs_compacted = {}
         for run in runs:
             if run not in runs_compacted:
@@ -956,6 +992,8 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     runs_compacted[run][-1][-1] = lumisec
                 else:
                     runs_compacted[run].append([lumisec, lumisec])
+
+        print "runs after compacting:", runs_compacted
 
         json_content = json.dumps(runs_compacted)
         with open(track_tree_output.replace(".root", ".json"), "w") as fo:
