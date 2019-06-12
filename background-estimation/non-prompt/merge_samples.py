@@ -13,11 +13,11 @@ def hadd_histograms(folder, runmode):
         folder = folder[:-1]
 
     samples = []
-    for item in glob.glob(folder + "/Run2016*root") + glob.glob(folder + "/Summer16*root"):
+    for item in glob.glob(folder + "/*root"):
 
         # ignore broken HT binning labels
         ignore_item = False
-        ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "-60ToInf_", "Run218", "Run217", "Run216"]
+        ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "1000to150_", "-60ToInf_", "400to60_", "100To20_", "HT150to2000_", "HT200to30_", "HT1000to150_", "Run218", "Run217", "Run216"]
         for i_ignore in ignore_list:
             if i_ignore in item:
                 ignore_item = True
@@ -126,7 +126,7 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
     if status != 0:
         if not retry:
             print "Trying to re-establish the tunnel..."
-            os.system("pkill -f lxplus")
+            os.system("pkill -f itrac5117")
             get_lumi_from_bril(json_file_name, cern_username, retry=True)
         else:
             print "Error while running brilcalc!"
@@ -144,12 +144,19 @@ def get_lumis(folder, cern_username):
 
     lumis = {}
     for json_file in glob.glob("%s_merged/*json" % folder):
-        lumi = get_lumi_from_bril(json_file, cern_username)
-        lumis[json_file.split("/")[-1].split(".json")[0]] = lumi
+
+        try:
+            lumi = get_lumi_from_bril(json_file, cern_username)
+            lumis[json_file.split("/")[-1].split(".json")[0]] = lumi
+        except:
+            print "Couldn't get lumi for %s. Empty JSON?" % json_file
         
     with open("%s_merged/luminosity.py" % folder, "w+") as fout:
         fout.write(json.dumps(lumis))
 
+    print "Closing SSH tunnel..."
+    os.system("pkill -f itrac5117")
+    
 
 if __name__ == "__main__":
 
@@ -163,6 +170,8 @@ if __name__ == "__main__":
         folder = args[0]
     else:
         print "usage: ./merge_samples.py <folder>"
+        print "For brilcalc, make sure that you have brilws installed (pip install --user brilws)"
+        print "Set your CERN username with --cern_username"
         quit()
 
     if options.add_jsons:
