@@ -337,16 +337,11 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
 
     score = bdt["reader"].EvaluateMVA("BDT")
     
-    #if is_pixel_track and score > 0.1:
-    #    return score
-    #elif not is_pixel_track and score > 0.25:
-    #    return score
-    #else:
     return score
     
     
 def check_is_reco_lepton(event, iCand, deltaR = 0.01):
-    # re-check PF lepton veto:
+
     reco_lepton = False
     for k in range(len(event.Muons)):
         if event.tracks[iCand].DeltaR(event.Muons[k]) < deltaR:
@@ -358,6 +353,7 @@ def check_is_reco_lepton(event, iCand, deltaR = 0.01):
 
 
 def pass_pion_veto(event, iCand, deltaR = 0.03):
+
     # check for nearby pions:
     passpionveto = True
     for k in range(len(event.TAPPionTracks)):
@@ -415,10 +411,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     float_branches = ["MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "dilepton_pt1", "dilepton_pt2"]
     integer_branches = ["n_jets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "meta_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
-    #for dt_tag_label in disappearing_track_tags:
-    #    integer_branches += ["n_DT_%s" % dt_tag_label]
-    #    integer_branches += ["n_DT_actualfake_%s" % dt_tag_label]
-
     if not is_data:
         float_branches.append("madHT")
         float_branches.append("CrossSection")
@@ -456,7 +448,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks"] = 0
     tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_actualfake', 'tracks_promptbg', 'tracks_promptelectron', 'tracks_promptmuon', 'tracks_prompttau', 'tracks_prompttau_wideDR', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']    
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_actualfake', 'tracks_promptbg', 'tracks_promptelectron', 'tracks_promptmuon', 'tracks_prompttau', 'tracks_prompttau_wideDR', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
     for dt_tag_label in disappearing_track_tags:
         vector_int_branches += ["tracks_tagged_%s" % dt_tag_label]
     
@@ -464,7 +456,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_deDxHarmonics2WeightedByValidHits', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDxWeightedByValidHits', 'tracks_chi2perNdof', 'tracks_chargedPtSum']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_deDxHarmonics2WeightedByValidHits', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDxWeightedByValidHits', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
     for dt_tag_label in disappearing_track_tags:
         vector_float_branches += ["tracks_mva_%s" % dt_tag_label]
     for branch in vector_float_branches:
@@ -547,9 +539,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             else:
                 tree_branch_values[label][0] = -1
 
-        #region_tight = []
-        #region_loose1 = []
-        #region_loose2 = []
         region = []
 
         # set selection flags (veto event later if it does not fit into any selection):
@@ -559,6 +548,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
         min_lepton_pt = 30.0
         invariant_mass = 0
+
         if (len(event.Electrons) == 2 and len(event.Muons) == 0):
             if (event.Electrons[0].Pt() > min_lepton_pt):
                 if bool(event.Electrons_mediumID[0]) and bool(event.Electrons_mediumID[1]):
@@ -573,6 +563,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                     tree_branch_values["dilepton_leptontype"][0] = 11
                                     tree_branch_values["dilepton_CR"][0] = 1
                                     dilepton_CR = True       
+
         elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
             if (event.Muons[0].Pt() > min_lepton_pt):
                 if (bool(event.Muons_tightID[0]) and bool(event.Muons_tightID[1])):
@@ -670,28 +661,18 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             
             passpionveto = pass_pion_veto(event, iCand, deltaR = 0.03)        
             if not passpionveto: continue
+
+            baseline = isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = True)
+            if not baseline: continue
             
             ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
 
             # check disappearing track tags:
-            for dt_tag_label in disappearing_track_tags:
-                
-                disappearing_track_tags[dt_tag_label] = -10
-                
+            for dt_tag_label in disappearing_track_tags:                              
                 loose = False
                 if "loose" in dt_tag_label:
-                    loose = True
-                    
-                if not isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = loose):
-                    continue
-
+                    loose = True                   
                 disappearing_track_tags[dt_tag_label] = get_disappearing_track_score(event, iCand, readers, loose = loose)
-
-            keep_track = False
-            for dt_tag_label in disappearing_track_tags:
-                if disappearing_track_tags[dt_tag_label] > -10:
-                    keep_track = True
-            if not keep_track: continue
 
             is_pixel_track = True
             if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
@@ -729,7 +710,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
                                 if deltaR < 0.04:
-                                    print "That's a tau leading track"
+                                    #print "That's a tau leading track"
                                     charged_genlepton_in_track_cone = True
                                     is_tau_bg = True
                                     break
@@ -737,7 +718,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     # if track seems to be fake, check again with wider DR for gentau:
                     if gen_track_cone_pdgid == 15 and deltaR < 0.4:
                         is_tau_bg_wideDR = True
-                        print "Found tau within a wide cone"
+                        #print "Found tau within a wide cone"
                         charged_genlepton_in_track_cone = True
                         break
 
@@ -808,6 +789,27 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     track_level_output[-1]["tracks_tagged_%s" % dt_tag_label] = 1
                 else:
                     track_level_output[-1]["tracks_tagged_%s" % dt_tag_label] = 0
+
+            # if signal, do chargino matching:
+            if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
+
+                deltaR = 0
+
+                # chargino matching:
+                for k in range(len(event.GenParticles)):
+                    if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
+                        deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
+                        if deltaR < 0.001:
+                            track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
+                            break
+
+                # chargino matching with GenParticlesGeant collection:
+                for k in range(len(event.GenParticlesGeant)):
+                    if abs(event.GenParticlesGeant_PdgId[k]) == 1000024 and event.GenParticlesGeant_Status[k] == 1:
+                        new_deltaR = event.tracks[iCand].DeltaR(event.GenParticlesGeant[k])
+                        if new_deltaR == deltaR:
+                            track_level_output[-1]["tracks_LabXYcm"] = event.GenParticlesGeant_LabXYcm[k]
+                            break
 
             if debug:
                 for line in sorted(track_level_output[-1].keys()):
@@ -893,21 +895,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             tree_branch_values["EvtNumEven"][0] = 1
         else:
             tree_branch_values["EvtNumEven"][0] = 0
-     
-        # count number of DTs:    
-        #for dt_tag_label in disappearing_track_tags:
-        #    
-        #    n_DT = 0
-        #    n_DT_actualfake = 0
-        #    for i_track_level_output in track_level_output:
-        #        if i_track_level_output["tracks_tagged_%s" % dt_tag_label] == 1:
-        #            n_DT += 1
-        #        if i_track_level_output["tracks_tagged_%s" % dt_tag_label] == 1 and i_track_level_output["tracks_actualfake"] == 1:
-        #            n_DT_actualfake += 1
-        #
-        #    tree_branch_values["n_DT_%s" % dt_tag_label][0] = n_DT
-        #    tree_branch_values["n_DT_actualfake_%s" % dt_tag_label][0] = n_DT_actualfake
-     
+         
         # track-level variables:
         n_tracks = len(track_level_output)
         tree_branch_values["tracks"] = ROOT.std.vector(TLorentzVector)(n_tracks)
@@ -929,52 +917,14 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
         # get signal region information:
         if event.MHT>250 and len(event.Jets)>0:
-            #n_DT_bdt = 0
-            #n_DT_bdt_loose1 = 0
-            #n_DT_bdt_loose2 = 0
-            #is_pixel_track_bdt = False
-            #is_pixel_track_bdt_loose1 = False
-            #is_pixel_track_bdt_loose2 = False
-            #
-            #for track_output_dict in track_level_output:
-            #    if track_output_dict["tracks_tagged_bdt"] > 0:
-            #        is_pixel_track_bdt = track_output_dict["tracks_is_pixel_track"]
-            #        if is_pixel_track_bdt and  track_output_dict["tracks_mva_bdt"] > 0.1:
-            #            n_DT_bdt += 1
-            #        elif not is_pixel_track_bdt and track_output_dict["tracks_mva_bdt"] > 0.25:
-            #            n_DT_bdt += 1
-            #    if track_output_dict["tracks_tagged_bdt_loose"] > 0 and track_output_dict["tracks_dxyVtx"] <= 0.01:
-            #        n_DT_bdt_loose1 += 1
-            #        is_pixel_track_bdt_loose1 = track_output_dict["tracks_is_pixel_track"]
-            #    if track_output_dict["tracks_tagged_bdt_loose"] > 0 and track_output_dict["tracks_dxyVtx"] <= 0.02:
-            #        n_DT_bdt_loose2 += 1
-            #        is_pixel_track_bdt_loose2 = track_output_dict["tracks_is_pixel_track"]
-                                                               
             region.append(get_signal_region(event, MinDeltaPhiMhtJets, 1, True))
             region.append(get_signal_region(event, MinDeltaPhiMhtJets, 1, False))
             region.append(get_signal_region(event, MinDeltaPhiMhtJets, 2, True))
-            #if n_DT_bdt > 0:        region_tight.append( get_signal_region(event, MinDeltaPhiMhtJets, n_DT_bdt, is_pixel_track_bdt) )
-            #if n_DT_bdt_loose1 > 0: region_loose1.append( get_signal_region(event, MinDeltaPhiMhtJets, n_DT_bdt_loose1, is_pixel_track_bdt_loose1) )
-            #if n_DT_bdt_loose2 > 0: region_loose2.append( get_signal_region(event, MinDeltaPhiMhtJets, n_DT_bdt_loose2, is_pixel_track_bdt_loose2) )
-            #
+            region = filter(lambda a: a != 0, region)
             tree_branch_values["region"] = ROOT.std.vector(int)(len(region))
-            #tree_branch_values["region_tight"] = ROOT.std.vector(int)(len(region_tight))
-            #tree_branch_values["region_loose1"] = ROOT.std.vector(int)(len(region_loose1))
-            #tree_branch_values["region_loose2"] = ROOT.std.vector(int)(len(region_loose2))
-            #
             tout.SetBranchAddress("region", tree_branch_values["region"])
-            #tout.SetBranchAddress("region_tight", tree_branch_values["region_tight"])
-            #tout.SetBranchAddress("region_loose1", tree_branch_values["region_loose1"])
-            #tout.SetBranchAddress("region_loose2", tree_branch_values["region_loose2"])
-            #
             for i in range(len(region)):
                 tree_branch_values["region"][i] = region[i]
-            #for i in range(len(region_tight)):
-            #    tree_branch_values["region_tight"][i] = region_tight[i]
-            #for i in range(len(region_loose1)):
-            #    tree_branch_values["region_loose1"][i] = region_loose1[i]
-            #for i in range(len(region_loose2)):
-            #    tree_branch_values["region_loose2"][i] = region_loose2[i]
         
         tout.Fill()
      
@@ -991,9 +941,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
     # write JSON containing lumisections:
     if len(runs) > 0:
-
-        print "runs before compacting:", runs
-
         runs_compacted = {}
         for run in runs:
             if run not in runs_compacted:
@@ -1003,8 +950,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     runs_compacted[run][-1][-1] = lumisec
                 else:
                     runs_compacted[run].append([lumisec, lumisec])
-
-        print "runs after compacting:", runs_compacted
 
         json_content = json.dumps(runs_compacted)
         with open(track_tree_output.replace(".root", ".json"), "w") as fo:
