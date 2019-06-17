@@ -6,23 +6,25 @@ import plotting
 import uuid
 import os
 
-def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax):
+def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax, threads=-1):
 
     histos = {}
 
     for label in samples:
-        histos[label] = plotting.get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"])
+        histo = plotting.get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"], threads=threads)
+        if histo:
+            histos[label] = histo
 
     return histos
 
 
-def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True):
+def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC"):
  
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
     pad1 = TPad("pad1", "pad1", 0, 0.16, 1, 1.0)
     pad1.SetRightMargin(0.05)
-    pad1.SetLogy(True)
+    pad1.SetLogy(logy)
     pad2 = TPad("pad2", "pad2", 0.0, 0.025, 1.0, 0.235)
     pad2.SetBottomMargin(0.25)
     pad2.SetRightMargin(0.05)
@@ -55,9 +57,11 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     samples_for_sorting = []
 
     # get lumi value:
-    lumi = -1
+    lumi = 1.0
+    plot_has_data = False
     for label in sorted(histos):
         if samples[label]["type"] == "data":
+            plot_has_data = True
             lumi = samples[label]["lumi"]
 
     # plot backgrounds:
@@ -157,18 +161,24 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
                 combined_mc_background = histos[label].Clone()
             else:
                  combined_mc_background.Add(histos[label])        
+
+    if plot_has_data:
     
-    data = 0
-    for label in sorted(histos):
-        if samples[label]["type"] == "data":
-            data = histos[label].Clone()
+        data = 0
+        for label in sorted(histos):
+            if samples[label]["type"] == "data":
+                data = histos[label].Clone()
     
-    ratio = data.Clone()
+        ratio = data.Clone()
+    
+    else:
+        
+        ratio = combined_mc_background.Clone()
+        
     ratio.Divide(combined_mc_background)
     #ratio.GetXaxis().SetRangeUser(xmin, xmax)
     ratio.Draw("same e0")
-
-    ratio.SetTitle(";%s;Pred./Truth" % xlabel)
+    ratio.SetTitle(";%s;%s" % (xlabel, miniylabel))
     pad2.SetGridx(True)
     pad2.SetGridy(True)
     ratio.GetXaxis().SetTitleSize(0.13)

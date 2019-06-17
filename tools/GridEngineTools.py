@@ -8,9 +8,13 @@ import datetime
 import subprocess
 import multiprocessing
 
-def runParallel(commands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.70, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False):
+def ShellExec(command):
+    os.system(command)
 
-    if runmode == "multi":
+
+def runParallel(commands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False):
+
+    if runmode == "multiprocessing" or runmode == "multi":
 
         nCores = int(multiprocessing.cpu_count() * ncores_percentage)
         print "Using %i cores" % nCores
@@ -18,7 +22,7 @@ def runParallel(commands, runmode, condorDir="bird", cmsbase=False, qsubOptions=
         pool = multiprocessing.Pool(nCores)
         return pool.map(ShellExec, commands)
 
-    if runmode == "grid":
+    elif runmode == "grid":
         
         if not cmsbase:
             if "CMSSW_BASE" in os.environ:

@@ -15,8 +15,8 @@ def closure_plot(variable, folder, file_label, regions, selected_mc, selected_da
     elif category == "long":
         category_cuts = " && tracks_is_pixel_track==0"
 
-    histos["mc_prompt"] = get_histogram(variable, base_cuts + category_cuts + " && n_DT>0 && n_DT_actualfake==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_mc, numevents=numevents)
-    histos["mc_nonprompt"] = get_histogram(variable, base_cuts + category_cuts + " && n_DT==n_DT_actualfake && n_DT_actualfake>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_mc, numevents=numevents)
+    histos["mc_prompt"] = get_histogram(variable, base_cuts + category_cuts + " && n_DT_bdt>0 && n_DT_actualfake_bdt==0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_mc, numevents=numevents)
+    histos["mc_nonprompt"] = get_histogram(variable, base_cuts + category_cuts + " && n_DT_bdt==n_DT_actualfake_bdt && n_DT_actualfake_bdt>0", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=selected_mc, numevents=numevents)
 
     for data_type in ["mc", "data"]:
 
@@ -201,7 +201,7 @@ if __name__ == "__main__":
                  #"n_NVtx": [10, 0, 50],
                  #"MinDeltaPhiMhtJets": [15, 0, 4],
                  #"DT1_is_pixel_track": [2, 0, 2],
-                 #"n_DT": [2, 0, 2],
+                 #"n_DT_bdt": [2, 0, 2],
                 }
 
     cuts = {
@@ -228,14 +228,14 @@ if __name__ == "__main__":
                      #"HT",
                      #"n_allvertices",
                      "HT_n_allvertices", 
-                     #"n_DT"
+                     #"n_DT_bdt"
                      #"HT_cleaned",
                      #"HT_cleaned_n_allvertices", 
                     ]
 
     categories = [
-                    "",
-                    #"short",
+                    #"",
+                    "short",
                     #"long",
                  ]
 

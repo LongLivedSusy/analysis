@@ -87,13 +87,13 @@ def get_ntuple_datasets(globstring_list):
     
     # add signals:
     
-    ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar"] = [
-        "g1800_chi1400_27_200970_step4_10",
-        "g1800_chi1400_27_200970_step4_30",
-        "g1800_chi1400_27_200970_step4_50",
-        "g1800_chi1400_27_200970_step4_100",
-        "g1800_chi1400_27_200970_step4_1000",
-    ]
+    #ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar"] = [
+    #    "g1800_chi1400_27_200970_step4_10",
+    #    "g1800_chi1400_27_200970_step4_30",
+    #    "g1800_chi1400_27_200970_step4_50",
+    #    "g1800_chi1400_27_200970_step4_100",
+    #    "g1800_chi1400_27_200970_step4_1000",
+    #]
         
     ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
         "Summer16.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
@@ -102,12 +102,12 @@ def get_ntuple_datasets(globstring_list):
         "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
    
-    ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
-        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
-        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
-        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
-    ]
+    #ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
+    #    "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+    #    "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+    #    "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+    #    "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
+    #]
   
     return ntuples
     
@@ -126,15 +126,28 @@ if __name__ == "__main__":
     if False:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
         #options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
-        options.dataset = "RunIIFall17*,Run2017*JetHT*,Run2017*SingleElectron*,Run2017*SingleMuon*,Run2018*JetHT*,Run2018*SingleElectron*,Run2018*SingleMuon*"
-        options.output_folder = "output_skim_31_fakerate"
-        options.files_per_job = 25
+        options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
+        options.output_folder = "output_skim_32_fakerate"
+        options.files_per_job = 60
+        
+    if False:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
+        options.dataset = "Summer16*,RunIIFall17*,Run2016*MET*,Run2017*MET*,Run2018*MET*"
+        options.output_folder = "output_skim_32_applied"
+        options.files_per_job = 50
         
     if True:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
-        options.dataset = "Summer16*,RunIIFall17*,*MET*"
-        options.output_folder = "output_skim_31"
+        options.dataset = "Summer16.QCD*,Summer16.ZJetsToNuNu_HT*"
+        options.output_folder = "output_skim_44"
         options.files_per_job = 25
+
+    if False:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+        options.dataset = "RunIIFall17*,Run2017*MET*,Run2018*MET*"
+        options.output_folder = "output_skim_31b"
+        options.files_per_job = 25
+
     ######## some presets you can enable/disable ########
 
     commands = []

@@ -337,7 +337,12 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
 
     score = bdt["reader"].EvaluateMVA("BDT")
     
-    return score
+    if is_pixel_track and score > 0.1:
+        return score
+    elif not is_pixel_track and score > 0.25:
+        return score
+    else:
+        return -10
     
     
 def check_is_reco_lepton(event, iCand, deltaR = 0.01):
@@ -394,6 +399,10 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 phase = 0
             elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
                 phase = 1
+
+    #FIXME: no special handling for Autumn18 yet
+    if data_period == "Autumn18":
+        data_period == "Fall17" 
 
     if data_period != "":
         print "data_period: %s, phase: %s" % (data_period, phase)
@@ -549,35 +558,42 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         min_lepton_pt = 30.0
         invariant_mass = 0
 
-        if (len(event.Electrons) == 2 and len(event.Muons) == 0):
-            if (event.Electrons[0].Pt() > min_lepton_pt):
-                if bool(event.Electrons_mediumID[0]) and bool(event.Electrons_mediumID[1]):
-                    if (event.Electrons_charge[0] * event.Electrons_charge[1] < 0):
-                        invariant_mass = (event.Electrons[0] + event.Electrons[1]).M()
-                        if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                            if bool(event.Electrons_passIso[0]) and bool(event.Electrons_passIso[1]):
-                                if abs(event.Electrons[0].Eta()) < 2.4 and abs(event.Electrons[1].Eta()):
-                                    tree_branch_values["dilepton_invmass"][0] = invariant_mass
-                                    tree_branch_values["dilepton_pt1"][0] = event.Electrons[0].Pt()
-                                    tree_branch_values["dilepton_pt2"][0] = event.Electrons[1].Pt()                                    
-                                    tree_branch_values["dilepton_leptontype"][0] = 11
-                                    tree_branch_values["dilepton_CR"][0] = 1
-                                    dilepton_CR = True       
+        # z mass peak: select two leptons with same flavour and pt>30
+        selected_e_indices = []
+        selected_mu_indices = []
+        for lepton_type in ["Electrons", "Muons"]:
+            for i, lepton in enumerate(eval("event.%s" % lepton_type)):
+                if lepton.Pt() > 30:
+                    if lepton_type == "Electrons": selected_e_indices.append(i)
+                    elif lepton_type == "Muons": selected_mu_indices.append(i)                
 
-        elif (len(event.Muons) == 2 and len(event.Electrons) == 0):
-            if (event.Muons[0].Pt() > min_lepton_pt):
-                if (bool(event.Muons_tightID[0]) and bool(event.Muons_tightID[1])):
-                    if (event.Muons_charge[0] * event.Muons_charge[1] < 0):
-                        invariant_mass = (event.Muons[0] + event.Muons[1]).M()            
-                        if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                            if bool(event.Muons_passIso[0]) and bool(event.Muons_passIso[1]):
-                                if abs(event.Muons[0].Eta()) < 2.4 and abs(event.Muons[1].Eta()):
-                                    tree_branch_values["dilepton_invmass"][0] = invariant_mass
-                                    tree_branch_values["dilepton_pt1"][0] = event.Muons[0].Pt()
-                                    tree_branch_values["dilepton_pt2"][0] = event.Muons[1].Pt()                                    
-                                    tree_branch_values["dilepton_leptontype"][0] = 13
-                                    tree_branch_values["dilepton_CR"][0] = 1
-                                    dilepton_CR = True
+        if (len(selected_e_indices) == 2 and len(selected_mu_indices) == 0):
+            if bool(event.Electrons_mediumID[selected_e_indices[0]]) and bool(event.Electrons_mediumID[selected_e_indices[1]]):
+                if (event.Electrons_charge[selected_e_indices[0]] * event.Electrons_charge[selected_e_indices[1]] < 0):
+                    invariant_mass = (event.Electrons[selected_e_indices[0]] + event.Electrons[selected_e_indices[1]]).M()
+                    if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
+                        if bool(event.Electrons_passIso[selected_e_indices[0]]) and bool(event.Electrons_passIso[selected_e_indices[1]]):
+                            if abs(event.Electrons[selected_e_indices[0]].Eta()) < 2.4 and abs(event.Electrons[selected_e_indices[1]].Eta()):
+                                tree_branch_values["dilepton_invmass"][0] = invariant_mass
+                                tree_branch_values["dilepton_pt1"][0] = event.Electrons[selected_e_indices[0]].Pt()
+                                tree_branch_values["dilepton_pt2"][0] = event.Electrons[selected_e_indices[1]].Pt()                                    
+                                tree_branch_values["dilepton_leptontype"][0] = 11
+                                tree_branch_values["dilepton_CR"][0] = 1
+                                dilepton_CR = True       
+
+        elif (len(selected_mu_indices) == 2 and len(selected_e_indices) == 0):
+            if (bool(event.Muons_tightID[selected_mu_indices[0]]) and bool(event.Muons_tightID[selected_mu_indices[1]])):
+                if (event.Muons_charge[selected_mu_indices[0]] * event.Muons_charge[selected_mu_indices[1]] < 0):
+                    invariant_mass = (event.Muons[selected_mu_indices[0]] + event.Muons[selected_mu_indices[1]]).M()            
+                    if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
+                        if bool(event.Muons_passIso[selected_mu_indices[0]]) and bool(event.Muons_passIso[selected_mu_indices[1]]):
+                            if abs(event.Muons[selected_mu_indices[0]].Eta()) < 2.4 and abs(event.Muons[selected_mu_indices[1]].Eta()):
+                                tree_branch_values["dilepton_invmass"][0] = invariant_mass
+                                tree_branch_values["dilepton_pt1"][0] = event.Muons[selected_mu_indices[0]].Pt()
+                                tree_branch_values["dilepton_pt2"][0] = event.Muons[selected_mu_indices[1]].Pt()                                    
+                                tree_branch_values["dilepton_leptontype"][0] = 13
+                                tree_branch_values["dilepton_CR"][0] = 1
+                                dilepton_CR = True
 
         # check if low-MHT, QCD-only samples:
         if "QCD" in current_file_name or "JetHT" in current_file_name:
@@ -674,6 +690,12 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     loose = True                   
                 disappearing_track_tags[dt_tag_label] = get_disappearing_track_score(event, iCand, readers, loose = loose)
 
+            keep_track = False
+            for dt_tag_label in disappearing_track_tags:
+                if disappearing_track_tags[dt_tag_label] > -10:
+                    keep_track = True
+            if not keep_track: continue
+
             is_pixel_track = True
             if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
@@ -697,7 +719,8 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
                     if deltaR < 0.02:
                           
-                        if (gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13) and event.GenParticles_Status[k] == 1:
+                        #if (gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13) and event.GenParticles_Status[k] == 1:
+                        if gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13:
                             charged_genlepton_in_track_cone = True
                             is_prompt_bg = True
                             if gen_track_cone_pdgid == 11: 
@@ -712,6 +735,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                 if deltaR < 0.04:
                                     #print "That's a tau leading track"
                                     charged_genlepton_in_track_cone = True
+                                    is_prompt_bg = True
                                     is_tau_bg = True
                                     break
 
@@ -799,17 +823,17 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 for k in range(len(event.GenParticles)):
                     if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
                         deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
-                        if deltaR < 0.001:
+                        if deltaR < 0.01:
                             track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
                             break
 
-                # chargino matching with GenParticlesGeant collection:
-                for k in range(len(event.GenParticlesGeant)):
-                    if abs(event.GenParticlesGeant_PdgId[k]) == 1000024 and event.GenParticlesGeant_Status[k] == 1:
-                        new_deltaR = event.tracks[iCand].DeltaR(event.GenParticlesGeant[k])
-                        if new_deltaR == deltaR:
-                            track_level_output[-1]["tracks_LabXYcm"] = event.GenParticlesGeant_LabXYcm[k]
-                            break
+                ## chargino matching with GenParticlesGeant collection:
+                #for k in range(len(event.GenParticlesGeant)):
+                #    if abs(event.GenParticlesGeant_PdgId[k]) == 1000024 and event.GenParticlesGeant_Status[k] == 1:
+                #        new_deltaR = event.tracks[iCand].DeltaR(event.GenParticlesGeant[k])
+                #        if new_deltaR == deltaR:
+                #            track_level_output[-1]["tracks_LabXYcm"] = event.GenParticlesGeant_LabXYcm[k]
+                #            break
 
             if debug:
                 for line in sorted(track_level_output[-1].keys()):
@@ -821,9 +845,9 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             # fill all fakerate branches:
             for variable in fakerate_variables:
                 for fr_region in fakerate_regions:
-                   
+                    
                     hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                                        
+                    
                     if ":" in variable:
                         xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "nAllVertices").replace("n_NVtx", "NVtx").split(":")[1])
                         yvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "nAllVertices").replace("n_NVtx", "NVtx").split(":")[0])

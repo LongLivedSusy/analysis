@@ -233,13 +233,17 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
             if h_combined == 0:
                 h_combined = histogram
             else:
-                h_combined.Add(histogram)   
+                h_combined.Add(histogram)
         
     except Exception, error:    
         
         print str(error)
         quit()
 
-    print "h_combined.GetEntries()", str(h_combined.GetEntries())
-    return h_combined
+    try:
+        print "h_combined.GetEntries()", str(h_combined.GetEntries())
+        return h_combined
+    except:
+        print "Empty histogram"
+        return False
 
