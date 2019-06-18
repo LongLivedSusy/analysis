@@ -123,30 +123,12 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     ######## some presets you can enable/disable ########
-    if False:
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
-        #options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
-        options.dataset = "Summer16*,RunIIFall17*,*JetHT*,*SingleElectron*,*SingleMuon*"
-        options.output_folder = "output_skim_32_fakerate"
-        options.files_per_job = 60
-        
-    if False:
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
-        options.dataset = "Summer16*,RunIIFall17*,Run2016*MET*,Run2017*MET*,Run2018*MET*"
-        options.output_folder = "output_skim_32_applied"
-        options.files_per_job = 50
-        
-    if True:
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
-        options.dataset = "Summer16.QCD*,Summer16.ZJetsToNuNu_HT*"
-        options.output_folder = "output_skim_44"
-        options.files_per_job = 25
-
-    if False:
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
-        options.dataset = "RunIIFall17*,Run2017*MET*,Run2018*MET*"
-        options.output_folder = "output_skim_31b"
-        options.files_per_job = 25
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
+    options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+    options.dataset = "Summer16.*"
+    options.output_folder = "output_skim_10"
+    options.files_per_job = 20
 
     ######## some presets you can enable/disable ########
 

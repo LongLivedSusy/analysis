@@ -337,12 +337,14 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
 
     score = bdt["reader"].EvaluateMVA("BDT")
     
-    if is_pixel_track and score > 0.1:
-        return score
-    elif not is_pixel_track and score > 0.25:
-        return score
-    else:
-        return -10
+    #if is_pixel_track and score > 0.1:
+    #    return score
+    #elif not is_pixel_track and score > 0.25:
+    #    return score
+    #else:
+    #    return -10
+
+    return score
     
     
 def check_is_reco_lepton(event, iCand, deltaR = 0.01):
@@ -368,7 +370,7 @@ def pass_pion_veto(event, iCand, deltaR = 0.03):
     return passpionveto
 
 
-def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, only_fakerate = False, verbose = False, iEv_start = False, debug = True):
+def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, only_fakerate = False, verbose = False, iEv_start = False, debug = True, save_cleaned_variables = True):
 
     # store runs for JSON output:
     runs = {}
@@ -418,14 +420,14 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
     # prepare variables for output tree   
     float_branches = ["MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "dilepton_pt1", "dilepton_pt2"]
-    integer_branches = ["n_jets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "meta_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
+    integer_branches = ["n_jets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
     if not is_data:
         float_branches.append("madHT")
         float_branches.append("CrossSection")
         float_branches.append("puWeight")
         float_branches.append("NumInteractions")
-    if only_fakerate:
+    if save_cleaned_variables:
         float_branches.append("MHT_cleaned")
         float_branches.append("HT_cleaned")
         float_branches.append("MinDeltaPhiMhtJets_cleaned")
@@ -457,7 +459,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     tree_branch_values["tracks"] = 0
     tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_actualfake', 'tracks_promptbg', 'tracks_promptelectron', 'tracks_promptmuon', 'tracks_prompttau', 'tracks_prompttau_wideDR', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
     for dt_tag_label in disappearing_track_tags:
         vector_int_branches += ["tracks_tagged_%s" % dt_tag_label]
     
@@ -486,7 +488,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 fakerate_regions.append(i_region + "_" + i_cond + i_cat)
 
     fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated"]
-    if not only_fakerate and fakerate_file:
+    if fakerate_file:
         
         # load fakerate maps:
         fakerate_file = TFile(fakerate_file, "open")
@@ -604,10 +606,12 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values["qcd_sideband_CR"][0] = 1
                 qcd_sideband_CR = True
 
+        if only_fakerate and (not dilepton_CR and not qcd_CR and not qcd_sideband_CR):
+            continue
+
         # event selection for fake rate determination
-        if only_fakerate:
-            if not dilepton_CR and not qcd_CR and not qcd_sideband_CR: continue
-                
+        if save_cleaned_variables:
+               
             # for the dilepton CR, clean event (recalculate HT, MHT, n_Jets without the two leptons):
             if dilepton_CR:
                 csv_b = 0.8838
@@ -690,61 +694,44 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     loose = True                   
                 disappearing_track_tags[dt_tag_label] = get_disappearing_track_score(event, iCand, readers, loose = loose)
 
-            keep_track = False
-            for dt_tag_label in disappearing_track_tags:
-                if disappearing_track_tags[dt_tag_label] > -10:
-                    keep_track = True
-            if not keep_track: continue
+            #keep_track = False
+            #for dt_tag_label in disappearing_track_tags:
+            #    if disappearing_track_tags[dt_tag_label] > -10:
+            #        keep_track = True
+            #if not keep_track: continue
 
             is_pixel_track = True
             if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
              
             # check if actual fake track (no genparticle in cone around track):
-            charged_genlepton_in_track_cone = False
-            is_prompt_bg = False
             is_prompt_electron = False
             is_prompt_muon = False
-            is_tau_bg = False
-            is_tau_bg_wideDR = False
+            is_prompt_tau = False
+            is_prompt_tau_leadtrk = False
+            is_prompt_tau_widecone = False
 
-            # check MC Truth for prompt/non-prompt background:
             if not is_data:
                 for k in range(len(event.GenParticles)):
-
-                    if charged_genlepton_in_track_cone: break
-
                     deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
                     gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
 
                     if deltaR < 0.02:
-                          
-                        #if (gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13) and event.GenParticles_Status[k] == 1:
-                        if gen_track_cone_pdgid == 11 or gen_track_cone_pdgid == 13:
-                            charged_genlepton_in_track_cone = True
-                            is_prompt_bg = True
-                            if gen_track_cone_pdgid == 11: 
-                                is_prompt_electron = True
-                            if gen_track_cone_pdgid == 13: 
-                                is_prompt_muon = True
-                            break
-                        elif gen_track_cone_pdgid == 15:
+                        if gen_track_cone_pdgid == 11:
+                            is_prompt_electron = True
+                        if gen_track_cone_pdgid == 13:
+                            is_prompt_muon = True
+                        if gen_track_cone_pdgid == 15:
+                            is_prompt_tau = True
                             # if genTau, check if the track matches with a GenTaus_LeadTrk track:
                             for l in range(len(event.GenTaus_LeadTrk)):
                                 deltaR = event.tracks[iCand].DeltaR(event.GenTaus_LeadTrk[l])
                                 if deltaR < 0.04:
-                                    #print "That's a tau leading track"
-                                    charged_genlepton_in_track_cone = True
-                                    is_prompt_bg = True
-                                    is_tau_bg = True
-                                    break
+                                    is_prompt_tau_leadtrk = True
+                                if deltaR < 0.4:
+                                    is_prompt_tau_widecone = True
 
-                    # if track seems to be fake, check again with wider DR for gentau:
-                    if gen_track_cone_pdgid == 15 and deltaR < 0.4:
-                        is_tau_bg_wideDR = True
-                        #print "Found tau within a wide cone"
-                        charged_genlepton_in_track_cone = True
-                        break
+            is_fake_track = is_prompt_electron or is_prompt_muon or is_prompt_tau or is_prompt_tau_leadtrk
 
             tracks_massfromdeDxPixel = TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
             tracks_massfromdeDxStrips = TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
@@ -763,7 +750,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                      "tracks_is_pixel_track": is_pixel_track,
                                      "tracks_pixelLayersWithMeasurement": event.tracks_pixelLayersWithMeasurement[iCand],
                                      "tracks_trackerLayersWithMeasurement": event.tracks_trackerLayersWithMeasurement[iCand],
-                                     "tracks_actualfake": not charged_genlepton_in_track_cone,
+                                     "tracks_fake": is_fake_track,
                                      "tracks_nMissingInnerHits": event.tracks_nMissingInnerHits[iCand],
                                      "tracks_nMissingMiddleHits": event.tracks_nMissingMiddleHits[iCand],
                                      "tracks_nMissingOuterHits": event.tracks_nMissingOuterHits[iCand],
@@ -779,11 +766,11 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                      "tracks_P": event.tracks[iCand].P(),
                                      "tracks_eta": event.tracks[iCand].Eta(),
                                      "tracks_phi": event.tracks[iCand].Phi(),
-                                     "tracks_promptbg": is_prompt_bg,
-                                     "tracks_promptelectron": is_prompt_electron,
-                                     "tracks_promptmuon": is_prompt_muon,
-                                     "tracks_prompttau": is_tau_bg,
-                                     "tracks_prompttau_wideDR": is_tau_bg_wideDR,
+                                     "tracks_prompt_electron": is_prompt_electron,
+                                     "tracks_prompt_muon": is_prompt_muon,
+                                     "tracks_prompt_tau": is_prompt_tau,
+                                     "tracks_prompt_tau_leadtrk": is_prompt_tau_leadtrk,
+                                     "tracks_prompt_tau_widecone": is_prompt_tau_widecone,
                                      "tracks_passpionveto": passpionveto,
                                      "tracks_is_reco_lepton": is_reco_lepton,
                                      "tracks_trkMiniRelIso": event.tracks_trkMiniRelIso[iCand],
@@ -840,7 +827,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     print "%s: %s" %(line, track_level_output[-1][line])
 
         # evaluate fake rate for each event:
-        if not only_fakerate and fakerate_file:
+        if fakerate_file:
 
             # fill all fakerate branches:
             for variable in fakerate_variables:
@@ -864,7 +851,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     tree_branch_values[branch_name][0] = FR
 
         # check if genLeptons are present in event:
-        if not only_fakerate and not is_data:
+        if not is_data:
 
             n_genLeptons = 0
             n_genElectrons = 0
@@ -890,13 +877,13 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values["n_genTaus"][0] = n_genTaus
 
         # check if in meta CR:
-        meta_CR = False
-        if event.BTags >= 1 and event.MHT>100 and event.MHT<300:
-            # check for well-reconstructed electron:
-            if (len(event.Electrons)>0 and (event.Electrons[0].Pt() > 30) and bool(event.Electrons_mediumID[0]) and bool(event.Electrons_passIso[0])) or \
-               (len(event.Muons)>0 and (event.Muons[0].Pt() > 30) and bool(event.Muons_tightID[0]) and bool(event.Muons_passIso[0])):
-               meta_CR = True
-               tree_branch_values["meta_CR"][0] = meta_CR
+        #meta_CR = False
+        #if event.BTags >= 1 and event.MHT>100 and event.MHT<300:
+        #    # check for well-reconstructed electron:
+        #    if (len(event.Electrons)>0 and (event.Electrons[0].Pt() > 30) and bool(event.Electrons_mediumID[0]) and bool(event.Electrons_passIso[0])) or \
+        #       (len(event.Muons)>0 and (event.Muons[0].Pt() > 30) and bool(event.Muons_tightID[0]) and bool(event.Muons_passIso[0])):
+        #       meta_CR = True
+        #       tree_branch_values["meta_CR"][0] = meta_CR
 
         # save event-level variables:
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
@@ -954,7 +941,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
      
     fout.cd()
 
-    if not only_fakerate and fakerate_file:
+    if fakerate_file:
         fakerate_file.Close()
     if mask_file:
         mask_file.Close()
@@ -983,14 +970,14 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--input", dest="inputfiles")
-    parser.add_option("--output", dest="outputfiles")
-    parser.add_option("--only_fakerate", dest="only_fakerate", action="store_true", default=False)
-    parser.add_option("--debug", dest="debug", action="store_true")
-    parser.add_option("--mask", dest="maskfile", default=False)
-    parser.add_option("--nev", dest="nev", default=-1)
-    parser.add_option("--fakerate_file", dest="fakerate_file", default=False)
-    parser.add_option("--iEv_start", dest="iEv_start", default=0)
+    parser.add_option("--input", dest = "inputfiles")
+    parser.add_option("--output", dest = "outputfiles")
+    parser.add_option("--only_fakerate", dest="only_fakerate", action = "store_true")
+    parser.add_option("--debug", dest = "debug", action = "store_true")
+    parser.add_option("--mask", dest = "maskfile", default = False)
+    parser.add_option("--nev", dest = "nev", default = -1)
+    parser.add_option("--fakerate_file", dest = "fakerate_file", default = False)
+    parser.add_option("--iEv_start", dest = "iEv_start", default = 0)
     (options, args) = parser.parse_args()
     
     options.inputfiles = options.inputfiles.split(",")
