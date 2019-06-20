@@ -5,11 +5,12 @@ from ROOT import *
 import plotting
 import uuid
 import os
+from fitter import *
 
 gStyle.SetOptStat(0);
 gROOT.SetBatch(True)
-    
-def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, blind=False):
+
+def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, blind=False, fit_bkg=False, fit_sig=False, fit_data=False):
     
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
@@ -95,34 +96,14 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     for label in Sort(samples_for_sorting, 1):
         bkglist.Add(histos[label[0]])
     tmplabel = list(histos.keys())[0]
-    hmerge = histos[tmplabel].Clone("hmerge")
-    hmerge.Reset()
-    hmerge.Merge(bkglist)
-    legend.AddEntry(hmerge, "MC stat.err")
+    hBkgMerge = histos[tmplabel].Clone("hBkgMerge")
+    hBkgMerge.Reset()
+    hBkgMerge.Merge(bkglist)
+    legend.AddEntry(hBkgMerge, "MC stat.err")
 
-    hmerge.SetFillColorAlpha(17,0.95)
-    hmerge.SetLineWidth(1)
-    hmerge.Draw("same e1")
-
-    #f1 = TF1("f1","expo",0,200)
-    #f1 = TF1("f1","exp([0]*x*x + [1]*x + [2])",0,200)
-    #f1 = TF1("f1","landau",0,2000)
-    #hmerge.Fit("f1","R") 
-    #
-    #fitresult = hmerge.GetFunction("f1")
-    #for i in range(fitresult.GetNpar()):
-    #    print "Param %s:%s"%(i, fitresult.GetParameter(i))
-    #print "Chi2:",fitresult.GetChisquare()
-    #print "NDF:",fitresult.GetNDF()
-    
-    #f_ext = TF1("f_ext","expo",0,2000)
-    #f_ext = TF1("f_ext","exp([0]*x*x + [1]*x + [2])",0,2000)
-    #f_ext = TF1("f_ext","landau",0,2000)
-    #for i in range(fitresult.GetNpar()):
-    #    f_ext.SetParameter(i,f1.GetParameter(i))
-    #f_ext.SetLineColor(kRed)
-    #f_ext.Draw("same")
-    
+    hBkgMerge.SetFillColorAlpha(17,0.95)
+    hBkgMerge.SetLineWidth(1)
+    hBkgMerge.Draw("same e1")
 
     # plot signal:
     for label in sorted(histos):
@@ -132,6 +113,7 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
             histos[label].SetLineWidth(3)
             histos[label].Draw("same hist")
             legend.AddEntry(histos[label], label)
+	    hSignal = histos[label].Clone("hSignal")
 
     # plot data:
     for label in sorted(histos):
@@ -144,7 +126,7 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
             histos[label].SetLineWidth(0)
 	    histos[label].Draw("same p")
 	    legend.AddEntry(histos[label], label)
-
+    
     # set minimum/maximum ranges   
     if global_minimum != 0:
         mcstack.SetMinimum(0.1 * global_minimum)
@@ -216,3 +198,9 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     
     os.system("mkdir -p %s/%s" % (outputdir,cut))
     canvas.SaveAs("%s/%s/%s%s.%s" % (outputdir, cut, variable, suffix, outformat))
+
+    if fit_bkg : 
+	fit_background(hBkgMerge,outputdir,cut,variable,outformat)
+    if fit_sig : 
+	fit_signal(hSignal,outputdir,cut,variable,outformat)
+
