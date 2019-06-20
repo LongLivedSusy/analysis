@@ -30,7 +30,7 @@ def getBinContent_with_overflow(histo, xval, yval = False):
         return value
         
 
-def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents = -1, treename = "Events"):
+def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents = -1, treename = "Events", lumi = 135):
 
     # load tree
     tree = TChain(treename)
@@ -53,26 +53,8 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
     
     # output histograms
     histos = {}
+    output_variables = ["HT"]
     histos["HT"] = TH1F("HT", "HT", 10, 0, 1000)
-
-    # add prediction
-    for var in histos.keys():
-        histos[var + "_control_short"] = histos[var].Clone()
-        histos[var + "_control_short"].SetName(var + "_control_short")
-        histos[var + "_control_long"] = histos[var].Clone()
-        histos[var + "_control_long"].SetName(var + "_control_long")
-        histos[var + "_prediction_short"] = histos[var].Clone()
-        histos[var + "_prediction_short"].SetName(var + "_prediction_short")
-        histos[var + "_prediction_long"] = histos[var].Clone()
-        histos[var + "_prediction_long"].SetName(var + "_prediction_long")
-        histos[var + "_fakebg_short"] = histos[var].Clone()
-        histos[var + "_fakebg_short"].SetName(var + "_fakebg_short")
-        histos[var + "_fakebg_long"] = histos[var].Clone()
-        histos[var + "_fakebg_long"].SetName(var + "_fakebg_long")
-        histos[var + "_promptbg_short"] = histos[var].Clone()
-        histos[var + "_promptbg_short"].SetName(var + "_promptbg_short")
-        histos[var + "_promptbg_long"] = histos[var].Clone()
-        histos[var + "_promptbg_long"].SetName(var + "_promptbg_long")
 
     # load fake rate histograms:
     fakerate_regions = []
@@ -83,7 +65,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                 fakerate_regions.append(i_region + "_" + i_cond + i_cat)
 
     #fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated"]
-    fakerate_variables = ["HT"]
+    fakerate_variables = ["HT:n_allvertices"]
         
     # load fakerate maps:
     tfile_fakerate = TFile(fakerate_file, "open")
@@ -99,6 +81,18 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                 h_fakerates[hist_name] = tfile_fakerate.Get(hist_name)
             except:
                 print "Couldn't load", hist_name
+
+    # add more histograms
+    for variable in output_variables:               
+        for fakerate_variable in fakerate_variables:
+
+            # add histogram if not there yet
+            for category in ["short", "long"]:
+                for label in ["control", "prediction", "fakebg", "promptbg"]:
+                    h_suffix = "_%s_%s_%s" % (fakerate_variable, label, category)
+                    if variable + h_suffix not in histos:
+                        histos[variable + h_suffix] = histos[variable].Clone()
+                        histos[variable + h_suffix].SetName(variable + h_suffix)
     
     nev = tree.GetEntries()
     print "Looping over %s events" % nev
@@ -106,58 +100,83 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
     for iEv, event in enumerate(tree):
 
         if nevents > 0 and iEv > nevents: break
-        if (iEv+1) % 1000 == 0:
+        if (iEv+1) % 10000 == 0:
             PercentProcessed = int( 20 * iEv / nev )
             line = "[" + PercentProcessed*"#" + (20-PercentProcessed)*" " + "]\t" + "Processing event %s / %s" % (iEv + 1, nev)
             print line
         
         if event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0:
-            is_control_region = True
+
+                ###############################
+                # we're in the control region #
+                ###############################
+
+                weight = event.CrossSection * event.puWeight * lumi
+
+                for variable in output_variables:
+                    for fakerate_variable in fakerate_variables:
+
+                        value = eval("event.%s" % variable)
+
+                        if ":" in fakerate_variable:
+                            xvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[1])
+                            yvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[0])
+                        else:                
+                            xvalue = eval("event.%s" % fakerate_variable)
+                        
+                        for fr_region in fakerate_regions:              
+
+                            hist_name = fr_region + "/" + data_period + "/fakerate_" + fakerate_variable.replace(":", "_")
+                            if ":" in fakerate_variable:
+                                fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue, yval = yvalue)
+                            else:                
+                                fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue)
+                            
+                            if "short" in hist_name:
+                                histos[variable + "_" + fakerate_variable + "_control_short"].Fill(value, weight)
+                                histos[variable + "_" + fakerate_variable + "_prediction_short"].Fill(value, weight * fakerate)
+                            elif "long" in hist_name:
+                                histos[variable + "_" + fakerate_variable + "_control_long"].Fill(value, weight)
+                                histos[variable + "_" + fakerate_variable + "_prediction_long"].Fill(value, weight * fakerate)
+                
+                            fill_fakebg_short = False
+                            fill_promptbg_short = False
+                            fill_fakebg_long = False
+                            fill_promptbg_long = False
+
+                            # check for DT:
+                            for i in range(len(event.tracks)):
+                                if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt[i]>0.1:
+                                #if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]>0:
+                                    print "Found short DT"
+                                    print "fakerate", fakerate
+                                    if event.tracks_fake[i]==1:
+                                        fill_fakebg_short = True
+                                    if event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1:
+                                        fill_promptbg_short = True
+                                if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt[i]>0.25:
+                                #if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]>0:
+                                    print "Found long DT"
+                                    print "fakerate", fakerate
+                                    if event.tracks_fake[i]==1:
+                                        fill_fakebg_long = True
+                                    if event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1:
+                                        fill_promptbg_long = True
+                                        
+                            if fill_fakebg_short: histos[variable + "_" + fakerate_variable + "_fakebg_short"].Fill(value, weight)
+                            if fill_promptbg_short: histos[variable + "_" + fakerate_variable + "_promptbg_short"].Fill(value, weight)
+                            if fill_fakebg_long: histos[variable + "_" + fakerate_variable + "_fakebg_long"].Fill(value, weight)
+                            if fill_promptbg_long: histos[variable + "_" + fakerate_variable + "_promptbg_long"].Fill(value, weight)
+
         else:
-            is_control_region = False
-    
-        for var in histos:
-            if "_" not in var:
-                histos[var].Fill(eval("event.%s" % var))
-        
-        # if in control region, get fake rate:
-        if is_control_region:
-                
-            for variable in fakerate_variables:
-                
-                if ":" in variable:
-                    xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[1])
-                    yvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[0])
-                else:                
-                    xvalue = eval("event.%s" % variable)
-                
-                for fr_region in fakerate_regions:
-                    hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                    if ":" in variable:
-                        fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue, yval = yvalue)
-                    else:                
-                        fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue)
-                
-                    if "short" in hist_name:
-                        histos[variable + "_control_short"].Fill(xvalue)
-                        histos[variable + "_prediction_short"].Fill(xvalue, fakerate)
-                    elif "long" in hist_name:
-                        histos[variable + "_control_long"].Fill(xvalue)
-                        histos[variable + "_prediction_long"].Fill(xvalue, fakerate)
-        
-                # check for DT:
-                if event.tracks_is_pixel_track==1 and event.tracks_mva_bdt>0.1:
-                    print "Found short DT"
-                    if event.tracks_fake==1:
-                        histos[variable + "_fakebg_short"].Fill(xvalue)
-                    if event.tracks_prompt_electron==1 and event.tracks_prompt_muon==1:
-                        histos[variable + "_promptbg_short"].Fill(xvalue)
-                if event.tracks_is_pixel_track==0 and event.tracks_mva_bdt>0.25:
-                    print "Found long DT"
-                    if event.tracks_fake==1:
-                        histos[variable + "_fakebg_long"].Fill(xvalue)
-                    if event.tracks_prompt_electron==1 and event.tracks_prompt_muon==1:
-                        histos[variable + "_promptbg_long"].Fill(xvalue)
+
+            #####################
+            # no cuts for event #
+            #####################
+
+            for variable in output_variables:
+                histos[variable].Fill(eval("event.%s" % variable))
+
 
     fout = TFile(output_file, "recreate")
     for var in histos:

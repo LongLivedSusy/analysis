@@ -175,10 +175,10 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
     samples = []
     for file_name in file_names:
         
-        if "merged" not in path:
-            identifier = "_".join(file_name.split("_")[:-3])
-        else:
-            identifier = file_name.replace(".root", "")
+        #if "merged" not in path:
+        #    identifier = "_".join(file_name.split("_")[:-3])
+        #else:
+        identifier = file_name.replace(".root", "")
     
         selectors = selected_sample.split("*")
         count = 0

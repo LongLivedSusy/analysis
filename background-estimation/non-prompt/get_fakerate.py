@@ -124,7 +124,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 def get_configurations(threads):
 
-    path = "output_skim_32_fakerate_merged/"
+    path = "output_skim_10/"
     rootfile = path + "/fakerate.root"
     
     binning = {
@@ -139,36 +139,41 @@ def get_configurations(threads):
     }
 
     regioncuts = {
+                    "crosscheck": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_tagged_bdt>0 ",
+                                "denominator_cuts": " ",
+                              },
                     "tight": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt>=1 ",
+                                "numerator_cuts": " && tracks_tagged_bdt>0 ",
                                 "denominator_cuts": " ",
                               },
                     "loose1": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.01",
+                                "numerator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
                                 "denominator_cuts": " ",
                               },
                     "loose2": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose3": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx>0.02",
+                                "numerator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.02",
                               },
                     "combined": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && n_DT_bdt>0 ",
-                                "denominator_cuts": " && tracks_tagged_bdt_loose>=1 && tracks_dxyVtx>0.02",
+                                "numerator_cuts": " && tracks_tagged_bdt>0 ",
+                                "denominator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.02",
                               },
                  }
 
-    selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
+    #selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
 
-    #selected_datasets = ["Summer16"]
+    selected_datasets = ["Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_1040"]
     variables = [
                  "HT",
                  "n_allvertices",
@@ -176,8 +181,8 @@ def get_configurations(threads):
                 ]
     regions = {
                "dilepton": " && dilepton_CR==1",
-               "qcd": " && qcd_CR==1",
-               "qcd_sideband": " && qcd_sideband_CR==1",
+               #"qcd": " && qcd_CR==1",
+               #"qcd_sideband": " && qcd_sideband_CR==1",
               }
     
     configurations = []
@@ -197,22 +202,24 @@ def get_configurations(threads):
                     current_selected_dataset = selected_dataset
                     if "Run201" in selected_dataset:
                         # running on data:
-                        if "qcd" in region:
+                        if "qcd" in region and "JetHT" not in current_selected_dataset:
                             current_selected_dataset += "*JetHT"
-                        elif "dilepton" in region:
+                        elif "dilepton" in region and "Single" not in current_selected_dataset:
                             current_selected_dataset += "*Single"
                     else:
                         # running on MC
-                        if "qcd" in region:
+                        if "qcd" in region and "QCD" not in current_selected_dataset:
                             current_selected_dataset += "*QCD"
-                        elif "dilepton" in region:
+                        elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
                             current_selected_dataset += "*DYJetsToLL"
 
                     current_variable = variable
                     if "dilepton" in region:
                         current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
-                    configurations.append([path, current_variable, rootfile, "%s_%s_short/%s" % (region, label, selected_dataset), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning, threads])
-                    configurations.append([path, current_variable, rootfile, "%s_%s_long/%s" % (region, label, selected_dataset), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks", binning, threads])
+                    folder = selected_dataset.split(".")[0]
+                        
+                    configurations.append([path, current_variable, rootfile, "%s_%s_short/%s" % (region, label, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning, threads])
+                    configurations.append([path, current_variable, rootfile, "%s_%s_long/%s" % (region, label, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks", binning, threads])
 
     return configurations
 

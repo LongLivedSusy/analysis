@@ -2,7 +2,7 @@
 from stackedplot import *
 from ROOT import *
 
-folder = "output_skim_32_fakerate_merged"
+folder = "output_skim_44_merged"
 
 samples_Summer16 = {
     "DYJetsToLL": {"select": "Summer16.DYJetsToLL", "type": "bg", "color": 62},
@@ -26,7 +26,7 @@ samples_Fall17 = {
     "rare": {"select": "RunIIFall17MiniAODv2.TTJets_Tune.ST|RunIIFall17MiniAODv2.TTJets_Tune.GJets_HT", "type": "bg", "color": 15},
           }
 
-for year in ['2016', '2017', '2018']:
+for year in ['2016']: #, '2017', '2018']:
 
     for lepton in ['e', 'mu']:
 
