@@ -61,14 +61,14 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         ymax = binning[variable2.replace("_cleaned", "")][2]
 
     # special num/denom handling:
-    if "short" in foldername:
-        numerator_cuts += " && tracks_is_pixel_track==1 "
-        if "loose" in foldername:
-            denominator_cuts += " && tracks_is_pixel_track==1 "
-    elif "long" in foldername:
-        numerator_cuts += " && tracks_is_pixel_track==0 "
-        if "loose" in foldername:
-            denominator_cuts += " && tracks_is_pixel_track==0 "
+    #if "short" in foldername:
+    #    numerator_cuts += " && tracks_is_pixel_track==1 "
+    #    if "loose" in foldername:
+    #        denominator_cuts += " && tracks_is_pixel_track==1 "
+    #elif "long" in foldername:
+    #    numerator_cuts += " && tracks_is_pixel_track==0 "
+    #    if "loose" in foldername:
+    #        denominator_cuts += " && tracks_is_pixel_track==0 "
         
     if plot2D:
         fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
@@ -139,41 +139,51 @@ def get_configurations(threads):
     }
 
     regioncuts = {
-                    "crosscheck": {
+                    "tight_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt>0 ",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt>0.1 ",
                                 "denominator_cuts": " ",
                               },
-                    "tight": {
+                    "tight_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt>0 ",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt>0.25 ",
                                 "denominator_cuts": " ",
                               },
-                    "loose1": {
+                    "loose1_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.01",
+                              },
+                    "loose1_long": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.01",
+                              },
+                    "loose2_short": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": "  && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.05",
+                              },
+                    "loose2_long": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.05",
+                              },
+                    "crosscheck_short": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt>0.1 && tracks_fake>0",
                                 "denominator_cuts": " ",
                               },
-                    "loose2": {
+                    "crosscheck_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.01",
-                              },
-                    "loose3": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.02",
-                              },
-                    "combined": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_tagged_bdt>0 ",
-                                "denominator_cuts": " && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.02",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt>0.25 && tracks_fake>0",
+                                "denominator_cuts": " ",
                               },
                  }
 
     #selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
 
-    selected_datasets = ["Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_1040"]
+    selected_datasets = ["Summer16"]
     variables = [
                  "HT",
                  "n_allvertices",
@@ -181,8 +191,8 @@ def get_configurations(threads):
                 ]
     regions = {
                "dilepton": " && dilepton_CR==1",
-               #"qcd": " && qcd_CR==1",
-               #"qcd_sideband": " && qcd_sideband_CR==1",
+               "qcd": " && qcd_CR==1",
+               "qcd_sideband": " && qcd_sideband_CR==1",
               }
     
     configurations = []
@@ -217,9 +227,8 @@ def get_configurations(threads):
                     if "dilepton" in region:
                         current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
                     folder = selected_dataset.split(".")[0]
-                        
-                    configurations.append([path, current_variable, rootfile, "%s_%s_short/%s" % (region, label, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning, threads])
-                    configurations.append([path, current_variable, rootfile, "%s_%s_long/%s" % (region, label, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel+strips tracks", binning, threads])
+                     
+                    configurations.append([path, current_variable, rootfile, "%s_%s/%s" % (region, label, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning, threads])   
 
     return configurations
 
@@ -230,6 +239,7 @@ if __name__ == "__main__":
     parser.add_option("--index", dest="index", default=False)
     parser.add_option("--threads", dest="threads", default=3)
     parser.add_option("--runmode", dest="runmode", default="grid")
+    parser.add_option("--hadd", dest="hadd", action="store_true")
     (options, args) = parser.parse_args()
 
     configurations = get_configurations(options.threads)
@@ -238,6 +248,9 @@ if __name__ == "__main__":
         configurations[int(options.index)][2] = "fakerate_pt%s.root" % options.index
         get_fakerate(*configurations[int(options.index)])
         
+    if options.hadd:
+        os.system("hadd -f fakerate.root fakerate_pt*root && rm fakerate_pt*root")
+
     else:
         commands = []
         for i in range(len(configurations)):
