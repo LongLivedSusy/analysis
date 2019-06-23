@@ -87,7 +87,7 @@ def get_signal_region(MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_tr
     return region
         
 
-def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents = -1, treename = "Events", lumi = 135):
+def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents = -1, treename = "Events"):
 
     # load tree
     tree = TChain(treename)
@@ -186,7 +186,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
             line += ", est. %s minutes left" % int(elapsed_time / (iEv/interval) * (nev/interval) / 60.0)
             print line
 
-        weight = event.CrossSection * event.puWeight * lumi
+        weight = 1.0 * event.CrossSection * event.puWeight / nev
         
         is_control_region = event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0
 
@@ -289,12 +289,10 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                             fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue)
                         
                         if "short" in hist_name:
-
                             if ("tight" in hist_name and flags["tight_control_short"]) or ("loose1" in hist_name and flags["loose1_control_short"]) or ("loose2" in hist_name and flags["loose2_control_short"]):
                                 histos[variable + "_" + fr_region + "_" + fakerate_variable.replace(":", "_") + "_prediction"].Fill(value, weight * fakerate)
 
                         elif "long" in hist_name:
-
                             if ("tight" in hist_name and flags["tight_control_long"]) or ("loose1" in hist_name and flags["loose1_control_long"]) or ("loose2" in hist_name and flags["loose2_control_long"]):
                                 histos[variable + "_" + fr_region + "_" + fakerate_variable.replace(":", "_") + "_prediction"].Fill(value, weight * fakerate)
 
@@ -326,7 +324,7 @@ if __name__ == "__main__":
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
     
-    # check if input is a folder:
+    # run parallel if input is a folder:
     if options.inputfiles[-1] == "/":
         print "Got input folder, running in batch mode (%s)!" % options.runmode
 
@@ -343,7 +341,7 @@ if __name__ == "__main__":
         raw_input("start %s jobs?" % len(commands))
         runParallel(commands, options.runmode, condorDir = "test_fakerate_condor", dontCheckOnJobs=False)
 
-    # otherwise just normal file(s):
+    # otherwise run locally:
     else:
         options.inputfiles = options.inputfiles.split(",")
 

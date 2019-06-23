@@ -59,16 +59,6 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         nBinsY = binning[variable2.replace("_cleaned", "")][0]
         ymin = binning[variable2.replace("_cleaned", "")][1]
         ymax = binning[variable2.replace("_cleaned", "")][2]
-
-    # special num/denom handling:
-    #if "short" in foldername:
-    #    numerator_cuts += " && tracks_is_pixel_track==1 "
-    #    if "loose" in foldername:
-    #        denominator_cuts += " && tracks_is_pixel_track==1 "
-    #elif "long" in foldername:
-    #    numerator_cuts += " && tracks_is_pixel_track==0 "
-    #    if "loose" in foldername:
-    #        denominator_cuts += " && tracks_is_pixel_track==0 "
         
     if plot2D:
         fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
@@ -124,7 +114,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 def get_configurations(threads):
 
-    path = "output_skim_10/"
+    path = "output_skim_10_merged/"
     rootfile = path + "/fakerate.root"
     
     binning = {
@@ -141,58 +131,59 @@ def get_configurations(threads):
     regioncuts = {
                     "tight_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt>0.1 ",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
                                 "denominator_cuts": " ",
                               },
                     "tight_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt>0.25 ",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
                                 "denominator_cuts": " ",
                               },
                     "loose1_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose1_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose2_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": "  && tracks_is_pixel_track==1 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": "  && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.05",
                               },
                     "loose2_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt_loose>0 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.05",
                               },
                     "crosscheck_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_tagged_bdt>0.1 && tracks_fake>0",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 && tracks_fake==0",
                                 "denominator_cuts": " ",
                               },
                     "crosscheck_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_tagged_bdt>0.25 && tracks_fake>0",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 && tracks_fake==0",
                                 "denominator_cuts": " ",
                               },
                  }
 
     #selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
-
     selected_datasets = ["Summer16"]
+    
     variables = [
                  "HT",
                  "n_allvertices",
                  "HT:n_allvertices",
                 ]
     regions = {
-               "dilepton": " && dilepton_CR==1",
-               "qcd": " && qcd_CR==1",
-               "qcd_sideband": " && qcd_sideband_CR==1",
+               "dilepton":       " && dilepton_CR==1",
+               "qcd":            " && MHT<100",
+               "qcd_sideband":   " && MHT>100 && MHT<200",
+               "qcd_highMHT":    " && MHT>200",
               }
     
     configurations = []
