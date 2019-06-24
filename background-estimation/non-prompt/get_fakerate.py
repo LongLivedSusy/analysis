@@ -161,12 +161,12 @@ def get_configurations(threads):
                               },
                     "crosscheck_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 && tracks_fake==0",
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 && (tracks_prompt_electron==1 || tracks_prompt_muon==1 || tracks_prompt_tau==1 || tracks_prompt_tau_leadtrk==1)",
                                 "denominator_cuts": " ",
                               },
                     "crosscheck_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 && tracks_fake==0",
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 && (tracks_prompt_electron==1 || tracks_prompt_muon==1 || tracks_prompt_tau==1 || tracks_prompt_tau_leadtrk==1)",
                                 "denominator_cuts": " ",
                               },
                  }
@@ -175,15 +175,15 @@ def get_configurations(threads):
     selected_datasets = ["Summer16"]
     
     variables = [
-                 "HT",
+                 #"HT",
                  "n_allvertices",
-                 "HT:n_allvertices",
+                 #"HT:n_allvertices",
                 ]
     regions = {
                "dilepton":       " && dilepton_CR==1",
-               "qcd":            " && MHT<100",
-               "qcd_sideband":   " && MHT>100 && MHT<200",
-               "qcd_highMHT":    " && MHT>200",
+               #"qcd":            " && MHT<100",
+               #"qcd_sideband":   " && MHT>100 && MHT<200",
+               #"qcd_highMHT":    " && MHT>200",
               }
     
     configurations = []
@@ -212,7 +212,8 @@ def get_configurations(threads):
                         if "qcd" in region and "QCD" not in current_selected_dataset:
                             current_selected_dataset += "*QCD"
                         elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
-                            current_selected_dataset += "*DYJetsToLL"
+                            #current_selected_dataset += "*DYJetsToLL"
+                            current_selected_dataset += "*DYJetsToLL_M-50_HT-600to800"
 
                     current_variable = variable
                     if "dilepton" in region:
