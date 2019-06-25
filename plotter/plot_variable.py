@@ -6,13 +6,13 @@ from stackedplot import *
 from ROOT import *
 
 ####### GLOBAL SETTINGS ########
-# Data blind
-#blind=True 
-blind=False 
+# Data unblind
+unblind=True 
+#unblind=False 
 
 # Remake histos
-#remakeHistos=True
-remakeHistos=False
+remakeHistos=True
+#remakeHistos=False
 
 # Remake plots
 remakePlots=True
@@ -37,16 +37,16 @@ def makeHistos(folder, samples, cuts, variables):
 	for variable in variables:
     	    histos = get_histograms_from_folder(folder, samples, variables[variable][0], cut, variables[variable][1], variables[variable][2], variables[variable][3])
 	
-    	for sample, histo in histos.items():
-	    f_hout = TFile("./%s/%s/histo_%s_%s.root"%(histodir,cutname,variable,sample),"RECREATE")
-    	    hout = histo.Clone()
-    	    hout.SetName(sample+"_"+variable)
-    	    hout.SetTitle(sample+"_"+variable)
-    	    hout.SetDirectory(0)
-    	    hout.Write()
-	    f_hout.Close()
+	    for sample, histo in histos.items():
+	        f_hout = TFile("./%s/%s/histo_%s_%s.root"%(histodir,cutname,variable,sample),"RECREATE")
+    	        hout = histo.Clone()
+    	        hout.SetName(sample+"_"+variable)
+    	        hout.SetTitle(sample+"_"+variable)
+    	        hout.SetDirectory(0)
+    	        hout.Write()
+	        f_hout.Close()
     
-def makePlots(histodir, outputdir, samples, cuts, variables, logx=False, logy=True, blind=False, suffix="", outformat="", fit_bkg=False, fit_sig=False, fit_data=False):
+def makePlots(histodir, outputdir, samples, cuts, variables, logx=False, logy=True, unblind=False, suffix="", outformat="", fit_bkg=False, fit_sig=False, fit_data=False):
    for cutname in cuts:
        for variable in variables:
 	    histos = {}
@@ -61,7 +61,7 @@ def makePlots(histodir, outputdir, samples, cuts, variables, logx=False, logy=Tr
 		    print "./%s/%s/histo_%s_%s.root does not exist"%(histodir,cutname,variable,sample)
 		    sys.exit()
 	    
-	    stack_histograms(histos, outputdir, samples, cutname, variable, variable, "Events", logx=logx, logy=logy, blind=blind, suffix=suffix, outformat=outformat, fit_bkg=fit_bkg, fit_sig=fit_sig, fit_data=fit_data)
+	    stack_histograms(histos, outputdir, samples, cutname, variable, variable, "Events", logx=logx, logy=logy, unblind=unblind, suffix=suffix, outformat=outformat, fit_bkg=fit_bkg, fit_sig=fit_sig, fit_data=fit_data)
 	
     
 
@@ -84,23 +84,24 @@ if __name__=="__main__":
         "g1800_chi1400_ctau30": {"select": "Summer16.g1800_chi1400_27_200970_step4_30AODSIM", "type": "sg", "color": kGreen},
         "g1800_chi1400_ctau50": {"select": "Summer16.g1800_chi1400_27_200970_step4_50AODSIM", "type": "sg", "color": kRed},
         "g1800_chi1400_ctau100": {"select": "Summer16.g1800_chi1400_27_200970_step4_100AODSIM", "type": "sg", "color": kMagenta},
-        #"All_signal_ctau": {"select": "Summer16.g1800_chi1400|Autumn18.g1800_chi1400", "type": "sg", "color": kBlue},
         #"Autumn18.g1800_chi1400_ctau10": {"select": "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM", "type": "sg", "color": kBlue},
         #"Autumn18.g1800_chi1400_ctau30": {"select": "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM", "type": "sg", "color": kGreen},
         #"Autumn18.g1800_chi1400_ctau50": {"select": "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM", "type": "sg", "color": kRed},
         #"Autumn18.g1800_chi1400_ctau100": {"select": "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM", "type": "sg", "color": kMagenta},
+        #"All_signal_ctau": {"select": "Summer16.g1800_chi1400|Autumn18.g1800_chi1400", "type": "sg", "color": kBlue},
               }
     
-    if not blind: 
+    if unblind: 
 	samples["data"] = {"select": "Run2016*MET", "type": "data", "color": kBlack, "lumi": 7188.570159}
+	pass
     
     # Cuts 
     cuts =  {
-	    #"FullMhtNJet" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_DT>0",
 	    #"FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_DT==1 && tracks_is_disappearing_track==1 && tracks_is_pixel_track==1 && tracks_mass_Pixel<10000",
 	    #"FullMhtNJet_long" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_DT==1 && tracks_is_disappearing_track==1 && tracks_is_pixel_track==0 && tracks_mass_WeightedByValidHits<10000",
-	    "CR_FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && tracks_tagged_bdt==0 && tracks_is_pixel_track==1",
+	    #"CR_FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && tracks_tagged_bdt==0 && tracks_is_pixel_track==1",
 	    #"CR_FullMhtNJet_long" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && tracks_tagged_bdt==0 && tracks_is_pixel_track==0",
+	    "CR_Mht250_Mindphi0.3_short" : "passesUniversalSelection==1 && HT>100 && MHT>250 && n_jets>0 && MinDeltaPhiMhtJets>0.3 && tracks_tagged_bdt==0 && tracks_is_pixel_track==1",
 	    }
     
     # Variables
@@ -112,7 +113,7 @@ if __name__=="__main__":
 	    #"Track_LogMassFromDedxWeightedStripsMass":["TMath::Log10(tracks_massfromdeDx_weightedPixelStripsMass)",30, 1, 5.5, cuts],
 		}
 
-    #FIXME : Use TEventList for each cut(no need to loop in each variable)
+    #FIXME : Use TEventList for each cut(then no need to loop in each variable)
     #makeEventList(folder, samples, cuts, variables)
 
     # Make histogram and save
@@ -121,4 +122,4 @@ if __name__=="__main__":
    
     # Draw plots
     if remakePlots:
-	makePlots(histodir, plotdir, samples, cuts.keys(), variables.keys(), logx=False, logy=True, blind=blind, suffix="", outformat="png", fit_bkg=False, fit_sig=False, fit_data=False)
+	makePlots(histodir, plotdir, samples, cuts.keys(), variables.keys(), logx=False, logy=True, unblind=unblind, suffix="", outformat="png", fit_bkg=False, fit_sig=False, fit_data=False)
