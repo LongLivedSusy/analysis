@@ -676,15 +676,14 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
         for iCand in range(len(event.tracks)):
 
-            is_reco_lepton = check_is_reco_lepton(event, iCand, deltaR = 0.01)
-            if is_reco_lepton: continue
-            
-            passpionveto = pass_pion_veto(event, iCand, deltaR = 0.03)        
-            if not passpionveto: continue
-
             baseline = isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = True)
             if not baseline: continue
+
+            is_reco_lepton = check_is_reco_lepton(event, iCand, deltaR = 0.01)
             
+            passpionveto = pass_pion_veto(event, iCand, deltaR = 0.03)        
+            #if not passpionveto: continue
+          
             ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
 
             # check disappearing track tags:
@@ -875,15 +874,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values["n_genElectrons"][0] = n_genElectrons
                 tree_branch_values["n_genMuons"][0] = n_genMuons
                 tree_branch_values["n_genTaus"][0] = n_genTaus
-
-        # check if in meta CR:
-        #meta_CR = False
-        #if event.BTags >= 1 and event.MHT>100 and event.MHT<300:
-        #    # check for well-reconstructed electron:
-        #    if (len(event.Electrons)>0 and (event.Electrons[0].Pt() > 30) and bool(event.Electrons_mediumID[0]) and bool(event.Electrons_passIso[0])) or \
-        #       (len(event.Muons)>0 and (event.Muons[0].Pt() > 30) and bool(event.Muons_tightID[0]) and bool(event.Muons_passIso[0])):
-        #       meta_CR = True
-        #       tree_branch_values["meta_CR"][0] = meta_CR
 
         # save event-level variables:
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)

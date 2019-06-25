@@ -123,12 +123,13 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
 
     # load fake rate histograms:
     fakerate_regions = []
-    #for i_region in ["dilepton", "qcd", "qcd_sideband", "qcd_highMHT"]:
-    for i_region in ["dilepton"]:
+    for i_region in ["dilepton", "qcd", "qcd_sideband", "qcd_highMHT"]:
+    #for i_region in ["dilepton"]:
         for i_cond in ["tight", "loose1", "loose2", "crosscheck"]:
             for i_cat in ["_short", "_long"]:
                 fakerate_regions.append(i_region + "_" + i_cond + i_cat)
 
+    #fakerate_variables = ["n_allvertices"]
     fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices"]
     
     # load fakerate maps:
@@ -152,7 +153,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
             # add histogram if not there yet
             for category in ["short", "long"]:
 
-                for label in ["prediction"]:
+                for label in ["tagged", "prediction"]:
                     for fr_region in fakerate_regions:  
                         h_suffix = "_%s_%s_%s" % (fr_region, fakerate_variable.replace(":", "_"), label)
                         histos[variable + h_suffix] = histos[variable].Clone()
@@ -185,11 +186,10 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
             print line
 
         weight = 1.0 * event.CrossSection * event.puWeight / nev
+
+        #is_control_region = event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0 and event.n_genLeptons==0
+        is_control_region = event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0
         
-        is_control_region = event.passesUniversalSelection==1 and event.dilepton_CR==1
-
-        #is_control_region = event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0 and event.n_genLeptons == 0
-
         if is_control_region:
 
             event.region_short = get_signal_region(event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, 1, True)
@@ -212,9 +212,6 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                 for label in more_hists:
                     flags[label] = False
 
-                flags["tight_control_short"] = is_control_region
-                flags["tight_control_long"] = is_control_region
-
                 def set_flag(label, flags, event, itrack):
                     if event.tracks_is_pixel_track[itrack]==1:
                         flags[label + "_short"] = True
@@ -225,7 +222,8 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                 # loop over tracks:
                 for i in range(len(event.tracks)):
 
-                    is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1 or event.tracks_prompt_tau_leadtrk[i]==1
+                    #is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1 or event.tracks_prompt_tau_leadtrk[i]==1
+                    is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1
                     is_fake_track = not is_prompt_track
 
                     # tight tag
@@ -235,42 +233,24 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                             flags = set_flag("tight_fakebg", flags, event, i)
                         if is_prompt_track:
                             flags = set_flag("tight_promptbg", flags, event, i)
+                    flags["tight_control_short"] = is_control_region
                     if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt[i]>0.25:
                         flags = set_flag("tight_tagged", flags, event, i)
                         if is_fake_track:
                             flags = set_flag("tight_fakebg", flags, event, i)
                         if is_prompt_track:
                             flags = set_flag("tight_promptbg", flags, event, i)
-
-                    # loose1 tag
-                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.01:
-                        flags = set_flag("loose1_tagged", flags, event, i)
-                        if is_fake_track:
-                            flags = set_flag("loose1_fakebg", flags, event, i)
-                        if is_prompt_track:
-                            flags = set_flag("loose1_promptbg", flags, event, i)
-                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.01:
-                            flags = set_flag("loose1_control", flags, event, i)
-
-                    # loose2 tag
-                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.02:
-                        flags = set_flag("loose2_tagged", flags, event, i)
-                        if is_fake_track:
-                            flags = set_flag("loose2_fakebg", flags, event, i)
-                        if is_prompt_track:
-                            flags = set_flag("loose2_promptbg", flags, event, i)
-                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.05:
-                            flags = set_flag("loose2_control", flags, event, i)
+                    flags["tight_control_long"] = is_control_region
 
                     # crosscheck tight tag
-                    if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt[i]>0.1 and is_prompt_track:
+                    if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt[i]>0.1 and is_fake_track:
                         flags = set_flag("crosscheck_tagged", flags, event, i)
                         if is_fake_track:
                             flags = set_flag("crosscheck_fakebg", flags, event, i)
                         if is_prompt_track:
                             flags = set_flag("crosscheck_promptbg", flags, event, i)
                     flags["crosscheck_control_short"] = is_control_region
-                    if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt[i]>0.25 and is_prompt_track:
+                    if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt[i]>0.25 and is_fake_track:
                         flags = set_flag("crosscheck_tagged", flags, event, i)
                         if is_fake_track:
                             flags = set_flag("crosscheck_fakebg", flags, event, i)
@@ -278,6 +258,25 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                             flags = set_flag("crosscheck_promptbg", flags, event, i)
                     flags["crosscheck_control_long"] = is_control_region
 
+                    # loose1 tag
+                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]<=0.01:
+                        flags = set_flag("loose1_tagged", flags, event, i)
+                        if is_fake_track:
+                            flags = set_flag("loose1_fakebg", flags, event, i)
+                        if is_prompt_track:
+                            flags = set_flag("loose1_promptbg", flags, event, i)
+                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]>0.01:
+                            flags = set_flag("loose1_control", flags, event, i)
+
+                    # loose2 tag
+                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]<=0.02:
+                        flags = set_flag("loose2_tagged", flags, event, i)
+                        if is_fake_track:
+                            flags = set_flag("loose2_fakebg", flags, event, i)
+                        if is_prompt_track:
+                            flags = set_flag("loose2_promptbg", flags, event, i)
+                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]>0.05:
+                            flags = set_flag("loose2_control", flags, event, i)
 
                 for label in flags:
                     if flags[label]:
@@ -340,6 +339,7 @@ if __name__ == "__main__":
     parser.add_option("--input", dest = "inputfiles")
     parser.add_option("--output", dest = "outputfiles")
     parser.add_option("--nev", dest = "nev", default = -1)
+    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     (options, args) = parser.parse_args()
        
@@ -351,18 +351,15 @@ if __name__ == "__main__":
         print "Got input folder, running in batch mode (%s)!" % options.runmode
 
         #output_folder = options.inputfiles[:-1] + "_prediction"
-        output_folder = options.inputfiles[:-1] + "_prediction_crosscheck"
+        output_folder = options.inputfiles[:-1] + "_prediction_crosscheck_6"
         
         input_files = glob.glob(options.inputfiles + "/*.root")
         os.system("mkdir -p %s" % output_folder)
         commands = []
 
         for input_file in input_files:
-            #FIXME
-            #if "QCD_HT" in input_file or "ZJetsToNuNu_HT" in input_file:
-            if "DYJetsToLL_M-50_HT-600to800" in input_file:
-            #if "QCD_HT" in input_file:
-                commands.append("./test_fakerate.py --input %s --output %s/%s" % (input_file, output_folder, input_file.split("/")[-1]))
+            if "QCD_HT" in input_file or "ZJetsToNuNu_HT" in input_file:
+                commands.append("./test_fakerate.py --input %s --output %s/%s --nev %s --fakerate_file %s" % (input_file, output_folder, input_file.split("/")[-1], options.nev, options.fakerate_file))
     
         raw_input("start %s jobs?" % len(commands))
         runParallel(commands, options.runmode, condorDir = "test_fakerate_condor", dontCheckOnJobs=False, use_more_mem=True, use_more_time=True)
@@ -374,4 +371,5 @@ if __name__ == "__main__":
         main(options.inputfiles,
              options.outputfiles,
              nevents = int(options.nev),
+             fakerate_file = options.fakerate_file,
             )

@@ -42,7 +42,8 @@ def do_submission(commands, output_folder, condorDir = "bird", executable = "loo
         raw_input("Continue?")    
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
-    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs)
+    #runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs)
+    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=True)
 
 
 def get_data_sample_names(folder, globstring = "*"):
@@ -102,12 +103,12 @@ def get_ntuple_datasets(globstring_list):
         "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
     ]
    
-    #ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-    #    "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
-    #]
+    ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
+        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
+    ]
   
     return ntuples
     
@@ -127,8 +128,8 @@ if __name__ == "__main__":
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
     options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     options.dataset = "Summer16.*"
-    options.output_folder = "output_skim_10"
-    options.files_per_job = 20
+    options.output_folder = "output_skim_11"
+    options.files_per_job = 50
 
     ######## some presets you can enable/disable ########
 
