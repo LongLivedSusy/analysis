@@ -36,9 +36,12 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     canvas.SetLeftMargin(1.2*l)
     canvas.SetRightMargin(0.7*r)
    
-    legend = TLegend(0.50, 0.60, 0.94, 0.90)
-    legend.SetNColumns(2)
-    legend.SetTextSize(0.03)
+    legend_bkg = TLegend(0.30, 0.70, 0.55, 0.90)
+    legend_bkg.SetNColumns(2)
+    legend_bkg.SetTextSize(0.03)
+    legend_sig = TLegend(0.60, 0.70, 0.94, 0.90)
+    legend_sig.SetNColumns(2)
+    legend_sig.SetTextSize(0.03)
     minimum_y_value = 1e6
 
     global_minimum = 1e10
@@ -83,8 +86,8 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     print "Stacking"
     for label in Sort(samples_for_sorting, 1):
         mcstack.Add(histos[label[0]])
-        legend.AddEntry(histos[label[0]], label[0])
-        legend.AddEntry(histos[label[0]], '(%0.2f)'%(histos[label[0]].Integral()),"")
+        legend_bkg.AddEntry(histos[label[0]], label[0])
+        legend_bkg.AddEntry(histos[label[0]], '(%0.2f)'%(histos[label[0]].Integral()),"")
                                 
     mcstack.Draw("hist")
     mcstack.GetXaxis().SetLabelSize(0)   
@@ -99,23 +102,9 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
             histos[label].SetMarkerColor(samples[label]["color"])
             histos[label].SetLineWidth(3)
             histos[label].Draw("same hist")
-            legend.AddEntry(histos[label], label)
-            legend.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
-	    hSignal = histos[label].Clone("hSignal")
+            legend_sig.AddEntry(histos[label], label)
+            legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
 
-    # plot data:
-    for label in sorted(histos):
-        if samples[label]["type"] == "data":
-            histos[label].SetLineColor(samples[label]["color"])
-            histos[label].SetMarkerColor(samples[label]["color"])
-            histos[label].SetMarkerColor(samples[label]["color"])
-            histos[label].SetMarkerStyle(20)
-            histos[label].SetMarkerSize(1)
-            #histos[label].SetLineWidth(0)
-	    histos[label].Draw("same e1")
-	    legend.AddEntry(histos[label], label)
-	    legend.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
-    
     print "Combining"
     combined_mc_background = 0
     for label in sorted(histos):
@@ -129,8 +118,34 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     combined_mc_background.SetFillColorAlpha(1,0.95)
     combined_mc_background.SetLineWidth(1)
     combined_mc_background.Draw("same e2")
-    legend.AddEntry(combined_mc_background, "MC stat.err")
-    legend.AddEntry(combined_mc_background, " " ,"")
+    legend_bkg.AddEntry(combined_mc_background, "Total backgrounds stat.err")
+    legend_bkg.AddEntry(combined_mc_background, " " ,"")
+    
+    combined_mc_signal = 0
+    for label in sorted(histos):
+        if samples[label]["type"] == "sg":
+            if combined_mc_signal == 0:
+                combined_mc_signal = histos[label].Clone()
+            else:
+                combined_mc_signal.Add(histos[label])       
+
+    #combined_mc_signal.SetLineColor(kYellow)
+    #combined_mc_signal.Draw("same hist")
+    #legend_sig.AddEntry(combined_mc_signal, "Total signal")
+    #legend_sig.AddEntry(combined_mc_signal, '(%0.2f)'%(combined_mc_signal.Integral()),"")
+
+    # plot data:
+    for label in sorted(histos):
+        if samples[label]["type"] == "data" and unblind:
+            histos[label].SetLineColor(samples[label]["color"])
+            histos[label].SetMarkerColor(samples[label]["color"])
+            histos[label].SetMarkerColor(samples[label]["color"])
+            histos[label].SetMarkerStyle(20)
+            histos[label].SetMarkerSize(1)
+            #histos[label].SetLineWidth(0)
+	    histos[label].Draw("same e1")
+	    legend_sig.AddEntry(histos[label], label)
+	    legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
     
     # set minimum/maximum ranges   
     if global_minimum != 0:
@@ -145,9 +160,12 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
    
     mcstack.SetMaximum(global_maximum_scale * global_maximum)
 
-    legend.SetBorderSize(0)
-    legend.SetFillStyle(0)
-    legend.Draw()
+    legend_bkg.SetBorderSize(0)
+    legend_bkg.SetFillStyle(0)
+    legend_bkg.Draw()
+    legend_sig.SetBorderSize(0)
+    legend_sig.SetFillStyle(0)
+    legend_sig.Draw()
 
     latex=TLatex()
     latex.SetNDC()
@@ -205,5 +223,5 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     if fit_bkg : 
 	fit_background(combined_mc_background,outputdir,cut,variable,outformat)
     if fit_sig : 
-	fit_signal(hSignal,outputdir,cut,variable,outformat)
+	fit_signal(combined_mc_signal,outputdir,cut,variable,outformat)
 

@@ -7,8 +7,8 @@ from ROOT import *
 
 ####### GLOBAL SETTINGS ########
 # Data unblind
-unblind=True 
-#unblind=False 
+#unblind=True 
+unblind=False 
 
 # Remake histos
 remakeHistos=True
@@ -18,16 +18,10 @@ remakeHistos=True
 remakePlots=True
 #remakePlots=False
 
-# Folder histogram and plots
+# Folder for histograms and plots
 histodir = "histos"
 plotdir = "plots"
 ##############################
-
-# FIXME : use TEventList for later use
-#def makeEventList(folder, samples, cuts, variables):
-#    for cutname, cut in cuts.items() : 
-#        for variable in variables:
-#	    print cutname, cut, variable
 
 def makeHistos(folder, samples, cuts, variables):
     for cutname, cut in cuts.items() : 
@@ -64,8 +58,6 @@ def makePlots(histodir, outputdir, samples, cuts, variables, logx=False, logy=Tr
 	    stack_histograms(histos, outputdir, samples, cutname, variable, variable, "Events", logx=logx, logy=logy, unblind=unblind, suffix=suffix, outformat=outformat, fit_bkg=fit_bkg, fit_sig=fit_sig, fit_data=fit_data)
 	
     
-
-
 if __name__=="__main__":
     
     # Folder
@@ -97,27 +89,26 @@ if __name__=="__main__":
     
     # Cuts 
     cuts =  {
-	    #"FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_DT==1 && tracks_is_disappearing_track==1 && tracks_is_pixel_track==1 && tracks_mass_Pixel<10000",
-	    #"FullMhtNJet_long" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_DT==1 && tracks_is_disappearing_track==1 && tracks_is_pixel_track==0 && tracks_mass_WeightedByValidHits<10000",
-	    #"CR_FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && tracks_tagged_bdt==0 && tracks_is_pixel_track==1",
-	    #"CR_FullMhtNJet_long" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && tracks_tagged_bdt==0 && tracks_is_pixel_track==0",
-	    "CR_Mht250_Mindphi0.3_short" : "passesUniversalSelection==1 && HT>100 && MHT>250 && n_jets>0 && MinDeltaPhiMhtJets>0.3 && tracks_tagged_bdt==0 && tracks_is_pixel_track==1",
+	    "SR_FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_leptons==0 && tracks_pt>30 && tracks_mva_bdt>0.1 && tracks_is_pixel_track==1",
+	    #"SR_FullMhtNJet_long" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_leptons==0 && tracks_pt>30 && tracks_mva_bdt>0.25 && tracks_is_pixel_track==0",
+	    #"CR_FullMhtNJet_short" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_leptons==0 && tracks_pt>30 && tracks_mva_bdt<0.1 && tracks_is_pixel_track==1",
+	    #"CR_FullMhtNJet_long" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_leptons==0 && tracks_pt>30 && tracks_mva_bdt<0.25 && tracks_is_pixel_track==0",
+	    #"CR_FullMhtNJet_long_loose" : "passesUniversalSelection==1 && HT>100 && MHT>180 && n_jets>0 && n_leptons==0 && tracks_pt>30 && tracks_mva_bdt_loose<0 && tracks_is_pixel_track==0",
 	    }
     
     # Variables
     variables =	{
-	    #"Track_Pt":["tracks_pt",100, 3000, 10000, cuts],
+	    #"Track_Pt":["tracks_pt",100, 0, 1000, cuts],
 	    #"Track_P":["tracks_P",100, 0, 3000, cuts],
-	    "Track_LogMassFromDedxPixel_30bin":["TMath::Log10(tracks_massfromdeDxPixel)",30, 1, 5.5, cuts],
-	    #"Track_LogMassFromDedxWeightedDeDx":["TMath::Log10(tracks_massfromdeDx_weightedDeDx)",30, 1, 5.5, cuts],
-	    #"Track_LogMassFromDedxWeightedStripsMass":["TMath::Log10(tracks_massfromdeDx_weightedPixelStripsMass)",30, 1, 5.5, cuts],
+	    "Track_LogMassFromDedxPixel":["TMath::Log10(tracks_massfromdeDxPixel)",50, 0, 5.5, cuts],
+	    #"Track_LogMassFromDedxWeightedDeDx":["TMath::Log10(tracks_massfromdeDx_weightedDeDx)",50, 0, 5.5, cuts],
+	    #"Track_LogMassFromDedxWeightedPixelStripsMass":["TMath::Log10(tracks_massfromdeDx_weightedPixelStripsMass)",50, 0, 5.5, cuts],
 		}
-
-    #FIXME : Use TEventList for each cut(then no need to loop in each variable)
-    #makeEventList(folder, samples, cuts, variables)
 
     # Make histogram and save
     if remakeHistos:
+	print 'Are you going to remake Histos? Enter to continue'
+	raw_input()
 	makeHistos(folder, samples, cuts, variables)
    
     # Draw plots
