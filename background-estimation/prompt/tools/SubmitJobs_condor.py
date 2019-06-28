@@ -5,8 +5,6 @@ from time import sleep
 
 test = False
 
-
-
 import argparse
 parser = argparse.ArgumentParser()
 defaultfkey = 'Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2_28'
@@ -17,7 +15,11 @@ parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER s
 parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
 parser.add_argument("-gk", "--useGenKappa", type=bool, default=False,help="use gen-kappa")
+parser.add_argument("-SmearLeps4Zed", "--SmearLeps4Zed", type=str, default='True')
+parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 args = parser.parse_args()
+nfpj = args.nfpj
+SmearLeps4Zed = args.SmearLeps4Zed=='True'
 fnamekeyword = args.fnamekeyword.strip()
 filenames = fnamekeyword
 analyzer = args.analyzer
@@ -25,12 +27,17 @@ analyzer = analyzer.replace('python/','').replace('tools/','')
 JerUpDown = args.JerUpDown
 useGenKappa = args.useGenKappa
     
+    
 
-try: 
+#try: 
+if True:
 	moreargs = ' '.join(sys.argv)
-	moreargs = moreargs.split('--fnamekeyword')[-1]	
-	moreargs = ' '.join((moreargs.split()[1:]))
-except: moreargs = ''
+	moreargs = moreargs.split('--fnamekeyword')[-1]
+	moreargs = ' '.join(moreargs.split()[1:])
+#except: 
+else:
+	moreargs = ''
+	
 moreargs = moreargs.strip()
 print 'moreargs', moreargs
 
@@ -39,31 +46,43 @@ filelist = glob(filenames)
 shuffle(filelist)
 
 
-filesperjob = 1
+filesperjob = nfpj
+
 
 def main():
     ijob = 1
     files = ''
+    jobcounter_ = 0
     for ifname, fname in enumerate(filelist):
         files += fname+','
         print fname
-        if (ifname+1)%filesperjob==filesperjob-1:
+        if (ifname)%filesperjob==filesperjob-1:
             print '==='*3
             jobname = analyzer.replace('.py','')+'-'+fname[fname.rfind('/')+1:].replace('.root','_'+str(ijob))
-            if len(moreargs)>0: jobname = jobname.replace('.root',''.join(moreargs)+'.root')
+            #print 'moreargs.split()', moreargs.split()
+            if len(moreargs.split())>0: 
+            	#print 'trying to beef up jobname', jobname
+            	jobname = jobname+moreargs.replace(' ','-')
+            	#print 'tried to beef up jobname', jobname
+            print 'jobname', jobname
             fjob = open('jobs/'+jobname+'.sh','w')
             files = files[:-1]
-            fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',fname).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname))
+            fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname))
             fjob.close()
             os.chdir('jobs')
             command = 'condor_qsub -cwd '+jobname+'.sh &'
-            print command
+            jobcounter_+=1
+            print 'command', command
             if not test: os.system(command)
             os.chdir('..')
+            #print '...files', files
             files = ''
             ijob+=1
-            if test: break
-            sleep(0.15)
+            if test: 
+            	#if jobcounter_>3: break
+            	a = 1
+            sleep(0.1)
+    print 'submitted', jobcounter_, 'jobs'
         
 jobscript = '''#!/bin/zsh
 source /etc/profile.d/modules.sh
