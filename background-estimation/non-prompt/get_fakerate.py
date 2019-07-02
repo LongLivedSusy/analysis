@@ -114,7 +114,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 def get_configurations(threads):
 
-    path = "output_skim_10_merged/"
+    path = "output_skim_11_merged/"
     rootfile = path + "/fakerate.root"
     
     binning = {
@@ -131,43 +131,63 @@ def get_configurations(threads):
     regioncuts = {
                     "tight_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
                                 "denominator_cuts": " ",
                               },
                     "tight_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
                                 "denominator_cuts": " ",
                               },
                     "crosscheck_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 && !(tracks_prompt_electron==1 || tracks_prompt_muon==1 || tracks_prompt_tau==1 || tracks_prompt_tau_leadtrk==1)",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 && tracks_fake==1",
                                 "denominator_cuts": " ",
                               },
                     "crosscheck_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 && !(tracks_prompt_electron==1 || tracks_prompt_muon==1 || tracks_prompt_tau==1 || tracks_prompt_tau_leadtrk==1)",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 && tracks_fake==1",
                                 "denominator_cuts": " ",
                               },
                     "loose1_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose1_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose2_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": "  && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": "  && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.05",
                               },
                     "loose2_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.05",
+                              },
+                    "loose3_short": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.01",
+                              },
+                    "loose3_long": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.01",
+                              },
+                    "loose4_short": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": "  && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.05",
+                              },
+                    "loose4_long": {
+                                "base_cuts": "passesUniversalSelection==1",
+                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.02",
+                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.05",
                               },
                  }
 
@@ -207,12 +227,18 @@ def get_configurations(threads):
                             current_selected_dataset += "*JetHT"
                         elif "dilepton" in region and "Single" not in current_selected_dataset:
                             current_selected_dataset += "*Single"
+                        else:
+                            print "Something wrong"
+                            quit()
                     else:
                         # running on MC
                         if "qcd" in region and "QCD" not in current_selected_dataset:
                             current_selected_dataset += "*QCD"
                         elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
                             current_selected_dataset += "*DYJetsToLL"
+                        else:
+                            print "Something wrong"
+                            quit()
 
                     current_variable = variable
                     if "dilepton" in region:
@@ -246,7 +272,7 @@ if __name__ == "__main__":
         commands = []
         for i in range(len(configurations)):
             commands.append("./get_fakerate.py --index %s" % i)
-        print "running %s jobs!" % len(commands)
+        raw_input("running %s jobs!" % len(commands))
         runParallel(commands, options.runmode, condorDir = "get_fakerate_condor", dontCheckOnJobs=False)
 
         if "multi" in options.runmode:

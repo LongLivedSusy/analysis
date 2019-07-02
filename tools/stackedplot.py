@@ -121,9 +121,9 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
 
     # set minimum/maximum ranges   
     if global_minimum != 0:
-        mcstack.SetMinimum(0.1 * global_minimum)
+        mcstack.SetMinimum(1e-2 * global_minimum)
     else:
-        mcstack.SetMinimum(1e-5)
+        mcstack.SetMinimum(1e-2)
    
     if logy:
         global_maximum_scale = 10

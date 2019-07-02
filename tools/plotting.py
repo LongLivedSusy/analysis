@@ -177,7 +177,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         
         #if "merged" not in path:
         #    identifier = "_".join(file_name.split("_")[:-3])
-        #else:
+        #else:scaling
         identifier = file_name.replace(".root", "")
     
         selectors = selected_sample.split("*")
@@ -200,6 +200,9 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
 
     pool_args = []
     for i_sample, sample in enumerate(samples):
+
+        #FIXME, manual cross section:
+        if "g1800" in sample: scaling = "*0.00276133"
 
         filenames = glob.glob(sample + "*root")
 
