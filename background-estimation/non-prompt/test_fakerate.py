@@ -126,7 +126,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
     #for i_region in ["dilepton", "qcd", "qcd_sideband", "qcd_highMHT"]:
     #for i_region in ["dilepton"]:
     for i_region in ["dilepton", "qcd", "qcd_sideband"]:
-        for i_cond in ["tight", "loose1", "loose2", "loose3", "loose4", "crosscheck"]:
+        for i_cond in ["tight", "loose1", "loose2", "loose3", "loose4"]:
             for i_cat in ["_short", "_long"]:
                 fakerate_regions.append(i_region + "_" + i_cond + i_cat)
 
@@ -165,7 +165,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                         histos[variable + h_suffix] = histos[variable].Clone()
                         histos[variable + h_suffix].SetName(variable + h_suffix)
 
-                for tag in ["tight", "loose1", "loose2", "loose3", "loose4", "crosscheck"]:
+                for tag in ["tight", "loose1", "loose2", "loose3", "loose4"]:
                     for itype in ["fakebg", "promptbg", "control", "tagged"]:
                         h_suffix =  "_%s_%s_%s" % (tag, itype, category)
                         histos[variable + h_suffix] = histos[variable].Clone()
@@ -194,8 +194,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
         weight = 1.0 * event.CrossSection * event.puWeight / nev
 
         #FIXME
-        #is_control_region = event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0 and event.n_genLeptons==0
-        is_control_region = event.passesUniversalSelection==1 and event.MHT>150 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0 and event.n_genLeptons==0
+        is_control_region = event.passesUniversalSelection==1 and event.MHT>100 and event.MinDeltaPhiMhtJets>0.3 and event.n_jets>0 and event.n_leptons==0 and event.n_genLeptons==0
 
         if is_control_region:
 
@@ -233,7 +232,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                     is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1 or event.tracks_prompt_tau_leadtrk[i]==1
                     is_fake_track = not is_prompt_track
 
-                    # tight tag
+                    # the olde tight tag
                     if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt[i]>0.1 and event.tracks_is_reco_lepton[i]==0:
                         flags = set_flag("tight_tagged", flags, event, i)
                         if is_fake_track:
@@ -249,23 +248,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                             flags = set_flag("tight_promptbg", flags, event, i)
                     flags["tight_control_long"] = is_control_region
 
-                    # crosscheck tight tag
-                    if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt[i]>0.1 and is_fake_track and event.tracks_is_reco_lepton[i]==0:
-                        flags = set_flag("crosscheck_tagged", flags, event, i)
-                        if is_fake_track:
-                            flags = set_flag("crosscheck_fakebg", flags, event, i)
-                        if is_prompt_track:
-                            flags = set_flag("crosscheck_promptbg", flags, event, i)
-                    flags["crosscheck_control_short"] = is_control_region
-                    if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt[i]>0.25 and is_fake_track and event.tracks_is_reco_lepton[i]==0:
-                        flags = set_flag("crosscheck_tagged", flags, event, i)
-                        if is_fake_track:
-                            flags = set_flag("crosscheck_fakebg", flags, event, i)
-                        if is_prompt_track:
-                            flags = set_flag("crosscheck_promptbg", flags, event, i)
-                    flags["crosscheck_control_long"] = is_control_region
-
-                    # loose1 tag
+                    # loose1 tag: default tag to go
                     if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.01 and event.tracks_is_reco_lepton[i]==0:
                         flags = set_flag("loose1_tagged", flags, event, i)
                         if is_fake_track:
@@ -275,35 +258,36 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                     if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.01 and event.tracks_is_reco_lepton[i]==0:
                             flags = set_flag("loose1_control", flags, event, i)
 
-                    # loose2 tag
-                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.02 and event.tracks_is_reco_lepton[i]==0:
+                    # loose2 tag: Akshansh's recipe
+                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.01 and event.tracks_is_reco_lepton[i]==0:
                         flags = set_flag("loose2_tagged", flags, event, i)
                         if is_fake_track:
                             flags = set_flag("loose2_fakebg", flags, event, i)
                         if is_prompt_track:
                             flags = set_flag("loose2_promptbg", flags, event, i)
-                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.05 and event.tracks_is_reco_lepton[i]==0:
+                    if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.02 and event.tracks_dxyVtx[i]<0.1 and event.tracks_is_reco_lepton[i]==0:
                             flags = set_flag("loose2_control", flags, event, i)
 
-                    # loose3 tag
-                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]<=0.01 and event.tracks_is_reco_lepton[i]==0:
+                    # loose3 tag: super fancy cut function
+                    if event.tracks_mva_bdt_loose[i]>event.tracks_dxyVtx[i]*0.5/0.01 and event.tracks_is_reco_lepton[i]==0:
                         flags = set_flag("loose3_tagged", flags, event, i)
                         if is_fake_track:
                             flags = set_flag("loose3_fakebg", flags, event, i)
                         if is_prompt_track:
                             flags = set_flag("loose3_promptbg", flags, event, i)
-                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]>0.01 and event.tracks_is_reco_lepton[i]==0:
+                    if event.tracks_mva_bdt_loose[i]<event.tracks_dxyVtx[i]*0.5/0.01 and event.tracks_is_reco_lepton[i]==0:
                             flags = set_flag("loose3_control", flags, event, i)
 
-                    # loose4 tag
-                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]<=0.02 and event.tracks_is_reco_lepton[i]==0:
+                    # loose4 tag: super fancy cut function with old MHT cut of 150
+                    if event.tracks_mva_bdt_loose[i]>event.tracks_dxyVtx[i]*0.5/0.01 and event.tracks_is_reco_lepton[i]==0 and event.MHT>150:
                         flags = set_flag("loose4_tagged", flags, event, i)
                         if is_fake_track:
                             flags = set_flag("loose4_fakebg", flags, event, i)
                         if is_prompt_track:
                             flags = set_flag("loose4_promptbg", flags, event, i)
-                    if event.tracks_mva_bdt_loose[i]>0.1 and event.tracks_dxyVtx[i]>0.05 and event.tracks_is_reco_lepton[i]==0:
+                    if event.tracks_mva_bdt_loose[i]<event.tracks_dxyVtx[i]*0.5/0.01 and event.tracks_is_reco_lepton[i]==0 and event.MHT>150:
                             flags = set_flag("loose4_control", flags, event, i)
+
 
                 for label in flags:
                     if flags[label]:
@@ -331,8 +315,6 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                             continue
                             hist_name = hist_name.replace("HT", "HT_cleaned")
 
-                        print hist_name
-
                         if ":" in fakerate_variable:
                             fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue, yval = yvalue)
                         else:                
@@ -343,8 +325,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                                ("loose1" in hist_name and flags["loose1_control_short"]) or \
                                ("loose2" in hist_name and flags["loose2_control_short"]) or \
                                ("loose3" in hist_name and flags["loose3_control_short"]) or \
-                               ("loose4" in hist_name and flags["loose4_control_short"]) or \
-                               ("crosscheck" in hist_name and flags["crosscheck_control_short"]):
+                               ("loose4" in hist_name and flags["loose4_control_short"]):
                                 histos[variable + "_" + fr_region + "_" + fakerate_variable.replace(":", "_") + "_prediction"].Fill(value, weight * fakerate)
 
                         elif "long" in hist_name:
@@ -352,8 +333,7 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", nevents 
                                ("loose1" in hist_name and flags["loose1_control_long"]) or \
                                ("loose2" in hist_name and flags["loose2_control_long"]) or \
                                ("loose3" in hist_name and flags["loose3_control_long"]) or \
-                               ("loose4" in hist_name and flags["loose4_control_long"]) or \
-                               ("crosscheck" in hist_name and flags["crosscheck_control_long"]):
+                               ("loose4" in hist_name and flags["loose4_control_long"]):
                                 histos[variable + "_" + fr_region + "_" + fakerate_variable.replace(":", "_") + "_prediction"].Fill(value, weight * fakerate)
 
         else:
@@ -378,7 +358,7 @@ if __name__ == "__main__":
     parser.add_option("--input", dest = "inputfiles")
     parser.add_option("--output", dest = "outputfiles")
     parser.add_option("--nev", dest = "nev", default = -1)
-    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate.root")
+    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "output_skim_11_merged/fakerate.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     (options, args) = parser.parse_args()
        
@@ -389,7 +369,7 @@ if __name__ == "__main__":
     if options.inputfiles[-1] == "/":
         print "Got input folder, running in batch mode (%s)!" % options.runmode
 
-        output_folder = options.inputfiles[:-1] + "_prediction_crosscheck_lowerMHT"
+        output_folder = options.inputfiles[:-1] + "_prediction_newCR_lowerMHT"
         
         input_files = glob.glob(options.inputfiles + "/*.root")
         os.system("mkdir -p %s" % output_folder)

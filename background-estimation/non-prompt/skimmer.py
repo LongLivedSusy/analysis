@@ -420,7 +420,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
     # prepare variables for output tree   
     float_branches = ["MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "dilepton_pt1", "dilepton_pt2"]
-    integer_branches = ["n_jets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
+    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
     if not is_data:
         float_branches.append("madHT")
@@ -483,7 +483,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     # load fake rate histograms:
     fakerate_regions = []
     for i_region in ["dilepton", "qcd", "qcd_sideband"]:
-        for i_cond in ["tight", "loose1", "loose2", "loose3", "combined"]:
+        for i_cond in ["tight", "loose1", "loose2", "loose3", "loose4", "crosscheck"]:
             for i_cat in ["_short", "_long"]:
                 fakerate_regions.append(i_region + "_" + i_cond + i_cat)
 
@@ -511,7 +511,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 branch_name = "fakerate_%s_%s" % (region, variable.replace(":", "_"))
                 tree_branch_values[branch_name] = array( 'f', [ 0 ] )
                 tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
-
 
     print "Looping over %s events" % nev
 
@@ -656,6 +655,12 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values["MHT_cleaned"][0] = MHT_cleaned
                 tree_branch_values["HT_cleaned"][0] = HT_cleaned
                 tree_branch_values["MinDeltaPhiMhtJets_cleaned"][0] = MinDeltaPhiMhtJets_cleaned
+        
+        # count number of good jets:
+        n_goodjets = 0
+        for jet in event.Jets:
+            if jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
+                n_goodjets += 1
 
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
@@ -840,7 +845,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                                 
                         #FIXME:
                         if "interpolated" in hist_name: continue
-
+                        
                         FR = getBinContent_with_overflow(h_fakerates[hist_name], xvalue, yval = yvalue)
                     else:
                         value = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("n_NVtx", "NVtx"))
@@ -880,6 +885,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
         tree_branch_values["n_btags"][0] = event.BTags
         tree_branch_values["n_jets"][0] = len(event.Jets)
+        tree_branch_values["n_goodjets"][0] = n_goodjets
         tree_branch_values["n_allvertices"][0] = event.nAllVertices
         tree_branch_values["PFCaloMETRatio"][0] = event.PFCaloMETRatio
         tree_branch_values["MET"][0] = event.MET

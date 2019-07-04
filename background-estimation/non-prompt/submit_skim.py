@@ -96,19 +96,19 @@ def get_ntuple_datasets(globstring_list):
     #    "g1800_chi1400_27_200970_step4_1000",
     #]
         
-    #ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
-    #    "Summer16.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
-    #    "Summer16.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
-    #    "Summer16.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
-    #    "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
-    #]
+    ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
+        "Summer16.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
+    ]
    
-    #ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-    #    "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
-    #    "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
-    #]
+    ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
+        "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
+        "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
+    ]
   
     return ntuples
     
@@ -124,13 +124,12 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     ######## some presets you can enable/disable ########
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file fakerate.root"
+    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_skim_11_merged/fakerate.root"
     #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
-    options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
-    #options.dataset = "Summer16.*"
-    options.dataset = "Run2016*MET*"
-    options.output_folder = "output_skim_11_data"
-    options.files_per_job = 15
+    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+    options.dataset = "Summer16.*,Run2016*MET*"
+    options.output_folder = "output_skim_12"
+    options.files_per_job = 40
 
     ######## some presets you can enable/disable ########
 

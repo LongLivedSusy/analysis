@@ -18,7 +18,7 @@ def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmi
     return histos
 
 
-def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC", lumi=1.0):
+def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC", lumi=1.0, ymin=False, ymax=False, xmin=False, xmax=True):
  
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
@@ -124,13 +124,19 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
         mcstack.SetMinimum(1e-2 * global_minimum)
     else:
         mcstack.SetMinimum(1e-2)
+
+    if ymin:
+        mcstack.SetMinimum(ymin)
    
     if logy:
         global_maximum_scale = 10
     else:
         global_maximum_scale = 1
    
-    mcstack.SetMaximum(global_maximum_scale * global_maximum)
+    if not ymax:
+        mcstack.SetMaximum(global_maximum_scale * global_maximum)
+    else:
+        mcstack.SetMaximum(ymax)
 
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
@@ -177,7 +183,8 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
         ratio = combined_mc_background.Clone()
         
     ratio.Divide(combined_mc_background)
-    #ratio.GetXaxis().SetRangeUser(xmin, xmax)
+    if xmax:
+        ratio.GetXaxis().SetRangeUser(xmin, xmax)
     ratio.Draw("same e0")
     ratio.SetTitle(";%s;%s" % (xlabel, miniylabel))
     pad2.SetGridx(True)
