@@ -19,51 +19,40 @@ def get_configurations():
 
     configurations = collections.OrderedDict()
 
-    path = "output_skim_11_merged"
+    path = "output_skim_12_merged"
     mc_background = "Summer16.DYJetsToLL|Summer16.QCD|Summer16.WJetsToLNu|Summer16.ZJetsToNuNu_HT|Summer16.WW_TuneCUETP8M1|Summer16.WZ_TuneCUETP8M1|Summer16.ZZ_TuneCUETP8M1|Summer16.TTJets_TuneCUETP8M1_13TeV"
+    mc_signal = "Summer16.g1800_chi1400_27_200970_step4_"
     data = "Run2016*MET"
 
     histos = collections.OrderedDict()
 
     cuts = {
-             "base":                 "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>0",
-             "noleptons":            "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0",
-             "lowlowlowMHT_base":        "passesUniversalSelection==1 && MHT<100 && MinDeltaPhiMhtJets>0.3 && n_jets>0",
-             "lowlowlowMHT_noleptons":   "passesUniversalSelection==1 && MHT<100 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0",
-             "lowlowMHT_base":        "passesUniversalSelection==1 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_jets>0",
-             "lowlowMHT_noleptons":   "passesUniversalSelection==1 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0",
-             "lowMHT_base":           "passesUniversalSelection==1 && MHT>100 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_jets>0",
-             "lowMHT_noleptons":      "passesUniversalSelection==1 && MHT>100 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0",
-             "highMHT_base":          "passesUniversalSelection==1 && MHT>600 && MHT<1000 && MinDeltaPhiMhtJets>0.3 && n_jets>0",
-             "highMHT_noleptons":     "passesUniversalSelection==1 && MHT>600 && MHT<1000 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0",
-             "highhighMHT_base":      "passesUniversalSelection==1 && MHT>800 && MinDeltaPhiMhtJets>0.3 && n_jets>0",
-             "highhighMHT_noleptons": "passesUniversalSelection==1 && MHT>800 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0",
-             #"lownjets_base":        "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets<10",
-             #"lownjets_noleptons":   "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets<10 && n_leptons==0",
-             #"lowlownjets_base":        "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets<=5",
-             #"lowlownjets_noleptons":   "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets<=5 && n_leptons==0",
-             #"highnjets_base":       "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>20",
-             #"highnjets_noleptons":  "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>20 && n_leptons==0",
-             #"highhighnjets_base":       "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>=25",
-             #"highhighnjets_noleptons":  "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>=25 && n_leptons==0",
+             "base":                     "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0",
+             "noleptons":                "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_leptons==0",
+             "lowlowlowMHT_base":        "passesUniversalSelection==1 && MHT<100 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0",
+             "lowlowlowMHT_noleptons":   "passesUniversalSelection==1 && MHT<100 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_leptons==0",
+             "lowlowMHT_base":           "passesUniversalSelection==1 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0",
+             "lowlowMHT_noleptons":      "passesUniversalSelection==1 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_leptons==0",
+             "lowMHT_base":              "passesUniversalSelection==1 && MHT>100 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0",
+             "lowMHT_noleptons":         "passesUniversalSelection==1 && MHT>100 && MHT<200 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_leptons==0",
+             "highMHT_base":             "passesUniversalSelection==1 && MHT>600 && MHT<1000 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0",
+             "highMHT_noleptons":        "passesUniversalSelection==1 && MHT>600 && MHT<1000 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_leptons==0",
+             "highhighMHT_base":         "passesUniversalSelection==1 && MHT>800 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0",
+             "highhighMHT_noleptons":    "passesUniversalSelection==1 && MHT>800 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_leptons==0",
+             "lowgoodnjets_base":            "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_goodjets<=4",
+             "lowgoodnjets_noleptons":       "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_goodjets<=4 && n_leptons==0",
+             "highgoodnjets_base":           "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>=9",
+             "highgoodnjets_noleptons":      "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>=9 && n_leptons==0",
+             "2highgoodnjets_base":           "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>=5",
+             "2highgoodnjets_noleptons":      "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>=5 && n_leptons==0",
            }
 
     variables = {
-                  #"HT_short":  [" && tracks_is_pixel_track==1 ", 40, 0, 1000],
-                  #"HT_long":  [" && tracks_is_pixel_track==0 ", 40, 0, 1000],
-                  #"MHT_short":  [" && tracks_is_pixel_track==1 ", 40, 0, 1000],
-                  #"MHT_long":  [" && tracks_is_pixel_track==0 ", 40, 0, 1000],
-                  #"n_jets_short":  [" && tracks_is_pixel_track==1 ", 30, 0, 30],
-                  #"n_jets_long":  [" && tracks_is_pixel_track==0 ", 30, 0, 30],
-                  #"n_btags_short":  [" && tracks_is_pixel_track==1 ", 15, 0, 15],
-                  #"n_btags_long":  [" && tracks_is_pixel_track==0 ", 15, 0, 15],
-                  #"MinDeltaPhiMhtJets_short":  [" && tracks_is_pixel_track==1 ", 20, 0, 1],
-                  #"MinDeltaPhiMhtJets_long":  [" && tracks_is_pixel_track==0 ", 20, 0, 1],
-                  #"tracks_massfromdeDxPixel":  [" && tracks_is_pixel_track==1 ", 80, 0, 4000],
-                  #"tracks_massfromdeDxStrips": [" && tracks_is_pixel_track==0 ", 80, 0, 4000],
                   "log10(tracks_massfromdeDxPixel)":  [" && tracks_is_pixel_track==1 ", 50, 0, 5],
                   "log10(tracks_massfromdeDxStrips)": [" && tracks_is_pixel_track==0 ", 50, 0, 5],
                 }
+
+    good_track = " && tracks_passPFCandVeto==1 && tracks_passpionveto==1 "
 
     tags = {
              "loose1":      {"short": " && tracks_mva_bdt_loose>0 ", "long": " && tracks_mva_bdt_loose>0 ", "track_SR": " && tracks_dxyVtx<=0.01 ", "track_CR": " && tracks_dxyVtx>0.01 "},
@@ -88,9 +77,9 @@ def get_configurations():
                 xmin = variables[variable][2]
                 xmax = variables[variable][3]
 
-                fakelike          = control_region + track_selection + tags[tag]["track_CR"] + " && tracks_is_reco_lepton==0 "         # fake-like: select high-dxy region
-                promptlike        = control_region + track_selection + tags[tag]["track_SR"] + " && tracks_is_reco_lepton==1 "         # prompt-like: select leptons
-                sr_tracks         = control_region + track_selection + tags[tag]["track_SR"] + " && tracks_is_reco_lepton==0 "         # tagged tracks in the SR
+                fakelike          = control_region + good_track + track_selection + tags[tag]["track_CR"] + " && tracks_is_reco_lepton==0 "         # fake-like: select high-dxy region
+                promptlike        = control_region + good_track + track_selection + tags[tag]["track_SR"] + " && tracks_is_reco_lepton==1 "         # prompt-like: select leptons
+                sr_tracks         = control_region + good_track + track_selection + tags[tag]["track_SR"] + " && tracks_is_reco_lepton==0 "         # tagged tracks in the SR
 
                 treevariable = variable.replace("_short", "").replace("_long", "")
 
@@ -100,11 +89,11 @@ def get_configurations():
                 configurations["%s_%s_bg_promptlike_%s" % (variable, tag, label)] =       [treevariable, promptlike, nBinsX, xmin, xmax, path, mc_background]
                 configurations["%s_%s_bg_fakelike_%s" % (variable, tag, label)] =         [treevariable, fakelike, nBinsX, xmin, xmax, path, mc_background]
 
-                configurations["%s_%s_sg_%s" % (variable, tag, label)] =                  [treevariable, sr_tracks, nBinsX, xmin, xmax, path, mc_background]
-                configurations["%s_%s_sg_fake_%s" % (variable, tag, label)] =             [treevariable, fakelike + " && tracks_fake==1 ", nBinsX, xmin, xmax, path, mc_background]
-                configurations["%s_%s_sg_prompt_%s" % (variable, tag, label)] =           [treevariable, promptlike + " && tracks_fake==0 ", nBinsX, xmin, xmax, path, mc_background]
-                configurations["%s_%s_sg_promptlike_%s" % (variable, tag, label)] =       [treevariable, promptlike, nBinsX, xmin, xmax, path, mc_background]
-                configurations["%s_%s_sg_fakelike_%s" % (variable, tag, label)] =         [treevariable, fakelike, nBinsX, xmin, xmax, path, mc_background]
+                configurations["%s_%s_sg_%s" % (variable, tag, label)] =                  [treevariable, sr_tracks, nBinsX, xmin, xmax, path, mc_signal]
+                configurations["%s_%s_sg_fake_%s" % (variable, tag, label)] =             [treevariable, fakelike + " && tracks_fake==1 ", nBinsX, xmin, xmax, path, mc_signal]
+                configurations["%s_%s_sg_prompt_%s" % (variable, tag, label)] =           [treevariable, promptlike + " && tracks_fake==0 ", nBinsX, xmin, xmax, path, mc_signal]
+                configurations["%s_%s_sg_promptlike_%s" % (variable, tag, label)] =       [treevariable, promptlike, nBinsX, xmin, xmax, path, mc_signal]
+                configurations["%s_%s_sg_fakelike_%s" % (variable, tag, label)] =         [treevariable, fakelike, nBinsX, xmin, xmax, path, mc_signal]
 
                 configurations["%s_%s_data_%s" % (variable, tag, label)] =                [treevariable, sr_tracks, nBinsX, xmin, xmax, path, data]
                 configurations["%s_%s_data_promptlike_%s" % (variable, tag, label)] =     [treevariable, promptlike, nBinsX, xmin, xmax, path, data]
@@ -125,8 +114,8 @@ def plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", ca
     histos["mc_fake"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fake", prefix + "noleptons"))
     histos["mc_promptlike"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_promptlike", prefix + "base"))
     histos["mc_fakelike"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fakelike", prefix + "noleptons"))
-    histos["data_promptlike"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_promptlike", prefix + "base"))
-    histos["data_fakelike"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_fakelike", prefix + "noleptons"))
+    #histos["data_promptlike"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_promptlike", prefix + "base"))
+    #histos["data_fakelike"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_fakelike", prefix + "noleptons"))
     histos["signal"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "signal", prefix + "noleptons"))
     #histos["signal_ctau10"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "signal_ctau10", prefix + "noleptons"))
     #histos["signal_ctau30"] = fin.Get("%s_%s_%s_%s" % (variable, tag, "signal_ctau30", prefix + "noleptons"))
@@ -321,21 +310,33 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
         
     for prefix in prefixes:
         if bg == "prompt":
-            histos["mc_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_promptlike", prefix + "base"))
+            histos["bg_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_promptlike", prefix + "base"))
         else:
-            histos["mc_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fakelike", prefix + "noleptons"))
+            histos["bg_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fakelike", prefix + "noleptons"))
+
     for prefix in prefixes:
-        histos["sg_prompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_prompt", prefix + "noleptons"))
-        histos["sg_fake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_fake", prefix + "noleptons"))
-    #for prefix in prefixes:
-    #    if bg == "prompt":
-    #        histos["mc_prompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_prompt", prefix + "base"))
-    #    else:
-    #        histos["mc_fake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fake", prefix + "noleptons"))
+        if bg == "prompt":
+            histos["bg_prompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_prompt", prefix + "base"))
+        else:
+            histos["bg_fake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fake", prefix + "noleptons"))
+
+    for prefix in prefixes:
+        if bg == "prompt":
+            histos["sg_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_promptlike", prefix + "base"))
+        else:
+            histos["sg_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_fakelike", prefix + "noleptons"))
+
+    for prefix in prefixes:
+        if bg == "prompt":
+            histos["sg_prompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_prompt", prefix + "base"))
+        else:
+            histos["sg_fake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_fake", prefix + "noleptons"))
+
     
-    bg_colors = [kRed, kOrange, kMagenta, kMagenta+2]
-    bg_truth_colors = [kRed, kOrange, kMagenta, kMagenta+2]
-    sg_colors = [kBlue, kTeal, kGreen, kAzure, kBlack]
+    bg_colors = [kRed, kOrange, kMagenta, kMagenta, kRed+2, kOrange+2, kMagenta+2, kMagenta+2]
+    bg_truth_colors = [kRed, kOrange, kMagenta, kMagenta, kRed+2, kOrange+2, kMagenta+2, kMagenta+2]
+    sg_colors = [kBlue, kTeal, kGreen, kAzure, kBlack, kBlue+2, kTeal+2, kGreen+2, kAzure+2]
+    sg_truth_colors = [kBlue, kTeal, kGreen, kAzure, kBlack, kBlue+2, kTeal+2, kGreen+2, kAzure+2]
     
     for histo in histos.keys():
         try:
@@ -350,25 +351,27 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
         histos[histo].SetLineWidth(2)
         if "_fake_" in histo or "_prompt_" in histo:
             histos[histo].SetLineStyle(2)
-        if "sg_" in histo:
+
+        if "sg_" in histo and ("_fakelike_" in histo or "_promptlike_" in histo):
             color = sg_colors.pop(0)
-        else:
+        elif "sg_" in histo and ("_fake_" in histo or "_prompt_" in histo):
+            color = sg_truth_colors.pop(0)
+        elif "bg_" in histo and ("_fakelike_" in histo or "_promptlike_" in histo):
             color = bg_colors.pop(0)
+        elif "bg_" in histo and ("_fake_" in histo or "_prompt_" in histo):
+            color = bg_truth_colors.pop(0)
+
         histos[histo].SetLineColor(color)
         if histos[histo].Integral() != 0:
             histos[histo].Scale(1.0/histos[histo].Integral())
         histos[histo].Rebin(10)
-    
-    if len(histos)==0:
-        print "no histos"
-        quit()
-    
+       
     canvas = TCanvas("waterfall", "waterfall", 800, 800)
     canvas.SetRightMargin(0.06)
     canvas.SetLeftMargin(0.12)
     canvas.SetLogy(True)
     
-    legend = TLegend(0.45, 0.7, 0.89, 0.89)
+    legend = TLegend(0.3, 0.7, 0.89, 0.89)
     legend.SetTextSize(0.025)
     legend.SetBorderSize(0)
 
@@ -390,19 +393,24 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
             histos[label].Draw("hist same")
         
         legendlabel = label
-        legendlabel = legendlabel.replace("mc_promptlike", "Prompt-like tracks")
-        legendlabel = legendlabel.replace("mc_prompt", "MC-True prompt-like tracks")
-        legendlabel = legendlabel.replace("mc_fakelike", "Fake-like tracks")
-        legendlabel = legendlabel.replace("mc_fake", "MC-True fake-like tracks")
-        legendlabel = legendlabel.replace("_lowlowlowMT_", " (MHT<100)")
-        legendlabel = legendlabel.replace("_lowlowMT_", " (MHT<200)")
-        legendlabel = legendlabel.replace("_lowMT_", " (MHT>100 && MHT<200)")
-        legendlabel = legendlabel.replace("_highhighMT_", " (MHT>800)")
+        legendlabel = legendlabel.replace("sg", "Signal ")
+        legendlabel = legendlabel.replace("bg", "Background ")
+        legendlabel = legendlabel.replace("_promptlike", "prompt-like tracks")
+        legendlabel = legendlabel.replace("_prompt", "MC-True prompt-like tracks")
+        legendlabel = legendlabel.replace("_fakelike", "fake-like tracks")
+        legendlabel = legendlabel.replace("_fake", "MC-True fake-like tracks")
+        legendlabel = legendlabel.replace("_lowlowlowMHT_", " (MHT<100)")
+        legendlabel = legendlabel.replace("_lowlowMHT_", " (MHT<200)")
+        legendlabel = legendlabel.replace("_lowMHHT_", " (MHT>100 && MHT<200)")
+        legendlabel = legendlabel.replace("_highhighMHT_", " (MHT>800)")
         legendlabel = legendlabel.replace("_highMT_", " (MHT>600 && MHT<1000)")
-        legendlabel = legendlabel.replace("_lownjets_", " (n_jets<10)")
-        legendlabel = legendlabel.replace("_lowlownjets_", " (n_jets<=5)")
-        legendlabel = legendlabel.replace("_highnjets_", " (n_jets>20)")
-        legendlabel = legendlabel.replace("_highhighnjets_", " (n_jets>=25)")
+        legendlabel = legendlabel.replace("_lowgoodnjets_", " (n_goodjets#leq4)")
+        legendlabel = legendlabel.replace("_2highgoodnjets_", " (n_goodjets#geq5)")
+        legendlabel = legendlabel.replace("_highgoodnjets_", " (n_goodjets#geq9)")
+        legendlabel = legendlabel.replace("_lownjets_", " (n_goodjets<10)")
+        legendlabel = legendlabel.replace("_lowlownjets_", " (n_goodjets<=5)")
+        legendlabel = legendlabel.replace("_highnjets_", " (n_goodjets>20)")
+        legendlabel = legendlabel.replace("_highhighnjets_", " (n_goodjets>=25)")
         
         legend.AddEntry(histos[label], legendlabel)
     
@@ -422,7 +430,7 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
                 
     for label in histos:
         histos[label].SetMaximum(global_ymax*1e2)
-        histos[label].SetMinimum(global_ymin*1e1)
+        histos[label].SetMinimum(global_ymin*1e-1)
         
     legend.Draw()
     stamp_plot()
@@ -449,7 +457,7 @@ if __name__ == "__main__":
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--plot", dest="plot", action="store_true")
     parser.add_option("--waterfall", dest="waterfall", action="store_true") 
-    parser.add_option("--template", dest="template", default="template.root")       
+    parser.add_option("--template", dest="template", default="template2.root")       
     parser.add_option("--submit", dest="submit", action="store_true") 
     (options, args) = parser.parse_args()
 
@@ -487,18 +495,18 @@ if __name__ == "__main__":
         
         for bg in ["prompt", "fake"]:
             for tag in ["loose1", "loose2", "loose3"]:
-                prefixes = ["lowlowMHT_", "highMHT_", "highhighMHT_"]
+                prefixes = ["lowlowMHT_", "highhighMHT_"]
                 waterfall_plot(template_file, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowMHT")
 
-                #prefixes = ["lownjets_", "lowlownjets_", "highnjets_", "highhighnjets_"]
-                #waterfall_plot(template_file, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowJets")
+                prefixes = ["lowgoodnjets_", "2highgoodnjets_"]
+                waterfall_plot(template_file, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowJets")
 
     elif options.submit:
 
         commands = []
         for i in range(len(configurations)):
-            commands.append("./prepare_template_fit.py --index %s" % i)
+            commands.append("./template_fit.py --index %s" % i)
         raw_input("running %s jobs!" % len(commands) )
-        runParallel(commands, options.runmode, condorDir = "prepare_template_fit_condor", dontCheckOnJobs=False)
+        runParallel(commands, options.runmode, condorDir = "template_fit_condor", dontCheckOnJobs=False)
 
     

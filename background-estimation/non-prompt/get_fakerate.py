@@ -114,7 +114,7 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 def get_configurations(threads):
 
-    path = "output_skim_11_merged/"
+    path = "output_skim_12_merged/"
     rootfile = path + "/fakerate.root"
     
     binning = {
@@ -128,66 +128,48 @@ def get_configurations(threads):
                 "MinDeltaPhiMhtJets": [100, 0, 5],                    
     }
 
+    good_track = " && tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 "
+
     regioncuts = {
                     "tight_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
                                 "denominator_cuts": " ",
                               },
                     "tight_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
-                                "denominator_cuts": " ",
-                              },
-                    "crosscheck_short": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 && tracks_fake==1",
-                                "denominator_cuts": " ",
-                              },
-                    "crosscheck_long": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 && tracks_fake==1",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
                                 "denominator_cuts": " ",
                               },
                     "loose1_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose1_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
                               },
                     "loose2_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": "  && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
                               },
                     "loose2_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+                                "denominator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
                               },
                     "loose3_short": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.01",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
+                                "denominator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
                               },
                     "loose3_long": {
                                 "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.01",
-                              },
-                    "loose4_short": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": "  && tracks_is_reco_lepton==0 && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.05",
-                              },
-                    "loose4_long": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx<=0.02",
-                                "denominator_cuts": " && tracks_is_reco_lepton==0 && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0.1 && tracks_dxyVtx>0.05",
+                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
+                                "denominator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
                               },
                  }
 
@@ -195,15 +177,16 @@ def get_configurations(threads):
     selected_datasets = ["Summer16"]
     
     variables = [
-                 "HT",
-                 "n_allvertices",
+                 #"HT",
+                 #"n_allvertices",
                  "HT:n_allvertices",
                 ]
     regions = {
-               "dilepton":       " && dilepton_CR==1",
-               "qcd":            " && MHT<200",
-               "qcd_sideband":   " && MHT>100 && MHT<200",
-               "qcd_highMHT":    " && MHT>200",
+               "dilepton":              " && dilepton_CR==1",
+               "dilepton_lowMHT":       " && dilepton_CR==1 && MHT<200",
+               "qcd_lowlowMHT":         " && MHT<100",
+               "qcd_lowMHT":            " && MHT<200",
+               "qcd_sideband":          " && MHT>100 && MHT<200",
               }
     
     configurations = []

@@ -42,7 +42,6 @@ def do_submission(commands, output_folder, condorDir = "bird", executable = "loo
         raw_input("Continue?")    
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
-    #runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs)
     runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False)
 
 
@@ -124,12 +123,10 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     ######## some presets you can enable/disable ########
-    options.command = "./skimmer.py --input $INPUT --output $OUTPUT --fakerate_file output_skim_11_merged/fakerate.root"
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --only_fakerate"
-    #options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+    options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     options.dataset = "Summer16.*,Run2016*MET*"
     options.output_folder = "output_skim_12"
-    options.files_per_job = 40
+    options.files_per_job = 15
 
     ######## some presets you can enable/disable ########
 

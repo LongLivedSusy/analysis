@@ -420,7 +420,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 
     # prepare variables for output tree   
     float_branches = ["MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "dilepton_pt1", "dilepton_pt2"]
-    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
+    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodleptonsid", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
     if not is_data:
         float_branches.append("madHT")
@@ -662,6 +662,20 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             if jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
                 n_goodjets += 1
 
+        # count number of good leptons:
+        n_goodleptons = 0
+        n_goodleptonsid = 0
+        for i, electron in enumerate(event.Electrons):
+            if electron.Pt() > 30 and abs(electron.Eta()) < 2.4:
+                n_goodleptons += 1
+                if bool(event.Electrons_mediumID[i]):
+                    n_goodleptonsid += 1
+        for i, muon in enumerate(event.Muons):
+            if muon.Pt() > 30 and abs(muon.Eta()) < 2.4:
+                n_goodleptons += 1
+                if bool(event.Muons_tightID[i]):
+                    n_goodleptonsid += 1
+
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
         mhtvec = TLorentzVector()
@@ -883,6 +897,8 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         # save event-level variables:
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
+        tree_branch_values["n_goodleptons"][0] = n_goodleptons
+        tree_branch_values["n_goodleptonsid"][0] = n_goodleptonsid
         tree_branch_values["n_btags"][0] = event.BTags
         tree_branch_values["n_jets"][0] = len(event.Jets)
         tree_branch_values["n_goodjets"][0] = n_goodjets
