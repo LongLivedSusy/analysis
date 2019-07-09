@@ -124,10 +124,10 @@ if __name__ == "__main__":
 
     ######## some presets you can enable/disable ########
     options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
-    options.dataset = "Summer16.*,Run2016*MET*"
-    options.output_folder = "output_skim_12"
-    options.files_per_job = 15
-
+    #options.dataset = "Summer16.*,Run2016*MET*"
+    options.dataset = "Summer16.DYJetsToLL*,Summer16.QCD*,Summer16.WJetsToLNu*,Summer16.ZJetsToNuNu_HT*,Summer16.WW_TuneCUETP8M1*,Summer16.WZ_TuneCUETP8M1*,Summer16.ZZ_TuneCUETP8M1*,Summer16.TTJets_TuneCUETP8M1_13TeV*,Run2016*MET*"
+    options.output_folder = "output_skim_13"
+    options.files_per_job = 30
     ######## some presets you can enable/disable ########
 
     commands = []

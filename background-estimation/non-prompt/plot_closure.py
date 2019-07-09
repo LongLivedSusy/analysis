@@ -4,7 +4,7 @@ from ROOT import *
 from plotting import *
 import collections
 
-def closure_plot(root_file, variable, tag, category, canvas_label, extra_text = "", xlabel = False, lumi = 1.0, autoscaling = True, xmax = False, ymax = False, ymin = False, fr_regions = ["dilepton", "qcd", "qcd_sideband"], fr_maps = ["HT", "n_allvertices", "HT_n_allvertices"], output_root_file = False):
+def closure_plot(root_file, variable, tag, category, canvas_label, extra_text = "", xlabel = False, lumi = 1.0, autoscaling = True, xmax = False, ymax = False, ymin = False, fr_regions = ["dilepton", "dilepton_lowMHT", "qcd_lowlowMHT", "qcd_lowMHT", "qcd_sideband"], fr_maps = ["HT_n_allvertices"], output_root_file = False):
    
     if variable == "n_jets":
         xmin = 0
@@ -160,10 +160,10 @@ def closure_plot(root_file, variable, tag, category, canvas_label, extra_text = 
 
 if __name__ == "__main__":
 
-    root_file = "output_skim_11_merged_prediction_newCR_lowerMHT/addedbg.root"
+    root_file = "output_skim_12_merged_prediction/addedbg.root"
 
     for variable in ["region_short", "region_long", "region_multi", "MHT", "n_jets"]:
-        for tag in ["tight", "loose1", "loose2", "loose3", "loose4"]:
+        for tag in ["tight", "loose1", "loose2", "loose3"]:
             for category in ["short", "long"]:
                 #for fr_map in ["HT", "n_allvertices", "HT_n_allvertices"]:
                 for fr_map in ["HT_n_allvertices"]:                   
