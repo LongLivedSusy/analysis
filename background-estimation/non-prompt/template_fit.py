@@ -508,22 +508,18 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
             ratios[label].GetYaxis().SetLabelSize(0.15)
 
         pad2.SetLogy(True)
-        pad2.SetGridx(True)
-        pad2.SetGridy(True)
+        #pad2.SetGridx(True)
+        #pad2.SetGridy(True)
 
     pad3.cd()     
     lowhigh_ratios = collections.OrderedDict()
     for i, label in enumerate(histos):
-        if "bg_promptlike" in label or "bg_fakelike" in label or "bg_genpromptlike" in label or "bg_genfakelike" in label:
+        if "bg_promptlike" in label or "bg_fakelike":
             lowhigh_ratios[label] = histos[label].Clone()
-            if "bg_promptlike" in label:
-                lowhigh_ratios[label].Divide(histos[label.replace("bg_promptlike", "bg_genprompt")])
-            elif "bg_fakelike" in label:
-                lowhigh_ratios[label].Divide(histos[label.replace("bg_fakelike", "bg_genfake")])
-            elif "bg_genpromptlike" in label:
-                lowhigh_ratios[label].Divide(histos[label.replace("bg_genpromptlike", "bg_genprompt")])
-            elif "bg_genfakelike" in label:
-                lowhigh_ratios[label].Divide(histos[label.replace("bg_genfakelike", "bg_genfake")])
+            if "bg_promptlike" in label and "high" in label:
+                lowhigh_ratios[label].Divide(histos[label.replace("high", "low")])
+            elif "bg_fakelike" in label and "high" in label:
+                lowhigh_ratios[label].Divide(histos[label.replace("high", "low")])
             else:
                 continue
             if xmax:
@@ -547,8 +543,8 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
             lowhigh_ratios[label].GetYaxis().SetLabelSize(0.15)
 
         pad3.SetLogy(True)
-        pad3.SetGridx(True)
-        pad3.SetGridy(True)
+        #pad3.SetGridx(True)
+        #pad3.SetGridy(True)
     
     canvas.SaveAs(path + "/plots/waterfall_" + bg + "_" + tag + "_" + suffix + ".pdf")        
     
