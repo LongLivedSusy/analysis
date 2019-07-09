@@ -192,6 +192,7 @@ def plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", ca
             if ymax:
                 histos["mc_prompt"].GetYaxis().SetRangeUser(ymin, ymax)
             histos["mc_prompt"].GetXaxis().SetLabelSize(0)   
+            histos["mc_prompt"].GetYaxis().SetLabelSize(0.25)   
             histos["mc_prompt"].SetTitle(";;Events")
         else:        
             histos["mc_fake"].Draw("hist e")
@@ -201,6 +202,7 @@ def plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", ca
             if ymax:
                 histos["mc_fake"].GetYaxis().SetRangeUser(ymin, ymax)
             histos["mc_fake"].GetXaxis().SetLabelSize(0)   
+            histos["mc_fake"].GetYaxis().SetLabelSize(0.25)   
             histos["mc_fake"].SetTitle(";;events")
                 
         if bg == "prompt":
@@ -291,40 +293,55 @@ def plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", ca
         canvas.SaveAs(path + "/plots/" + prefix + canvas_label + "_" + bg + ".pdf")
 
 
-def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", category = "long", path = ".", lumi = 26216, canvas_label=False, autoscaling=True, ymin=False, ymax=False, xmin=False, xmax=False, extra_text = "", prefixes = ["lowMHT", "lowlowMHT", "lowlowlowMHT"], bg = "prompt", suffix = "", normalize_histograms = True):
+def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", category = "long", path = ".", lumi = 26216, canvas_label=False, autoscaling=True, ymin=False, ymax=False, xmin=False, xmax=4, extra_text = "", prefixes = ["lowMHT", "lowlowMHT", "lowlowlowMHT"], bg = "prompt", suffix = "", normalize_histograms = True, include_sg = False, include_bg = True):
 
     histos = collections.OrderedDict()
     fin = TFile(histo_file, "open")
-        
-    for prefix in prefixes:
-        if bg == "prompt":
-            histos["bg_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_promptlike", prefix + "base"))
-        else:
-            histos["bg_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fakelike", prefix + "noleptonsid"))
 
     for prefix in prefixes:
         if bg == "prompt":
-            histos["bg_genpromptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genpromptlike", prefix + "base"))
+            histos["data_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_promptlike", prefix + "base"))
         else:
-            histos["bg_genfakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genfakelike", prefix + "noleptonsid"))
+            histos["data_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_fakelike", prefix + "base"))
 
-    for prefix in prefixes:
-        if bg == "prompt":
-            histos["bg_genprompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genprompt", prefix + "base"))
-        else:
-            histos["bg_genfake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genfake", prefix + "noleptonsid"))
 
-    for prefix in prefixes:
-        if bg == "prompt":
-            histos["sg_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_promptlike", prefix + "base"))
-        else:
-            histos["sg_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_fakelike", prefix + "noleptonsid"))
+    if include_bg:        
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["bg_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_promptlike", prefix + "base"))
+            else:
+                histos["bg_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_fakelike", prefix + "base"))
 
-    for prefix in prefixes:
-        if bg == "prompt":
-            histos["sg_genprompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_genprompt", prefix + "base"))
-        else:
-            histos["sg_genfake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_genfake", prefix + "noleptonsid"))
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["bg_genpromptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genpromptlike", prefix + "base"))
+            else:
+                histos["bg_genfakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genfakelike", prefix + "base"))
+
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["bg_genprompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genprompt", prefix + "base"))
+            else:
+                histos["bg_genfake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "bg_genfake", prefix + "base"))
+
+    if include_sg:
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["sg_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_promptlike", prefix + "base"))
+            else:
+                histos["sg_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_fakelike", prefix + "base"))
+
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["sg_genpromptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_genpromptlike", prefix + "base"))
+            else:
+                histos["sg_genfakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_genfakelike", prefix + "base"))
+
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["sg_genprompt_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_genprompt", prefix + "base"))
+            else:
+                histos["sg_genfake_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "sg_genfake", prefix + "base"))
 
     
     bg_colors = [kRed, kOrange, kMagenta, kMagenta, kRed+2, kOrange+2, kMagenta+2, kMagenta+2]
@@ -332,7 +349,8 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     bg_truthlike_colors = [kRed, kOrange, kMagenta, kMagenta, kRed+2, kOrange+2, kMagenta+2, kMagenta+2]
     sg_colors = [kBlue, kTeal, kGreen, kAzure, kBlack, kBlue+2, kTeal+2, kGreen+2, kAzure+2]
     sg_truth_colors = [kBlue, kTeal, kGreen, kAzure, kBlack, kBlue+2, kTeal+2, kGreen+2, kAzure+2]
-    
+    data_colors = [kRed, kOrange, kMagenta, kMagenta, kRed+2, kOrange+2, kMagenta+2, kMagenta+2]
+
     for histo in histos.keys():
         try:
             nev = histos[histo].GetEntries()
@@ -343,11 +361,6 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
 
         if not "data" in histo:
             histos[histo].Scale(lumi)
-        histos[histo].SetLineWidth(2)
-        if "_genfake_" in histo or "_genprompt_" in histo:
-            histos[histo].SetLineStyle(7)
-        if "_genfakelike_" in histo or "_genpromptlike_" in histo:
-            histos[histo].SetLineStyle(3)
 
         if "sg_" in histo and ("_fakelike_" in histo or "_promptlike_" in histo):
             color = sg_colors.pop(0)
@@ -359,8 +372,25 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
             color = bg_truthlike_colors.pop(0)
         elif "bg_" in histo and ("_genfakelike_" in histo or "_genpromptlike_" in histo):
             color = bg_truth_colors.pop(0)
+        elif "data_" in histo and ("_fakelike_" in histo or "_promptlike_" in histo):
+            color = data_colors.pop(0)
 
         histos[histo].SetLineColor(color)
+
+        histos[histo].SetLineWidth(2)
+        if "_genfake_" in histo or "_genprompt_" in histo:
+            histos[histo].SetLineColorAlpha(1, 0)
+            histos[histo].SetLineStyle(3)
+            histos[histo].SetMarkerStyle(22)
+            histos[histo].SetMarkerColor(color)
+        if "_genfakelike_" in histo or "_genpromptlike_" in histo:
+            histos[histo].SetLineStyle(7)
+        if "data" in histo:
+            histos[histo].SetLineColorAlpha(1, 0)
+            histos[histo].SetMarkerStyle(20)
+            histos[histo].SetMarkerColor(color)
+
+
         if normalize_histograms and histos[histo].Integral() != 0:
             histos[histo].Scale(1.0/histos[histo].Integral())
         histos[histo].Rebin(10)
@@ -374,15 +404,16 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     canvas.SetLogy(True)
     
     #pad1 = TPad("pad1", "pad1", 0, 0.155, 1, 1.0)
-    pad1 = TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+    pad1 = TPad("pad1", "pad1", 0, 0.32, 1, 1.0)
     pad1.SetRightMargin(0.05)
     pad1.SetLogy(True)
+    pad1.SetBottomMargin(0.05)
 
     pad2 = TPad("pad2", "pad2", 0.0, 0.025, 1.0, 0.235)
     pad2.SetBottomMargin(0.25)
     pad2.SetRightMargin(0.05)
 
-    pad3 = TPad("pad3", "pad3", 0.0, 0.22, 1.0, 0.35)
+    pad3 = TPad("pad3", "pad3", 0.0, 0.218, 1.0, 0.35)
     pad3.SetBottomMargin(0)
     pad3.SetTopMargin(0)
     pad3.SetRightMargin(0.05)
@@ -393,7 +424,7 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     pad3.Draw()
     pad1.cd()
 
-    legend = TLegend(0.5, 0.7, 0.89, 0.89)
+    legend = TLegend(0.55, 0.65, 0.89, 0.89)
     legend.SetTextSize(0.025)
     legend.SetBorderSize(0)
 
@@ -407,17 +438,27 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     legend.SetHeader(header)
     
     for i, label in enumerate(histos):
-                
+            
+        if "data" in label or "_genfake_" in label or "_genprompt_" in label:
+            draw_option = "p"
+        else:
+            draw_option = "hist"
+
         if i == 0:
-            histos[label].Draw("hist")
+            histos[label].Draw(draw_option)
             if normalize_histograms:
                 histos[label].SetTitle(";;tracks normalized to unity")
             else:
                 histos[label].SetTitle(";;tracks")
         else:
-            histos[label].Draw("hist same")
+            histos[label].Draw(draw_option + " same")
         
+        histos[label].GetYaxis().SetTitleSize(0.04)
+        histos[label].GetYaxis().SetLabelSize(0.04)
+        histos[label].GetYaxis().SetTitleOffset(1.1)
+
         legendlabel = label
+        legendlabel = legendlabel.replace("data", "Data ")
         legendlabel = legendlabel.replace("sg", "SG ")
         legendlabel = legendlabel.replace("bg", "BG ")
         legendlabel = legendlabel.replace("_promptlike", "prompt-like tracks")
@@ -427,17 +468,14 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
         legendlabel = legendlabel.replace("_fakelike", "fake-like tracks")
         legendlabel = legendlabel.replace("_genfake", "fake tracks, MC Truth")
         legendlabel = legendlabel.replace("_fake", "fake-like tracks, MC Truth")
-        legendlabel = legendlabel.replace("_lowlowlowMHT_", " (MHT<100)")
-        legendlabel = legendlabel.replace("_lowlowMHT_", " (MHT<200)")
-        legendlabel = legendlabel.replace("_lowMHHT_", " (MHT>100 && MHT<200)")
-        legendlabel = legendlabel.replace("_highhighMHT_", " (MHT>800)")
-        legendlabel = legendlabel.replace("_highMT_", " (MHT>600 && MHT<1000)")
-        legendlabel = legendlabel.replace("_lowgoodnjets_", " (n_goodjets#leq4)")
-        legendlabel = legendlabel.replace("_highgoodnjets_", " (n_goodjets#geq5)")
-        legendlabel = legendlabel.replace("_lownjets_", " (n_goodjets<10)")
-        legendlabel = legendlabel.replace("_lowlownjets_", " (n_goodjets<=5)")
-        legendlabel = legendlabel.replace("_highnjets_", " (n_goodjets>20)")
-        legendlabel = legendlabel.replace("_highhighnjets_", " (n_goodjets>=25)")
+        legendlabel = legendlabel.replace("_MHT0_", " (MHT<200)")
+        legendlabel = legendlabel.replace("_MHT1_", " (MHT<250)")
+        legendlabel = legendlabel.replace("_MHT2_", " (250<MHT<350)")
+        legendlabel = legendlabel.replace("_MHT3_", " (250<MHT<400)")
+        legendlabel = legendlabel.replace("_MHT4_", " (MHT>400)")
+        legendlabel = legendlabel.replace("_MHT5_", " (MHT>450)")
+        legendlabel = legendlabel.replace("_njets1_", " (n_goodjets#leq4)")
+        legendlabel = legendlabel.replace("_njets2_", " (n_goodjets#geq5)")
         
         legend.AddEntry(histos[label], legendlabel)
     
@@ -456,8 +494,8 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
                 global_ymax = histos[histo].GetMaximum()
                 
     for label in histos:
-        histos[label].SetMaximum(global_ymax*1e1)
-        histos[label].SetMinimum(global_ymin*1e-1)
+        histos[label].SetMaximum(global_ymax*1e2)
+        histos[label].SetMinimum(global_ymin)
         
     legend.Draw()
     plotting.stamp_plot()
@@ -475,16 +513,16 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     pad2.cd()     
     ratios = collections.OrderedDict()
     for i, label in enumerate(histos):
-        if "bg_promptlike" in label or "bg_fakelike" in label or "bg_genpromptlike" in label or "bg_genfakelike" in label:
+        if "data" not in label and ("_promptlike" in label or "_fakelike" in label or "_genpromptlike" in label or "_genfakelike" in label):
             ratios[label] = histos[label].Clone()
-            if "bg_promptlike" in label:
-                ratios[label].Divide(histos[label.replace("bg_promptlike", "bg_genprompt")])
-            elif "bg_fakelike" in label:
-                ratios[label].Divide(histos[label.replace("bg_fakelike", "bg_genfake")])
-            elif "bg_genpromptlike" in label:
-                ratios[label].Divide(histos[label.replace("bg_genpromptlike", "bg_genprompt")])
-            elif "bg_genfakelike" in label:
-                ratios[label].Divide(histos[label.replace("bg_genfakelike", "bg_genfake")])
+            if "_promptlike" in label:
+                ratios[label].Divide(histos[label.replace("_promptlike", "_genprompt")])
+            elif "_fakelike" in label:
+                ratios[label].Divide(histos[label.replace("_fakelike", "_genfake")])
+            elif "_genpromptlike" in label:
+                ratios[label].Divide(histos[label.replace("_genpromptlike", "_genprompt")])
+            elif "_genfakelike" in label:
+                ratios[label].Divide(histos[label.replace("_genfakelike", "_genfake")])
             else:
                 continue
             if xmax:
@@ -502,24 +540,32 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
             ratios[label].GetXaxis().SetTitleSize(0.13)
             ratios[label].GetYaxis().SetTitleSize(0.13)
             ratios[label].GetYaxis().SetTitleOffset(0.38)
-            ratios[label].GetYaxis().SetRangeUser(1e-2,1e2)
+            ratios[label].GetYaxis().SetRangeUser(1.5e-1,0.5e1)
             ratios[label].GetYaxis().SetNdivisions(4)
             ratios[label].GetXaxis().SetLabelSize(0.15)
             ratios[label].GetYaxis().SetLabelSize(0.15)
 
         pad2.SetLogy(True)
-        #pad2.SetGridx(True)
-        #pad2.SetGridy(True)
+        pad2.SetGridx(True)
+        pad2.SetGridy(True)
 
     pad3.cd()     
     lowhigh_ratios = collections.OrderedDict()
     for i, label in enumerate(histos):
-        if "bg_promptlike" in label or "bg_fakelike":
+        if "_promptlike" in label or "_fakelike" in label:
             lowhigh_ratios[label] = histos[label].Clone()
-            if "bg_promptlike" in label and "high" in label:
-                lowhigh_ratios[label].Divide(histos[label.replace("high", "low")])
-            elif "bg_fakelike" in label and "high" in label:
-                lowhigh_ratios[label].Divide(histos[label.replace("high", "low")])
+            if "bg_promptlike" in label and ("MHT1_" in label or "njets1_" in label):
+                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+            elif "bg_fakelike" in label and ("MHT1_" in label or "njets1_" in label):
+                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+            elif "bg_genpromptlike" in label and ("MHT1_" in label or "njets1_" in label):
+                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+            elif "bg_genfakelike" in label and ("MHT1_" in label or "njets1_" in label):
+                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+            elif "data_promptlike" in label and ("MHT1_" in label or "njets1_" in label):
+                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+            elif "data_fakelike" in label and ("MHT1_" in label or "njets1_" in label):
+                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
             else:
                 continue
             if xmax:
@@ -530,21 +576,22 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
             else:
                 lowhigh_ratios[label].Draw("same e0")
     
-            if bg == "prompt":
-                lowhigh_ratios[label].SetTitle(";;high/low")
-            else:
-                lowhigh_ratios[label].SetTitle(";;f.like/fake")
+            lowhigh_ratios[label].SetTitle(";;low/high")
             lowhigh_ratios[label].GetXaxis().SetTitleSize(0)
-            lowhigh_ratios[label].GetYaxis().SetTitleSize(0.13)
-            lowhigh_ratios[label].GetYaxis().SetTitleOffset(0.38)
-            lowhigh_ratios[label].GetYaxis().SetRangeUser(1e-2,1e2)
+            lowhigh_ratios[label].GetYaxis().SetTitleSize(0.2)
+            lowhigh_ratios[label].GetYaxis().SetTitleOffset(0.24)
+            lowhigh_ratios[label].GetYaxis().SetRangeUser(1.5e-1,0.5e1)
             lowhigh_ratios[label].GetYaxis().SetNdivisions(4)
             lowhigh_ratios[label].GetXaxis().SetLabelSize(0)
-            lowhigh_ratios[label].GetYaxis().SetLabelSize(0.15)
+            lowhigh_ratios[label].GetYaxis().SetLabelSize(0.2)
+            lowhigh_ratios[label].SetLineColor(kBlack)
+            if "data" in label:
+                lowhigh_ratios[label].SetMarkerColor(kBlack)
+                lowhigh_ratios[label].SetLineColorAlpha(1, 0)
 
         pad3.SetLogy(True)
-        #pad3.SetGridx(True)
-        #pad3.SetGridy(True)
+        pad3.SetGridx(True)
+        pad3.SetGridy(True)
     
     canvas.SaveAs(path + "/plots/waterfall_" + bg + "_" + tag + "_" + suffix + ".pdf")        
     
@@ -580,11 +627,7 @@ if __name__ == "__main__":
 
     elif options.hadd:
 
-        os.system("hadd -f %s/template_histos/temp0.root %s/template_histos/template_pt???.root" % (path, path))
-        os.system("hadd -f %s/template_histos/temp1.root %s/template_histos/template_pt1???.root" % (path, path))
-        os.system("hadd -f %s/template_histos/temp2.root %s/template_histos/template_pt2???.root" % (path, path))
-        os.system("hadd -f %s/template_histos/temp3.root %s/template_histos/template_pt3???.root" % (path, path))
-        os.system("hadd -f %s/%s %s/template_histos/temp?.root" % (path, options.template, path))
+        os.system("hadd -f %s %s/template_histos/template_pt*.root" % (options.template, path))
 
     elif options.plot:
 
@@ -601,11 +644,13 @@ if __name__ == "__main__":
         
         for bg in ["prompt", "fake"]:
             for tag in ["loose1", "loose2", "loose3"]:
-                prefixes = ["lowlowMHT_", "highhighMHT_"]
+                prefixes = ["MHT1_", "MHT4_"]
                 waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowMHT")
+                waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, include_sg = True, include_bg = False, suffix = "highlowMHT_signal")
 
-                prefixes = ["lowgoodnjets_", "highgoodnjets_"]
+                prefixes = ["njets1_", "njets2_"]
                 waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowJets")
+                waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, include_sg = True, include_bg = False, suffix = "highlowJets_signal")
 
     elif options.submit:
 
