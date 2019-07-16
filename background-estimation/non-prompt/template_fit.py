@@ -29,17 +29,25 @@ def get_configurations():
 
     cuts = {
              "base":                  base + " && MHT>250",
+             "pt0_base":              base + " && MHT>250 && tracks_pt>30 && tracks_pt<=40",
+             "pt1_base":              base + " && MHT>250 && tracks_pt>40 && tracks_pt<=50",
+             "pt2_base":              base + " && MHT>250 && tracks_pt>50 && tracks_pt<=60",
+             "pt3_base":              base + " && MHT>250 && tracks_pt>60 && tracks_pt<=100",
+             "pt4_base":              base + " && MHT>250 && tracks_pt>100",
              "MHT0_base":             base + " && MHT<200",
              "MHT1_base":             base + " && MHT<250",
-             "MHT2_base":             base + " && MHT>250 && MHT<350",
-             "MHT3_base":             base + " && MHT>250 && MHT<400",
-             "MHT4_base":             base + " && MHT>400",
-             "MHT5_base":             base + " && MHT>450",
+             "MHT2_base":             base + " && MHT>250",
+             "MHT3_base":             base + " && MHT>250 && MHT<350",
+             "MHT4_base":             base + " && MHT>250 && MHT<400",
+             "MHT5_base":             base + " && MHT>400",
+             "MHT6_base":             base + " && MHT>450",
              "njets1_base":           base + " && MHT>250 && n_goodjets<=4",
              "njets2_base":           base + " && MHT>250 && n_goodjets>=5",
            }
 
     variables = {
+                  "tracks_deDxHarmonic2pixel":        [" && tracks_is_pixel_track==1 ", 80, 0, 40],
+                  "tracks_deDxHarmonic2strips":       [" && tracks_is_pixel_track==0 ", 80, 0, 40],
                   "log10(tracks_massfromdeDxPixel)":  [" && tracks_is_pixel_track==1 ", 50, 0, 5],
                   "log10(tracks_massfromdeDxStrips)": [" && tracks_is_pixel_track==0 ", 50, 0, 5],
                 }
@@ -464,10 +472,9 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
         legendlabel = legendlabel.replace("_promptlike", "prompt-like tracks")
         legendlabel = legendlabel.replace("_genpromptlike", "prompt-like tracks, MC Truth")
         legendlabel = legendlabel.replace("_genprompt", "prompt tracks, MC Truth")
-        legendlabel = legendlabel.replace("_genfakelike", "fake-like tracks")
         legendlabel = legendlabel.replace("_fakelike", "fake-like tracks")
+        legendlabel = legendlabel.replace("_genfakelike", "fake-like tracks")
         legendlabel = legendlabel.replace("_genfake", "fake tracks, MC Truth")
-        legendlabel = legendlabel.replace("_fake", "fake-like tracks, MC Truth")
         legendlabel = legendlabel.replace("_MHT0_", " (MHT<200)")
         legendlabel = legendlabel.replace("_MHT1_", " (MHT<250)")
         legendlabel = legendlabel.replace("_MHT2_", " (250<MHT<350)")
@@ -552,25 +559,16 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     pad3.cd()     
     lowhigh_ratios = collections.OrderedDict()
     for i, label in enumerate(histos):
-        if "_promptlike" in label or "_fakelike" in label:
-            lowhigh_ratios[label] = histos[label].Clone()
-            if "bg_promptlike" in label and ("MHT1_" in label or "njets1_" in label):
-                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
-            elif "bg_fakelike" in label and ("MHT1_" in label or "njets1_" in label):
-                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
-            elif "bg_genpromptlike" in label and ("MHT1_" in label or "njets1_" in label):
-                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
-            elif "bg_genfakelike" in label and ("MHT1_" in label or "njets1_" in label):
-                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
-            elif "data_promptlike" in label and ("MHT1_" in label or "njets1_" in label):
-                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
-            elif "data_fakelike" in label and ("MHT1_" in label or "njets1_" in label):
+        if "_promptlike" in label or "_fakelike" in label or "_genfakelike" in label or "_genpromptlike" in label:
+            if "MHT1_" in label or "njets1_" in label:
+                lowhigh_ratios[label] = histos[label].Clone()
                 lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
             else:
                 continue
+
             if xmax:
                 lowhigh_ratios[label].GetXaxis().SetRangeUser(xmin, xmax)
-    
+   
             if i==0:
                 lowhigh_ratios[label].Draw("e0")
             else:
@@ -603,6 +601,8 @@ if __name__ == "__main__":
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--plot", dest="plot", action="store_true")
+    parser.add_option("--ptplot", dest="ptplot", action="store_true")
+    parser.add_option("--nplots", dest="nplots", default=4)
     parser.add_option("--waterfall", dest="waterfall", action="store_true") 
     parser.add_option("--template", dest="template", default=False)       
     parser.add_option("--submit", dest="submit", action="store_true") 
@@ -652,11 +652,23 @@ if __name__ == "__main__":
                 waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowJets")
                 waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, include_sg = True, include_bg = False, suffix = "highlowJets_signal")
 
+    elif options.ptplot:
+
+        pass
+
     elif options.submit:
 
+        def chunks(l, n):
+            for i in range(0, len(l), n):
+                yield l[i:i+n]
+
         commands = []
-        for i in range(len(configurations)):
-            commands.append("./template_fit.py --index %s" % i)
+        configs = range(len(configurations))
+        for chunk in list(chunks(configs, options.nplots)):
+            cmd = ""
+            for i in chunk:
+                cmd += "./template_fit.py --index %s; " % i
+            commands.append(cmd)
         raw_input("running %s jobs!" % len(commands) )
         runParallel(commands, options.runmode, condorDir = "template_fit_condor", dontCheckOnJobs=False)
 
