@@ -254,3 +254,10 @@ def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmi
         histos[label] = get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"])
 
     return histos
+
+def get_histogram_from_folder(folder, sample, variable, cutstring, nBinsX, xmin, xmax):
+
+
+    histo = get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=sample["select"])
+
+    return histo

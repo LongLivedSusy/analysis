@@ -9,14 +9,21 @@ from time import sleep
 lumi = 135 #just for labeling. this weightw as already applied
 #must agree with lumi in merged...py!
 
+
+redoBinning = binningAnalysis
 makefolders = False
 
 phase = 0
 
 if phase==0:
 	fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
-	listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
-	
+	#fCentralMC = 'output/totalweightedbkgsNoSmearedKappa.root'
+	#fCentralMC = 'test.root'
+	#fCentralMC = 'output/totalweightedbkgsTrueKappa.root'
+	#listOfVariationFilenames = ['output/totalweightedbkgsDataDrivenMC.root']
+	#listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
+	listOfVariationFilenames = ['output/totalweightedbkgsNoSmearedKappa.root']#,'output/totalweightedbkgsTrueKappa.root']
+	#listOfVariationFilenames = []
 if phase==1:
 	fCentralMC = 'output/totalweightedbkgsDataDrivenMCPhase1.root'
 	listOfVariationFilenames = ['output/totalweightedbkgsTrueKappaPhase1.root']	
@@ -73,25 +80,36 @@ print 'len(keys)', len(keys)
 for key in sorted(keys):#[:241]:
 	infile.cd()
 	name = key.GetName()
+	
 	if 'LowHt' in name or 'HighHt' in name: continue
 	if CombineLeptons_: 
-		if not ('Control' in name.split('_')[-1] and 'hEl'==name[:3]): continue
-		lepname = 'lepton (el or #mu)'
+		if not ('Control' in name.split('_')[-1] and 'hEl'==name[:3]): continue# and 'hElBaseline' in name): continue
+		###if 'PixOnly' in name or 'PixAndStrips' in name: continue# for sharing
+		lepname = 'candidate (el, #mu, or #pi^{#pm})'
 	else: 
 		if not ('Control' in name.split('_')[-1]): continue
 		if 'hEl'==name[:3]: lepname = 'el'
 		if 'hMu'==name[:3]: lepname = '#mu'
+		if 'hPi'==name[:3]: lepname = '#pi^#pm/k^#pm'		
 	#if 'Ttbar' in name: continue
 	hVarControl = infile.Get(name)
-	if CombineLeptons_: hVarControl.Add(infile.Get(name.replace('hEl','hMu')))
+	if CombineLeptons_: 
+		hVarControl.Add(infile.Get(name.replace('hEl','hMu')))
+		hVarControl.Add(infile.Get(name.replace('hEl','hPi')))
+		#hVarControl.Add(infile.Get(name.replace('hEl','hFake')))		
 	hVarControl.SetTitle('single '+lepname)	
 	truthname = name.replace('barControl','barBarf')
 	truthname = truthname.replace('Control','Truth')
 	truthname = truthname.replace('barBarf','barControl')
 	hVarTruth = infile.Get(truthname)
 	hVarTruth.SetTitle('MC observed (truth)')
-	if CombineLeptons_: hVarTruth.Add(infile.Get(truthname.replace('hEl','hMu')))
+	if CombineLeptons_: 
+		hVarTruth.Add(infile.Get(truthname.replace('hEl','hMu')))
+		hVarTruth.Add(infile.Get(truthname.replace('hEl','hPi')))
+		#hVarTruth.Add(infile.Get(truthname.replace('hEl','hFake')))
 			
+			
+	#if 'hPi' in name: hVarTruth.Add(infile.Get(truthname.replace('hPi','hFake')))###
 	methodname = name.replace('barControl','barBarf')
 	methodname = methodname.replace('Control','Method')
 	methodname = methodname.replace('barBarf','barControl')
@@ -99,14 +117,20 @@ for key in sorted(keys):#[:241]:
 	hVarMethod = infile.Get(methodname)
 	hVarMethod.Scale(testscale)
 	if 'hMu'==name[:3]: 
-		hVarMethod.SetLineColor(kViolet+1)
+		hVarMethod.SetLineColor(kViolet+2)
 		hVarControl.SetLineColor(kRed+2)
+	elif 'hPi'==name[:3]:
+		hVarMethod.SetLineColor(kOrange+1)
+		hVarControl.SetLineColor(kOrange)	
 	else:
-		hVarMethod.SetLineColor(kGreen+2)
+		hVarMethod.SetLineColor(kGreen+3)
 	if CombineLeptons_: 
 		h2add = infile.Get(methodname.replace('hEl','hMu'))
 		h2add.Scale(testscale)
 		hVarMethod.Add(h2add)
+		h2add2 = infile.Get(methodname.replace('hEl','hPi'))
+		h2add2.Scale(testscale)
+		hVarMethod.Add(h2add2)
 	hVarMethod.SetTitle('weighted single '+lepname)
 	shortname = name[1:].replace('Control','').replace('Truth','').replace('Method','')
 	varname = shortname.split('_')[-1]
@@ -115,22 +139,38 @@ for key in sorted(keys):#[:241]:
 	hVarTruth.GetXaxis().SetTitle(namewizard(varname))
 	hVarMethod.GetXaxis().SetTitle(namewizard(varname))
 		
-	#if not isdata:
-	#	hVarControl.Scale(1.0,'width') #lumi*1.0/hHt.Integral(-1,9999))
-	#	hVarTruth.Scale(1.0,'width') #lumi*1.0/hHt.Integral(-1,9999))
-	#	hVarMethod.Scale(1.0,'width') #lumi*1.0/hHt.Integral(-1,9999))
-
-	
+	kinvar = name.replace('Method','').replace('Truth','').replace('Control','')
+	kinvar = kinvar[kinvar.find('_')+1:]
+	#print 'got kinvar', kinvar
+	#pause()
+	if len(redoBinning[kinvar])!=3: 
+		nbins = len(redoBinning[kinvar])-1
+		newxs = array('d',redoBinning[kinvar])
+		hVarTruth = hVarTruth.Rebin(nbins,'',newxs)
+		hVarMethod = hVarMethod.Rebin(nbins,'',newxs)
+		hVarControl = hVarControl.Rebin(nbins,'',newxs)		
+	else:
+		newbinning = []
+		print kinvar, name
+		stepsize = round(1.0*(redoBinning[kinvar][2]-redoBinning[kinvar][1])/redoBinning[kinvar][0],4)
+		for ibin in range(redoBinning[kinvar][0]+1): newbinning.append(redoBinning[kinvar][1]+ibin*stepsize)
+		nbins = len(newbinning)-1
+		newxs = array('d',newbinning)
+		hVarTruth = hVarTruth.Rebin(nbins,'',newxs)
+		hVarMethod = hVarMethod.Rebin(nbins,'',newxs)
+		hVarControl = hVarControl.Rebin(nbins,'',newxs)		
+        
+        	
 	leg = mklegend(x1=.5, y1=.6, x2=.92, y2=.8, color=kWhite)
 	legname = 'single-lep'
 	if 'hEl' in name: legname = legname.replace('lep','electron')
 	if 'hMu' in name: legname = legname.replace('lep','muon')
 	leg.AddEntry(hVarControl,'single-'+lepname,'lp')
 	#hVarMethod.Scale()
-	themax = 1000000*max([hVarControl.GetMaximum(),hVarMethod.GetMaximum(),hVarTruth.GetMaximum()])
-	hVarMethod.GetYaxis().SetRangeUser(0.00007,themax)
-	hVarMethod.SetFillStyle(1001)
-	hVarMethod.SetFillColor(hVarMethod.GetLineColor())	
+	themax = 100000*max([hVarMethod.GetMaximum(),hVarMethod.GetMaximum(),hVarTruth.GetMaximum()])
+	hVarMethod.GetYaxis().SetRangeUser(0.007,themax)
+	#hVarMethod.SetFillStyle(1001)
+	hVarMethod.SetFillColor(hVarMethod.GetLineColor()-1)	
 	hVarTruth.GetYaxis().SetRangeUser(0.01,themax)
 	hVarControl.GetYaxis().SetRangeUser(0.01,themax)
 	hVarMethod.SetLineColor(kGray+2)
@@ -156,7 +196,14 @@ for key in sorted(keys):#[:241]:
 		hAlt.SetDirectory(0)
 		hAlt.SetLineColor(kAzure)
 		hAlt.SetTitle('')
-		hAlt.Draw('same hist')
+		if CombineLeptons_: 
+			h2add = f.Get(methodname.replace('hEl','hMu'))
+			h2add.Scale(testscale)
+			hAlt.Add(h2add)
+			#h2add2 = f.Get(methodname.replace('hEl','hPi'))
+			#h2add2.Scale(testscale)
+			#hAlt.Add(h2add2)			
+		hAlt = hAlt.Rebin(nbins,'',newxs)
 		hRatioVariation = hAlt.Clone()
 		hRatioVariation.Divide(hVarMethod)
 		fnew.cd()
@@ -191,12 +238,14 @@ for key in sorted(keys):#[:241]:
 	hVarControl.SetLineColor(kWhite)
 	hVarControl.Draw('same p')
 	if drawVariations:
-		for hvari in hvariations: hvari.Draw('same')
-			
+		for hvari in hvariations: 
+			hvari.SetLineColor(kRed)
+			hvari.Draw('same')
+						
 	c1.Update()
 	fnew.cd()
 	c1.Write()
-	c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
+	#c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
 	clist.append(c1)
 	#c1.Delete()
 	hratios.append([hratio, hmethodsyst])
@@ -211,5 +260,5 @@ print 'just created', os.getcwd()+'/'+fnew.GetName()
 fnew.Close()
 print 'test c'
 
-	
-	
+
+

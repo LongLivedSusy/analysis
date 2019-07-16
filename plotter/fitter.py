@@ -27,7 +27,7 @@ def fit_background(hBkg, outputdir, cut, variable, outputformat):
 
     # 2. Workspace method
     w = RooWorkspace("w")
-    w.factory("Exponential::bkg(x[3,1.5,5.0],alpha[3,-10,10])")
+    w.factory("Exponential::bkg(x[3,1,4.5],alpha[3,-10,10])")
     pdf = w.pdf("bkg")
     
     x = w.var("x")

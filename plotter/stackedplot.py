@@ -10,8 +10,8 @@ from fitter import *
 gStyle.SetOptStat(0);
 gROOT.SetBatch(True)
 
-def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, blind=False, fit_bkg=False, fit_sig=False, fit_data=False):
-    
+def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, unblind=False, fit_bkg=False, fit_sig=False, fit_data=False):
+
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
     pad1 = TPad("pad1", "pad1", 0, 0.16, 1, 1.0)
@@ -36,8 +36,12 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     canvas.SetLeftMargin(1.2*l)
     canvas.SetRightMargin(0.7*r)
    
-    legend = TLegend(0.50, 0.70, 0.94, 0.94)
-    legend.SetTextSize(0.03)
+    legend_bkg = TLegend(0.30, 0.70, 0.55, 0.90)
+    legend_bkg.SetNColumns(2)
+    legend_bkg.SetTextSize(0.03)
+    legend_sig = TLegend(0.60, 0.70, 0.94, 0.90)
+    legend_sig.SetNColumns(2)
+    legend_sig.SetTextSize(0.03)
     minimum_y_value = 1e6
 
     global_minimum = 1e10
@@ -48,11 +52,10 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     samples_for_sorting = []
 
     # get lumi value:
-    #lumi = -1
     lumi = 135900
     for label in sorted(histos):
-	# check data in sample list for blinding
-        if samples[label]["type"] == "data" and not blind:
+	# check data in sample list
+        if samples[label]["type"] == "data" and unblind:
             lumi = samples[label]["lumi"]
 
     # plot backgrounds:
@@ -83,27 +86,14 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     print "Stacking"
     for label in Sort(samples_for_sorting, 1):
         mcstack.Add(histos[label[0]])
-        legend.AddEntry(histos[label[0]], label[0]+'(%0.2f)'%(histos[label[0]].Integral()))
+        legend_bkg.AddEntry(histos[label[0]], label[0])
+        legend_bkg.AddEntry(histos[label[0]], '(%0.2f)'%(histos[label[0]].Integral()),"")
                                 
     mcstack.Draw("hist")
     mcstack.GetXaxis().SetLabelSize(0)   
     mcstack.SetTitle(";;events")
     mcstack.GetYaxis().SetTitleOffset(1.3)
     mcstack.GetXaxis().SetTitleOffset(1.3)
-   
-    print "Merging"
-    bkglist = TList()
-    for label in Sort(samples_for_sorting, 1):
-        bkglist.Add(histos[label[0]])
-    tmplabel = list(histos.keys())[0]
-    hBkgMerge = histos[tmplabel].Clone("hBkgMerge")
-    hBkgMerge.Reset()
-    hBkgMerge.Merge(bkglist)
-    legend.AddEntry(hBkgMerge, "MC stat.err")
-
-    hBkgMerge.SetFillColorAlpha(17,0.95)
-    hBkgMerge.SetLineWidth(1)
-    hBkgMerge.Draw("same e1")
 
     # plot signal:
     for label in sorted(histos):
@@ -112,20 +102,50 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
             histos[label].SetMarkerColor(samples[label]["color"])
             histos[label].SetLineWidth(3)
             histos[label].Draw("same hist")
-            legend.AddEntry(histos[label], label)
-	    hSignal = histos[label].Clone("hSignal")
+            legend_sig.AddEntry(histos[label], label)
+            legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
+
+    print "Combining"
+    combined_mc_background = 0
+    for label in sorted(histos):
+        if samples[label]["type"] == "bg":
+            if combined_mc_background == 0:
+                combined_mc_background = histos[label].Clone()
+            else:
+                combined_mc_background.Add(histos[label])       
+    
+    combined_mc_background.SetFillStyle(3004)
+    combined_mc_background.SetFillColorAlpha(1,0.95)
+    combined_mc_background.SetLineWidth(1)
+    combined_mc_background.Draw("same e2")
+    legend_bkg.AddEntry(combined_mc_background, "Total backgrounds stat.err")
+    legend_bkg.AddEntry(combined_mc_background, " " ,"")
+    
+    combined_mc_signal = 0
+    for label in sorted(histos):
+        if samples[label]["type"] == "sg":
+            if combined_mc_signal == 0:
+                combined_mc_signal = histos[label].Clone()
+            else:
+                combined_mc_signal.Add(histos[label])       
+
+    #combined_mc_signal.SetLineColor(kYellow)
+    #combined_mc_signal.Draw("same hist")
+    #legend_sig.AddEntry(combined_mc_signal, "Total signal")
+    #legend_sig.AddEntry(combined_mc_signal, '(%0.2f)'%(combined_mc_signal.Integral()),"")
 
     # plot data:
     for label in sorted(histos):
-        if samples[label]["type"] == "data":
+        if samples[label]["type"] == "data" and unblind:
             histos[label].SetLineColor(samples[label]["color"])
             histos[label].SetMarkerColor(samples[label]["color"])
             histos[label].SetMarkerColor(samples[label]["color"])
             histos[label].SetMarkerStyle(20)
             histos[label].SetMarkerSize(1)
-            histos[label].SetLineWidth(0)
-	    histos[label].Draw("same p")
-	    legend.AddEntry(histos[label], label)
+            #histos[label].SetLineWidth(0)
+	    histos[label].Draw("same e1")
+	    legend_sig.AddEntry(histos[label], label)
+	    legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
     
     # set minimum/maximum ranges   
     if global_minimum != 0:
@@ -140,9 +160,12 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
    
     mcstack.SetMaximum(global_maximum_scale * global_maximum)
 
-    legend.SetBorderSize(0)
-    legend.SetFillStyle(0)
-    legend.Draw()
+    legend_bkg.SetBorderSize(0)
+    legend_bkg.SetFillStyle(0)
+    legend_bkg.Draw()
+    legend_sig.SetBorderSize(0)
+    legend_sig.SetFillStyle(0)
+    legend_sig.Draw()
 
     latex=TLatex()
     latex.SetNDC()
@@ -163,36 +186,34 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     # plot ratio
     pad2.cd()
     
-    combined_mc_background = 0
-    for label in sorted(histos):
-        if samples[label]["type"] == "bg":
-            if combined_mc_background == 0:
-                combined_mc_background = histos[label].Clone()
-            else:
-                 combined_mc_background.Add(histos[label])        
-    
     data = 0
     for label in sorted(histos):
         if samples[label]["type"] == "data":
             data = histos[label].Clone()
   
-    if not blind : 
+    if unblind : 
 	ratio = data.Clone()
+	ratio_mc = combined_mc_background.Clone()
+	ratio.Divide(combined_mc_background)
+    	ratio_mc.Divide(combined_mc_background)
+	ratio.Draw("same e0")
+    	ratio_mc.Draw("same e2")
     else : 
 	ratio = combined_mc_background.Clone()
-    ratio.Divide(combined_mc_background)
+	ratio.Divide(combined_mc_background)
+	ratio.Draw("same e2")
     #ratio.GetXaxis().SetRangeUser(xmin, xmax)
-    ratio.Draw("same e0")
 
 
     ratio.SetTitle(";%s;Data/MC" % xlabel)
     pad2.SetGridx(True)
     pad2.SetGridy(True)
+    pad2.SetTickx()
     ratio.GetXaxis().SetTitleSize(0.13)
     ratio.GetYaxis().SetTitleSize(0.13)
     ratio.GetYaxis().SetTitleOffset(0.38)
-    ratio.GetYaxis().SetRangeUser(0,2)
-    ratio.GetYaxis().SetNdivisions(4)
+    ratio.GetYaxis().SetRangeUser(-1,5)
+    ratio.GetYaxis().SetNdivisions(6)
     ratio.GetXaxis().SetLabelSize(0.15)
     ratio.GetYaxis().SetLabelSize(0.15)
     
@@ -200,7 +221,7 @@ def stack_histograms(histos, outputdir, samples, cut, variable, xlabel, ylabel, 
     canvas.SaveAs("%s/%s/%s%s.%s" % (outputdir, cut, variable, suffix, outformat))
 
     if fit_bkg : 
-	fit_background(hBkgMerge,outputdir,cut,variable,outformat)
+	fit_background(combined_mc_background,outputdir,cut,variable,outformat)
     if fit_sig : 
-	fit_signal(hSignal,outputdir,cut,variable,outformat)
+	fit_signal(combined_mc_signal,outputdir,cut,variable,outformat)
 

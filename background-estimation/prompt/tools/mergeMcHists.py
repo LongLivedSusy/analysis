@@ -9,11 +9,12 @@ from time import sleep
 lumi = 135000.
 
 
-
-####Note: It's good (safe) to delete all the directories with output/closure* before running this script
-
+#######
+#Note: It's good (safe) to delete all the directories with output/closure* before running this script
 #For data, do these commands instead of this script: 
 #python tools/ahadd.py -f mergedRoots/mergedRun2016SingleEl_Split.root output/smallchunks/PromptBkgHists_*SingleEl*.root && python tools/ahadd.py -f mergedRoots/mergedRun2016SingleMu_Split.root output/smallchunks/PromptBkgHists_*SingleMu*.root
+#######
+
 istest = False
 os.system('rm -rf output/closure_*')
 try: outfile = sys.argv[1]
@@ -34,6 +35,7 @@ else: extra = ''
 if 'Tag' in infiles: useweights = False
 else: useweights = True
 
+useweights = False
 
 if 'PU0' in infiles: extra += '*PU0'
 if 'PU14' in infiles: extra += '*PU14'
@@ -72,8 +74,9 @@ for xkey in keysforxsec:
 	import os
 	if not os.path.exists("output/closure_lumixsec/"+xkey+'.root'):
 		command = 'python tools/ahadd.py -f output/closure_lumixsec/'+xkey+'.root output/smallchunks/'+firstfive+'*'+xkey+'*'+extra+'*.root'
-		if 'Truth' in infiles: command = command.replace('*.root','*Truth.root')
-		elif not 'TagnProbe' in infiles: command = command.replace('*.root','*Files1.root')
+		if 'NoZSmear' in infiles: command = command.replace('.root','NoZSmear.root')
+		if 'YesZSmear' in infiles: command = command.replace('.root','YesZSmear.root')
+		if 'Truth' in infiles: command = command.replace('.root','Truth.root')
 		print 'first command', command
 		#pause()
 		if not istest: os.system(command)
@@ -83,7 +86,7 @@ print 'escaped the eternal sleep! (like snow white)'
 print 'for xkey in keysforxsec:'
 for xkey in keysforxsec:
 			if istest: break
-			fOld = TFile('output/closure_lumixsec/'+xkey+'.root')
+			fOld = TFile(glob('output/closure_lumixsec/'+xkey+'*.root')[0])
 			hHt = fOld.Get('hHt')
 			try: nentries = hHt.GetEntries()
 			except:
