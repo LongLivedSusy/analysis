@@ -15,11 +15,10 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
     nBins = int(xmax/binWidth)
 
     # with pion veto:
-    #select_prompt = " && ((n_DT==1 && DT1_passpionveto==1 && DT1_promptbg==1) || (n_DT==2 && (DT1_promptbg==1 || DT2_promptbg==1)))"
-    select_promptelectron = " && ((n_DT==1 && DT1_passpionveto==1 && DT1_promptelectron==1) || (n_DT==2 && DT1_passpionveto==1 && DT2_passpionveto==1 && (DT1_promptelectron==1 || DT2_promptelectron==1)))"
-    select_promptmuon = " && ((n_DT==1 && DT1_passpionveto==1 && DT1_promptmuon==1) || (n_DT==2 && DT1_passpionveto==1 && DT2_passpionveto==1 && (DT1_promptmuon==1 || DT2_promptmuon==1)))"
-    select_prompttau = " && ((n_DT==1 && DT1_passpionveto==1 && (DT1_prompttau==1 || DT1_prompttau_wideDR==1)) || (n_DT==2 && DT1_passpionveto==1 && DT2_passpionveto==1 && ((DT1_prompttau==1 || DT1_prompttau_wideDR==1) || (DT2_prompttau==1 || DT2_prompttau_wideDR==1))))"
-    select_nonprompt = " && ((n_DT==1 && DT1_passpionveto==1 && DT1_actualfake==1) || (n_DT==2 && DT1_passpionveto==1 && DT2_passpionveto && (DT1_actualfake==1 || DT2_actualfake==1)))"
+    select_promptelectron = " && tracks_prompt_electron==1"
+    select_promptmuon = " && tracks_prompt_muon==1"
+    select_prompttau = " && tracks_prompt_tau==1"
+    select_nonprompt = " && tracks_fake==1"
 
     h_promptelectron = get_histogram(variable, base_cuts + select_promptelectron, nBinsX=nBins, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
     h_promptmuon = get_histogram(variable, base_cuts + select_promptmuon, nBinsX=nBins, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
@@ -145,29 +144,34 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
         os.mkdir(path + "/plots")
 
     canvas.SaveAs(path + "/plots/bgcomposition_%s%s.pdf" % (variable, suffix))
-    canvas.SaveAs(path + "/plots/bgcomposition_%s%s.root" % (variable, suffix))
+    #canvas.SaveAs(path + "/plots/bgcomposition_%s%s.root" % (variable, suffix))
 
    
 if __name__ == "__main__":
 
-    #path = "output_fakerate5_merged/"  
-    path = "output_skim22_merged/"
-    base_cuts = "PFCaloMETRatio<5"
-    selected_sample = "Summer16"
+    path = "output_skim_11_merged/"
+    selected_sample = "Summer16.DYJetsToLL|Summer16.QCD|Summer16.WJetsToLNu|Summer16.ZJetsToNuNu_HT|Summer16.WW_TuneCUETP8M1|Summer16.WZ_TuneCUETP8M1|Summer16.ZZ_TuneCUETP8M1|Summer16.TTJets_TuneCUETP8M1_13TeV"
 
-    base_cuts += " && passesUniversalSelection==1 && PFCaloMETRatio<5 && MHT>250 && n_jets>0 && n_leptons==0"
+    base_cuts = "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0"
 
     extra_text = "signal region"
     suffix = ""
     
     # do stacked background plots (stacked by background type):
+    categories = {
+                   "tight_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt>0.1 ",
+                   "tight_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt>0.25 ",
+                   #"loose_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01 ",
+                   #"loose_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01 ",
+                   "loose_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 ",
+                   "loose_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 ",
+                 }
 
-    categories = {"short": " && DT1_is_pixel_track==1", "long": " && DT1_is_pixel_track==0"}
+
 
     for label in categories:
-        stack_gendisapptrks("n_DT", 1, 0, 3, xlabel="n_{DT}", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)       
-        stack_gendisapptrks("HT", 50, 0, 1000, xlabel="H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
-        stack_gendisapptrks("MHT", 50, 0, 1000, xlabel="missing H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
-        stack_gendisapptrks("DT1_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label, ymin=1e-2)
+        #stack_gendisapptrks("MHT", 50, 0, 1000, xlabel="missing H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
+        #stack_gendisapptrks("HT", 50, 0, 1000, xlabel="H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
+        stack_gendisapptrks("tracks_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
 
 
