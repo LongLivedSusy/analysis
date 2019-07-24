@@ -11,8 +11,8 @@ from ROOT import *
 unblind=False 
 
 # Remake histos
-remakeHistos=True
-#remakeHistos=False
+#remakeHistos=True
+remakeHistos=False
 
 # Remake plots
 remakePlots=True
@@ -80,7 +80,6 @@ if __name__=="__main__":
         #"Autumn18.g1800_chi1400_ctau30": {"select": "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM", "type": "sg", "color": kGreen},
         #"Autumn18.g1800_chi1400_ctau50": {"select": "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM", "type": "sg", "color": kRed},
         #"Autumn18.g1800_chi1400_ctau100": {"select": "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM", "type": "sg", "color": kMagenta},
-        #"All_signal_ctau": {"select": "Summer16.g1800_chi1400|Autumn18.g1800_chi1400", "type": "sg", "color": kBlue},
               }
     
     if unblind: 
@@ -98,6 +97,7 @@ if __name__=="__main__":
     
     # Variables
     variables =	{
+	    #"MET":["MET",100, 0, 1000, cuts],
 	    #"Track_Pt":["tracks_pt",100, 0, 1000, cuts],
 	    #"Track_P":["tracks_P",100, 0, 3000, cuts],
 	    "Track_LogMassFromDedxPixel":["TMath::Log10(tracks_massfromdeDxPixel)",50, 0, 5.5, cuts],

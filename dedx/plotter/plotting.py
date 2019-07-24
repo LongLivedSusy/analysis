@@ -6,9 +6,9 @@ import uuid
 import multiprocessing 
 import os
 
-#gROOT.SetBatch(True)
-#gStyle.SetOptStat(0)
-TH1D.SetDefaultSumw2()
+gROOT.SetBatch(True)
+gStyle.SetOptStat(0)
+TH1.SetDefaultSumw2()
 
 # a collection of generic functions to retrieve a 1D or 2D histogram from a collection of files containing a TTree
 # comments @ viktor.kutzner@desy.de
@@ -52,7 +52,7 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
         histo = TH1F(hName, hName, nBinsX, xmin, xmax)
     else:
         histo = TH2F(hName, hName, nBinsX, xmin, xmax, nBinsY, ymin, ymax)
-
+    
     tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions)
 
     # add underflow/overflow bin(s) for 1D and 2D histograms:
@@ -102,6 +102,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     # xsection and puweight scaling:
     if not is_data:
         cutstring = "(%s)*CrossSection*puWeight%s" % (cutstring, scaling)
+        #cutstring = "(%s)%s" % (cutstring, scaling)
     else:
         if scaling != "":
             cutstring = "(%s)*%s" % (cutstring, scaling)
@@ -133,20 +134,9 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
 
         if nev > 0:
             histo.Scale(1.0/nev)
+            #histo.Scale(1.0)
    
-
     return histo
-
-#FIXME
-#def get_eventlist(tree_files,cutstring):
-#   
-#    print 'get eventlist tree_file:%s, cut:%s'%(tree_files,cutstring)
-#    os.system('mkdir -p eventlist')
-#    # TEventList
-#    tree.Draw(">>myList", cutstring)
-#    evlist = gDirectory.Get("myList")
-#    evlistout = TFile("evlistout.root","recreate")
-#    evlist.Write()
 
 
 def get_histogram_from_file_wrapper(args):
@@ -165,8 +155,6 @@ def get_histogram_from_file_wrapper(args):
     numevents = args[11]
 
     print "Thread started..."
-
-    #eventlist = get_eventlist(tree_files,cutstring)
 
     histogram = get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, file_contains_histograms=False, numevents=numevents)
 
@@ -254,10 +242,3 @@ def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmi
         histos[label] = get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"])
 
     return histos
-
-def get_histogram_from_folder(folder, sample, variable, cutstring, nBinsX, xmin, xmax):
-
-
-    histo = get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=sample["select"])
-
-    return histo
