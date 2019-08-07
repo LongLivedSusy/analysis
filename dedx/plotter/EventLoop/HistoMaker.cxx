@@ -13,24 +13,30 @@
 
 using namespace std;
 
+int FillHisto(TH1D* hist, double valx, double weight)
+{
+    // filling histogram with overflow/underflow bins
+    int nbinsx = hist->GetNbinsX();
+    double minvalx=hist->GetXaxis()->GetBinCenter(1);
+    double maxvalx=hist->GetXaxis()->GetBinCenter(nbinsx);
+    
+    double newvalx = valx;
+    
+    if(valx< minvalx) newvalx=minvalx;
+    else if(valx>maxvalx) newvalx=maxvalx;
+    
+    hist->Fill(newvalx, weight);
+}
+
 int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile)
 {
     cout << "Running HistoMaker" << endl;
     cout << "Input file list : " << inputfile << endl;
     cout << "Output Directory : " << outdir << endl;
     cout << "Output file : " << outputfile << endl;
-    TChain *fChain = new TChain("Events");
-    ifstream input(inputfile);
-    string line;
-    if (input.is_open()){
-        while(getline(input,line)){
-            cout << line << endl;
-            fChain->Add(line.c_str());
-        }
-    }
-    else return 0;
-    input.close();
 
+    TFile *f = new TFile(inputfile);
+    TTree *fChain = (TTree*)f->Get("Events");
     fChain->SetBranchStatus("*",0);  // disable all branches
     fChain->SetBranchStatus("MET",1);  // activate branchname
     fChain->SetBranchStatus("MHT",1);  // activate branchname
@@ -395,20 +401,21 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TH1D* h_n_btags = new TH1D("n_btags","n_btags",10,0,10);
     TH1D* h_n_leptons = new TH1D("n_leptons","n_leptons",10,0,10);
     TH1D* h_n_DT = new TH1D("n_DT","n_DT",5,0,5);
+    TH1D* h_TrackPt = new TH1D("TrackPt","TrackPt",100,0,1000);
     TH1D* h_TrackMass_short = new TH1D("TrackMass_short","Log10(TrackMass_short)",50,0,5.5);
     TH1D* h_TrackMass_long_strips = new TH1D("TrackMass_long_strips","Log10(TrackMass_long_strips)",50,0,5.5);
     TH1D* h_TrackMass_long_weightedPixelStripsMass = new TH1D("TrackMass_long_weightedPixelStripsMass","Log10(TrackMass_long_weightedPixelStripsMass)",50,0,5.5);
 
     cout << "Total entry : " << fChain->GetEntries() << endl;
     Long64_t nentries = fChain->GetEntries();
-    Long64_t weight = 1;
+    Long64_t weight = 1.0;
     
     // Event loop start
     for (Long64_t ientry=0; ientry<nentries; ++ientry){
 	if (ientry %10000 ==0) cout << ientry << "th event passing" << endl;
 
 	fChain->GetEntry(ientry);
-	weight = CrossSection * puWeight;
+	//weight = CrossSection * puWeight;
 	
 	// Event selection start
 	if (passesUniversalSelection==0) continue;
@@ -422,21 +429,30 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 	    if ((*tracks_pt)[itrack] < 30) continue;
 	    if ((*tracks_mva_bdt)[itrack]>0.1 && (*tracks_is_pixel_track)[itrack]==1)
 	    {
-	        h_TrackMass_short->Fill(TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
+	        //h_TrackMass_short->Fill(TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
+	        FillHisto(h_TrackMass_short,TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
 	    }
 	    if ((*tracks_mva_bdt)[itrack]>0.25 && (*tracks_is_pixel_track)[itrack]==0)
 	    {
-	        h_TrackMass_long_strips->Fill(TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
-	        h_TrackMass_long_weightedPixelStripsMass->Fill(TMath::Log10((*tracks_massfromdeDx_weightedPixelStripsMass)[itrack]),weight);
+	        //h_TrackMass_long_strips->Fill(TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
+	        //h_TrackMass_long_weightedPixelStripsMass->Fill(TMath::Log10((*tracks_massfromdeDx_weightedPixelStripsMass)[itrack]),weight);
+	        FillHisto(h_TrackMass_long_strips,TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
+	        FillHisto(h_TrackMass_long_weightedPixelStripsMass,TMath::Log10((*tracks_massfromdeDx_weightedPixelStripsMass)[itrack]),weight);
 	    }
 	}
 	
-	h_MET->Fill(MET,weight);
-	h_MHT->Fill(MHT,weight);
-	h_HT->Fill(HT,weight);
-	h_n_jets->Fill(n_jets,weight);
-	h_n_btags->Fill(n_btags,weight);
-	h_n_leptons->Fill(n_leptons,weight);
+	//h_MET->Fill(MET,weight);
+	//h_MHT->Fill(MHT,weight);
+	//h_HT->Fill(HT,weight);
+	//h_n_jets->Fill(n_jets,weight);
+	//h_n_btags->Fill(n_btags,weight);
+	//h_n_leptons->Fill(n_leptons,weight);
+	FillHisto(h_MET,MET,weight);
+	FillHisto(h_MHT,MHT,weight);
+	FillHisto(h_HT,HT,weight);
+	FillHisto(h_n_jets,n_jets,weight);
+	FillHisto(h_n_btags,n_btags,weight);
+	FillHisto(h_n_leptons,n_leptons,weight);
     }
     
     // Normalize 
