@@ -744,7 +744,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 	    tracks_massfromdeDx_weightedDeDx = TMath.Sqrt((tracks_deDxHarmonic2weighted-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
 	    tracks_massfromdeDx_weightedPixelStripsMass = (tracks_massfromdeDxPixel * event.tracks_nValidPixelHits[iCand] + tracks_massfromdeDxStrips*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand])
             
-	    print '%d \t %d \t %s \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f'%(iEv,iCand, is_pixel_track, event.tracks_deDxHarmonic2pixel[iCand], tracks_massfromdeDxPixel, event.tracks_deDxHarmonic2strips[iCand], tracks_massfromdeDxStrips, tracks_deDxHarmonic2weighted,tracks_massfromdeDx_weightedDeDx, tracks_massfromdeDx_weightedPixelStripsMass, event.tracks[iCand].P())
+	    #print '%d \t %d \t %s \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f'%(iEv,iCand, is_pixel_track, event.tracks_deDxHarmonic2pixel[iCand], tracks_massfromdeDxPixel, event.tracks_deDxHarmonic2strips[iCand], tracks_massfromdeDxStrips, tracks_deDxHarmonic2weighted,tracks_massfromdeDx_weightedDeDx, tracks_massfromdeDx_weightedPixelStripsMass, event.tracks[iCand].P())
 
 
             # disappearing track counters:

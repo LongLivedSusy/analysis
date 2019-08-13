@@ -6,19 +6,19 @@ import plotting
 import uuid
 import os
 
-def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax, threads=-1):
+def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmin, xmax, threads=-1, numevents=-1):
 
     histos = {}
 
     for label in samples:
-        histo = plotting.get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"], threads=threads)
+        histo = plotting.get_histogram(variable, cutstring, tree_folder_name="Events", nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=folder, selected_sample=samples[label]["select"], threads=threads, numevents=numevents)
         if histo:
             histos[label] = histo
 
     return histos
 
 
-def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC"):
+def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC", lumi=1.0, ymin=False, ymax=False, xmin=False, xmax=True):
  
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
@@ -28,6 +28,7 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     pad2 = TPad("pad2", "pad2", 0.0, 0.025, 1.0, 0.235)
     pad2.SetBottomMargin(0.25)
     pad2.SetRightMargin(0.05)
+    pad1.SetTopMargin(0.07)
     pad1.Draw()
     pad2.Draw()
     pad1.cd()
@@ -37,15 +38,15 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     r = canvas.GetRightMargin()
     b = canvas.GetBottomMargin()
 
-    canvas.SetTopMargin(0.5*t)
-    canvas.SetBottomMargin(1.2*b)
-    canvas.SetLeftMargin(1.2*l)
-    canvas.SetRightMargin(0.7*r)
+    #canvas.SetTopMargin(0.05)
+    #canvas.SetBottomMargin(1.2*b)
+    #canvas.SetLeftMargin(1.2*l)
+    #canvas.SetRightMargin(0.7*r)
     
     canvas.SetLogx(logx)
     canvas.SetLogy(logy)
    
-    legend = TLegend(0.50, 0.70, 0.94, 0.94)
+    legend = TLegend(0.60, 0.65, 0.95, 0.93)
     legend.SetTextSize(0.03)
     minimum_y_value = 1e6
 
@@ -57,7 +58,6 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     samples_for_sorting = []
 
     # get lumi value:
-    lumi = 1.0
     plot_has_data = False
     for label in sorted(histos):
         if samples[label]["type"] == "data":
@@ -93,7 +93,7 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
                                 
     mcstack.Draw("hist")
     mcstack.GetXaxis().SetLabelSize(0)   
-    mcstack.SetTitle(";;events")
+    mcstack.SetTitle(";;Events")
     mcstack.GetYaxis().SetTitleOffset(1.3)
     mcstack.GetXaxis().SetTitleOffset(1.3)
 
@@ -103,6 +103,7 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
             histos[label].SetLineColor(samples[label]["color"])
             histos[label].SetMarkerColor(samples[label]["color"])
             histos[label].SetLineWidth(3)
+            histos[label].Scale(signal_scaling_factor)
             histos[label].Draw("same hist")
             legend.AddEntry(histos[label], label)
 
@@ -120,16 +121,22 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
 
     # set minimum/maximum ranges   
     if global_minimum != 0:
-        mcstack.SetMinimum(0.1 * global_minimum)
+        mcstack.SetMinimum(1e-2 * global_minimum)
     else:
-        mcstack.SetMinimum(1e-5)
+        mcstack.SetMinimum(1e-2)
+
+    if ymin:
+        mcstack.SetMinimum(ymin)
    
     if logy:
-        global_maximum_scale = 1e3
+        global_maximum_scale = 10
     else:
         global_maximum_scale = 1
    
-    mcstack.SetMaximum(global_maximum_scale * global_maximum)
+    if not ymax:
+        mcstack.SetMaximum(global_maximum_scale * global_maximum)
+    else:
+        mcstack.SetMaximum(ymax)
 
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
@@ -145,11 +152,11 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     latex.SetTextSize(0.35 * t)
 
     lumi = lumi/1000
-    latex.DrawLatex(1-0.7*r, 1-0.5*t+0.15*0.5*t, "%.1f fb^{-1} (13 TeV)" % lumi)
+    latex.DrawLatex(0.95, 0.95, "%.1f fb^{-1} (13 TeV)" % lumi)
     
-    latex.SetTextSize(0.35*t)
-    latex.SetTextFont(52)
-    latex.DrawLatex(0.4, 1-0.5*t+0.15*0.5*t, "CMS Work in Progress")
+    #latex.SetTextSize(0.35*t)
+    #latex.SetTextFont(52)
+    #latex.DrawLatex(0.4, 1-0.5*t+0.15*0.5*t, "CMS Work in Progress")
     
     # plot ratio
     pad2.cd()
@@ -176,7 +183,8 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
         ratio = combined_mc_background.Clone()
         
     ratio.Divide(combined_mc_background)
-    #ratio.GetXaxis().SetRangeUser(xmin, xmax)
+    if xmax:
+        ratio.GetXaxis().SetRangeUser(xmin, xmax)
     ratio.Draw("same e0")
     ratio.SetTitle(";%s;%s" % (xlabel, miniylabel))
     pad2.SetGridx(True)

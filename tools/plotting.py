@@ -177,7 +177,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         
         #if "merged" not in path:
         #    identifier = "_".join(file_name.split("_")[:-3])
-        #else:
+        #else:scaling
         identifier = file_name.replace(".root", "")
     
         selectors = selected_sample.split("*")
@@ -201,6 +201,9 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
     pool_args = []
     for i_sample, sample in enumerate(samples):
 
+        #FIXME, manual cross section:
+        if "g1800" in sample: scaling = "*0.00276133"
+
         filenames = glob.glob(sample + "*root")
 
         if not nBinsY:
@@ -215,7 +218,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         if threads != 1:
             if threads == -1:
                 # start thread pool with half of all cores
-                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.4))
+                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.5))
             else:
                 # start thread pool with specified number of cores
                 pool = multiprocessing.Pool(threads)
