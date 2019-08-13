@@ -1,0 +1,196 @@
+# CMS disappearing track analysis
+
+object baselinetrack
+  # skimmer.py
+  object tracks ?
+  select abs(Eta) < 2.4 and abs(Eta) ][ 1.4442 1.566
+  select trackQualityHighPurity == 1
+  select ptErrOverPt2 < 10
+  select if not loose and (not abs(c.tracks_dxyVtx[itrack]) < 0.1): return False
+  select dzVtx < 0.1
+  select trkRelIso < 0.2
+  select trackerLayersWithMeasurement >= 2 and nValidTrackerHits >= 2
+
+object 2016-short-tracks-bdt
+  take tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dxyVtx < 0.1  
+  select dzVtx < 0.1  
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select trackQualityHighPurity == 1
+
+object 2016-short-tracks-loose
+  take tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dzVtx < 0.1  
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select trackQualityHighPurity == 1
+
+object 2016-short-tracks-v2
+  take tracks
+  select pt > 30 
+  select abs(tracks_eta) < 2.4 
+  select passPFCandVeto == 1   
+  select trkRelIso < 0.2 
+  select dxyVtx < 0.1 
+  select dzVtx < 0.1  
+  select ptErrOverPt2 < 10  
+  select nMissingMiddleHits == 0 
+  select trackQualityHighPurity == 1
+
+object 2016-long-tracks-loose-bdt
+  take tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dzVtx < 0.1  
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select nMissingOuterHits >= 2  
+  select trackQualityHighPurity == 1
+
+object 2016-long-tracks-v2
+  take tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dxyVtx < 0.1  
+  select dzVtx < 0.1 
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select nMissingOuterHits >= 2  
+  select trackQualityHighPurity == 1
+
+object 2017-short-tracks
+  take tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dxyVtx < 0.1  
+  select dzVtx < 0.1 
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select trackQualityHighPurity == 1
+
+object 2017-short-tracks-loose
+  take tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dzVtx < 0.1  
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select trackQualityHighPurity == 1
+
+object 2017-long-tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dxyVtx < 0.1  
+  select dzVtx < 0.1 
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select nMissingOuterHits >= 2  
+  select trackQualityHighPurity == 1
+
+object 2017-long-tracks
+  select pt > 15 
+  select abs(eta) < 2.4 
+  select passPFCandVeto == 1 
+  select trkRelIso < 0.2 
+  select dzVtx < 0.1  
+  select ptErrOverPt2 < 10 
+  select nMissingMiddleHits == 0 
+  select nMissingOuterHits >= 2   
+  select trackQualityHighPurity == 1
+  
+# from the AN
+object shorttrack
+  take track
+  select pt > 15
+  select |eta| < 2.4
+  select ParticleFlowCandidate == 0
+  select reliso > 0.2
+  select |dz| < 0.1
+  select deltapT / pT^2 < 10 
+
+object promptdistrack
+  take distrack
+  select dR(distrack, lepton) < 0.01
+
+object nonpromptdistrack
+  take distrack
+  select dxy > 0.01
+
+
+#BDT variables:
+# n valid hits in the pixel detector
+# n valid hits in the strips detector
+# n of missing outer hits
+# deposited energy in the calorimeters
+# dpT / pT^2
+# dz
+# relative isolation
+# Also get the exact description from the code
+
+# EVENT SELECTION
+
+# Preselection - passesUniversalSelection
+# for data
+region passesUniversalSelection
+  select JetID == 1 and NVtx > 0
+  select passQCDHighMETFilter == 1
+  select PFCaloMETRatio < 2
+  select globalTightHalo2016Filter == 1
+  select HBHEIsoNoiseFilter == 1
+  select HBHENoiseFilter == 1
+  select BadPFMuonFilter == 1
+  select CSCTightHaloFilter == 1
+  select EcalDeadCellTriggerPrimitiveFilter == 1
+  select eeBadScFilter == 1 
+
+# baseline selection -- from AN
+region baseline
+  select MET > 200
+  select NJets >= 1
+  select nelectrons + nmuons == 0
+
+# Signal regions
+# skimmer.py
+region signal_1DT
+  select baseline
+  bin MHT 250 400 700
+  bin NJets 1 2 5
+  bin NJets >= 1 ? BTags 0 1
+  select MHT [] 250 400 ? MinDPhiMhtJets > 0.5 : MinDPhiMhtJets > 0.3
+
+# skimmer.py
+region signal_1DT_short
+  select signal_1DT
+  select NPix == 1
+
+# skimmer.py
+region signal_1DT_long
+  select signal_1DT
+  select NPixStrips == 1
+
+# skimmer.py
+region signal_2DT
+  select NJets >= 1
+  select NPix + NPixStrips >= 2
+  bin MHT 250 400
+
+
