@@ -40,12 +40,23 @@ for key in keys:
 	hnum   = file.Get(name).Clone('hnum')
 	if not 'Gen' in name:
 	  if 'Pi' in name: 
+	  	print 'subtracting stuff'
 		n2sub = name.replace('Pi','ElFromTau').replace('DT','RECO').replace('num','den').replace('Pt','PtWtd')
+		print 'integral before', hnum.Integral()
+		hnum.Draw('hist')
 		h1tosubtract = file.Get(n2sub)
-		#hnum.Add(h1tosubtract,-1)
+		h1tosubtract.SetLineColor(kGreen+1)
+		h1tosubtract.Draw('same hist')
+		hnum.SetLineColor(kBlue)
+		print 'integral after', hnum.Integral()
 		n2sub = name.replace('Pi','MuFromTau').replace('DT','RECO').replace('num','den').replace('Pt','PtWtd')
 		h2tosubtract = file.Get(n2sub)
-		#hnum.Add(h2tosubtract,-1)		
+		#h2tosubtract.SetLineColor(kViolet+1)
+		#h2tosubtract.Draw('same')
+		#c1.Update()
+		#pause()
+		hnum.Add(h1tosubtract,-1)
+		hnum.Add(h2tosubtract,-1)
 	hden    = file.Get(name.replace('_num','_den').replace('DT','RECO'))	
 	if 'Gen' in name: hnum.SetLineColor(kAzure)
 	else: hnum.SetLineColor(kViolet)
@@ -72,6 +83,11 @@ for key in keys:
 		hnum = hnum.Rebin(nbins,'',newxs)
 		hden = hden.Rebin(nbins,'',newxs)
 	
+	#hnumend = hnum.Clone()
+	#hnumend.SetLineColor(kGreen)
+	#hnumend.Draw('same')
+	#c1.Update()
+	#pause()
 	hratio = hnum.Clone(ratname)
 	hratio.Divide(hden)
 
@@ -132,8 +148,10 @@ for key in keys:
 #	funcs['f1'+ratname].Write()
 	funcs['f1'+ratname].SetLineColor(hratio.GetLineColor())
 	funcs['f1'+ratname].Write('f1'+ratname.replace('.','p'))
-
-
+	#if not 'Gen' in name:
+	#  if 'Pi' in name: 
+	#    c1.Update()
+	#    pause()
 
 print 'just made', fnew.GetName()
 fnew.Close()

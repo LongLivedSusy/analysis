@@ -9,7 +9,7 @@ gROOT.SetBatch(1)
 try: dtmode = sys.argv[1]
 except:	dtmode = 'PixOrStrips'
 
-UseFits = False
+UseFits = True
 
 print 'dtmode', dtmode
 if dtmode == 'PixOnly': 
@@ -25,29 +25,24 @@ else:
 	PixStripsMode = False
 	CombineMode = True	
 	
-if CombineMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOrStrips.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOrStrips.root')
-	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOrStrips.root')
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOrStrips.root')]
-	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]
+
 if PixMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly_NoZSmear.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly_NoZSmear.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixOnly.root')
-	#fMethodMC = TFile('usefulthings/KappaAllMC_PixOnly.root')
-	fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly.root')
-	#fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly.root')]
-	fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly.root')]
+	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOnly_NoZSmear.root')
+	#fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly_NoZSmear.root')
+	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly_NoZSmear.root')]
+	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly_NoZSmear.root')]
 if PixStripsMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips_NoZSmear.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips_NoZSmear.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixAndStrips.root')
-	#fMethodMC = TFile('usefulthings/KappaAllMC_PixAndStrips.root')
-	fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips.root')	
-	#fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips.root')]
-	fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips.root')]	
-	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016H.root')]	
+	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixAndStrips_NoZSmear.root')
+	#fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_NoZSmear.root')	
+	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips_NoZSmear.root')]
+	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_NoZSmear.root')]	
+	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016.root')]	
 
 
 fWJetsToLL.ls()
@@ -55,11 +50,12 @@ names_ = []
 for key in fWJetsToLL.GetListOfKeys():
 	names_.append(key.GetName())
 	
-fnew = TFile('ClosureKappaWithData_'+dtmode+'.root', 'recreate')
+#fnew = TFile('ClosureKappaWithData_'+dtmode+'.root', 'recreate')
+fnew = TFile('ClosureKappaWithData_'+dtmode+'_'+fTTJets.GetName().split('_')[-1], 'recreate')
 
 c1 = mkcanvas('c1')
 c1.SetLogy()
-c1.SetLogx()
+#c1.SetLogx()
 counter = 0
 for name in names_:
 	if not 'hGen' in name: continue
@@ -89,7 +85,8 @@ for name in names_:
 	print 'arrived at xrangemax', xrangemax
 	leg = mklegend(x1=.41, y1=.69, x2=.89, y2=.87)
 	hWJetsToLL.GetXaxis().SetRangeUser(0,xrangemax)
-	hWJetsToLL.GetYaxis().SetRangeUser(0.000001,1.5)
+	#hWJetsToLL.GetYaxis().SetRangeUser(0.0000001,0.1)
+	hWJetsToLL.GetYaxis().SetRangeUser(0.1*hWJetsToLL.GetMinimum(),100*hWJetsToLL.GetMaximum())
 	hWJetsToLL.Draw()
 	#c1.Update()
 	#pause()		
@@ -115,7 +112,15 @@ for name in names_:
 		MethodData = fMethodData.Get(mname)
 		if UseFits: funcMethodData = fMethodData.Get('f1'+mname)	
 		MethodData.Draw('same')
-		if UseFits: funcMethodData.Draw('same')
+		if UseFits: 
+			funcMethodData.Draw('same')
+			funcUp = funcMethodData.Clone()
+			funcUp.SetLineColor(kYellow)
+			print dir(funcUp)
+			funcUp.SetParameter(0,funcMethodData.GetParameters()[0]+funcMethodData.GetParError(0))
+			funcUp.SetParameter(1,funcMethodData.GetParameters()[1]+funcMethodData.GetParError(1))
+			funcUp.SetParameter(2,funcMethodData.GetParameters()[2]+funcMethodData.GetParError(2))						
+			funcUp.Draw('same')
 		MethodData.SetLineColor(kBlack+iFile)
 		MethodData.SetMarkerColor(kBlack+iFile)
 		if UseFits: funcMethodData.SetLineColor(kBlack+iFile)

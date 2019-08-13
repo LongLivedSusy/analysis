@@ -7,9 +7,11 @@ from glob import glob
 from random import shuffle
 import random
 gROOT.SetStyle('Plain')
-gROOT.SetBatch(1)
+gROOT.SetBatch(0)
 
 debugmode = False
+
+specialTauPiValidation = False
 
 defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2_3*_RA2AnalysisTree.root"
 #/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v2RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8_78_RA2AnalysisTree.root
@@ -75,8 +77,6 @@ else: mvathreshes=[0.15,0.0]
 print 'phase', phase
 
 if isdata: ClosureMode = False
-
-
 
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('Summer16.','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
@@ -231,10 +231,10 @@ import os
 if phase==0:
 	#pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
 	#pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml'
-	#pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
-	#pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+	#pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml'
+	#pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml'
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
 else:
 	#pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
 	#pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
@@ -242,10 +242,10 @@ else:
 	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
 readerPixelOnly = TMVA.Reader()
 readerPixelStrips = TMVA.Reader()
-#prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
-#prepareReaderPixel_loose(readerPixelOnly, pixelXml)
-prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
-prepareReaderPixel(readerPixelOnly, pixelXml)
+prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
+prepareReaderPixel_loose(readerPixelOnly, pixelXml)
+#prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
+#prepareReaderPixel(readerPixelOnly, pixelXml)
 
 
 if isdata: 
@@ -327,9 +327,9 @@ for iEtaBin, EtaBin in enumerate(EtaBinEdges[:-1]):
 	
 	
 	fPiProbePt_KappasPixOnly[etakey].Draw()
-	#print 'getting', newKappaFuncName, 'from', fKappaPixOnly.GetName()
-	#c1.Update()
-	#pause()
+	print 'getting', newKappaFuncName, 'from', fKappaPixOnly.GetName()
+	c1.Update()
+	pause()
 	#xxx
 	print 'looking for ', newKappaFuncName, 'in', fKappaPixAndStrips.GetName()
 	fPiProbePt_KappasPixAndStrips[etakey] = fKappaPixAndStrips.Get(newKappaFuncName).Clone()    
@@ -450,16 +450,19 @@ for ientry in range(nentries):
 			#if not abs(c.GenParticles_ParentId[igp]) == 24: continue
 			if abs(c.GenParticles_PdgId[igp])==11: genels.append(gp)
 			if abs(c.GenParticles_PdgId[igp])==13: genmus.append(gp)            
-		genpis = []
 		for igp, gp in enumerate(c.GenTaus_LeadTrk):
 			if not gp.Pt()>5: continue
 			if not abs(gp.Eta())<2.4: continue
 			if not (abs(gp.Eta())<1.445 or abs(gp.Eta())>1.56): continue
+			if not bool(c.GenTaus_had[igp]): continue
+			if not c.GenTaus_NProngs[igp]==1: continue###
 			#print igp, 'found tau', bool(c.GenTaus_had[igp])==True, 'nprongs', c.GenTaus_NProngs[igp]
 			#print 'isoPionTracks', c.isoPionTracks
-			genpis .append(gp)
+			genpis.append(gp)
 
-
+	if specialTauPiValidation:
+		if not len(genpis)<2: continue
+		#if not len(genpis)>0: continue
 	if c.MET>100:
 		if not c.CaloMET/c.MET<5.0: continue
 	#if not c.JetID: continue
@@ -573,7 +576,9 @@ for ientry in range(nentries):
 
 	SmearedPions = []
 	for ipi, pi in enumerate(c.TAPPionTracks):
-		if not c.isoPionTracks==1: continue
+		#if not c.isoPionTracks==1: continue
+		isPromptPi = isMatched(pi, genpis, 0.02)
+		if not isPromptPi: continue
 		if verbose: print ientry, ipi,'pi with Pt' , pi.Pt()
 		if (abs(pi.Eta()) < 1.566 and abs(pi.Eta()) > 1.4442): continue
 		if not abs(pi.Eta())<2.4: continue
@@ -585,6 +590,7 @@ for ientry in range(nentries):
 			drTrk = trk[0].DeltaR(pi)
 			if drTrk<drmin:
 				if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
+				if c.tracks_passPFCandVeto[trk[2]]: continue
 				drmin = drTrk
 				matchedTrk = trk
 				if drTrk<0.01: 
@@ -600,7 +606,7 @@ for ientry in range(nentries):
 		smear = getSmearFactor(abs(matchedTrk[0].Eta()), min(matchedTrk[0].Pt(),299.999))
 		smearedPi = TLorentzVector()
 		smearedPi.SetPtEtaPhiE(0, 0, 0, 0)        
-		smearedPi.SetPtEtaPhiE(smear*matchedTrk[0].Pt(),matchedTrk[0].Eta(),matchedTrk[0].Phi(),smear*matchedTrk[0].E())
+		smearedPi.SetPtEtaPhiE(smear*matchedTrk[0].Pt(),matchedTrk[0].Eta(),matchedTrk[0].Phi(),smear*matchedTrk[0].Pt()*TMath.CosH(matchedTrk[0].Eta()))
 		if not (smearedPi.Pt()>candPtCut and smearedPi.Pt()<candPtUpperCut): continue
 		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi]]) 		   
 
@@ -782,7 +788,7 @@ for ientry in range(nentries):
 		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta]
 		fv.append(getBinNumber(fv))
 		kPixOnly = fetchKappa(abs(eta),min(pt,9999.99), kappadictPiPixOnly, shortMaxKappaPt)
-		#print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
+		print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
 				hname = 'Pi'+regionkey+'_'+varname
@@ -794,6 +800,7 @@ for ientry in range(nentries):
 		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi, len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta]
 		fv.append(getBinNumber(fv))
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictPiPixAndStrips)
+		#print 'kPixAndStrips', kPixAndStrips, 'eta', eta, 'pt', ptForKappa
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
 				hname = 'Pi'+regionkey+'_'+varname
@@ -805,7 +812,7 @@ for ientry in range(nentries):
 		dt = disappearingTracks[0][0]
 		isPromptEl = isMatched(dt, genels, 0.02)
 		isPromptMu = isMatched(dt, genmus, 0.02)
-		isPromptPi = isMatched(dt, genpis, 0.02)    		
+		isPromptPi = isMatched(dt, genpis, 0.02)
 		if isdata: isPromptEl, isPromptMu, isPromptPi = True, True, True
 
 		#if not (isPromptEl or isPromptMu or isPromptPi): continue

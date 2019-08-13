@@ -18,7 +18,7 @@ except: otherargs = ['']
 
 cwd = os.getcwd()
 filelist = glob(filenames)
-shuffle(filelist)
+#shuffle(filelist)
 
 
 filesperjob = 1

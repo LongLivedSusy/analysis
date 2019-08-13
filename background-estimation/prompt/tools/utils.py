@@ -13,8 +13,9 @@ EtaBinEdges = [0,1.4442,1.566,2.4]
 '''
 
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
-PtBinEdges = [0,20,24,27,30,33,36,40,50,60,90,120,180, 250, 350, 450,550,650,750,850,950,1000,2000,2500]
-EtaBinEdges = [0, 1.4442,1.566, 2.4]
+PtBinEdges = [0,20,24,27,30,31,32,34,36,38,40,45,50,60,90,120,180, 250]#best
+#PtBinEdges = [32,250]#for inv. mass plots
+EtaBinEdges = [0, 2.4]#best
 
 PtBinEdgesForSmearing = [0,20, 30,40, 50, 70, 90, 120, 200, 300, 310]
 EtaBinEdgesForSmearing = [0,1.4442,1.566,2.4]
@@ -56,6 +57,7 @@ binning['NJets']=[10,0,10]
 binning['NLeptons']=[5,0,5]
 binning['NElectrons']=binning['NLeptons']
 binning['NMuons']=binning['NLeptons']
+binning['NPions']=binning['NLeptons']
 binning['NTags']=[3,0,3]
 binning['NPix']=binning['NTags']
 binning['NPixStrips']=binning['NTags']
@@ -64,6 +66,26 @@ binning['Ht']=[10,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [34,0,34]
+
+binningAnalysis = {}
+binningAnalysis['Met']=[200,250,400,700,900]
+binningAnalysis['Mht']=binningAnalysis['Met']
+binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
+binningAnalysis['TrkEta']=EtaBinEdges
+binningAnalysis['TrkLen']=[2, 1, 3]
+binningAnalysis['NJets']=[1,2,6,8]
+binningAnalysis['NLeptons']=[3,0,3]
+binningAnalysis['NElectrons']=binningAnalysis['NLeptons']
+binningAnalysis['NMuons']=binningAnalysis['NLeptons']
+binningAnalysis['NPions']=binningAnalysis['NLeptons']
+binningAnalysis['NTags']=[3,0,3]
+binningAnalysis['NPix']=binningAnalysis['NTags']
+binningAnalysis['NPixStrips']=binningAnalysis['NTags']
+binningAnalysis['BTags']=[4,0,4]
+binningAnalysis['Ht']=[10,0,2000]
+binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
+binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
+binningAnalysis['BinNumber'] = [32,1,33]
 
 
 def histoStyler(h,color=kBlack):
@@ -574,6 +596,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title 
 	
 	#hComponents[0].Draw('hist')
 	hComponentsUp.Draw('hist')
+	hComponents[0].Draw('hist same')	
 	hComponentsDown.Draw('hist same')
 	for h in hComponents[1:]: 
 		print 'there are actually components here!'
@@ -650,7 +673,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title 
 		histoMethodFracErrorDown.SetBinError(ibin, 0)		
 		histoMethodFracErrorNom.SetBinContent(ibin, 1)		
 		histoMethodFracErrorNom.SetBinError(ibin, 0)
-	hRatio.GetYaxis().SetRangeUser(-0.2,3.2)	
+	hRatio.GetYaxis().SetRangeUser(-0.2,2.7)	
 	hRatio.Draw('e0')    
 	histoMethodFracErrorUp.Draw('same hist')	
 	histoMethodFracErrorNom.Draw('same')
@@ -720,8 +743,8 @@ def prepareReaderPixel(reader, xmlfilename):
         reader.AddVariable("nValidPixelHits",_nValidPixelHits_)
         reader.AddVariable("nValidTrackerHits",_nValidTrackerHits_)
         reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
-        reader.BookMVA("BDT", xmlfilename)        
-
+        reader.BookMVA("BDT", xmlfilename)    
+        
 def evaluateBDT(reader, trackfv):
         _dxyVtx_[0] = trackfv[0]
         _dzVtx_[0] = trackfv[1]
@@ -732,7 +755,26 @@ def evaluateBDT(reader, trackfv):
         _nMissingOuterHits_[0] = trackfv[6]
         _ptErrOverPt2_[0] = trackfv[7]
         return  reader.EvaluateMVA("BDT")
-    
+        
+def prepareReaderPixelStrips_loose(reader, xmlfilename):
+        reader.AddVariable("dzVtx",_dzVtx_)          
+        reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
+        reader.AddVariable("trkRelIso",_trkRelIso_)
+        reader.AddVariable("nValidPixelHits",_nValidPixelHits_)
+        reader.AddVariable("nValidTrackerHits",_nValidTrackerHits_)
+        reader.AddVariable("nMissingOuterHits",_nMissingOuterHits_)
+        reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
+        reader.BookMVA("BDT", xmlfilename)
+        
+def prepareReaderPixel_loose(reader, xmlfilename):
+        reader.AddVariable("dzVtx",_dzVtx_)           
+        reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
+        reader.AddVariable("trkRelIso",_trkRelIso_)
+        reader.AddVariable("nValidPixelHits",_nValidPixelHits_)
+        reader.AddVariable("nValidTrackerHits",_nValidTrackerHits_)
+        reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
+        reader.BookMVA("BDT", xmlfilename)        
+
 
 	
 def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
@@ -746,50 +788,45 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
         pixelStrips = medium or long
         if pixelStrips:
                 if not moh_>=2: return 0
-        #print 'here, testing!'                
         if not (c.tracks_nMissingInnerHits[itrack]==0): return 0
-        #print 'here, testing 2!' 
         if not (pixelOnly or pixelStrips): return 0                                                                                                         
-        #print 'here, testing 3!' 
         if not c.tracks_passPFCandVeto[itrack]: return 0
-        #print 'here, testing 4!' 
         pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
         dxyVtx = abs(c.tracks_dxyVtx[itrack])
-        dzVtx = abs(c.tracks_dzVtx[itrack])   
-        #print 'here, again!'                             
+        dzVtx = abs(c.tracks_dzVtx[itrack])                        
         if not (c.tracks_trkRelIso[itrack]<0.2 and dzVtx<0.1 and pterr<10 and c.tracks_nMissingMiddleHits[itrack]==0): return 0
         if not (c.tracks_trackQualityHighPurity[itrack]): return 0
         nhits = c.tracks_nValidTrackerHits[itrack]
         nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
         if not (nlayers>=2 and nhits>=2): return 0
         matchedCalo = c.tracks_matchedCaloEnergy[itrack]
-        #print 'before chi2'
         if not c.tracks_chi2perNdof[itrack]<2.88: return 0
-        #print 'after chi2'        
-        if not dxyVtx < 0.1: return 0
+        if not dxyVtx < 0.05: return 0
         trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr]
         shortmvathresh, longmvathresh = threshes
         if pixelOnly:
                 mva_ = evaluateBDT(readerPixelOnly, trackfv)
-                if not mva_ > shortmvathresh: return 0
+                if not mva_ > dxyVtx*0.5/0.01-0.3: return 0                
                 else: return 1
         elif pixelStrips:
                 mva_ = evaluateBDT(readerPixelStrips, trackfv)             
-                if not mva_ > longmvathresh:return 0
+                if not (mva_>dxyVtx*0.6/0.01+0.05): return 0# this made the MC "happy"                
                 else: return 2
         else:
                 return 0
                 
-def isBaselineTrack(track, track_id, c, hMask):
+def isBaselineTrack(track, itrack, c, hMask):
 	if not abs(track.Eta())< 2.4 : return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
-	if not bool(c.tracks_trackQualityHighPurity[track_id]) : return False
-	if not (c.tracks_ptError[track_id]/(track.Pt()*track.Pt()) < 10): return False
-	if not abs(c.tracks_dxyVtx[track_id]) < 0.02: return False
-	if not abs(c.tracks_dzVtx[track_id]) < 0.01 : return False
-	if not c.tracks_trkRelIso[track_id] < 0.2: return False
-	if not (c.tracks_trackerLayersWithMeasurement[track_id] >= 2 and c.tracks_nValidTrackerHits[track_id] >= 2): return False
-	if not c.tracks_nMissingInnerHits[track_id]==0: return False
+	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
+	if not (c.tracks_ptError[itrack]/(track.Pt()*track.Pt()) < 10): return False
+	if not abs(c.tracks_dxyVtx[itrack]) < 0.05: return False
+	if not abs(c.tracks_dzVtx[itrack]) < 0.1 : return False
+	if not c.tracks_trkRelIso[itrack] < 0.2: return False
+	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False
+	if not c.tracks_nMissingInnerHits[itrack]==0: return False
+	if not c.tracks_nMissingMiddleHits[itrack]==0: return False
+	if not c.tracks_chi2perNdof[itrack]<2.88: return 0
 	if hMask!='':
 		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
 		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())

@@ -1,45 +1,28 @@
 from ROOT import *
+import os, sys
 import numpy as np
 from glob import glob
 from utils import *
 gROOT.SetBatch()
 gROOT.SetStyle('Plain')
 zmass = 91
-window = 25
-metthresh = 90
+metthresh = 40
 
 
 debugmode = False
-vetothebs_ = False
 
-defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1_391_RA2AnalysisTree.root"
-default2017 = '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v2RunIIFall17MiniAODv*.root'
-defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2_3*_RA2AnalysisTree.root"
+
+defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vormwald/NtupleHub/ProductionRun2v3/Summer16.QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_403_RA2AnalysisTree.root"
 #python tools/TagNProbeHistMaker.py --fnamekeyword /pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/Production2016v2/Summer16.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_5_RA2AnalysisTree.root --dtmode PixAndStrips --SmearLeps4Zed=False
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbosity", type=bool, default=False,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
-parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
-parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
-parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
-parser.add_argument("-SmearLeps4Zed", "--SmearLeps4Zed", type=str, default='False')
-parser.add_argument("-doPions", "--doPions", type=bool, default=True)        #false for the first round
-parser.add_argument("-gk", "--useGenKappa", type=bool, default=False,help="use gen-kappa")
-parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 args = parser.parse_args()
-nfpj = args.nfpj
-useGenKappa = args.useGenKappa
-SmearLeps4Zed = args.SmearLeps4Zed=='True'
 inputFileNames = args.fnamekeyword
 if ',' in inputFileNames: inputFiles = inputFileNames.split(',')
 else: inputFiles = glob(inputFileNames)
-dtmode = args.dtmode
-analyzer = args.analyzer
-JerUpDown = args.JerUpDown #79323846Pi!
-pileup = args.pileup
-doPions = args.doPions
 
 
 GenOnly = False
@@ -90,7 +73,7 @@ elif dtmode == 'PixOrStrips':
 	PixStripsMode = False
 	CombineMode = True    
 	
-if PixStripsMode: metthresh+=0
+if PixStripsMode: metthresh+=40
 
 
 c = TChain("TreeMaker2/PreSelection")
@@ -297,7 +280,7 @@ for iEtaBin, EtaBin in enumerate(EtaBinEdges[:-1]):
 		   dInvMassMuFromTauDTHist[newHistKey] = makeTh1("hInvMassMuFromTau"+specialpart+"_DTnum"  , "hInvMassMuFromTau"+specialpart+"_DTnum", 100, 0, 200)
 		   histoStyler(dInvMassMuFromTauDTHist[newHistKey], 1)
 
-import os, sys
+
 if phase==0:
 	#pixelXml =       '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel3-200-4-short-updated/weights/TMVAClassification_BDT.weights.xml'
 	#pixelstripsXml = '/nfs/dust/cms/user/kutznerv/disapptrks/track-tag/cmssw8-newpresel2-200-4-medium-updated/weights/TMVAClassification_BDT.weights.xml'
@@ -470,8 +453,7 @@ for ientry in range(nentries):
 	if isdata: weight = 1
 	else: 
 		#weight = c.CrossSection
-		#weight = 1.0#*c.puWeight#c.CrossSection
-		weight = 1
+		weight = 1.0#*c.puWeight#c.CrossSection
 	fillth1(hHt, c.HT, 1)
 	fillth1(hHtWeighted, c.HT, weight)
 	TagPt  =  0
@@ -480,8 +462,7 @@ for ientry in range(nentries):
 	ProbeEta = 0
 	probeTlv = TLorentzVector()
 	probeTlv.SetPxPyPzE(0, 0, 0, 0)
-	if vetothebs_: 
-		if not c.BTags==0: continue
+
 	if ientry==0:
 		for itrig in range(len(c.TriggerPass)):
 			print itrig, c.TriggerNames[itrig], c.TriggerPrescales[itrig], c.HT
@@ -626,13 +607,11 @@ for ientry in range(nentries):
 		   if drlep<0.01: 
 			  passeslep = False
 			  break
-	   if not passeslep: continue
-	   
-	     	   
+	   if not passeslep: continue	  	   
 	   smear = getSmearFactor(abs(matchedTrack.Eta()), min(matchedTrack.Pt(),299.999), dResponseHist_mu)
 	   smearedPi = TLorentzVector()    
 	   if SmearLeps4Zed: smearedPi.SetPtEtaPhiE(smear*matchedTrack.Pt(),matchedTrack.Eta(),matchedTrack.Phi(),smear*matchedTrack.Pt()*TMath.CosH(matchedTrack.Eta()))
-	   else: smearedPi.SetPtEtaPhiE(matchedTrack.Pt(),matchedTrack.Eta(),matchedTrack.Phi(),matchedTrack.Pt()*TMath.CosH(matchedTrack.Eta()))
+	   else: smearedPi.SetPtEtaPhiE(matchedTrack.Pt(),matchedTrack.Eta(),matchedTrack.Phi(),matchedTrack.E())
 	   #smearedPi.SetPtEtaPhiE(smear*part.Pt(),part.Eta(),part.Phi(),smear*part.E())
 	   if not (smearedPi.Pt()>candPtCut and smearedPi.Pt()<candPtUpperCut): continue
 	   SmearedPions.append([smearedPi, c.TAPPionTracks_charge[ipart], part.Clone()])# matchedTrack])
@@ -650,6 +629,8 @@ for ientry in range(nentries):
 					fillth1(hGenElProbePt_DTnums[histkey], pt, weight)
 			#print ientry, 'found a nice dt', distrk[0].Pt()
 			break       
+
+
 		drminSmearedlepGenlep = 9999
 		gotthematch = False      
 		for ie, lep in enumerate(SmearedElectrons):
@@ -774,7 +755,7 @@ for ientry in range(nentries):
 					for histkey in  dInvMassElDTHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassElDTHist[histkey],IM,weight)
-					if dmMin<5:#(PixMode and IM>zmass-15 and IM<zmass+30) or (PixStripsMode and dmMin<15):
+					if (PixMode and IM>zmass-15 and IM<zmass+30) or (PixStripsMode and dmMin<15):
 					  for histkey in  hElProbePt_DTnums:
 						if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 							fillth1(hElProbePt_DTnums[histkey], ProbePt, weight)                    
@@ -792,7 +773,7 @@ for ientry in range(nentries):
 					for histkey in  dInvMassElRECOHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassElRECOHist[histkey],IM, weight)       
-					if dmMin<5:
+					if dmMin<15:
 					  for histkey in  hElProbePt_RECOdens:
 						if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 							fillth1(hElProbePt_RECOdens[histkey], ProbePt, weight)   
@@ -852,7 +833,7 @@ for ientry in range(nentries):
 					for histkey in  dInvMassMuDTHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassMuDTHist[histkey],IM,weight)                    
-					if dmMin<5:
+					if dmMin<15:
 					#if IMleplep>zmass-20:
 					  for histkey in  hMuProbePt_DTnums:						
 						if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]: 
@@ -871,7 +852,7 @@ for ientry in range(nentries):
 					for histkey in  dInvMassMuRECOHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassMuRECOHist[histkey],IM, weight)       
-					if dmMin<5:
+					if dmMin<15:
 					  for histkey in  hMuProbePt_RECOdens:
 						if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 							fillth1(hMuProbePt_RECOdens[histkey], ProbePt, weight)   
@@ -897,11 +878,10 @@ for ientry in range(nentries):
 				if not correctedMet.Pt()>metthresh: continue
 				#if not abs(correctedMet.DeltaPhi(dt[0]))<3.14159/4: continue
 				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159/4: continue
-				#if PixStripsMode:
 				#if not isMatched_([dt[0]], genpis, 0.02): continue
 				dphileps = abs(dt[0].DeltaPhi(tag[0]))
-				if not abs(correctedMet.DeltaPhi(dt[0]))<dphileps: continue #3.14159: continue
-				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps: continue#3.14159: continue
+				if not abs(correctedMet.DeltaPhi(dt[0]))<dphileps/2: continue #3.14159/2: continue
+				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps/2: continue#3.14159/2: continue
 				
 				IMleplep = mttsam1(correctedMet, tag[0], dt[0])
 				#IMleplep = PreciseMtautau(correctedMet.Pt(), correctedMet.Phi(),  tag[0], dt[0])#basil
@@ -909,7 +889,7 @@ for ientry in range(nentries):
 				if (IMleplep < 0): 
 					print 'something horribly wrong, space-like event'
 					continue
-				dIM = abs(IMleplep - zmass)
+				dIM = abs(IMleplep - zmass-5)
 				if(dIM < dmMin):
 					IM = IMleplep
 					dmMin = dIM
@@ -928,13 +908,15 @@ for ientry in range(nentries):
 				correctedMet = metvec.Clone()
 				#can also put a "funny alternate MET cut here to make the two cases equivalent"
 				if not correctedMet.Pt()>metthresh: continue
+				#if not abs(correctedMet.DeltaPhi(smearedPi[2]))<3.14159/4: continue
+				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159/4: continue                
 				dphileps = abs(smearedPi[2].DeltaPhi(tag[0]))
-				if not abs(correctedMet.DeltaPhi(smearedPi[2]))<dphileps: continue #3.14159: continue
-				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps: continue#3.14159: continue
+				if not abs(correctedMet.DeltaPhi(smearedPi[2]))<dphileps/2: continue #3.14159/2: continue
+				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps/2: continue#3.14159/2: continue
 								
 				IMleplep = mttsam1(correctedMet, tag[0], smearedPi[2]) 
 				#if not isMatched_([smearedPi[0]], genpis, 0.02): continue
-				dIM = abs(IMleplep - zmass)
+				dIM = abs(IMleplep - zmass-5)
 				if(dIM < dmMin):
 					dmMin = dIM
 					IM = IMleplep                    
@@ -951,15 +933,15 @@ for ientry in range(nentries):
 				correctedMet = metvec.Clone()
 				
 				if not correctedMet.Pt()>metthresh: continue
-				#if not abs(correctedMet.DeltaPhi(smearedEl[0]))<3.14159: continue
-				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159: continue
+				#if not abs(correctedMet.DeltaPhi(smearedEl[0]))<3.14159/2: continue
+				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159/2: continue
 				
 				dphileps = abs(smearedEl[2].DeltaPhi(tag[0]))
-				if not abs(correctedMet.DeltaPhi(smearedEl[2]))<dphileps: continue #3.14159: continue
-				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps: continue#3.14159: continue
+				if not abs(correctedMet.DeltaPhi(smearedEl[2]))<dphileps/2: continue #3.14159/2: continue
+				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps/2: continue#3.14159/2: continue
 								
-				IMleplep = mttsam1(correctedMet, tag[0], smearedEl[2]) 
-				dIM = abs(IMleplep - zmass)
+				IMleplep = mttsam1(correctedMet, tag[0], smearedEl[0]) 
+				dIM = abs(IMleplep - zmass-5)
 				if(dIM < dmMin):
 					dmMin = dIM
 					IM = IMleplep                    
@@ -975,15 +957,15 @@ for ientry in range(nentries):
 				correctedMet = metvec.Clone()
 				
 				if not correctedMet.Pt()>metthresh: continue
-				#if not abs(correctedMet.DeltaPhi(smearedMu[0]))<3.14159: continue
-				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159: continue
+				#if not abs(correctedMet.DeltaPhi(smearedMu[0]))<3.14159/2: continue
+				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159/2: continue
 				
 				dphileps = abs(smearedMu[2].DeltaPhi(tag[0]))
-				if not abs(correctedMet.DeltaPhi(smearedMu[2]))<dphileps: continue #3.14159: continue
-				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps: continue#3.14159: continue
+				if not abs(correctedMet.DeltaPhi(smearedMu[2]))<dphileps/2: continue #3.14159/2: continue
+				if not abs(correctedMet.DeltaPhi(tag[0]))<dphileps/2: continue#3.14159/2: continue
 								
-				IMleplep = mttsam1(correctedMet, tag[0], smearedMu[2]) 
-				dIM = abs(IMleplep - zmass)
+				IMleplep = mttsam1(correctedMet, tag[0], smearedMu[0]) 
+				dIM = abs(IMleplep - zmass-5)
 				if(dIM < dmMin):
 					dmMin = dIM
 					IM = IMleplep                    
@@ -998,13 +980,16 @@ for ientry in range(nentries):
 					ProbePt = probeTlv.Pt()
 					ProbeEta = abs(probeTlv.Eta())					
 					fillth1(hNTrackerLayersDT_mu, c.tracks_trackerLayersWithMeasurement[dtindex], weight)
+					#print 'just filled the pi thing with layers ',c.tracks_trackerLayersWithMeasurement[dtindex]
+					#if not isdata: isgenmatched  = isGenMatched(probeTlv, 13)
+					#else: isgenmatched = 1
 					#if DoGenMatching:
 					#	if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
-					#if not isMatched_([probeTlv], genpis, 0.2): continue
+					#if not isMatched_([probeTlv], genpis, 0.02): continue
 					for histkey in  dInvMassPiDTHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassPiDTHist[histkey],IM,weight)                    
-					if dmMin<window:
+					if dmMin<20:
 					  for histkey in  hPiProbePt_DTnums:
 						if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]: 
 							fillth1(hPiProbePt_DTnums[histkey], ProbePt, weight)                    
@@ -1015,7 +1000,7 @@ for ientry in range(nentries):
 					for histkey in  dInvMassPiRECOHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassPiRECOHist[histkey],IM, weight)
-					if dmMin<window:
+					if dmMin<20:
 						for histkey in  hPiProbePt_RECOdens:
 							if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 								fillth1(hPiProbePt_RECOdens[histkey], ProbePt, weight)
@@ -1025,7 +1010,7 @@ for ientry in range(nentries):
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassMuFromTauRECOHist[histkey],IM, weight)
 							fillth1(dInvMassMuFromTauWtdRECOHist[histkey],IM, kappa*weight)
-					if dmMin<window:
+					if dmMin<20:
 						for histkey in  hMuFromTauProbePt_RECOdens:
 							if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 								fillth1(hMuFromTauProbePt_RECOdens[histkey], ProbePt, weight)
@@ -1036,7 +1021,7 @@ for ientry in range(nentries):
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassElFromTauRECOHist[histkey],IM, weight)
 							fillth1(dInvMassElFromTauWtdRECOHist[histkey],IM, kappa*weight)
-					if dmMin<window:
+					if dmMin<20:
 						for histkey in  hElFromTauProbePt_RECOdens:
 							if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 								fillth1(hElFromTauProbePt_RECOdens[histkey], ProbePt, weight)
