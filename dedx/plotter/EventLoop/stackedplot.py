@@ -10,7 +10,7 @@ import os
 gStyle.SetOptStat(0);
 gROOT.SetBatch(True)
 
-def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, unblind=False, fit_bkg=False, fit_sig=False, fit_data=False):
+def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, save_shape=False):
 
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
@@ -53,10 +53,12 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
 
     # get lumi value:
     lumi = 135900
+    unblind = False
     for label in sorted(histos):
 	# check data in sample list
         if samples[label]["type"] == "data":
             lumi = samples[label]["lumi"]
+	    unblind = True
 
     # plot backgrounds:
     for label in sorted(histos):
@@ -191,8 +193,7 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
         if samples[label]["type"] == "data":
             data = histos[label].Clone()
   
-    #FIXME
-    if False : 
+    if unblind : 
 	ratio = data.Clone()
 	ratio_mc = combined_mc_background.Clone()
 	ratio.Divide(combined_mc_background)
@@ -221,8 +222,19 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     os.system("mkdir -p %s" % (outputdir))
     canvas.SaveAs("%s/%s%s.%s" % (outputdir, variable, suffix, outformat))
 
-    if fit_bkg : 
-	fit_background(combined_mc_background,outputdir,variable,outformat)
-    if fit_sig : 
-	fit_signal(combined_mc_signal,outputdir,variable,outformat)
-
+    # Save combined MC histogram for fitting
+    if save_shape == True : 
+	os.system("mkdir -p ./shapes")
+	fout = TFile("./shapes/shape_%s.root"%variable,"recreate")
+    	combined_mc_background.SetName("combined_mc_background")
+    	combined_mc_background.Write()
+    	for label in sorted(histos):
+    	    if samples[label]["type"] == "sg":
+    	        histos[label].SetName(label)
+    	        histos[label].Write()
+    	    #if samples[label]["type"] == "bg":
+    	    #    histos[label].SetName(label)
+    	    #    histos[label].Write()
+    	    if samples[label]["type"] == "data":
+    	        histos[label].SetName(label)
+    	        histos[label].Write()

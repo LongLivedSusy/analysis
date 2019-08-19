@@ -5,8 +5,8 @@ from glob import glob
 from ROOT import *
 from GridEngineTools import runParallel
 
-#Recompile=True
-Recompile=False
+Recompile=True
+#Recompile=False
 
 OUTDIR = "./histos"
 
@@ -21,20 +21,27 @@ if __name__ == '__main__' :
 	os.system("mkdir -p %s"%OUTDIR)
 
     # Samples
-    path = "../../skimmer/python/output_skim_Summer16MC_merged/"
-    samples = ["Summer16"]
-    #samples = ["Summer16.WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV"]
+    #path = "../../skimmer/output_skim_Summer16_Run2016MET_merged/"
+    path = "../../skimmer/old/output_skim_Summer16_Run2016MET_merged/"
+    #samples = ["*"]
+    #samples = ["Run2016*"]
+    samples = ["Summer16*"]
+    #samples = ["Summer16.g1800_"]
     for sample in samples : 
 	inputfiles = glob(path+"/*%s*.root"%sample)
+    
+    inputfiles = sorted(inputfiles)
 
     commands=[]
     for inputfile in inputfiles: 
 	label = inputfile.split("/")[-1]
-	command = "./HistoMaker %s %s h_%s"%(inputfile,OUTDIR,label)
+	if "Run" in label : isData = True
+	else : isData = False
+	command = "./HistoMaker %s %s h_%s %s"%(inputfile,OUTDIR,label,isData)
 	commands.append(command)
-	print "input files : ", label
+	print "input files : %s, isData :%s"%(label,isData)
     
     raw_input("Submit continue?")
-    #runParallel(commands, "grid", condorDir="condor", dontCheckOnJobs=True)
-    runParallel(commands, "multi", condorDir="condor", dontCheckOnJobs=True)
+    runParallel(commands, "grid", condorDir="condor", dontCheckOnJobs=True)
+    #runParallel(commands, "multi", condorDir="condor", dontCheckOnJobs=True)
 
