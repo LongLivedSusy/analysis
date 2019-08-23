@@ -1,0 +1,28 @@
+import os , sys
+from ROOT import *
+from glob import glob
+import scipy.constants as scc
+
+try: inputfile = sys.argv[1]
+except: inputfile = 'simple-shapes-TH1.root'
+
+rootfile = TFile(inputfile)
+
+keys = rootfile.GetListOfKeys()
+
+print keys
+
+hists= ['signal','signal_sigmaUp', 'signal_sigmaDown','background', 'background_alphaUp', 'background_alphaDown', 'data_obs']
+
+fnew = TFile('test1'+inputfile,'recreate')
+fnew.cd()
+for ihist,histname in enumerate(hists):
+#   histname = key.GetName()
+#   print histname
+   hist = rootfile.Get(histname)
+#   if 'data' in histname: hist.Scale(1.3)
+   if 'data' not in histname: histname = 'yo'+histname
+   hist.SetName(histname)
+   hist.Write()
+fnew.Close()
+print 'just created', fnew.GetName()

@@ -1,0 +1,28 @@
+Date: 2019-07-23 
+Description: Disappearing Tracks, lifetime g2400_chi1050 cm, lumi=35.9 fb-1
+---------------------------------------------------------------------------
+imax   1  number of channels
+jmax   *  number of backgrounds
+kmax   *  number of nuisance parameters
+---------------------------------------------------------------------------
+shapes * * Limit_BinNumberAllBkg_Signalg2400_chi1050_10cm.root $PROCESS $PROCESS_$SYSTEMATIC
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+bin            ak
+Observation    100.0 
+---------------------------------------------------------------------------
+bin                               ak     ak     ak     ak      ak   
+process                          Signalg2400_chi1050   Electron     Muon     Tau      Fake
+process                            0             1          2        3        4
+---------------------------------------------------------------------------
+rate                             0.435715247877           49.4529857635       25.0946031213       3.55164706148      64.0586182475               
+---------------------------------------------------------------------------
+lumi_13TeV               lnN    1.027           1.027       1.027   1.027    1.027 Luminosity Error
+Sys                     shape   1		-	     -        -       -  Systematic error 
+Sys                     shape   -             1            -        -       -  Systematic error
+Sys                     shape   -             -            1        -       -  Systematic error
+Sys                     shape   -             -            -        1       -  Systematic error
+Sys                     shape   -             -            -        -       1  Systematic error
+* autoMCStats 0 1
+
+

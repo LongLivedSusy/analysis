@@ -1,0 +1,22 @@
+Date: 9/12/2018 
+Description: Disappearing Tracks, mass 1400 GeV, lumi=35.900000 fb-1
+---------------------------------------------------------------------------
+imax   1  number of channels
+jmax   1  number of backgrounds
+kmax   *  number of nuisance parameters
+---------------------------------------------------------------------------
+Observation    0 
+---------------------------------------------------------------------------
+bin                             disAppTk_13TeV  disAppTk_13TeV 
+process                          Sig1400Y        Bkg    
+process                            0            1        
+---------------------------------------------------------------------------
+rate                           983.44076            190.42376
+---------------------------------------------------------------------------
+lumi_13TeV               lnN    1.027           1.027     Luminosity Error
+CMS_eff_mu               lnN    1.031           1.031     Lepton Efficiency
+CMS_pileup               lnN    1.033           1.033     pileup reweighting
+CMS_stat_Sig             lnN    1.00            1.00      Sig MC stat
+CMS_stat_Bkg             lnN    1.00            1.15      Bkg MC stat
+CMS_scale_j              lnN    1.000           1.000     Jet energy scale    
+CMS_res_j                lnN    1.000           1.000     Jet energy resolution 

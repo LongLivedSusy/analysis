@@ -1,0 +1,16 @@
+DEBUG 2019-06-26 00:57:07,682: 	 Executing command: 'status'
+DEBUG 2019-06-26 00:57:07,682: 	 Found CRAB cache file /afs/desy.de/user/s/singha/.crab3
+ERROR 2019-06-26 00:57:07,683: 	 Error: SignalMC_GENSIM50_g1p9c1p6/crab_DisptrksMC_g1p9c1p6 is not a valid CRAB project directory.
+ERROR 2019-06-26 00:57:07,683: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1904/bin/crab", line 161, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1904/bin/crab", line 146, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1904/lib/python2.7/site-packages/CRABClient/Commands/status.py", line 40, in __init__
+    SubCommand.__init__(self, logger, cmdargs)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1904/lib/python2.7/site-packages/CRABClient/Commands/SubCommand.py", line 268, in __init__
+    SubCommand.validateOptions(self)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc493/cms/crabclient/3.3.1904/lib/python2.7/site-packages/CRABClient/Commands/SubCommand.py", line 586, in validateOptions
+    raise ConfigurationException(msg)
+ConfigurationException: [91mError[0m: SignalMC_GENSIM50_g1p9c1p6/crab_DisptrksMC_g1p9c1p6 is not a valid CRAB project directory.

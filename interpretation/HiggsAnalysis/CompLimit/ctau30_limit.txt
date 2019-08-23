@@ -1,0 +1,53 @@
+ <<< Combine >>> 
+>>> including systematics
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+Channel ak will use autoMCStats with settings: event-threshold=0, include-signal=1, hist-mode=1
+============================================================
+Analysing bin errors for: prop_binak
+Poisson cut-off: 0
+============================================================
+Bin        Contents        Error           Notes                         
+0          32.161458       1.826629        total sum                     
+0          310.000000      17.606817       Unweighted events, alpha=0.103747
+  => Total parameter prop_binak_bin0[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+1          9.234815        0.851102        total sum                     
+1          118.000000      10.862780       Unweighted events, alpha=0.078261
+  => Total parameter prop_binak_bin1[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+2          2.533647        0.051470        total sum                     
+2          2423.000000     49.223978       Unweighted events, alpha=0.001046
+  => Total parameter prop_binak_bin2[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+3          6.673665        0.300818        total sum                     
+3          492.000000      22.181073       Unweighted events, alpha=0.013564
+  => Total parameter prop_binak_bin3[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+4          40.915165       2.141540        total sum                     
+4          365.000000      19.104973       Unweighted events, alpha=0.112096
+  => Total parameter prop_binak_bin4[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+5          10.084302       0.865510        total sum                     
+5          136.000000      11.661904       Unweighted events, alpha=0.074149
+  => Total parameter prop_binak_bin5[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+6          6.621468        0.951608        total sum                     
+6          48.000000       6.928203        Unweighted events, alpha=0.137947
+  => Total parameter prop_binak_bin6[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+7          10.063166       0.695942        total sum                     
+7          209.000000      14.456832       Unweighted events, alpha=0.048149
+  => Total parameter prop_binak_bin7[0.00,-7.00,7.00] to be gaussian constrained
+------------------------------------------------------------
+Computing results starting from observation (a-posteriori)
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.5349
+Expected  2.5%: r < 0.3779
+Expected 16.0%: r < 0.5197
+Expected 50.0%: r < 0.7559
+Expected 84.0%: r < 1.1204
+Expected 97.5%: r < 1.6036
+
+Done in 0.00 min (cpu), 0.00 min (real)

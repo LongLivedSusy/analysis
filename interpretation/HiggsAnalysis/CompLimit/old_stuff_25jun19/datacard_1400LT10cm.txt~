@@ -1,0 +1,21 @@
+Date: 2019-04-10 
+Description: Disappearing Tracks, lifetime 10 cm, lumi=35.9 fb-1
+---------------------------------------------------------------------------
+imax   *  number of channels
+jmax   *  number of backgrounds
+kmax   *  number of nuisance parameters
+---------------------------------------------------------------------------
+shapes * * Limit_BinNumberAllBkg_Signal10.root $PROCESS $PROCESS_$SYSTEMATIC
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Observation    0 
+---------------------------------------------------------------------------
+bin                              Distrack   Distrack   Distrack  Distrack  Distrack   
+process                          Signal10   Electron     Muon     Tau      Fake
+process                            0             1          2        3        4
+---------------------------------------------------------------------------
+rate                         3.77012045309   134.23841691   49.9966754913  7.82034121826  48.4786909819
+---------------------------------------------------------------------------
+lumi_13TeV               lnN    1.027           1.027       1.027   1.027    1.027 Luminosity Error
+Sys                     shape   1.00		1.00	    1.00    1.00     1.00  Systematic error 
+#* autoMCStats 0 1

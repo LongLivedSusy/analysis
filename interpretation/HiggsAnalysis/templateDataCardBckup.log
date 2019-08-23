@@ -1,0 +1,22 @@
+Date: XXX 
+Description: Disappearing Tracks, mass YYY GeV, lumi=ZZZ fb-1
+---------------------------------------------------------------------------
+imax   1  number of channels
+jmax   1  number of backgrounds
+kmax   *  number of nuisance parameters
+---------------------------------------------------------------------------
+Observation    XXX 
+---------------------------------------------------------------------------
+bin                              Signal       electron     Muon     Tau      Fake   
+process                          SigYYYY        Bkg        Bkg      Bkg      Bkg  
+process                            0             1          2        3        4
+---------------------------------------------------------------------------
+rate    
+---------------------------------------------------------------------------
+lumi_13TeV               lnN    1.027           1.027     Luminosity Error
+CMS_eff_mu               lnN    1.031           1.031     Lepton Efficiency
+CMS_pileup               lnN    1.033           1.033     pileup reweighting
+CMS_stat_Sig             lnN    XXXX            1.00      Sig MC stat
+CMS_stat_Bkg             lnN    1.00            XXXX      Bkg MC stat
+CMS_scale_j              lnN    SSSS            BBBB      Jet energy scale    
+CMS_res_j                lnN    SSSS            BBBB      Jet energy resolution 

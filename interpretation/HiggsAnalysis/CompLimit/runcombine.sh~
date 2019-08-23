@@ -1,0 +1,9 @@
+#!/bin/bash
+
+combine -M AsymptoticLimits datacard_1400LT10cm.txt --mass 10
+
+combine -M AsymptoticLimits datacard_1400LT30cm.txt -
+
+combine -M AsymptoticLimits datacard_1400LT50cm.txt
+
+combine -M AsymptoticLimits datacard_1400LT100cm.txt

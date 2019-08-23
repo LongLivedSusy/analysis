@@ -1,0 +1,21 @@
+Date: XXX 
+Description: Disappearing Tracks, lifetime YYY cm, lumi=zzz fb-1
+---------------------------------------------------------------------------
+imax   1  number of channels
+jmax   *  number of backgrounds
+kmax   *  number of nuisance parameters
+---------------------------------------------------------------------------
+shapes * * HHHH $PROCESS $PROCESS_$SYSTEMATIC
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+Observation    0 
+---------------------------------------------------------------------------
+bin                              Signal       electron     Muon     Tau      Fake   
+process                          SignalYYYY   Electron     Muon     Tau      Fake
+process                            0             1          2        3        4
+---------------------------------------------------------------------------
+rate    
+---------------------------------------------------------------------------
+lumi_13TeV               lnN    1.027           1.027       1.027   1.027    1.027 Luminosity Error
+Sys                     shape   1.00		1.00	    1.00    1.00     1.00  Systematic error 
+* autoMCStats 0 1
