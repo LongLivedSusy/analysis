@@ -3,9 +3,10 @@ from __future__ import division
 from optparse import OptionParser
 import os
 from ROOT import *
-from plotting import *
+import plotting
 import uuid
-from GridEngineTools import runParallel
+import GridEngineTools
+import collections
 
 def get_interpolated_histogram(histo):
 
@@ -19,8 +20,8 @@ def get_interpolated_histogram(histo):
     ymin = histo.GetYaxis().GetXmin()
     ymax = histo.GetYaxis().GetXmax()
 
-    for xbin in range(1, nBinsX + 2):
-        for ybin in range(1, nBinsY + 2):            
+    for xbin in range(1, nBinsX + 1):
+        for ybin in range(1, nBinsY + 1):            
             xval = histo.GetXaxis().GetBinLowEdge(xbin)
             yval = histo.GetYaxis().GetBinLowEdge(ybin)
             zval = histo.GetBinContent(xbin, ybin)
@@ -61,11 +62,11 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
         ymax = binning[variable2.replace("_cleaned", "")][2]
         
     if plot2D:
-        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
-        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_numerator = plotting.get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_denominator = plotting.get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
     else:
-        fakes_numerator = get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
-        fakes_denominator = get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_numerator = plotting.get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
+        fakes_denominator = plotting.get_histogram(variable, base_cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample, threads=threads)
 
     try:
         print fakes_numerator.GetEntries()
@@ -114,80 +115,150 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 def get_configurations(threads):
 
-    path = "output_skim_12_merged/"
-    rootfile = path + "/fakerate.root"
+    path = "../skims/current/"
+    rootfile = "/fakerate.root"
+
+    binning = collections.OrderedDict()    
+
+    binning["HT"] = [10, 0, 1000]
+    binning["MHT"] = [10, 0, 1000]
+    binning["n_allvertices"] = [20, 0, 100]
+    binning["n_goodjets"] = [50, 0, 50]
+    binning["n_btags"] = [10, 0, 10]
+    binning["MinDeltaPhiMhtJets"] = [100, 0, 5]
+
+    good_track = " && tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passmask!=0 "
+
+    regioncuts = collections.OrderedDict()
+    #regioncuts["tight_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1",
+    #                            "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
+    #                            "denominator_cuts": " ",
+    #                          }
+    #regioncuts["tight_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1",
+    #                            "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
+    #                            "denominator_cuts": " ",
+    #                          }
+    #regioncuts["loose1_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
+    #                          }
+    #regioncuts["loose1_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
+    #                          }
+    #regioncuts["loose2_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
+    #                          }
+    #regioncuts["loose2_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
+    #                          }
+    #regioncuts["loose3_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
+    #                          }
+    #regioncuts["loose3_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
+    #                          }
+    #regioncuts["loose4_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) - 0.1)",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) - 0.1)",
+    #                          }
+    #regioncuts["loose4_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.15)",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) + 0.15)",
+    #                          }
+    #regioncuts["loose3_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
+    #                          }
+    #regioncuts["loose3_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
+    #                          }
+    #regioncuts["loose4_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) - 0.1)",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) - 0.1)",
+    #                          }
+    #regioncuts["loose4_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.15)",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) + 0.15)",
+    #                          }
+    #regioncuts["loose5_short"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.5/0.01) - 0.3)",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.5/0.01) - 0.3)",
+    #                          }
+    #regioncuts["loose5_long"] = {
+    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
+    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.6/0.01) + 0.05)",
+    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.6/0.01) + 0.05)",
+    #                          }
     
-    binning = {
-                "n_DT": [1, 0, 10],
-                "HT": [10, 0, 1000],
-                "MHT": [10, 0, 1000],
-                "n_allvertices": [20, 0, 100],
-                "NumInteractions": [20, 0, 100],
-                "n_jets": [50, 0, 50],
-                "n_btags": [50, 0, 50],
-                "MinDeltaPhiMhtJets": [100, 0, 5],                    
-    }
+    regioncuts["loose6_short"] = {
+                                "base_cuts": "passesUniversalSelection==1 " + good_track,
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.65/0.01) - 0.25)",
+                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.65/0.01) - 0.25)",
+                              }
+    regioncuts["loose6_long"] = {
+                                "base_cuts": "passesUniversalSelection==1 " + good_track,
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.05)",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) + 0.05)",
+                              }
+    regioncuts["looseloose6dz1_short"] = {
+                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.1 " + good_track,
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.65/0.01) - 0.25)",
+                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.65/0.01) - 0.25)",
+                              }
+    regioncuts["looseloose6dz1_long"] = {
+                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.3 " + good_track,
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.7/0.01) + 0.05)",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.7/0.01) + 0.05)",
+                              }
+    regioncuts["looseloose6dz3_short"] = {
+                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.3 " + good_track,
+                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.65/0.01) - 0.25)",
+                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.65/0.01) - 0.25)",
+                              }
+    regioncuts["looseloose6dz3_long"] = {
+                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.3 " + good_track,
+                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.7/0.01) + 0.05)",
+                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.7/0.01) + 0.05)",
+                              }
 
-    good_track = " && tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 "
-
-    regioncuts = {
-                    "tight_short": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
-                                "denominator_cuts": " ",
-                              },
-                    "tight_long": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
-                                "denominator_cuts": " ",
-                              },
-                    "loose1_short": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
-                              },
-                    "loose1_long": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
-                              },
-                    "loose2_short": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
-                              },
-                    "loose2_long": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-                                "denominator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
-                              },
-                    "loose3_short": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
-                                "denominator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
-                              },
-                    "loose3_long": {
-                                "base_cuts": "passesUniversalSelection==1",
-                                "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
-                                "denominator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
-                              },
-                 }
-
-    #selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]
-    selected_datasets = ["Summer16"]
+    #selected_datasets = ["Summer16", "Fall17"]
+    #selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
+    selected_datasets = ["Summer16", "Run2016", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
     
     variables = [
-                 #"HT",
-                 #"n_allvertices",
+                 "HT",
+                 "MHT",
+                 "n_goodjets",
+                 "n_allvertices",
+                 "n_btags",
+                 "MinDeltaPhiMhtJets",
                  "HT:n_allvertices",
                 ]
-    regions = {
-               "dilepton":              " && dilepton_CR==1",
-               "dilepton_lowMHT":       " && dilepton_CR==1 && MHT<200",
-               "qcd_lowlowMHT":         " && MHT<100",
-               "qcd_lowMHT":            " && MHT<200",
-               "qcd_sideband":          " && MHT>100 && MHT<200",
-              }
+    
+    regions = collections.OrderedDict()
+    regions["qcd_lowMHT"] = " && MHT<200"
+    #regions["qcd_sideband"] = " && MHT>100 && MHT<200"
     
     configurations = []
 
@@ -240,23 +311,27 @@ if __name__ == "__main__":
     parser.add_option("--threads", dest="threads", default=3)
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--hadd", dest="hadd", action="store_true")
+    parser.add_option("--start", dest="start", action="store_true")
     (options, args) = parser.parse_args()
 
     configurations = get_configurations(options.threads)
 
     if options.index:
-        configurations[int(options.index)][2] = "fakerate_pt%s.root" % options.index
-        get_fakerate(*configurations[int(options.index)])
+        if os.path.exists("fakerate_pt%s.root" % options.index):
+            print "Already processed :)"
+        else:
+            configurations[int(options.index)][2] = "fakerate_pt%s.root" % options.index
+            get_fakerate(*configurations[int(options.index)])
         
-    if options.hadd:
+    elif options.hadd:
         os.system("hadd -f fakerate.root fakerate_pt*root && rm fakerate_pt*root")
 
     else:
         commands = []
         for i in range(len(configurations)):
             commands.append("./get_fakerate.py --index %s" % i)
-        raw_input("running %s jobs!" % len(commands))
-        runParallel(commands, options.runmode, condorDir = "get_fakerate_condor", dontCheckOnJobs=False)
+        #GridEngineTools.runParallel(commands, options.runmode, condorDir = "get_fakerate.condor", confirm=not options.start, use_more_time=60*60*5)
+        GridEngineTools.runParallel(commands, options.runmode, condorDir = "get_fakerate.condor", confirm=not options.start)
 
         if "multi" in options.runmode:
             print "Finished, writing fake rate histograms to single fakerate.root..."

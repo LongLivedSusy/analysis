@@ -5,7 +5,152 @@ from ROOT import *
 from plotting import *
 import collections
 
-def do_2D_plot(root_file, hist_name, path, extra_text):
+def do_1D_plot(root_file, category, variable, tag, regions = [], data_periods = [], outfile = False, autoscaling = True, extra_text = ""):
+
+    fin = TFile(root_file, "read")
+
+    hist_names = []  
+    histos = collections.OrderedDict()
+
+    if category == "combined":
+        categories = ["short", "long"]
+    else:
+        categories = [category]
+
+    for region in regions:
+        for i_category in categories:
+            colors = [kBlack, kRed, kBlue, kGreen, kOrange, kAzure, kMagenta, kYellow, kTeal]
+            for data_type in data_periods:
+                color = colors.pop(0)
+                hist_name = region + "_" + tag + "_" + i_category + "/" + data_type + "/fakerate_" + variable 
+                hist_names.append(hist_name)
+                label = hist_name.replace("/", "_")
+                histos[label] = fin.Get(hist_name)
+                histos[label].SetLineColor(color)
+                histos[label].SetLineWidth(2)
+                if "short" in i_category:
+                    histos[label].SetLineStyle(1)
+                elif "long" in i_category:
+                    histos[label].SetLineStyle(2)
+                if "Run201" in hist_name:
+                    if "short" in i_category:
+                        histos[label].SetMarkerStyle(20)
+                    elif "long" in i_category:
+                        histos[label].SetMarkerStyle(22)
+                    histos[label].SetMarkerSize(1)
+                    histos[label].SetMarkerColor(color)
+
+    canvas = TCanvas("fakerate", "fakerate", 800, 800)  
+    canvas.SetLeftMargin(0.14)
+    canvas.SetLogy(True)
+    
+    legend = TLegend(0.4, 0.65, 0.85, 0.85)
+    legend.SetTextSize(0.025)
+    legend.SetBorderSize(0)
+
+    for i, label in enumerate(histos):
+
+        if i == 0:
+            if "Run201" in hist_name:
+                histos[label].Draw("p")
+            else:
+                histos[label].Draw("hist e")
+            histos[label].GetYaxis().SetRangeUser(1e-6,1e-2)
+        else:
+            if "Run201" in hist_name:
+                histos[label].Draw("p same")
+            else:    
+                histos[label].Draw("hist e same")
+
+        # make nice labels
+        desc = ""
+        period = ""
+        if "Run2016" in label and "short" in label:
+            desc = "short tracks, 2016 data"
+            period = 2016
+        elif "Run2016" in label and "long" in label:
+            desc = "long tracks, 2016 data"
+            period = 2016
+        elif "Run2017" in label and "short" in label:
+            desc = "short tracks, 2017 data"
+            period = 2017
+        elif "Run2017" in label and "long" in label:
+            desc = "long tracks, 2017 data"
+            period = 2017
+        elif "short" in label:
+            desc = "short tracks, MC"
+        elif "long" in label:
+            desc = "long tracks, MC"
+
+        legend.AddEntry(histos[label], label)
+
+    if autoscaling:
+        global_ymin = 1e10
+        global_ymax = 1e-10
+        for histo in histos:
+            current_ymin = 1e10
+            for ibin in range(histos[histo].GetNbinsX()):
+               value = histos[histo].GetBinContent(ibin)
+               if value < current_ymin and value != 0:
+                    current_ymin = value
+            if current_ymin < global_ymin:
+                global_ymin = current_ymin
+            if histos[histo].GetMaximum() > global_ymax:
+                global_ymax = histos[histo].GetMaximum()
+    
+        ymin = global_ymin * 1e-1
+        ymax = global_ymax * 1e1
+
+        for label in histos:
+            histos[label].GetYaxis().SetRangeUser(ymin, ymax)
+
+
+    for label in histos:
+        if "vertices" in variable:
+            histos[label].GetXaxis().SetRangeUser(0, 50)
+
+    latex=TLatex()
+    latex.SetNDC()
+    latex.SetTextAngle(0)
+    latex.SetTextColor(kBlack)
+    latex.SetTextFont(62)
+    latex.SetTextAlign(31)
+    latex.SetTextSize(0.03)
+    latex.SetTextAlign(13)
+    latex.SetTextFont(52)
+    latex.DrawLatex(0.18, 0.87, extra_text)
+           
+    legend.Draw()
+
+    latex=TLatex()
+    latex.SetNDC()
+    latex.SetTextAngle(0)
+    latex.SetTextColor(kBlack)
+    
+    latex.SetTextFont(62)
+    latex.SetTextAlign(31)
+    latex.SetTextSize(0.03)
+
+    if period == 2016:
+        lumi = 13.62
+    elif period == 2017:
+        lumi = 5.36
+    latex.DrawLatex(0.90, 0.91, "%.1f fb^{-1} (13 TeV)" % lumi)
+
+
+    stamp_plot()
+    canvas.SetTitle("fakerate-%s-%s-%s-%s" % (variable, category, tag, period) )    
+    canvas.SaveAs("fakerate/fakerate-%s-%s-%s-%s.pdf" % (variable, category, tag, period) )
+
+    if outfile:
+        fout = TFile(outfile, "update")
+        canvas.Write()
+        fout.Close()
+
+    fin.Close()
+
+
+def do_2D_plot(root_file, hist_name, extra_text, outfile = False):
 
     fin = TFile(root_file, "read")
     
@@ -32,86 +177,19 @@ def do_2D_plot(root_file, hist_name, path, extra_text):
     latex.SetTextFont(52)
     
     fake_rate.GetZaxis().SetTitleOffset(1.5)
-    fake_rate.GetZaxis().SetRangeUser(1e-6, 1e-1)
+    #fake_rate.GetZaxis().SetRangeUser(1e-6, 1e-1)
     fake_rate.Draw("COLZ")
     
     latex.DrawLatex(0.18, 0.87, extra_text)
 
     stamp_plot()
-    if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
-    canvas.SaveAs("%s/plots/%s.pdf" % (path, "fakeratemap_" + hist_name.replace("/", "_").replace("fakerate_", "")))
+    canvas.SetTitle("fakeratemap_" + hist_name.replace("/", "_").replace("fakerate_", "") + "_" + tag)
+    canvas.SaveAs("fakerate/fakeratemap_" + hist_name.replace("/", "_").replace("fakerate_", "") + "_" + tag + ".pdf")
 
-    fin.Close()
-
-
-def do_1D_plot(root_file, path, category, variable, regions = ["dilepton", "qcd", "qcd_sideband"]):
-
-    fin = TFile(root_file, "read")
-
-    hist_names = []  
-    histos = collections.OrderedDict()
-    #for region in ["dilepton", "qcd", "qcd_sideband"]:
-    for region in regions:
-
-        colors = [kBlack, kRed, kBlue, kGreen, kOrange, ]
-
-        for data_type in ["Summer16", "Fall17", "2016", "2017", "2018"]:
-            hist_names.append( region + "/" + data_type + "/" + category + "/fakerate_" + variable )
-
-        for hist_name in hist_names:
-            label = hist_name.replace("/", "_")
-            histos[label] = fin.Get(hist_name)
-            color = colors.pop(0)
-            histos[label].SetLineColor(color)
-            histos[label].SetLineWidth(2)
-
-            if "Summer16" in hist_name or "Fall17" in hist_name:
-                histos[label].SetFillColor(color)
-                histos[label].SetFillStyle(3003)
-                histos[label].SetLineWidth(1)
-
-    canvas = TCanvas("fakerate", "fakerate", 800, 800)  
-    canvas.SetLeftMargin(0.14)
-    canvas.SetLogy(True)
-    
-    legend = TLegend(0.55, 0.8, 0.97, 0.97)
-    legend.SetTextSize(0.025)
-
-    for i, label in enumerate(histos):
-
-        if i == 0:
-            histos[label].Draw("hist e")
-            histos[label].GetYaxis().SetRangeUser(1e-6,1e-2)
-        else:
-            histos[label].Draw("hist e same")
-
-        # make nice labels
-        desc = label.replace("_fakerate_n_allvertices", "")
-        desc = desc.replace("_short", "").replace("_long", "")
-        desc = desc.replace("dilepton", "Dilepton region,")
-        desc = desc.replace("qcd_sideband", "QCD sideband,")
-        if not "sideband" in desc:
-            desc = desc.replace("qcd", "QCD-only events,")
-        desc = desc.replace("201", "Run201")
-        desc = desc.replace("_", " ")
-        legend.AddEntry(histos[label], desc)
-
-    latex=TLatex()
-    latex.SetNDC()
-    latex.SetTextAngle(0)
-    latex.SetTextColor(kBlack)
-    latex.SetTextFont(62)
-    latex.SetTextAlign(31)
-    latex.SetTextSize(0.03)
-    latex.SetTextAlign(13)
-    latex.SetTextFont(52)
-    latex.DrawLatex(0.18, 0.87, "%s tracks" % category)
-           
-    legend.Draw()
-
-    stamp_plot()
-    if not os.path.exists("%s/plots" % path): os.mkdir("%s/plots" % path)
-    canvas.SaveAs("%s/plots/fakerate-1D-%s-%s-%s.pdf" % (path, variable, category, "-".join(regions)) )
+    if outfile:
+        fout = TFile(outfile, "update")
+        canvas.Write()
+        fout.Close()
 
     fin.Close()
 
@@ -119,34 +197,42 @@ def do_1D_plot(root_file, path, category, variable, regions = ["dilepton", "qcd"
 if __name__ == "__main__":
 
     root_file = "fakerate.root"
-    path = "output_fakerate_sideband3"
+    out_file = False
 
-    # do 1D fakerate comparison plots:
-    for category in ["short", "long"]:
-        for variable in ["n_allvertices", "HT", "MHT"]:
-            for region in ["dilepton", "qcd", "qcd_sideband"]:
-                if region == "dilepton":
-                    variable = variable.replace("HT", "HT_cleaned")
-                else:
-                    variable = variable.replace("_cleaned", "")
-                do_1D_plot(root_file, path, category, variable, regions = [region])
+    # 1D plots
+    for data_type in ["Summer16", "Fall17"]:
+        # do 1D fakerate comparison plots:
+        #for category in ["combined", "short", "long"]:
+        for category in ["combined"]:
+            #for variable in ["n_allvertices", "HT", "MHT", "MinDeltaPhiMhtJets", "NumInteractions", "n_btags", "n_jets"]:
+            for variable in ["n_allvertices", "HT"]:
+                for tag in ["loose5"]:
 
+                    if "Summer16" in data_type:
+                        data_periods = [data_type, "Run2016C", "Run2016E", "Run2016F", "Run2016G"]
+                    elif "Fall17" in data_type:
+                        data_periods = [data_type, "Run2017"]
+
+                    do_1D_plot(root_file, category, variable, tag, regions = ["qcd_lowMHT"], data_periods = data_periods, outfile = out_file)
+
+    # 2D plots
     # redo the 2D plots in a slightly nicer way:
-    for region in ["dilepton", "qcd", "qcd_sideband"]:
-        for data_type in ["Summer16", "Fall17", "2016", "2017", "2018"]:
+    for region in ["qcd_lowMHT"]:
+        for data_type in ["Summer16", "Run2016", "Fall17", "Run2017"]:
             for category in ["short", "long"]:
-                for variable in ["HT_n_allvertices", "MHT_n_allvertices"]:
-                    if region == "dilepton":
-                        variable = variable.replace("HT", "HT_cleaned")
-                    else:
-                        variable = variable.replace("_cleaned", "")
-                    
-                    hist_name = region + "/" + data_type + "/" + category + "/fakerate_" + variable
+                for tag in ["loose5"]:
+                    for variable in ["HT_n_allvertices"]:
+                        if "interpolated" in variable and region == "dilepton":
+                            variable = variable.replace("HT", "HT_cleaned")
+                        else:
+                            variable = variable.replace("_cleaned", "")
+                        
+                        hist_name = region + "_" + tag + "_" + category + "/" + data_type + "/fakerate_" + variable
 
-                    if "201" in data_type:
-                        extra_text = "Run%s (%s region, %s tracks)" % (data_type, region, category)
-                    else:
-                        extra_text = "%s MC (%s region, %s tracks)" % (data_type, region, category)
+                        if "201" in data_type:
+                            extra_text = "Run%s (%s region, %s tracks)" % (data_type, region, category)
+                        else:
+                            extra_text = "%s MC (%s region, %s tracks)" % (data_type, region, category)
 
-                    do_2D_plot(root_file, hist_name, path, extra_text)
+                        do_2D_plot(root_file, hist_name, extra_text, outfile = out_file)
 

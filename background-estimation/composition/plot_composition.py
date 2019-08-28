@@ -129,8 +129,6 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
     tl.DrawLatex(xthing,0.915,thingy)
     tl.SetTextSize(1.0/0.81*tl.GetTextSize())
 
-
-
     latex=TLatex()
     latex.SetNDC()
     latex.SetTextAngle(0)
@@ -143,13 +141,12 @@ def stack_gendisapptrks(variable, binWidth, xmin, xmax, xlabel = "", ymin = Fals
     if not os.path.exists(path + "/plots"):
         os.mkdir(path + "/plots")
 
-    canvas.SaveAs(path + "/plots/bgcomposition_%s%s.pdf" % (variable, suffix))
-    #canvas.SaveAs(path + "/plots/bgcomposition_%s%s.root" % (variable, suffix))
+    canvas.SaveAs("bgcomposition_%s%s.pdf" % (variable, suffix))
 
    
 if __name__ == "__main__":
 
-    path = "output_skim_11_merged/"
+    path = "../skims/current/"
     selected_sample = "Summer16.DYJetsToLL|Summer16.QCD|Summer16.WJetsToLNu|Summer16.ZJetsToNuNu_HT|Summer16.WW_TuneCUETP8M1|Summer16.WZ_TuneCUETP8M1|Summer16.ZZ_TuneCUETP8M1|Summer16.TTJets_TuneCUETP8M1_13TeV"
 
     base_cuts = "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0"

@@ -18,7 +18,7 @@ def get_configurations():
 
     configurations = collections.OrderedDict()
 
-    path = "output_skim_13_merged"
+    path = "../skims/output_skim_13_merged"
     mc_background = "Summer16.DYJetsToLL|Summer16.QCD|Summer16.WJetsToLNu|Summer16.ZJetsToNuNu_HT|Summer16.WW_TuneCUETP8M1|Summer16.WZ_TuneCUETP8M1|Summer16.ZZ_TuneCUETP8M1|Summer16.TTJets_TuneCUETP8M1_13TeV"
     mc_signal = "output_skim_13_merged/Summer16.g1800_chi1400_27_200970_step4"
     data = "Run2016*MET"
@@ -55,18 +55,22 @@ def get_configurations():
     good_track = " && tracks_passpionveto==1 "
 
     tags = {
-             "loose1":      {"short": " && tracks_mva_bdt_loose>0 ",
-                             "long": " && tracks_mva_bdt_loose>0 ",
-                             "track_SR": " && tracks_dxyVtx<=0.01 ",
-                             "track_CR": " && tracks_dxyVtx>0.01 "},
-             "loose2":      {"short": " && tracks_mva_bdt_loose>0 ",
-                             "long": " && tracks_mva_bdt_loose>0 ",
-                             "track_SR": " && tracks_dxyVtx<=0.01 ",
-                             "track_CR": " && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1 "},
-             "loose3":      {"short": " ",
+             #"loose1":      {"short": " && tracks_mva_bdt_loose>0 ",
+             #                "long": " && tracks_mva_bdt_loose>0 ",
+             #                "track_SR": " && tracks_dxyVtx<=0.01 ",
+             #                "track_CR": " && tracks_dxyVtx>0.01 "},
+             #"loose2":      {"short": " && tracks_mva_bdt_loose>0 ",
+             #                "long": " && tracks_mva_bdt_loose>0 ",
+             #                "track_SR": " && tracks_dxyVtx<=0.01 ",
+             #                "track_CR": " && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1 "},
+             #"loose3":      {"short": " ",
+             #                "long": " ",
+             #                "track_SR": " && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01 ",
+             #                "track_CR": " && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01 "},
+             "loose4":      {"short": " ",
                              "long": " ",
-                             "track_SR": " && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01 ",
-                             "track_CR": " && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01 "},
+                             "track_SR": " && tracks_mva_bdt_loose>tracks_dxyVtx*0.7/0.01 ",
+                             "track_CR": " && tracks_mva_bdt_loose<tracks_dxyVtx*0.7/0.01 "},
            }
 
     for variable in variables:
@@ -143,7 +147,6 @@ def plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", ca
     if not canvas_label:
         canvas_label = variable + "_" + tag
     
-    #colors = [kBlack, kBlue, kRed, kBlack, kTeal, kGreen, kGreen+2, kBlue+2, kAzure, kRed, kRed, kGreen, kGreen+2, kBlack, kBlue, kRed, kGreen, kBlue+2, kAzure, kRed, kRed]
     colors = [kRed, kOrange, kBlue, kGreen]
     
     for label in histos:
@@ -296,22 +299,20 @@ def plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", ca
         pad2.SetGridx(True)
         pad2.SetGridy(True)
         
-        if not os.path.exists(path + "/plots"):
-             os.mkdir(path + "/plots")
-        canvas.SaveAs(path + "/plots/" + prefix + canvas_label + "_" + bg + ".pdf")
+        canvas.SaveAs(prefix + canvas_label + "_" + bg + ".pdf")
 
 
-def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", category = "long", path = ".", lumi = 26216, canvas_label=False, autoscaling=True, ymin=False, ymax=False, xmin=False, xmax=4, extra_text = "", prefixes = ["lowMHT", "lowlowMHT", "lowlowlowMHT"], bg = "prompt", suffix = "", normalize_histograms = True, include_sg = False, include_bg = True):
+def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "loose1a", category = "long", path = ".", lumi = 26216, canvas_label=False, autoscaling=True, ymin=False, ymax=False, xmin=False, xmax=4, extra_text = "", prefixes = ["lowMHT", "lowlowMHT", "lowlowlowMHT"], bg = "prompt", suffix = "", normalize_histograms = True, include_sg = False, include_bg = True, include_data = True):
 
     histos = collections.OrderedDict()
     fin = TFile(histo_file, "open")
 
-    for prefix in prefixes:
-        if bg == "prompt":
-            histos["data_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_promptlike", prefix + "base"))
-        else:
-            histos["data_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_fakelike", prefix + "base"))
-
+    if include_data:        
+        for prefix in prefixes:
+            if bg == "prompt":
+                histos["data_promptlike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_promptlike", prefix + "base"))
+            else:
+                histos["data_fakelike_%s" % prefix] = fin.Get("%s_%s_%s_%s" % (variable, tag, "data_fakelike", prefix + "base"))
 
     if include_bg:        
         for prefix in prefixes:
@@ -516,7 +517,7 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
     latex.SetTextSize(0.03)
     latex.DrawLatex(0.93, 0.91, "%.1f fb^{-1} (13 TeV)" % (lumi/1000.0))
 
-    # plot ratios
+    # plot prompt-like/prompt or fake-like/fake ratios
     pad2.cd()     
     ratios = collections.OrderedDict()
     for i, label in enumerate(histos):
@@ -556,13 +557,21 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
         pad2.SetGridx(True)
         pad2.SetGridy(True)
 
+    # low/high ratios --> check invariance
     pad3.cd()     
     lowhigh_ratios = collections.OrderedDict()
+    fits = {}
+    fitresults = {}
     for i, label in enumerate(histos):
         if "_promptlike" in label or "_fakelike" in label or "_genfakelike" in label or "_genpromptlike" in label:
             if "MHT1_" in label or "njets1_" in label:
                 lowhigh_ratios[label] = histos[label].Clone()
-                lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+                try:
+                    #FIXME
+                    lowhigh_ratios[label].Divide(histos[label.replace("MHT1_", "MHT4_").replace("njets1_", "njets2_")])
+                    #lowhigh_ratios[label].Divide(histos[label.replace("pt0_", "pt1_")])
+                except:
+                    print "Error.."
             else:
                 continue
 
@@ -573,12 +582,17 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
                 lowhigh_ratios[label].Draw("e0")
             else:
                 lowhigh_ratios[label].Draw("same e0")
-    
+
+            fits[label] = TF1("f_" + label, "pol1", xmin, xmax)
+            fitresults[label] = lowhigh_ratios[label].Fit(fits[label], "SN")
+            fits[label].Draw("same")
+            fits[label].SetLineColor(kBlack)
+
             lowhigh_ratios[label].SetTitle(";;low/high")
             lowhigh_ratios[label].GetXaxis().SetTitleSize(0)
             lowhigh_ratios[label].GetYaxis().SetTitleSize(0.2)
             lowhigh_ratios[label].GetYaxis().SetTitleOffset(0.24)
-            lowhigh_ratios[label].GetYaxis().SetRangeUser(1.5e-1,0.5e1)
+            lowhigh_ratios[label].GetYaxis().SetRangeUser(0.1,1.9)
             lowhigh_ratios[label].GetYaxis().SetNdivisions(4)
             lowhigh_ratios[label].GetXaxis().SetLabelSize(0)
             lowhigh_ratios[label].GetYaxis().SetLabelSize(0.2)
@@ -587,11 +601,11 @@ def waterfall_plot(histo_file, variable = "tracks_massfromdeDxStrips", tag = "lo
                 lowhigh_ratios[label].SetMarkerColor(kBlack)
                 lowhigh_ratios[label].SetLineColorAlpha(1, 0)
 
-        pad3.SetLogy(True)
+        pad3.SetLogy(False)
         pad3.SetGridx(True)
         pad3.SetGridy(True)
     
-    canvas.SaveAs(path + "/plots/waterfall_" + bg + "_" + tag + "_" + suffix + ".pdf")        
+    canvas.SaveAs("waterfall_" + bg + "_" + tag + "_" + suffix + ".pdf")
     
 
 if __name__ == "__main__":
@@ -602,32 +616,30 @@ if __name__ == "__main__":
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--plot", dest="plot", action="store_true")
     parser.add_option("--ptplot", dest="ptplot", action="store_true")
-    parser.add_option("--nplots", dest="nplots", default=4)
-    parser.add_option("--waterfall", dest="waterfall", action="store_true") 
-    parser.add_option("--template", dest="template", default=False)       
+    parser.add_option("--nplotsperjob", dest="nplotsperjob", default=5)
+    parser.add_option("--waterfall", dest="waterfall", action="store_true")
+    parser.add_option("--ptwaterfall", dest="ptwaterfall", action="store_true")  
+    parser.add_option("--template", dest="template", default="template.root")       
     parser.add_option("--submit", dest="submit", action="store_true") 
     (options, args) = parser.parse_args()
 
     configurations = get_configurations()
     path = configurations[configurations.keys()[0]][5]
 
-    if not options.template:        
-        options.template = path + "/template.root"
-
     if options.index:
 
         label = configurations.keys()[int(options.index)]
                
         histogram = get_single_histogram(configurations[configurations.keys()[int(options.index)]])
-        os.system("mkdir -p %s/template_histos" % path)
-        fout = TFile(path + "/template_histos/template_pt%s.root" % options.index, "recreate")
+        os.system("mkdir -p template_histos")
+        fout = TFile("template_histos/template_pt%s.root" % options.index, "recreate")
         histogram.SetName(label)
         histogram.Write()
         fout.Close()
 
     elif options.hadd:
 
-        os.system("hadd -f %s %s/template_histos/template_pt*.root" % (options.template, path))
+        os.system("hadd -f %s template_histos/template_pt*.root" % (options.template))
 
     elif options.plot:
 
@@ -652,6 +664,14 @@ if __name__ == "__main__":
                 waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, suffix = "highlowJets")
                 waterfall_plot(options.template, variable = "log10(tracks_massfromdeDxStrips)", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, include_sg = True, include_bg = False, suffix = "highlowJets_signal")
 
+    elif options.ptwaterfall:
+        
+        for bg in ["prompt", "fake"]:
+            for tag in ["loose1", "loose2", "loose3"]:
+                prefixes = ["pt0_", "pt1_"]
+                waterfall_plot(options.template, variable = "tracks_deDxHarmonic2strips", tag = tag, category = "long", bg = bg, path = path, prefixes = prefixes, include_sg = True, include_bg = True, suffix = "highlowMHT_signal")
+
+
     elif options.ptplot:
 
         pass
@@ -664,12 +684,12 @@ if __name__ == "__main__":
 
         commands = []
         configs = range(len(configurations))
-        for chunk in list(chunks(configs, options.nplots)):
+        for chunk in list(chunks(configs, options.nplotsperjob)):
             cmd = ""
             for i in chunk:
-                cmd += "./template_fit.py --index %s; " % i
+                cmd += "./check_invariance.py --index %s; " % i
             commands.append(cmd)
         raw_input("running %s jobs!" % len(commands) )
-        runParallel(commands, options.runmode, condorDir = "template_fit_condor", dontCheckOnJobs=False)
+        runParallel(commands, options.runmode, condorDir = "check_invariance.condor", dontCheckOnJobs=False)
 
     
