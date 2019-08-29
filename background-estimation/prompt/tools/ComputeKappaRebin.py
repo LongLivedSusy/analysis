@@ -41,9 +41,9 @@ for key in keys:
 	if not 'Gen' in name:
 	  if 'Pi' in name: 
 	  	print 'subtracting stuff'
-		n2sub = name.replace('Pi','ElFromTau').replace('DT','RECO').replace('num','den').replace('Pt','PtWtd')
 		print 'integral before', hnum.Integral()
 		hnum.Draw('hist')
+		n2sub = name.replace('Pi','ElFromTau').replace('DT','RECO').replace('num','den').replace('Pt','PtWtd')
 		h1tosubtract = file.Get(n2sub)
 		h1tosubtract.SetLineColor(kGreen+1)
 		h1tosubtract.Draw('same hist')
@@ -55,8 +55,16 @@ for key in keys:
 		#h2tosubtract.Draw('same')
 		#c1.Update()
 		#pause()
+
+		n2sub = name.replace('Pi','FakeFromTau').replace('DT','CR').replace('num','den').replace('Pt','PtWtd')
+		print 'now subtracting', n2sub, 'from', name
+		h3tosubtract = file.Get(n2sub)
+		h3tosubtract.SetLineColor(kBlue+1)
+		h3tosubtract.Draw('same hist')
+
 		hnum.Add(h1tosubtract,-1)
 		hnum.Add(h2tosubtract,-1)
+		#hnum.Add(h3tosubtract,-1)		
 	hden    = file.Get(name.replace('_num','_den').replace('DT','RECO'))	
 	if 'Gen' in name: hnum.SetLineColor(kAzure)
 	else: hnum.SetLineColor(kViolet)

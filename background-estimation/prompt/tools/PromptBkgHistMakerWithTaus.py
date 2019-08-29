@@ -7,7 +7,7 @@ from glob import glob
 from random import shuffle
 import random
 gROOT.SetStyle('Plain')
-gROOT.SetBatch(0)
+gROOT.SetBatch(1)
 
 debugmode = False
 
@@ -90,23 +90,28 @@ print 'creating file', fnew_.GetName()
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 
+hMtPionMatched = TH1F('hMtPionMatched','hMtPionMatched',50,0,200)
+histoStyler(hMtPionMatched,kOrange+1)
+hMtPionUnMatched = TH1F('hMtPionUnMatched','hMtPionUnMatched',50,0,200)
+histoStyler(hMtPionUnMatched,kRed+1)
+
 
 
 inf = 999999
 
 regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'NPions', 'TrkPt', 'TrkEta','BinNumber']
-regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0), (1,inf),     (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['LowMhtBaseline']     = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0  ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0  ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrEl']         = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrMu']         = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
+#regionCuts['LowMhtBaseline']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0  ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0  ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+#regionCuts['TtbarCtrEl']        = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+#regionCuts['TtbarCtrMu']        = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 
 
-regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.3,inf),        (0,0  ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['BaselinePixAndStrips']  =[(0,inf),(250,inf),(1,inf), (0,inf), (1,inf), (0,0), (1,inf),     (0.3,inf),        (0,0  ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['TtbarCtrElPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.3,inf),          (0,0  ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['BaselinePixAndStrips']  =[(0,inf),(250,inf),(1,inf), (0,inf), (1,inf), (0,0), (1,inf),     (0.3,inf),          (0,0  ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['TtbarCtrElPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (1,1),       (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 ##regionCuts['TtbarCtrMuPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 #regionCuts['TtbarCtrElPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,0),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 #regionCuts['TtbarCtrMuPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
@@ -262,13 +267,13 @@ if isdata:
 
 else: 
 	if phase==0:
-		fileKappaPixOnly = 'usefulthings/KappaSummer16.DYJets_PixOnly_'+kappasmearlevellabel+'.root'#should be updated to All
-		fileKappaPixAndStrips = 'usefulthings/KappaSummer16.DYJets_PixAndStrips_'+kappasmearlevellabel+'.root'
+		fileKappaPixOnly = 'usefulthings/KappaSummer16.AllMC_PixOnly_'+kappasmearlevellabel+'.root'#should be updated to All
+		fileKappaPixAndStrips = 'usefulthings/KappaSummer16.AllMC_PixAndStrips_'+kappasmearlevellabel+'.root'
 		fileKappaPixOnlyGen = 'usefulthings/KappaSummer16.WJets_PixOnly_'+kappasmearlevellabel+'.root'
 		fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips_'+kappasmearlevellabel+'.root' 
 	else:
-		fileKappaPixOnly = 'usefulthings/KappaFall17.DYJets_PixOnly_'+kappasmearlevellabel+'.root'#should be updated to All
-		fileKappaPixAndStrips = 'usefulthings/KappaFall17.DYJets_PixAndStrips_'+kappasmearlevellabel+'.root'
+		fileKappaPixOnly = 'usefulthings/KappaFall17.AllMC_PixOnly_'+kappasmearlevellabel+'.root'#should be updated to All
+		fileKappaPixAndStrips = 'usefulthings/KappaFall17.AllMC_PixAndStrips_'+kappasmearlevellabel+'.root'
 		fileKappaPixOnlyGen = 'usefulthings/KappaFall17.WJets_PixOnly_'+kappasmearlevellabel+'.root'
 		fileKappaPixAndStripsGen = 'usefulthings/KappaFall17.WJets_PixAndStrips_'+kappasmearlevellabel+'.root' 
 
@@ -324,13 +329,7 @@ for iEtaBin, EtaBin in enumerate(EtaBinEdges[:-1]):
 	newKappaName = oldNumName.replace('_num','').replace('DT','Kappa')
 	newKappaFuncName = (UseFits*'f1'+newKappaName).replace('.','p')
 	fPiProbePt_KappasPixOnly[etakey] = fKappaPixOnly.Get(newKappaFuncName).Clone()
-	
-	
-	fPiProbePt_KappasPixOnly[etakey].Draw()
-	print 'getting', newKappaFuncName, 'from', fKappaPixOnly.GetName()
-	c1.Update()
-	pause()
-	#xxx
+
 	print 'looking for ', newKappaFuncName, 'in', fKappaPixAndStrips.GetName()
 	fPiProbePt_KappasPixAndStrips[etakey] = fKappaPixAndStrips.Get(newKappaFuncName).Clone()    
 	oldGenNumName = "hGenPiProbePtDT"+specialpart+"_num"
@@ -405,7 +404,8 @@ def PassTrig(c,trigname):
 			return True
 	return False
 
-
+matchedpinum = 0.0001
+unmatchedpinum = 0.0001
 print nentries, 'evets to be analyzed'
 for ientry in range(nentries):
 	if verbose:
@@ -499,11 +499,11 @@ for ientry in range(nentries):
 		if dtstatus==2: nLong+=1         
 		if verbose: print ievent, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta()     
 		if isMatched(track, genels, 0.02):
-			print ientry, '.............is electron'
+			print ientry, '---->is electron'
 		elif isMatched(track, genmus, 0.02):
-			print ientry, '.............is muon'		
+			print ientry, '---->is muon'		
 		elif isMatched(track, genpis , 0.02):
-			print ientry, '.............is pi'
+			print ientry, '---->is pi'
 			for igp, gp in enumerate(c.GenTaus_LeadTrk):
 				print igp, bool(c.GenTaus_had[igp]==True), c.GenTaus_NProngs[igp] 
 		else:
@@ -577,20 +577,21 @@ for ientry in range(nentries):
 	SmearedPions = []
 	for ipi, pi in enumerate(c.TAPPionTracks):
 		#if not c.isoPionTracks==1: continue
-		isPromptPi = isMatched(pi, genpis, 0.02)
-		if not isPromptPi: continue
+		isPromptPi = isMatched(pi, genpis, 0.02)		
+		#if not isPromptPi: continue
 		if verbose: print ientry, ipi,'pi with Pt' , pi.Pt()
 		if (abs(pi.Eta()) < 1.566 and abs(pi.Eta()) > 1.4442): continue
 		if not abs(pi.Eta())<2.4: continue
 		if verbose: print 'passed eta and Pt'
-		if not c.TAPPionTracks_trkiso[ipi]<0.2: continue
+		if not c.TAPPionTracks_trkiso[ipi]<0.01: continue
+		
 		drmin = inf
 		matchedTrk = TLorentzVector()
-		for trk in basicTracks:
+		for trk in basicTracks:			
+			if not c.tracks_nMissingOuterHits[trk[2]]==0: continue			
+			if c.tracks_passPFCandVeto[trk[2]]: continue
 			drTrk = trk[0].DeltaR(pi)
-			if drTrk<drmin:
-				if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-				if c.tracks_passPFCandVeto[trk[2]]: continue
+			if drTrk<drmin:			
 				drmin = drTrk
 				matchedTrk = trk
 				if drTrk<0.01: 
@@ -608,8 +609,12 @@ for ientry in range(nentries):
 		smearedPi.SetPtEtaPhiE(0, 0, 0, 0)        
 		smearedPi.SetPtEtaPhiE(smear*matchedTrk[0].Pt(),matchedTrk[0].Eta(),matchedTrk[0].Phi(),smear*matchedTrk[0].Pt()*TMath.CosH(matchedTrk[0].Eta()))
 		if not (smearedPi.Pt()>candPtCut and smearedPi.Pt()<candPtUpperCut): continue
-		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi]]) 		   
-
+		if bool(isPromptPi): fillth1(hMtPionMatched,c.TAPPionTracks_mT[ipi])
+		else: fillth1(hMtPionUnMatched,c.TAPPionTracks_mT[ipi])		
+		if not c.TAPPionTracks_mT[ipi]<100: continue #this is kind of the one thing different about the control than the T&P		
+		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi]]) 	
+		
+	####from T&P
 
 	#	print ientry, 'skipping for funny pion reason', len(SmearedPions), c.isoPionTracks
 	#	continue
@@ -648,7 +653,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -711,7 +716,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -769,7 +774,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -788,7 +793,7 @@ for ientry in range(nentries):
 		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta]
 		fv.append(getBinNumber(fv))
 		kPixOnly = fetchKappa(abs(eta),min(pt,9999.99), kappadictPiPixOnly, shortMaxKappaPt)
-		print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
+		#print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
 				hname = 'Pi'+regionkey+'_'+varname
@@ -830,7 +835,7 @@ for ientry in range(nentries):
 			adjustedMht-=jet		
 			if not abs(jet.Eta())<2.4: continue###update to 2.4            
 			adjustedJets.append(jet)			
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
 			adjustedHt+=jet.Pt()
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
@@ -875,9 +880,11 @@ for ientry in range(nentries):
 		
 
 fnew_.cd()
+writeHistoStruct(histoStructDict)
 hHt.Write()
 hHtWeighted.Write()
-writeHistoStruct(histoStructDict)
+hMtPionMatched.Write()
+hMtPionUnMatched.Write()
 print 'just created', fnew_.GetName()
 fnew_.Close()
 fKappaPixOnly.Close()

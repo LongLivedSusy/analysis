@@ -2,7 +2,7 @@ from ROOT import *
 from utils import *
 
 
-lep = 'Mu'
+lep = 'El'
 sample = 'Run2016'
 sample = 'Summer16.DYJets'
 fNonSmeared = TFile('RawKappaMaps/RawKapps_'+sample+'_PixAndStrips_NoZSmear.root')

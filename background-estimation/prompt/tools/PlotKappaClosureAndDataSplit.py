@@ -25,23 +25,26 @@ else:
 	PixStripsMode = False
 	CombineMode = True	
 	
-
+smear = 'Yes'
+smear = 'No'
+#from launchcomputekappa.sh: 
+#python tools/PlotKappaClosureAndDataSplit.py PixAndStrips && python tools/PlotKappaClosureAndDataSplit.py PixOnly
 if PixMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly_NoZSmear.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly_NoZSmear.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly_'+smear+'ZSmear.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly_'+smear+'ZSmear.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixOnly.root')
-	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOnly_NoZSmear.root')
-	#fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly_NoZSmear.root')
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly_NoZSmear.root')]
-	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly_NoZSmear.root')]
+	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOnly_'+smear+'ZSmear.root')
+	#fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly_'+smear+'ZSmear.root')
+	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly_'+smear+'ZSmear.root')]
+	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly_'+smear+'ZSmear.root')]
 if PixStripsMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips_NoZSmear.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips_NoZSmear.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips_'+smear+'ZSmear.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips_'+smear+'ZSmear.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixAndStrips.root')
-	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixAndStrips_NoZSmear.root')
-	#fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_NoZSmear.root')	
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips_NoZSmear.root')]
-	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_NoZSmear.root')]	
+	fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixAndStrips_'+smear+'ZSmear.root')
+	#fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_'+smear+'ZSmear.root')	
+	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips_'+smear+'ZSmear.root')]
+	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_'+smear+'ZSmear.root')]	
 	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016.root')]	
 
 
@@ -88,6 +91,7 @@ for name in names_:
 	#hWJetsToLL.GetYaxis().SetRangeUser(0.0000001,0.1)
 	hWJetsToLL.GetYaxis().SetRangeUser(0.1*hWJetsToLL.GetMinimum(),100*hWJetsToLL.GetMaximum())
 	hWJetsToLL.Draw()
+	hWJetsToLL.Write()
 	#c1.Update()
 	#pause()		
 	
@@ -95,6 +99,7 @@ for name in names_:
 	#hTTJets.GetXaxis().SetRangeUser(0,xrangemax)
 	#hTTJets.GetYaxis().SetRangeUser(0.000001,2)
 	hTTJets.Draw('same e0')
+	hTTJets.Write()
 	
 		
 	if UseFits: funcWJetsToLL.Draw('same')
@@ -112,6 +117,7 @@ for name in names_:
 		MethodData = fMethodData.Get(mname)
 		if UseFits: funcMethodData = fMethodData.Get('f1'+mname)	
 		MethodData.Draw('same')
+		MethodData.Write()
 		if UseFits: 
 			funcMethodData.Draw('same')
 			funcUp = funcMethodData.Clone()
@@ -126,7 +132,7 @@ for name in names_:
 		if UseFits: funcMethodData.SetLineColor(kBlack+iFile)
 		yearstr = fMethodData.GetName().split('/')[-1].split('.root')[0].replace('Kappa','').split('_')[0]
 		if 'El' in name: leg.AddEntry(MethodData, yearstr+' Tag and Probe')
-		if 'Mu' in name: leg.AddEntry(MethodData, yearstr+' Tag and Probe')	
+		if 'Mu' in name: leg.AddEntry(MethodData, yearstr+' Tag and Probe')			
 
 	leg.Draw()
 	stamp()	
@@ -145,6 +151,7 @@ for name in names_:
 	
 	fnew.cd()
 	c1.Write(name.replace('hGen','c_').replace('.','p'))
+	MethodMC.Write()
 	namypoo = 'pdfs/closure/tpkappa/'+name.replace('hGen','kappa').replace('.','p')+'_'+dtmode+'.pdf'
 	c1.Print(namypoo)
 	

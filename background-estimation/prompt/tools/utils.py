@@ -806,12 +806,12 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
         shortmvathresh, longmvathresh = threshes
         if pixelOnly:
                 mva_ = evaluateBDT(readerPixelOnly, trackfv)
-                if not mva_ > dxyVtx*0.5/0.01-0.3: return 0                
-                else: return 1
+                if mva_ > dxyVtx*0.65/0.01-0.25: return 1      #tightening if not mva_ > dxyVtx*0.5/0.01-0.3: return 0 in any fashion tended to kill the electron and pion, but only with dphileps
+                else: return -1
         elif pixelStrips:
                 mva_ = evaluateBDT(readerPixelStrips, trackfv)             
-                if not (mva_>dxyVtx*0.6/0.01+0.05): return 0# this made the MC "happy"                
-                else: return 2
+                if (mva_>dxyVtx*0.7/0.01+0.05): return 2# this made the MC "happy": if not (mva_>dxyVtx*0.6/0.01+0.05): return 0
+                else: return -2
         else:
                 return 0
                 

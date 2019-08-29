@@ -6,8 +6,8 @@ gROOT.SetBatch(1)
 drawttbar = True
 Season = 'Fall17'
 Season = 'Summer16'
-#files = [TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixAndStrips_YesZSmear.root'),TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixOnly_YesZSmear.root')]#,TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixAndStrips_YesZSmear.root')]#, TFile('RawKappaMaps/RawKapps_Run2016_PixOnly.root')]
-files = [TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips_YesZSmear.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixOnly_YesZSmear.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips_NoZSmear.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixOnly_NoZSmear.root')]
+files = [TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixAndStrips_YesZSmear.root'),TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixOnly_YesZSmear.root')]#,TFile('RawKappaMaps/RawKapps_'+Season+'.DYJets_PixAndStrips_YesZSmear.root')]#, TFile('RawKappaMaps/RawKapps_Run2016_PixOnly.root')]
+#files = [TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips_YesZSmear.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixOnly_YesZSmear.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixAndStrips_NoZSmear.root'),TFile('RawKappaMaps/RawKapps_Run2016_PixOnly_NoZSmear.root')]
 
 labels = {}
 files[0].ls()
@@ -59,7 +59,13 @@ for file in files:
 		#helfromtau.SetFillColor(kGreen+1)		
 		hmufromtau = file.Get(key.replace('Pi','MuFromTauWtd').replace('DT','RECO').replace('num','den'))
 		helfromtau.SetLineColor(kGreen+1)
-		hmufromtau.SetFillColor(kViolet)				
+		hmufromtau.SetFillColor(kViolet)	
+		
+		file.ls()
+		print key.replace('Pi','FakeFromTauWtd').replace('DT','CR').replace('num','den')
+		hfakefromtau = file.Get(key.replace('Pi','FakeFromTauWtd').replace('DT','CR').replace('num','den'))
+		hfakefromtau.SetFillColor(kBlue)
+							
 		#hdens.append(helfromtau)
 		#hdens.append(hmufromtau)		
 	hGood.SetTitle(shortbit+ ' Tag + smeared '+lepname)		
@@ -80,11 +86,14 @@ for file in files:
 		if integralDT>0:
 			helfromtau.Scale(1.0/integralDT)
 			hmufromtau.Scale(1.0/integralDT)
+			hfakefromtau.Scale(1.0/integralDT)
 		elif integralGood>0:
 			helfromtau.Scale(1.0/integralGood)
-			hmufromtau.Scale(1.0/integralGood)			
+			hmufromtau.Scale(1.0/integralGood)
+			hfakefromtau.Scale(1.0/integralGood)			
 		helfromtau.Draw('same')	
 		hmufromtau.Draw('same')	
+		hfakefromtau.Draw('same')			
 							
 		
 	hnum.GetYaxis().SetRangeUser(0.0001+0.1*min(hGood.GetMinimum(0.001),hnum.GetMinimum(0.001)), 0.0002+2*max(hGood.GetMaximum(), hnum.GetMaximum()))
