@@ -467,7 +467,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_deDxHarmonic2weighted', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDx_weightedDeDx', 'tracks_massfromdeDx_weightedPixelStripsMass', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_GenChi_pt', 'tracks_GenChi_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_deDxHarmonic2weighted', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxPixel_GenChiMomentum', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDxStrips_GenChiMomentum', 'tracks_massfromdeDx_weightedDeDx', 'tracks_massfromdeDx_weightedPixelStripsMass', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
     for dt_tag_label in disappearing_track_tags:
         vector_float_branches += ["tracks_mva_%s" % dt_tag_label]
     for branch in vector_float_branches:
@@ -480,6 +480,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     else:
         h_mask = False
 
+    '''
     # load fake rate histograms:
     fakerate_regions = []
     for i_region in ["dilepton", "qcd", "qcd_sideband"]:
@@ -511,7 +512,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 branch_name = "fakerate_%s_%s" % (region, variable.replace(":", "_"))
                 tree_branch_values[branch_name] = array( 'f', [ 0 ] )
                 tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
-
+    '''
 
     print "Looping over %s events" % nev
 
@@ -670,20 +671,47 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             if event.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
             if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets:
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
+        
+	# check if genLeptons are present in event:
+        if not is_data:
+
+            n_genLeptons = 0
+            n_genElectrons = 0
+            n_genMuons = 0
+            n_genTaus = 0
+            for k in range(len(event.GenParticles)):
+
+                absPdgId = abs(event.GenParticles_PdgId[k])
+                
+                if absPdgId == 11:
+                    n_genElectrons += 1
+                    n_genLeptons += 1
+                elif absPdgId == 13:
+                    n_genMuons += 1
+                    n_genLeptons += 1
+                elif absPdgId == 15:
+                    n_genTaus += 1
+                    n_genLeptons += 1
+                    
+                tree_branch_values["n_genLeptons"][0] = n_genLeptons
+                tree_branch_values["n_genElectrons"][0] = n_genElectrons
+                tree_branch_values["n_genMuons"][0] = n_genMuons
+                tree_branch_values["n_genTaus"][0] = n_genTaus
+
      
         # for each event, first fill this list for each track         
         track_level_output = []
 
         for iCand in range(len(event.tracks)):
 
-            is_reco_lepton = check_is_reco_lepton(event, iCand, deltaR = 0.01)
+            baseline = isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = True)
+            if not baseline: continue
+            
+	    is_reco_lepton = check_is_reco_lepton(event, iCand, deltaR = 0.02)
             if is_reco_lepton: continue
             
             passpionveto = pass_pion_veto(event, iCand, deltaR = 0.03)        
             if not passpionveto: continue
-
-            baseline = isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = True)
-            if not baseline: continue
             
             ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
 
@@ -730,13 +758,13 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                     is_prompt_tau_leadtrk = True
                                 if deltaR < 0.4:
                                     is_prompt_tau_widecone = True
-
-            is_fake_track = is_prompt_electron or is_prompt_muon or is_prompt_tau or is_prompt_tau_leadtrk
-
-            # Track mass calculation using pixel and strips dE/dx
-	    if event.tracks_deDxHarmonic2pixel[iCand] < 2.557 : continue
-	    if not is_pixel_track and event.tracks_deDxHarmonic2strips[iCand] < 2.557 : continue
-
+            
+	    is_fake_track = is_prompt_electron or is_prompt_muon or is_prompt_tau or is_prompt_tau_leadtrk
+            
+	    # Track mass calculation using pixel and strips dE/dx
+	    if is_pixel_track==True and not event.tracks_deDxHarmonic2pixel[iCand] > 2.557 : continue
+	    if is_pixel_track==False and not event.tracks_deDxHarmonic2strips[iCand] > 2.557 : continue
+            
             tracks_massfromdeDxPixel = TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
             tracks_massfromdeDxStrips = TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
 	    
@@ -811,15 +839,28 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             # if signal, do chargino matching:
             if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
 
-                deltaR = 0
+                deltaR = 999.
+		tracks_GenChi_P = 0.
+		tracks_GenChi_pt = 0.
+		tracks_massfromdeDxPixel_GenChiMomentum = 0.
 
-                # chargino matching:
+                # track matching with closest gen-level chargino:
                 for k in range(len(event.GenParticles)):
                     if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
-                        deltaR = event.tracks[iCand].DeltaR(event.GenParticles[k])
-                        if deltaR < 0.01:
-                            track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
-                            break
+			deltaR_tmp = event.tracks[iCand].DeltaR(event.GenParticles[k])
+			if deltaR_tmp < deltaR :
+			    deltaR = deltaR_tmp
+			    tracks_GenChi_P = event.GenParticles[k].P()
+			    tracks_GenChi_pt = event.GenParticles[k].Pt()
+			    tracks_massfromdeDxPixel_GenChiMomentum = TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.GenParticles[k].P(),2)/2.579)
+			    tracks_massfromdeDxStrips_GenChiMomentum = TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.GenParticles[k].P(),2)/2.579)
+
+                track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
+                track_level_output[-1]["tracks_GenChi_P"] = tracks_GenChi_P
+                track_level_output[-1]["tracks_GenChi_pt"] = tracks_GenChi_pt
+		
+                track_level_output[-1]["tracks_massfromdeDxPixel_GenChiMomentum"] = tracks_massfromdeDxPixel_GenChiMomentum
+                track_level_output[-1]["tracks_massfromdeDxStrips_GenChiMomentum"] = tracks_massfromdeDxStrips_GenChiMomentum
 
                 ## chargino matching with GenParticlesGeant collection:
                 #for k in range(len(event.GenParticlesGeant)):
@@ -833,6 +874,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 for line in sorted(track_level_output[-1].keys()):
                     print "%s: %s" %(line, track_level_output[-1][line])
 
+	'''
         # evaluate fake rate for each event:
         if fakerate_file:
 
@@ -856,6 +898,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                     
                     branch_name = "fakerate_%s_%s" % (fr_region, variable.replace(":", "_"))
                     tree_branch_values[branch_name][0] = FR
+	'''
 
         # check if genLeptons are present in event:
         if not is_data:
