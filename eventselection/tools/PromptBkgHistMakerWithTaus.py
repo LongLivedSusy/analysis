@@ -53,16 +53,8 @@ else: kappasmearlevellabel = 'NoZSmear'
 
 mZ = 91
 isdata = 'Run20' in inputFileNames
-if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames or 'aksingh' in inputFileNames: 
-	is2016, is2017, is2018 = True, False, False
-elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames or 'somethingelse' in inputFileNames: 
-	is2016, is2017, is2018 = False, True, False
-elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or other' in inputFileNames: 
-	is2016, is2017, is2018 = False, True, True
-
-if is2016: phase = 0
+if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames: phase = 0
 else: phase = 1
-
 
 
 if phase==0: 
@@ -76,6 +68,10 @@ if UseDeep: btag_cut = BTAG_deepCSV
 else: btag_cut = BTAG_CSVv2
 
 if phase==0: mvathreshes=[.1,.25]
+#if phase==0: mvathreshes=[0,0]#worked great
+#if phase==0: mvathreshes=[0.0,0.12]
+#if phase==0: mvathreshes=[-0.05,0.16]
+#if phase==0: mvathreshes=[-0.1,0.1]
 else: mvathreshes=[0.15,0.0]
 
 print 'phase', phase
@@ -94,11 +90,6 @@ print 'creating file', fnew_.GetName()
 hHt = TH1F('hHt','hHt',100,0,3000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 
-hMtPionMatched = TH1F('hMtPionMatched','hMtPionMatched',50,0,200)
-histoStyler(hMtPionMatched,kOrange+1)
-hMtPionUnMatched = TH1F('hMtPionUnMatched','hMtPionUnMatched',50,0,200)
-histoStyler(hMtPionUnMatched,kRed+1)
-
 
 
 inf = 999999
@@ -107,15 +98,15 @@ regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'NPions', 'TrkPt', 'TrkEta','BinNumber']
 regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
 regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['LowMhtBaseline']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0 ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0 ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+#regionCuts['LowMhtBaseline']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0  ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0  ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 #regionCuts['TtbarCtrEl']        = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 #regionCuts['TtbarCtrMu']        = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 
 
-regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),          (0,0),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['BaselinePixAndStrips']=[(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),          (0,0),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrElPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (1,1),       (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.3,inf),          (0,0  ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['BaselinePixAndStrips']  =[(0,inf),(250,inf),(1,inf), (0,inf), (1,inf), (0,0), (1,inf),     (0.3,inf),          (0,0  ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+regionCuts['TtbarCtrElPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (1,1),       (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 ##regionCuts['TtbarCtrMuPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 #regionCuts['TtbarCtrElPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,0),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 #regionCuts['TtbarCtrMuPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
@@ -140,8 +131,8 @@ for region in regionCuts:
 	
 binnumbers = {}
 listagain = ['Ht',  'Mht',    'NJets','BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'NPions', 'TrkPt','TrkEta','BinNumber']
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf))] = 1
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf))] = 2
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.5,inf))] = 1
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.5,inf))] = 2
 binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf))] = 3
 binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 4
 binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.5,inf))] = 5
@@ -150,8 +141,8 @@ binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.5,i
 binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 8
 binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.5,inf))] = 9
 binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.5,inf))] = 10
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf))] = 11
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf))] = 12
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.3,inf))] = 11
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.3,inf))] = 12
 binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 13
 binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 14
 binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 15
@@ -160,8 +151,8 @@ binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,i
 binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 18
 binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf))] = 19
 binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf))] = 20
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf))] = 21
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf))] = 22
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.3,inf))] = 21
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.5,inf))] = 22
 binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 23
 binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 24
 binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 25
@@ -390,9 +381,15 @@ t1 = time.time()
 i0=0
 
 triggerIndecesV2 = {}
+#triggerIndecesV2['SingleEl'] = [36,39]
+#triggerIndecesV2['SingleEl45'] = [41]
 triggerIndecesV2['SingleElCocktail'] = [14, 15, 16, 17, 18, 19, 20, 21]
 #triggerIndecesV2['MhtMet6pack'] = [108,110,114,123,124,125,126,128,129,130,131,132,133,122,134]#123
+#triggerIndecesV2["SingleMu"] = [48,50,52,55,63]
 triggerIndecesV2["SingleMuCocktail"] = [24,25,26,27,28,30,31,32]
+#triggerIndecesV2["SinglePho"] = [139]
+#triggerIndecesV2["SinglePhoWithHt"] = [138, 139,141,142,143]
+#triggerIndecesV2['HtTrain'] = [67,68,69,72,73,74,80,84,88,91,92,93,95,96,99,102,103,104]
 
 triggerIndeces = triggerIndecesV2
 
@@ -402,8 +399,7 @@ def PassTrig(c,trigname):
 			return True
 	return False
 
-matchedpinum = 0.0001
-unmatchedpinum = 0.0001
+
 print nentries, 'evets to be analyzed'
 for ientry in range(nentries):
 	if verbose:
@@ -481,8 +477,8 @@ for ientry in range(nentries):
 		basicTracks.append([track,c.tracks_charge[itrack], itrack])		
 		if not (track.Pt() > candPtCut and track.Pt()<candPtUpperCut): continue     
 		if debugmode: print ientry, itrack, 'basic bitch!', track.Pt()
-		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, mvathreshes)
-		if not dtstatus>0: continue
+		dtstatus = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, mvathreshes)
+		if dtstatus==0: continue
 		if debugmode: print ientry, itrack, 'still got this', track.Pt()
 		drlep = 99
 		passeslep = True
@@ -497,11 +493,11 @@ for ientry in range(nentries):
 		if dtstatus==2: nLong+=1         
 		if verbose: print ievent, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta()     
 		if isMatched(track, genels, 0.02):
-			print ientry, '---->is electron'
+			print ientry, '.............is electron'
 		elif isMatched(track, genmus, 0.02):
-			print ientry, '---->is muon'		
+			print ientry, '.............is muon'		
 		elif isMatched(track, genpis , 0.02):
-			print ientry, '---->is pi'
+			print ientry, '.............is pi'
 			for igp, gp in enumerate(c.GenTaus_LeadTrk):
 				print igp, bool(c.GenTaus_had[igp]==True), c.GenTaus_NProngs[igp] 
 		else:
@@ -525,8 +521,6 @@ for ientry in range(nentries):
 			drTrk = trk[0].DeltaR(ele)
 			if drTrk<drmin:
 				if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-				#if not c.tracks_trackerLayersWithMeasurement[trk[2]]==c.tracks_pixelLayersWithMeasurement[trk[2]]: continue
-				if not c.tracks_trkRelIso[trk[2]] < 0.01: continue
 				drmin = drTrk
 				matchedTrk = trk
 				if drTrk<0.01: 
@@ -535,15 +529,6 @@ for ientry in range(nentries):
 		if debugmode: print 'matched to a nice basic track'		
 		if ele.Pt()>candPtCut: RecoElectrons.append([ele, c.Electrons_charge[iel]])
 		#print ientry, 'found electron', ele.Pt()
-		
-		'''
-		if isMatched(ele, genels, 0.02):
-			print ientry, 'this CR electron determined to be an electron'
-		else:
-			print ientry, 'this CR electron AINT no electron', c.Electrons_MTW[iel]		
-		'''
-				
-		if not c.Electrons_MTW[iel]<100: continue		
 		smear = getSmearFactor(abs(matchedTrk[0].Eta()), min(matchedTrk[0].Pt(),299.999))
 		smearedEl = TLorentzVector()
 		smearedEl.SetPtEtaPhiE(0, 0, 0, 0)        
@@ -566,7 +551,6 @@ for ientry in range(nentries):
 		matchedTrk = TLorentzVector()
 		for trk in basicTracks:
 			if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-			if not c.tracks_trkRelIso[trk[2]] < 0.01: continue
 			drTrk = trk[0].DeltaR(lep)
 			if drTrk<drmin:
 				drmin = drTrk
@@ -576,7 +560,6 @@ for ientry in range(nentries):
 		#print ientry, 'found muon', lep.Pt() 
 		
 		if lep.Pt()>candPtCut: RecoMuons.append([lep,c.Muons_charge[ilep]])    
-		if not c.Muons_MTW[ilep]<100: continue
 		smear = getSmearFactor(abs(matchedTrk[0].Eta()), min(matchedTrk[0].Pt(),299.999))
 		smearedMu = TLorentzVector()
 		smearedMu.SetPtEtaPhiE(0, 0, 0, 0)        
@@ -588,22 +571,20 @@ for ientry in range(nentries):
 	SmearedPions = []
 	for ipi, pi in enumerate(c.TAPPionTracks):
 		#if not c.isoPionTracks==1: continue
-		isPromptPi = isMatched(pi, genpis, 0.02)		
-		#if not isPromptPi: continue
+		isPromptPi = isMatched(pi, genpis, 0.02)
+		if not isPromptPi: continue
 		if verbose: print ientry, ipi,'pi with Pt' , pi.Pt()
 		if (abs(pi.Eta()) < 1.566 and abs(pi.Eta()) > 1.4442): continue
 		if not abs(pi.Eta())<2.4: continue
 		if verbose: print 'passed eta and Pt'
-		if not c.TAPPionTracks_trkiso[ipi]<0.01: continue
-		
+		if not c.TAPPionTracks_trkiso[ipi]<0.2: continue
 		drmin = inf
 		matchedTrk = TLorentzVector()
-		for trk in basicTracks:			
-			if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-			if not c.tracks_trkRelIso[trk[2]] < 0.01: continue
-			if c.tracks_passPFCandVeto[trk[2]]: continue
+		for trk in basicTracks:
 			drTrk = trk[0].DeltaR(pi)
-			if drTrk<drmin:			
+			if drTrk<drmin:
+				if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
+				if c.tracks_passPFCandVeto[trk[2]]: continue
 				drmin = drTrk
 				matchedTrk = trk
 				if drTrk<0.01: 
@@ -621,12 +602,8 @@ for ientry in range(nentries):
 		smearedPi.SetPtEtaPhiE(0, 0, 0, 0)        
 		smearedPi.SetPtEtaPhiE(smear*matchedTrk[0].Pt(),matchedTrk[0].Eta(),matchedTrk[0].Phi(),smear*matchedTrk[0].Pt()*TMath.CosH(matchedTrk[0].Eta()))
 		if not (smearedPi.Pt()>candPtCut and smearedPi.Pt()<candPtUpperCut): continue
-		if bool(isPromptPi): fillth1(hMtPionMatched,c.TAPPionTracks_mT[ipi])
-		else: fillth1(hMtPionUnMatched,c.TAPPionTracks_mT[ipi])		
-		if not c.TAPPionTracks_mT[ipi]<100: continue #this is kind of the one thing different about the control than the T&P		
-		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi]]) 	
-		
-	####from T&P
+		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi]]) 		   
+
 
 	#	print ientry, 'skipping for funny pion reason', len(SmearedPions), c.isoPionTracks
 	#	continue
@@ -665,7 +642,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -728,7 +705,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -786,7 +763,7 @@ for ientry in range(nentries):
 			if not abs(jet.Eta())<2.4: continue####update to 2.4
 			adjustedJets.append(jet)            
 			adjustedHt+=jet.Pt()
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
 		for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht)))
@@ -805,7 +782,7 @@ for ientry in range(nentries):
 		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta]
 		fv.append(getBinNumber(fv))
 		kPixOnly = fetchKappa(abs(eta),min(pt,9999.99), kappadictPiPixOnly, shortMaxKappaPt)
-		#print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
+		print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
 				hname = 'Pi'+regionkey+'_'+varname
@@ -847,7 +824,7 @@ for ientry in range(nentries):
 			adjustedMht-=jet		
 			if not abs(jet.Eta())<2.4: continue###update to 2.4            
 			adjustedJets.append(jet)			
-			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
+			if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1
 			adjustedHt+=jet.Pt()
 		adjustedNJets = len(adjustedJets)
 		mindphi = 4
@@ -892,11 +869,9 @@ for ientry in range(nentries):
 		
 
 fnew_.cd()
-writeHistoStruct(histoStructDict)
 hHt.Write()
 hHtWeighted.Write()
-hMtPionMatched.Write()
-hMtPionUnMatched.Write()
+writeHistoStruct(histoStructDict)
 print 'just created', fnew_.GetName()
 fnew_.Close()
 fKappaPixOnly.Close()

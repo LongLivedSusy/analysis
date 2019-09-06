@@ -17,7 +17,6 @@ c1 = mkcanvas('c1')
 
 newkeys = files[0].GetListOfKeys()
 for file in files:
-  file.ls()
   lilbit = file.GetName().split('RawKapps_')[1].replace('.root','')
   fnew = TFile('InvMass'+lilbit+'.root','recreate')
   for key_ in newkeys:
@@ -28,7 +27,7 @@ for file in files:
 	if 'ElFromTau' in key: continue
 	if 'MuFromTau' in key: continue	
 	etarange, ptrange = key.split('_')[1], key.split('_')[2]
-	leg = mklegend(x1=.12, y1=.54, x2=.59, y2=.68, color=kWhite)
+	leg = mklegend(x1=.12, y1=.55, x2=.59, y2=.72, color=kWhite)
 	print 'getting', key
 	shortbit = file.GetName().split('_')[1].replace('.root','').replace('Run ','Run')
 	#hGood.Rebin()
@@ -62,22 +61,23 @@ for file in files:
 		hmufromtau.SetFillColor(kViolet)	
 		
 		file.ls()
-		print key.replace('Pi','FakeFromTauWtd').replace('DT','CR').replace('num','den')
-		hfakefromtau = file.Get(key.replace('Pi','FakeFromTauWtd').replace('DT','CR').replace('num','den'))
-		hfakefromtau.SetFillColor(kBlue)
+		fakename = key.replace('Pi','FakeFromTauWtd').replace('RECO','CR').replace('num','den')
+		print 'fakename', fakename
+		hfakefromtau = file.Get(fakename)
+		hfakefromtau.SetLineColor(kRed)
 							
 		#hdens.append(helfromtau)
 		#hdens.append(hmufromtau)		
 	hGood.SetTitle(shortbit+ ' Tag + smeared '+lepname)		
 	hGood.SetLineColor(kGray+2)
 	hnum.SetTitle(shortbit+ ' Tag + dis. trk')
-	hGood.SetFillStyle(1001)
+	hGood.SetFillStyle(3001)
 	
 	integralGood = hGood.Integral(-1,9999)
 	integralDT = hnum.Integral(-1,9999)	
 	if integralGood>0: hGood.Scale(1.0/integralGood)
 	if integralDT>0: hnum.Scale(1.0/integralDT)
-	hGood.GetYaxis().SetRangeUser(0.0001+0.1*min(hGood.GetMinimum(0.001),hnum.GetMinimum(0.001)), 0.0002+200*max(hGood.GetMaximum(), hnum.GetMaximum()))
+	hGood.GetYaxis().SetRangeUser(0.0001+0.1*min(hGood.GetMinimum(0.001),hnum.GetMinimum(0.001)), 0.0002+400*max(hGood.GetMaximum(), hnum.GetMaximum()))
 	
 	hratio = FabDraw(c1,leg,hnum,[hGood],datamc='Data',lumi='', title = '', LinearScale=False, fractionthing='(mc-data)/data')
 	
@@ -91,9 +91,12 @@ for file in files:
 			helfromtau.Scale(1.0/integralGood)
 			hmufromtau.Scale(1.0/integralGood)
 			hfakefromtau.Scale(1.0/integralGood)			
-		helfromtau.Draw('same')	
-		hmufromtau.Draw('same')	
-		hfakefromtau.Draw('same')			
+		helfromtau.Draw('same hist')	
+		hmufromtau.Draw('same hist')	
+		hfakefromtau.Draw('same hist')
+		leg.AddEntry(hfakefromtau, 'fake DT prediction')
+		leg.AddEntry(helfromtau, 'el DT prediction')
+		leg.AddEntry(hmufromtau, '#mu DT prediction')				
 							
 		
 	hnum.GetYaxis().SetRangeUser(0.0001+0.1*min(hGood.GetMinimum(0.001),hnum.GetMinimum(0.001)), 0.0002+2*max(hGood.GetMaximum(), hnum.GetMaximum()))
@@ -118,7 +121,7 @@ for file in files:
 	fnew.cd()
 	c1.Write(shortbit.replace(' ','').replace('.','p')+key.replace('.','p'))
 	print 'making pdf associated with', file	
-	c1.Print(('pdfs/tagandprobe/'+lilbit+key.replace('_RECOden','')).replace('.','p')+'.pdf')
+	#c1.Print(('pdfs/tagandprobe/'+lilbit+key.replace('_RECOden','')).replace('.','p')+'.pdf')
   print 'just created', fnew.GetName()
   fnew.Close()
 exit(0)

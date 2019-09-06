@@ -9,6 +9,10 @@ gROOT.SetBatch(1)
 try: dtmode = sys.argv[1]
 except:	dtmode = 'PixOrStrips'
 
+try: smear = sys.argv[2]
+except: smear = 'Yes'
+
+
 UseFits = True
 
 print 'dtmode', dtmode
@@ -25,8 +29,7 @@ else:
 	PixStripsMode = False
 	CombineMode = True	
 	
-smear = 'Yes'
-smear = 'No'
+
 #from launchcomputekappa.sh: 
 #python tools/PlotKappaClosureAndDataSplit.py PixAndStrips && python tools/PlotKappaClosureAndDataSplit.py PixOnly
 if PixMode:
@@ -117,7 +120,7 @@ for name in names_:
 		MethodData = fMethodData.Get(mname)
 		if UseFits: funcMethodData = fMethodData.Get('f1'+mname)	
 		MethodData.Draw('same')
-		MethodData.Write()
+		#MethodData.Write()
 		if UseFits: 
 			funcMethodData.Draw('same')
 			funcUp = funcMethodData.Clone()
@@ -151,7 +154,7 @@ for name in names_:
 	
 	fnew.cd()
 	c1.Write(name.replace('hGen','c_').replace('.','p'))
-	MethodMC.Write()
+	#MethodMC.Write()
 	namypoo = 'pdfs/closure/tpkappa/'+name.replace('hGen','kappa').replace('.','p')+'_'+dtmode+'.pdf'
 	c1.Print(namypoo)
 	

@@ -16,14 +16,16 @@ makefolders = False
 
 phase = 0
 
+drawhists = True
+
 if phase==0:
 	fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
 	#fCentralMC = 'output/totalweightedbkgsNoSmearedKappa.root'
 	#fCentralMC = 'test.root'
 	#fCentralMC = 'output/totalweightedbkgsTrueKappa.root'
 	#listOfVariationFilenames = ['output/totalweightedbkgsDataDrivenMC.root']
-	#listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
-	listOfVariationFilenames = ['output/totalweightedbkgsNoSmearedKappa.root']#,'output/totalweightedbkgsTrueKappa.root']
+	listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
+	#listOfVariationFilenames = ['output/totalweightedbkgsNoSmearedKappa.root']#,'output/totalweightedbkgsTrueKappa.root']
 	#listOfVariationFilenames = []
 if phase==1:
 	fCentralMC = 'output/totalweightedbkgsDataDrivenMCPhase1.root'
@@ -253,6 +255,8 @@ for key in sorted(keys):#[:241]:
 	c1.Update()
 	fnew.cd()
 	c1.Write()
+	#hVarTruth.Write()
+	#hVarMethod.Write()
 	c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
 	clist.append(c1)
 	#c1.Delete()
