@@ -543,7 +543,7 @@ for ientry in range(nentries):
 			print ientry, 'this CR electron AINT no electron', c.Electrons_MTW[iel]		
 		'''
 				
-		if not c.Electrons_MTW[iel]<100: continue		
+		#if not c.Electrons_MTW[iel]<100: continue		
 		smear = getSmearFactor(abs(matchedTrk[0].Eta()), min(matchedTrk[0].Pt(),299.999))
 		smearedEl = TLorentzVector()
 		smearedEl.SetPtEtaPhiE(0, 0, 0, 0)        
