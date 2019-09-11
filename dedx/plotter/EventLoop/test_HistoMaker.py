@@ -8,7 +8,7 @@ from GridEngineTools import runParallel
 Recompile=True
 #Recompile=False
 
-OUTDIR = "./histos"
+OUTDIR = "./histos_test"
 
 if __name__ == '__main__' :
 
@@ -21,13 +21,15 @@ if __name__ == '__main__' :
 	os.system("mkdir -p %s"%OUTDIR)
 
     # Samples
+    #path = "../../skimmer/output_skim_Summer16_Run2016MET_merged/"
     path = "../../skimmer/output_skim_Summer16_merged/"
-    #samples = ["*"]
-    #samples = ["Run2016*"]
-    samples = ["Summer16*"]
-    #samples = ["Summer16.g1800_"]
+    #samples = ["Summer16.DYJetsToLL_M-50_TuneCUETP8M1"]
+    #samples = ["Summer16.WW_"]
+    samples = ["Summer16.g1800_chi1400_27_200970_step4_*AODSIM"]
+    inputfiles=[]
     for sample in samples : 
-	inputfiles = glob(path+"/*%s*.root"%sample)
+	inputlist = glob(path+"/*%s*.root"%sample)
+	inputfiles.extend(inputlist)
     
     inputfiles = sorted(inputfiles)
 
@@ -38,12 +40,12 @@ if __name__ == '__main__' :
 	isSignal = False
 	if "Run" in label : isData = True
 	elif "g1800" in label : isSignal = True
-	
+
 	command = "./HistoMaker %s %s h_%s %s %s"%(inputfile,OUTDIR,label,isData,isSignal)
 	commands.append(command)
 	print "input files : %s, isData :%s, isSignal : %s"%(label,isData,isSignal)
     
     raw_input("Submit continue?")
-    runParallel(commands, "grid", condorDir="condor", dontCheckOnJobs=True)
-    #runParallel(commands, "multi", condorDir="condor", dontCheckOnJobs=True)
+    #runParallel(commands, "grid", condorDir="condor", dontCheckOnJobs=True)
+    runParallel(commands, "multi", condorDir="condor", dontCheckOnJobs=True)
 

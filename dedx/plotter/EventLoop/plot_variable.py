@@ -54,7 +54,7 @@ if __name__=="__main__":
     
     # Samples
     samples = {
-	"Run2016":	{"select": "Run2016*MET", "type": "data", "color": kBlack, "lumi": 35348.5695},
+	#"Run2016":	{"select": "Run2016*MET", "type": "data", "color": kBlack, "lumi": 35348.5695},
         "WJetsToLNu":	{"select": "Summer16.WJetsToLNu", "type": "bg", "color": 62},
         "DYJetsToLL":	{"select": "Summer16.DYJetsToLL|RunIIFall17MiniAODv2.DYJetsToLL", "type": "bg", "color": 62},
         "TT":		{"select": "Summer16.TT_|RunIIFall17MiniAODv2.TTJets_HT|RunIIFall17MiniAODv2.TTJets_TuneCP5", "type": "bg", "color": 8}, 
@@ -71,7 +71,32 @@ if __name__=="__main__":
     
     # Variables to draw
     #variables =	["MET","MHT","HT","n_leptons_CR1","TrackPt_pixel","TrackPt_strips","TrackMass_pixel","TrackMass_strips","TrackMass_weightedPixelStripsMass","MET_CR1","MHT_CR1", "HT_CR1","TrackPt_pixel_CR1","TrackPt_strips_CR1", "TrackMass_pixel_CR1", "TrackMass_strips_CR1", "TrackMass_weightedPixelStripsMass_CR1"]
-    variables =	["TrackMass_pixel", "TrackMass_strips", "TrackMass_pixel_CR1", "TrackMass_strips_CR1"]
+    variables =	[
+	    #"TrackP_pixel",
+	    #"TrackP_pixel_GenChi",
+	    #"TrackP_pixel_GenMatch",
+	    #"TrackPt_pixel",
+	    #"TrackPt_pixel_GenChi",
+	    #"TrackPt_pixel_GenMatch", 
+	    "TrackDedx_pixel", 
+	    "TrackDedx_pixel_GenChi", 
+	    #"TrackMass_pixel",
+	    #"TrackMass_pixel_GenChiMomentum",
+	    #"TrackMass_pixel_GenMatch",
+	    #"TrackP_strips",
+	    #"TrackP_strips_GenChi",
+	    #"TrackP_strips_GenMatch",
+	    #"TrackPt_strips",
+	    #"TrackPt_strips_GenChi",
+	    #"TrackPt_strips_GenMatch",
+	    "TrackDedx_strips", 
+	    "TrackDedx_strips_GenChi", 
+	    #"TrackMass_strips", 
+	    #"TrackMass_strips_GenChiMomentum",
+	    #"TrackMass_strips_GenMatch",
+	    #"Track_deltaR_with_GenChi_pixel",
+	    #"Track_deltaR_with_GenChi_strips" 
+	    ]
 
     # Draw plots
     makePlots(histodir, plotdir, samples, variables, logx=False, logy=True, suffix="", outformat="png", save_shape=True)

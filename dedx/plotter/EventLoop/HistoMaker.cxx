@@ -28,13 +28,14 @@ int FillHisto(TH1D* hist, double valx, double weight)
     hist->Fill(newvalx, weight);
 }
 
-int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile, const char* isData)
+int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile, const char* isData, const char* isSignal)
 {
     cout << "Running HistoMaker" << endl;
-    cout << "Input file list : " << inputfile << endl;
+    cout << "Input file : " << inputfile << endl;
     cout << "Output Directory : " << outdir << endl;
     cout << "Output file : " << outputfile << endl;
     cout << "isData : " << isData << endl;
+    cout << "isSignal : " << isSignal << endl;
 
     bool IsData = 0;
     if (strcmp(isData,"True")==0){IsData = true;}
@@ -43,40 +44,52 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
         cout << "IsData not correctly defined" << endl;
         return 0;
     }
-    cout << "IsData : " << IsData << endl;
+    cout << "(Converted)IsData : " << IsData << endl;
+    
+    bool IsSignal = 0;
+    if (strcmp(isSignal,"True")==0){IsSignal = true;}
+    else if (strcmp(isSignal,"False")==0){IsSignal = false;}
+    else {
+        cout << "IsSignal not correctly defined" << endl;
+        return 0;
+    }
+    cout << "(Converted)IsSignal : " << IsSignal << endl;
 
     TFile *f = new TFile(inputfile);
     TTree *fChain = (TTree*)f->Get("Events");
-    fChain->SetBranchStatus("*",0);  // disable all branches
-    if (!IsData){
-	fChain->SetBranchStatus("CrossSection",1);  // activate branchname
-	fChain->SetBranchStatus("puWeight",1);  // activate branchname
-    }
-    fChain->SetBranchStatus("MET",1);  // activate branchname
-    fChain->SetBranchStatus("MHT",1);  // activate branchname
-    fChain->SetBranchStatus("HT",1);  // activate branchname
-    fChain->SetBranchStatus("MinDeltaPhiMhtJets",1);  // activate branchname
-    fChain->SetBranchStatus("n_jets",1);  // activate branchname
-    fChain->SetBranchStatus("n_btags",1);  // activate branchname
-    fChain->SetBranchStatus("n_leptons",1);  // activate branchname
-    fChain->SetBranchStatus("passesUniversalSelection",1);  // activate branchname
-    fChain->SetBranchStatus("tracks",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_is_pixel_track",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_nValidPixelHits",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_nValidTrackerHits",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_is_baseline_track",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_is_reco_lepton",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_dxyVtx",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_pt",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_deDxHarmonic2pixel",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_deDxHarmonic2strips",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_deDxHarmonic2weighted",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_massfromdeDxPixel",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_massfromdeDxStrips",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_massfromdeDx_weightedDeDx",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_massfromdeDx_weightedPixelStripsMass",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_mva_bdt",1);  // activate branchname
-    fChain->SetBranchStatus("tracks_mva_bdt_loose",1);  // activate branchname
+    fChain->SetBranchStatus("*",1);  // enable all branches
+    //fChain->SetBranchStatus("*",0);  // disable all branches
+    //if (!IsData){
+    //    fChain->SetBranchStatus("CrossSection",1);  // activate branchname
+    //    fChain->SetBranchStatus("puWeight",1);  // activate branchname
+    //}
+    //fChain->SetBranchStatus("MET",1);  // activate branchname
+    //fChain->SetBranchStatus("MHT",1);  // activate branchname
+    //fChain->SetBranchStatus("HT",1);  // activate branchname
+    //fChain->SetBranchStatus("MinDeltaPhiMhtJets",1);  // activate branchname
+    //fChain->SetBranchStatus("n_jets",1);  // activate branchname
+    //fChain->SetBranchStatus("n_btags",1);  // activate branchname
+    //fChain->SetBranchStatus("n_leptons",1);  // activate branchname
+    //fChain->SetBranchStatus("passesUniversalSelection",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_is_pixel_track",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_nValidPixelHits",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_nValidTrackerHits",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_is_baseline_track",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_is_reco_lepton",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_dxyVtx",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_P",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_pt",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_deDxHarmonic2pixel",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_deDxHarmonic2strips",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_deDxHarmonic2weighted",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_massfromdeDxPixel",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_massfromdeDxStrips",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_massfromdeDx_weightedDeDx",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_massfromdeDx_weightedPixelStripsMass",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_mva_bdt",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_mva_bdt_loose",1);  // activate branchname
+    //fChain->SetBranchStatus("tracks_chiCandGenMatchingDR",1);  // activate branchname
 
     // Declaration of leaf types
     Float_t         MET;
@@ -142,6 +155,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     vector<double>  *tracks_ptErrOverPt2;
     vector<double>  *tracks_pt;
     vector<double>  *tracks_P;
+    vector<double>  *tracks_GenChi_pt;
+    vector<double>  *tracks_GenChi_P;
     vector<double>  *tracks_eta;
     vector<double>  *tracks_phi;
     vector<double>  *tracks_trkMiniRelIso;
@@ -158,6 +173,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     vector<double>  *tracks_massfromdeDxStrips;
     vector<double>  *tracks_massfromdeDx_weightedDeDx;
     vector<double>  *tracks_massfromdeDx_weightedPixelStripsMass;
+    vector<double>  *tracks_massfromdeDxPixel_GenChiMomentum;
+    vector<double>  *tracks_massfromdeDxStrips_GenChiMomentum;
     vector<double>  *tracks_chi2perNdof;
     vector<double>  *tracks_chargedPtSum;
     vector<double>  *tracks_chiCandGenMatchingDR;
@@ -231,6 +248,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TBranch        *b_tracks_ptErrOverPt2;   //!
     TBranch        *b_tracks_pt;   //!
     TBranch        *b_tracks_P;   //!
+    TBranch        *b_tracks_GenChi_pt;   //!
+    TBranch        *b_tracks_GenChi_P;   //!
     TBranch        *b_tracks_eta;   //!
     TBranch        *b_tracks_phi;   //!
     TBranch        *b_tracks_trkMiniRelIso;   //!
@@ -247,6 +266,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TBranch        *b_tracks_massfromdeDxStrips;   //!
     TBranch        *b_tracks_massfromdeDx_weightedDeDx;   //!
     TBranch        *b_tracks_massfromdeDx_weightedPixelStripsMass;   //!
+    TBranch        *b_tracks_massfromdeDxPixel_GenChiMomentum;   //!
+    TBranch        *b_tracks_massfromdeDxStrips_GenChiMomentum;   //!
     TBranch        *b_tracks_chi2perNdof;   //!
     TBranch        *b_tracks_chargedPtSum;   //!
     TBranch        *b_tracks_chiCandGenMatchingDR;   //!
@@ -287,6 +308,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     tracks_ptErrOverPt2 = 0;
     tracks_pt = 0;
     tracks_P = 0;
+    tracks_GenChi_pt = 0;
+    tracks_GenChi_P = 0;
     tracks_eta = 0;
     tracks_phi = 0;
     tracks_trkMiniRelIso = 0;
@@ -303,6 +326,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     tracks_massfromdeDxStrips = 0;
     tracks_massfromdeDx_weightedDeDx = 0;
     tracks_massfromdeDx_weightedPixelStripsMass = 0;
+    tracks_massfromdeDxPixel_GenChiMomentum = 0;
+    tracks_massfromdeDxStrips_GenChiMomentum = 0;
     tracks_chi2perNdof = 0;
     tracks_chargedPtSum = 0;
     tracks_chiCandGenMatchingDR = 0;
@@ -379,6 +404,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("tracks_ptErrOverPt2", &tracks_ptErrOverPt2, &b_tracks_ptErrOverPt2);
     fChain->SetBranchAddress("tracks_pt", &tracks_pt, &b_tracks_pt);
     fChain->SetBranchAddress("tracks_P", &tracks_P, &b_tracks_P);
+    fChain->SetBranchAddress("tracks_GenChi_pt", &tracks_GenChi_pt, &b_tracks_GenChi_pt);
+    fChain->SetBranchAddress("tracks_GenChi_P", &tracks_GenChi_P, &b_tracks_GenChi_P);
     fChain->SetBranchAddress("tracks_eta", &tracks_eta, &b_tracks_eta);
     fChain->SetBranchAddress("tracks_phi", &tracks_phi, &b_tracks_phi);
     fChain->SetBranchAddress("tracks_trkMiniRelIso", &tracks_trkMiniRelIso, &b_tracks_trkMiniRelIso);
@@ -395,6 +422,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("tracks_massfromdeDxStrips", &tracks_massfromdeDxStrips, &b_tracks_massfromdeDxStrips);
     fChain->SetBranchAddress("tracks_massfromdeDx_weightedDeDx", &tracks_massfromdeDx_weightedDeDx, &b_tracks_massfromdeDx_weightedDeDx);
     fChain->SetBranchAddress("tracks_massfromdeDx_weightedPixelStripsMass", &tracks_massfromdeDx_weightedPixelStripsMass, &b_tracks_massfromdeDx_weightedPixelStripsMass);
+    fChain->SetBranchAddress("tracks_massfromdeDxPixel_GenChiMomentum", &tracks_massfromdeDxPixel_GenChiMomentum, &b_tracks_massfromdeDxPixel_GenChiMomentum);
+    fChain->SetBranchAddress("tracks_massfromdeDxStrips_GenChiMomentum", &tracks_massfromdeDxStrips_GenChiMomentum, &b_tracks_massfromdeDxStrips_GenChiMomentum);
     fChain->SetBranchAddress("tracks_chi2perNdof", &tracks_chi2perNdof, &b_tracks_chi2perNdof);
     fChain->SetBranchAddress("tracks_chargedPtSum", &tracks_chargedPtSum, &b_tracks_chargedPtSum);
     fChain->SetBranchAddress("tracks_chiCandGenMatchingDR", &tracks_chiCandGenMatchingDR, &b_tracks_chiCandGenMatchingDR);
@@ -402,6 +431,9 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("tracks_mva_bdt", &tracks_mva_bdt, &b_tracks_mva_bdt);
     fChain->SetBranchAddress("tracks_mva_bdt_loose", &tracks_mva_bdt_loose, &b_tracks_mva_bdt_loose);
    
+    // Output root file
+    TFile* fout = new TFile(Form("./%s/%s",outdir,outputfile),"recreate");
+    
     // Histogram
     TH1::SetDefaultSumw2();
     TH1D* h_MET = new TH1D("MET","MET",100,0,1000);
@@ -412,11 +444,35 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TH1D* h_n_btags = new TH1D("n_btags","n_btags",10,0,10);
     TH1D* h_n_leptons = new TH1D("n_leptons","n_leptons",10,0,10);
     TH1D* h_n_DT = new TH1D("n_DT","n_DT",5,0,5);
-    TH1D* h_TrackPt_pixel = new TH1D("TrackPt_pixel","TrackPt",20,0,1000);
-    TH1D* h_TrackPt_strips = new TH1D("TrackPt_strips","TrackPt",20,0,1000);
+    TH1D* h_TrackP_pixel = new TH1D("TrackP_pixel","Track_P",50,0,1000);
+    TH1D* h_TrackP_pixel_GenChi = new TH1D("TrackP_pixel_GenChi","Track_P_GenChi",50,0,1000);
+    TH1D* h_TrackP_pixel_GenMatch = new TH1D("TrackP_pixel_GenMatch","Track_P_GenMatch",50,0,1000);
+    TH1D* h_TrackPt_pixel = new TH1D("TrackPt_pixel","TrackPt",50,0,1000);
+    TH1D* h_TrackPt_pixel_GenChi = new TH1D("TrackPt_pixel_GenChi","TrackPt_GenChi",50,0,1000);
+    TH1D* h_TrackPt_pixel_GenMatch = new TH1D("TrackPt_pixel_GenMatch","TrackPt_GenMatch",50,0,1000);
+    TH1D* h_TrackP_strips = new TH1D("TrackP_strips","TrackP",50,0,1000);
+    TH1D* h_TrackP_strips_GenChi = new TH1D("TrackP_strips_GenChi","TrackP_GenChi",50,0,1000);
+    TH1D* h_TrackP_strips_GenMatch = new TH1D("TrackP_strips_GenMatch","TrackP_GenMatch",50,0,1000);
+    TH1D* h_TrackPt_strips = new TH1D("TrackPt_strips","TrackPt",50,0,1000);
+    TH1D* h_TrackPt_strips_GenChi = new TH1D("TrackPt_strips_GenChi","TrackPt_GenChi",50,0,1000);
+    TH1D* h_TrackPt_strips_GenMatch = new TH1D("TrackPt_strips_GenMatch","TrackPt_GenMatch",50,0,1000);
+    TH1D* h_TrackDedx_pixel = new TH1D("TrackDedx_pixel","TrackDedx",100,0,10);
+    TH1D* h_TrackDedx_pixel_GenChi = new TH1D("TrackDedx_pixel_GenChi","TrackDedx_GenChi",100,0,10);
     TH1D* h_TrackMass_pixel = new TH1D("TrackMass_pixel","Log10(TrackMass_pixel)",50,0,5.5);
+    TH1D* h_TrackMass_pixel_calib = new TH1D("TrackMass_pixel_calib","Log10(TrackMass_pixel_calib)",50,0,5.5);
+    TH1D* h_TrackMass_pixel_GenChiMomentum = new TH1D("TrackMass_pixel_GenChiMomentum","Log10(TrackMass_pixel_GenChiMomentum)",50,0,5.5);
+    TH1D* h_TrackMass_pixel_GenMatch = new TH1D("TrackMass_pixel_GenMatch","Log10(TrackMass_pixel_GenMatch)",50,0,5.5);
+    
+    TH1D* h_TrackDedx_strips = new TH1D("TrackDedx_strips","TrackDedx_strips",100,0,10);
+    TH1D* h_TrackDedx_strips_GenChi = new TH1D("TrackDedx_strips_GenChi","TrackDedx_strips_GenChi",100,0,10);
     TH1D* h_TrackMass_strips = new TH1D("TrackMass_strips","Log10(TrackMass_strips)",50,0,5.5);
+    TH1D* h_TrackMass_strips_calib = new TH1D("TrackMass_strips_calib","Log10(TrackMass_strips_calib)",50,0,5.5);
+    TH1D* h_TrackMass_strips_GenChiMomentum = new TH1D("TrackMass_strips_GenChiMomentum","Log10(TrackMass_strips_GenChiMomentum)",50,0,5.5);
+    TH1D* h_TrackMass_strips_GenMatch = new TH1D("TrackMass_strips_GenMatch","Log10(TrackMass_strips_GenMatch)",50,0,5.5);
     TH1D* h_TrackMass_weightedPixelStripsMass = new TH1D("TrackMass_weightedPixelStripsMass","Log10(TrackMass_weightedPixelStripsMass)",50,0,5.5);
+    
+    TH1D* h_Track_deltaR_with_GenChi_pixel = new TH1D("Track_deltaR_with_GenChi_pixel","Track_deltaR__with_GenChi_pixel",20,0,0.1);
+    TH1D* h_Track_deltaR_with_GenChi_strips = new TH1D("Track_deltaR_with_GenChi_strips","Track_deltaR_with_GenChi_strips",20,0,0.1);
     
     TH1D* h_CR1_MET = new TH1D("MET_CR1","MET",100,0,1000);
     TH1D* h_CR1_MHT = new TH1D("MHT_CR1","MHT",100,0,1000);
@@ -428,6 +484,8 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TH1D* h_CR1_n_DT = new TH1D("n_DT_CR1","n_DT",5,0,5);
     TH1D* h_CR1_TrackPt_pixel = new TH1D("TrackPt_pixel_CR1","TrackPt",20,0,1000);
     TH1D* h_CR1_TrackPt_strips = new TH1D("TrackPt_strips_CR1","TrackPt",20,0,1000);
+    TH1D* h_CR1_TrackDedx_pixel = new TH1D("TrackDedx_pixel_CR1","TrackDedx",100,0,10);
+    TH1D* h_CR1_TrackDedx_strips = new TH1D("TrackDedx_strips_CR1","TrackDedx",100,0,10);
     TH1D* h_CR1_TrackMass_pixel = new TH1D("TrackMass_pixel_CR1","Log10(TrackMass_pixel)",50,0,5.5);
     TH1D* h_CR1_TrackMass_strips = new TH1D("TrackMass_strips_CR1","Log10(TrackMass_strips)",50,0,5.5);
     TH1D* h_CR1_TrackMass_weightedPixelStripsMass = new TH1D("TrackMass_weightedPixelStripsMass_CR1","Log10(TrackMass_weightedPixelStripsMass)",50,0,5.5);
@@ -435,6 +493,13 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     cout << "Total entry : " << fChain->GetEntries() << endl;
     Long64_t nentries = fChain->GetEntries();
     Double_t weight;
+    Double_t GenChiDedx;
+    Double_t trackDedxPixel;
+    Double_t trackDedxStrips;
+    Double_t trackMassPixel;
+    Double_t trackMassStrips;
+    Double_t trackMassPixel_calib;
+    Double_t trackMassStrips_calib;
     
     // Event loop start
     for (Long64_t ientry=0; ientry<nentries; ++ientry){
@@ -452,37 +517,97 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 	if (not (n_jets > 0)) continue;
 
 	// SR region
-	if (MET>200 && MHT>250 && HT>100 && n_leptons==0 && MinDeltaPhiMhtJets>0.3){
+	if (MET>200 && MHT>200 && HT>100 && MinDeltaPhiMhtJets>0.3){
 	    FillHisto(h_MET,MET,weight);
 	    FillHisto(h_MHT,MHT,weight);
 	    FillHisto(h_HT,HT,weight);
 	    FillHisto(h_n_jets,n_jets,weight);
 	    FillHisto(h_n_btags,n_btags,weight);
 	    FillHisto(h_n_leptons,n_leptons,weight);
-	    
+	
 	    // track loop start 
 	    for (UInt_t itrack=0; itrack < tracks->size(); ++itrack){
 	        if (not((*tracks_pt)[itrack] > 30)) continue;
 	        if ((*tracks_is_reco_lepton)[itrack]) continue;
-	        //if ((*tracks_mva_bdt)[itrack]>0.1 && (*tracks_is_pixel_track)[itrack]==1)
-	        if ((*tracks_mva_bdt_loose)[itrack] > ((*tracks_dxyVtx)[itrack]*(0.5/0.01) - 0.3) && (*tracks_is_pixel_track)[itrack]==1)
+
+		GenChiDedx = 2.579*TMath::Sqrt(1400)/TMath::Sqrt((*tracks_GenChi_P)[itrack]) + 2.557;
+		trackDedxPixel = (*tracks_deDxHarmonic2pixel)[itrack];
+		trackDedxStrips = (*tracks_deDxHarmonic2strips)[itrack];
+
+		trackMassPixel = TMath::Sqrt((trackDedxPixel-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		trackMassStrips = TMath::Sqrt((trackDedxStrips-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		trackMassPixel_calib = TMath::Sqrt((trackDedxPixel-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+		trackMassStrips_calib = TMath::Sqrt((trackDedxStrips-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+
+		// Short track selection
+	        if ((*tracks_is_pixel_track)[itrack]==1 && ((*tracks_mva_bdt_loose)[itrack]>(*tracks_dxyVtx)[itrack]*(0.5/0.01)-0.3) && (*tracks_deDxHarmonic2pixel)[itrack]>2.557)
 	        {
+	            FillHisto(h_TrackP_pixel,(*tracks_P)[itrack],weight);
 	            FillHisto(h_TrackPt_pixel,(*tracks_pt)[itrack],weight);
-	            FillHisto(h_TrackMass_pixel,TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
+	            FillHisto(h_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
+	            FillHisto(h_TrackMass_pixel,TMath::Log10(trackMassPixel),weight);
+		    if (trackDedxPixel>3.01) FillHisto(h_TrackMass_pixel_calib,TMath::Log10(trackMassPixel_calib),weight);
+	            FillHisto(h_Track_deltaR_with_GenChi_pixel,(*tracks_chiCandGenMatchingDR)[itrack],weight);
+		    
+		    // Gen-level chargino 
+		    if (IsSignal) {
+		        FillHisto(h_TrackP_pixel_GenChi,(*tracks_GenChi_P)[itrack],weight);
+	            	FillHisto(h_TrackPt_pixel_GenChi,(*tracks_GenChi_pt)[itrack],weight);
+		    	FillHisto(h_TrackMass_pixel_GenChiMomentum,TMath::Log10((*tracks_massfromdeDxPixel_GenChiMomentum)[itrack]),weight);
+			FillHisto(h_TrackDedx_pixel_GenChi,GenChiDedx,weight);
+		    }else {
+		        FillHisto(h_TrackP_pixel_GenChi,(*tracks_P)[itrack],weight);
+			FillHisto(h_TrackPt_pixel_GenChi,(*tracks_pt)[itrack],weight);
+		    	FillHisto(h_TrackMass_pixel_GenChiMomentum,TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
+			FillHisto(h_TrackDedx_pixel_GenChi,(*tracks_deDxHarmonic2pixel)[itrack],weight);
+		    }
+		    
+		    // track matching with gen-chrgino(dR<0.01)
+		    if ((*tracks_chiCandGenMatchingDR)[itrack] < 0.01){
+		    	FillHisto(h_TrackP_pixel_GenMatch,(*tracks_P)[itrack],weight);
+			FillHisto(h_TrackPt_pixel_GenMatch,(*tracks_pt)[itrack],weight);
+		    	FillHisto(h_TrackMass_pixel_GenMatch,TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
+		    }
+		    
 	        }
-	        //if ((*tracks_mva_bdt)[itrack]>0.25 && (*tracks_is_pixel_track)[itrack]==0)
-	        if ((*tracks_mva_bdt_loose)[itrack] > ((*tracks_dxyVtx)[itrack]*(0.6/0.01) + 0.05) && (*tracks_is_pixel_track)[itrack]==0)
+		
+		// Long track selection
+	        if ((*tracks_is_pixel_track)[itrack]==0 && ((*tracks_mva_bdt_loose)[itrack]>(*tracks_dxyVtx)[itrack]*(0.6/0.01)+0.05) && (*tracks_deDxHarmonic2strips)[itrack]>2.557)
 	        {
+	            FillHisto(h_TrackP_strips,(*tracks_P)[itrack],weight);
 	            FillHisto(h_TrackPt_strips,(*tracks_pt)[itrack],weight);
-	            FillHisto(h_TrackMass_strips,TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
+	            FillHisto(h_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
+	            FillHisto(h_TrackMass_strips,TMath::Log10(trackMassStrips),weight);
+		    if (trackDedxStrips>3.01) FillHisto(h_TrackMass_strips_calib,TMath::Log10(trackMassStrips_calib),weight);
 	            FillHisto(h_TrackMass_weightedPixelStripsMass,TMath::Log10((*tracks_massfromdeDx_weightedPixelStripsMass)[itrack]),weight);
+	            FillHisto(h_Track_deltaR_with_GenChi_strips,(*tracks_chiCandGenMatchingDR)[itrack],weight);
+		    
+		    // Gen-level chargino 
+		    if (IsSignal) {
+		        FillHisto(h_TrackP_strips_GenChi,(*tracks_GenChi_P)[itrack],weight);
+	            	FillHisto(h_TrackPt_strips_GenChi,(*tracks_GenChi_pt)[itrack],weight);
+		    	FillHisto(h_TrackMass_strips_GenChiMomentum,TMath::Log10((*tracks_massfromdeDxStrips_GenChiMomentum)[itrack]),weight);
+			FillHisto(h_TrackDedx_strips_GenChi,GenChiDedx,weight);
+		    }else {
+		        FillHisto(h_TrackP_strips_GenChi,(*tracks_P)[itrack],weight);
+			FillHisto(h_TrackPt_strips_GenChi,(*tracks_pt)[itrack],weight);
+		    	FillHisto(h_TrackMass_strips_GenChiMomentum,TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
+			FillHisto(h_TrackDedx_strips_GenChi,(*tracks_deDxHarmonic2strips)[itrack],weight);
+		    }
+
+		    // track matching with gen-chrgino(dR<0.01)
+		    if ((*tracks_chiCandGenMatchingDR)[itrack] < 0.01){
+		    	FillHisto(h_TrackP_strips_GenMatch,(*tracks_P)[itrack],weight);
+			FillHisto(h_TrackPt_strips_GenMatch,(*tracks_pt)[itrack],weight);
+		    	FillHisto(h_TrackMass_strips_GenMatch,TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
+		    }
 	        }
 	    } // End of track loop
 	    
-	} // End of SR region(MHT>200)
+	} // End of SR region
 	
 	// CR1 (track-lepton matching)
-	if (MET>200 && MHT>200 && HT>100 && n_leptons!=0){
+	if (MET>200 && MHT>200 && HT>100 && MinDeltaPhiMhtJets>0.3){
 	    FillHisto(h_CR1_MET,MET,weight);
 	    FillHisto(h_CR1_MHT,MHT,weight);
 	    FillHisto(h_CR1_HT,HT,weight);
@@ -498,12 +623,14 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 	        if ((*tracks_mva_bdt_loose)[itrack] > ((*tracks_dxyVtx)[itrack]*(0.5/0.01) - 0.3) && (*tracks_is_pixel_track)[itrack]==1)
 	        {
 	            FillHisto(h_CR1_TrackPt_pixel,(*tracks_pt)[itrack],weight);
+	            FillHisto(h_CR1_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
 	            FillHisto(h_CR1_TrackMass_pixel,TMath::Log10((*tracks_massfromdeDxPixel)[itrack]),weight);
 	        }
 	        //if ((*tracks_mva_bdt)[itrack]>0.25 && (*tracks_is_pixel_track)[itrack]==0)
 	        if ((*tracks_mva_bdt_loose)[itrack] > ((*tracks_dxyVtx)[itrack]*(0.6/0.01) + 0.05) && (*tracks_is_pixel_track)[itrack]==0)
 	        {
 	            FillHisto(h_CR1_TrackPt_strips,(*tracks_pt)[itrack],weight);
+	            FillHisto(h_CR1_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
 	            FillHisto(h_CR1_TrackMass_strips,TMath::Log10((*tracks_massfromdeDxStrips)[itrack]),weight);
 	            FillHisto(h_CR1_TrackMass_weightedPixelStripsMass,TMath::Log10((*tracks_massfromdeDx_weightedPixelStripsMass)[itrack]),weight);
 	        }
@@ -515,8 +642,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     } // End of Event loop
 
     
-    // Save root file
-    TFile* fout = new TFile(Form("./%s/%s",outdir,outputfile),"recreate");
     
     h_MET->Write();
     h_MHT->Write();
@@ -524,11 +649,33 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     h_n_jets->Write();
     h_n_btags->Write();
     h_n_leptons->Write();
+    h_TrackP_pixel->Write();
+    h_TrackP_pixel_GenChi->Write();
+    h_TrackP_pixel_GenMatch->Write();
     h_TrackPt_pixel->Write();
-    h_TrackPt_strips->Write();
+    h_TrackPt_pixel_GenChi->Write();
+    h_TrackPt_pixel_GenMatch->Write();
+    h_TrackDedx_pixel->Write();
+    h_TrackDedx_pixel_GenChi->Write();
     h_TrackMass_pixel->Write();
+    h_TrackMass_pixel_calib->Write();
+    h_TrackMass_pixel_GenChiMomentum->Write();
+    h_TrackMass_pixel_GenMatch->Write();
+    h_TrackP_strips->Write();
+    h_TrackP_strips_GenChi->Write();
+    h_TrackP_strips_GenMatch->Write();
+    h_TrackPt_strips->Write();
+    h_TrackPt_strips_GenChi->Write();
+    h_TrackPt_strips_GenMatch->Write();
+    h_TrackDedx_strips->Write();
+    h_TrackDedx_strips_GenChi->Write();
     h_TrackMass_strips->Write();
+    h_TrackMass_strips_calib->Write();
+    h_TrackMass_strips_GenChiMomentum->Write();
+    h_TrackMass_strips_GenMatch->Write();
     h_TrackMass_weightedPixelStripsMass->Write();
+    h_Track_deltaR_with_GenChi_pixel->Write();
+    h_Track_deltaR_with_GenChi_strips->Write();
 
     h_CR1_MET->Write();
     h_CR1_MHT->Write();
@@ -538,14 +685,17 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     h_CR1_n_leptons->Write();
     h_CR1_TrackPt_pixel->Write();
     h_CR1_TrackPt_strips->Write();
+    h_CR1_TrackDedx_pixel->Write();
+    h_CR1_TrackDedx_strips->Write();
     h_CR1_TrackMass_pixel->Write();
     h_CR1_TrackMass_strips->Write();
     h_CR1_TrackMass_weightedPixelStripsMass->Write();
-    
+ 
+    //fout->Write();
     fout->Close();
 }
 
 int main(int argc, char** argv)
 {
-    return HistoMaker(argv[1], argv[2], argv[3], argv[4]);
+    return HistoMaker(argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
