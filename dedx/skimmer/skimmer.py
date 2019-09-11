@@ -337,13 +337,6 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
 
     score = bdt["reader"].EvaluateMVA("BDT")
     
-    #if is_pixel_track and score > 0.1:
-    #    return score
-    #elif not is_pixel_track and score > 0.25:
-    #    return score
-    #else:
-    #    return -10
-
     return score
     
     
@@ -370,7 +363,7 @@ def pass_pion_veto(event, iCand, deltaR = 0.03):
     return passpionveto
 
 
-def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, only_fakerate = False, verbose = False, iEv_start = False, debug = True, save_cleaned_variables = True):
+def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, verbose = False, iEv_start = False, debug = True, save_cleaned_variables = True):
 
     # store runs for JSON output:
     runs = {}
@@ -467,7 +460,7 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_GenChi_pt', 'tracks_GenChi_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_deDxHarmonic2weighted', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxPixel_GenChiMomentum', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDxStrips_GenChiMomentum', 'tracks_massfromdeDx_weightedDeDx', 'tracks_massfromdeDx_weightedPixelStripsMass', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_GenChi_pt', 'tracks_GenChi_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
     for dt_tag_label in disappearing_track_tags:
         vector_float_branches += ["tracks_mva_%s" % dt_tag_label]
     for branch in vector_float_branches:
@@ -477,42 +470,11 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
     # load and configure data mask:
     if mask_file:
         mask_file = TFile(mask_file, "open")
+	h_mask = False
+	#FIXME (conditions for each data period, MC etc..)
+	#h_mask = mask_file.Get("hEtaVsPhiDT_maskData-2016Data-2016")
     else:
         h_mask = False
-
-    '''
-    # load fake rate histograms:
-    fakerate_regions = []
-    for i_region in ["dilepton", "qcd", "qcd_sideband"]:
-        for i_cond in ["tight", "loose1", "loose2", "loose3", "combined"]:
-            for i_cat in ["_short", "_long"]:
-                fakerate_regions.append(i_region + "_" + i_cond + i_cat)
-
-    fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "HT:n_allvertices_interpolated"]
-    if fakerate_file:
-        
-        # load fakerate maps:
-        fakerate_file = TFile(fakerate_file, "open")
-
-        # get all fakerate histograms:
-        h_fakerates = {}
-        for region in fakerate_regions:
-            for variable in fakerate_variables:                   
-                hist_name = region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                
-                hist_name = hist_name.replace("//", "/")
-                try:
-                    h_fakerates[hist_name] = fakerate_file.Get(hist_name)
-                except:
-                    print "Error reading fakerate:", hist_name
-
-        # add all raw fakerate branches:        
-        for region in fakerate_regions:
-            for variable in fakerate_variables:
-                branch_name = "fakerate_%s_%s" % (region, variable.replace(":", "_"))
-                tree_branch_values[branch_name] = array( 'f', [ 0 ] )
-                tout.Branch( branch_name, tree_branch_values[branch_name], '%s/F' % branch_name )
-    '''
 
     print "Looping over %s events" % nev
 
@@ -546,8 +508,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
         for label in tree_branch_values:
             if "tracks" in label or "region" in label:
                 continue
-            if "fakerate" in label:
-                tree_branch_values[label][0] = 0
             else:
                 tree_branch_values[label][0] = -1
 
@@ -607,8 +567,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values["qcd_sideband_CR"][0] = 1
                 qcd_sideband_CR = True
 
-        if only_fakerate and (not dilepton_CR and not qcd_CR and not qcd_sideband_CR):
-            continue
 
         # event selection for fake rate determination
         if save_cleaned_variables:
@@ -761,20 +719,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             
 	    is_fake_track = is_prompt_electron or is_prompt_muon or is_prompt_tau or is_prompt_tau_leadtrk
             
-	    # Track mass calculation using pixel and strips dE/dx
-	    if is_pixel_track==True and not event.tracks_deDxHarmonic2pixel[iCand] > 2.557 : continue
-	    if is_pixel_track==False and not event.tracks_deDxHarmonic2strips[iCand] > 2.557 : continue
-            
-            tracks_massfromdeDxPixel = TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
-            tracks_massfromdeDxStrips = TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
-	    
-	    tracks_deDxHarmonic2weighted = (event.tracks_deDxHarmonic2pixel[iCand]*event.tracks_nValidPixelHits[iCand] + event.tracks_deDxHarmonic2strips[iCand]*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand])
-	    tracks_massfromdeDx_weightedDeDx = TMath.Sqrt((tracks_deDxHarmonic2weighted-2.557)*pow(event.tracks[iCand].P(),2)/2.579)
-	    tracks_massfromdeDx_weightedPixelStripsMass = (tracks_massfromdeDxPixel * event.tracks_nValidPixelHits[iCand] + tracks_massfromdeDxStrips*event.tracks_nValidTrackerHits[iCand])/(event.tracks_nValidPixelHits[iCand] + event.tracks_nValidTrackerHits[iCand])
-            
-	    #print '%d \t %d \t %s \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f \t %.2f'%(iEv,iCand, is_pixel_track, event.tracks_deDxHarmonic2pixel[iCand], tracks_massfromdeDxPixel, event.tracks_deDxHarmonic2strips[iCand], tracks_massfromdeDxStrips, tracks_deDxHarmonic2weighted,tracks_massfromdeDx_weightedDeDx, tracks_massfromdeDx_weightedPixelStripsMass, event.tracks[iCand].P())
-
-
             # disappearing track counters:
             if debug: print "Found disappearing track in event %s, charged genLeptons in cone: %s" % (iEv, charged_genlepton_in_track_cone)
 
@@ -817,11 +761,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                                      "tracks_matchedCaloEnergyJets": event.tracks_matchedCaloEnergyJets[iCand],
                                      "tracks_deDxHarmonic2pixel": event.tracks_deDxHarmonic2pixel[iCand],
                                      "tracks_deDxHarmonic2strips": event.tracks_deDxHarmonic2strips[iCand],
-                                     "tracks_deDxHarmonic2weighted": tracks_deDxHarmonic2weighted,
-                                     "tracks_massfromdeDxPixel": tracks_massfromdeDxPixel,
-                                     "tracks_massfromdeDxStrips": tracks_massfromdeDxStrips,
-                                     "tracks_massfromdeDx_weightedDeDx": tracks_massfromdeDx_weightedDeDx,
-                                     "tracks_massfromdeDx_weightedPixelStripsMass": tracks_massfromdeDx_weightedPixelStripsMass,
                                      "tracks_chi2perNdof": event.tracks_chi2perNdof[iCand],
                                      "tracks_chargedPtSum": event.tracks_chargedPtSum[iCand],
                                      "tracks_charge": event.tracks_charge[iCand],
@@ -852,15 +791,11 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
 			    deltaR = deltaR_tmp
 			    tracks_GenChi_P = event.GenParticles[k].P()
 			    tracks_GenChi_pt = event.GenParticles[k].Pt()
-			    tracks_massfromdeDxPixel_GenChiMomentum = TMath.Sqrt((event.tracks_deDxHarmonic2pixel[iCand]-2.557)*pow(event.GenParticles[k].P(),2)/2.579)
-			    tracks_massfromdeDxStrips_GenChiMomentum = TMath.Sqrt((event.tracks_deDxHarmonic2strips[iCand]-2.557)*pow(event.GenParticles[k].P(),2)/2.579)
 
                 track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
                 track_level_output[-1]["tracks_GenChi_P"] = tracks_GenChi_P
                 track_level_output[-1]["tracks_GenChi_pt"] = tracks_GenChi_pt
 		
-                track_level_output[-1]["tracks_massfromdeDxPixel_GenChiMomentum"] = tracks_massfromdeDxPixel_GenChiMomentum
-                track_level_output[-1]["tracks_massfromdeDxStrips_GenChiMomentum"] = tracks_massfromdeDxStrips_GenChiMomentum
 
                 ## chargino matching with GenParticlesGeant collection:
                 #for k in range(len(event.GenParticlesGeant)):
@@ -873,32 +808,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
             if debug:
                 for line in sorted(track_level_output[-1].keys()):
                     print "%s: %s" %(line, track_level_output[-1][line])
-
-	'''
-        # evaluate fake rate for each event:
-        if fakerate_file:
-
-            # fill all fakerate branches:
-            for variable in fakerate_variables:
-                for fr_region in fakerate_regions:
-                    
-                    hist_name = fr_region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                    
-                    if ":" in variable:
-                        xvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "nAllVertices").replace("n_NVtx", "NVtx").split(":")[1])
-                        yvalue = eval("event.%s" % variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "nAllVertices").replace("n_NVtx", "NVtx").split(":")[0])
-                                                
-                        #FIXME:
-                        if "interpolated" in hist_name: continue
-
-                        FR = getBinContent_with_overflow(h_fakerates[hist_name], xvalue, yval = yvalue)
-                    else:
-                        value = eval("event.%s" % variable.replace("n_allvertices", "nAllVertices").replace("n_NVtx", "NVtx"))
-                        FR = getBinContent_with_overflow(h_fakerates[hist_name], value)
-                    
-                    branch_name = "fakerate_%s_%s" % (fr_region, variable.replace(":", "_"))
-                    tree_branch_values[branch_name][0] = FR
-	'''
 
         # check if genLeptons are present in event:
         if not is_data:
@@ -925,15 +834,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
                 tree_branch_values["n_genElectrons"][0] = n_genElectrons
                 tree_branch_values["n_genMuons"][0] = n_genMuons
                 tree_branch_values["n_genTaus"][0] = n_genTaus
-
-        # check if in meta CR:
-        #meta_CR = False
-        #if event.BTags >= 1 and event.MHT>100 and event.MHT<300:
-        #    # check for well-reconstructed electron:
-        #    if (len(event.Electrons)>0 and (event.Electrons[0].Pt() > 30) and bool(event.Electrons_mediumID[0]) and bool(event.Electrons_passIso[0])) or \
-        #       (len(event.Muons)>0 and (event.Muons[0].Pt() > 30) and bool(event.Muons_tightID[0]) and bool(event.Muons_passIso[0])):
-        #       meta_CR = True
-        #       tree_branch_values["meta_CR"][0] = meta_CR
 
         # save event-level variables:
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
@@ -991,8 +891,6 @@ def main(event_tree_filenames, track_tree_output, fakerate_file = False, nevents
      
     fout.cd()
 
-    if fakerate_file:
-        fakerate_file.Close()
     if mask_file:
         mask_file.Close()
 
@@ -1022,11 +920,9 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--input", dest = "inputfiles")
     parser.add_option("--output", dest = "outputfiles")
-    parser.add_option("--only_fakerate", dest="only_fakerate", action = "store_true")
     parser.add_option("--debug", dest = "debug", action = "store_true")
     parser.add_option("--mask", dest = "maskfile", default = False)
     parser.add_option("--nev", dest = "nev", default = -1)
-    parser.add_option("--fakerate_file", dest = "fakerate_file", default = False)
     parser.add_option("--iEv_start", dest = "iEv_start", default = 0)
     (options, args) = parser.parse_args()
     
@@ -1038,8 +934,6 @@ if __name__ == "__main__":
     main(options.inputfiles,
          options.outputfiles,
          nevents = int(options.nev),
-         only_fakerate = options.only_fakerate,
          mask_file = options.maskfile,
          iEv_start = int(options.iEv_start),
-         fakerate_file = options.fakerate_file,
          debug = options.debug)
