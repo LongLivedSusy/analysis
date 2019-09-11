@@ -84,7 +84,6 @@ inf = 999999
 regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'NPions', 'TrkPt',    'TrkEta',   'Log10DedxMass','BinNumber']
 regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (-inf,inf),        (0,0  ),   (0,inf),   (0,0),  (-inf,inf),  (-inf,inf), (-inf,inf),     (-inf,inf)]
-regionCuts['BaselineMuVeto']       = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (-inf,inf),        (0,0  ),   (0,0),   (0,0),  (-inf,inf),  (-inf,inf), (-inf,inf),     (-inf,inf)]
 regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (-inf,inf),          (0,0  ),   (0,inf),   (0,0),  (-inf,inf),  (-inf,inf), (-inf,inf),     (-inf,inf)]
 regionCuts['BaselinePixAndStrips']=[(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (-inf,inf),        (0,0  ),   (0,inf),   (0,0),   (-inf,inf),  (-inf,inf), (-inf,inf),     (-inf,inf)]
 def selectionFeatureVector(fvector, regionkey='', omitcuts=''):

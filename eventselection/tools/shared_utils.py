@@ -812,14 +812,14 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 				mva_ = evaluateBDT(readerPixelOnly, trackfv)
 				if mva_ > (dxyVtx*0.65/0.01-0.25) and c.tracks_trkRelIso[itrack]<0.01: return 1, mva_      #tightening if not mva_ > dxyVtx*0.5/0.01-0.3: return 0 in any fashion tended to kill the electron and pion, but only with dphileps
 				elif mva_ < (dxyVtx*0.65/0.01-0.5) and dxyVtx>0.02: return -1, mva_
-				else: return 0, -11
+				else: return 0, mva_
 		elif pixelStrips:
 				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
 				if mva_>(dxyVtx*0.7/0.01+0.05) and c.tracks_trkRelIso[itrack]<0.01: return 2, mva_# this made the MC "happy": if not (mva_>dxyVtx*0.6/0.01+0.05): return 0					
 				elif mva_<(dxyVtx*0.7/0.01-0.5) and dxyVtx>0.02: return -2, mva_
-				else: return 0, -11
+				else: return 0, mva_
 		else:
-				return 0, -11
+				return 0, mva_
 			
 def isBaselineTrack(track, itrack, c, hMask):
 	if not abs(track.Eta())< 2.4 : return False
