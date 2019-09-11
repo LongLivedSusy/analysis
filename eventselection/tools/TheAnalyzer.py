@@ -244,7 +244,7 @@ for ientry in range(nentries):
 		
 		if c.tracks_nValidPixelHits[itrack]==c.tracks_nValidTrackerHits[itrack]: fillth2(hBdtVsDxyIsShort, c.tracks_dxyVtx[itrack], mva)
 		else: fillth2(hBdtVsDxyIsLong, c.tracks_dxyVtx[itrack], mva)
-		if dtstatus==0: continue
+		if not dtstatus>0: continue
 		drlep = 99
 		passeslep = True
 		for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
