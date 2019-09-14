@@ -293,7 +293,7 @@ for ientry in range(nentries):
 		dedx = -1
 		if dtstatus==1: 
 			nShort+=1
-			dedx = c.tracks_deDxHarmonic2pixel[itrack]
+			dedx = c.tracks_deDxHarmonic2strips[itrack]
 		if dtstatus==2: 
 			nLong+=1			
 			dedx = c.tracks_deDxHarmonic2strips[itrack]
@@ -383,7 +383,7 @@ for ientry in range(nentries):
 		pt = dt.Pt()
 		eta = abs(dt.Eta()) 
 		dedx = disappearingTracks[0][2] 
-		Log10DedxMass = TMath.Log10(TMath.Sqrt((dedx-2.557)*pow(c.tracks[itrack].P(),2)/2.579))
+		Log10DedxMass = TMath.Log10(TMath.Sqrt((dedx-3.01)*pow(c.tracks[itrack].P(),2)/1.74))
 	else: 
 		dt = TLorentzVector()
 		pt = -1
