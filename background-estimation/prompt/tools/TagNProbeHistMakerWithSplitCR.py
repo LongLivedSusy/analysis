@@ -640,13 +640,14 @@ for ientry in range(nentries):
 		  TightElectrons.append([lep,c.Electrons_charge[ilep]])
 	   matchedTrack = TLorentzVector()           
 	   drmin = 9999
+	   itrk_ = -1
 	   for trk in basicTracks:
-			 if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
 			 if not c.tracks_trkRelIso[trk[2]] < 0.01: continue
 			 drTrk = trk[0].DeltaR(lep)
 			 if drTrk<drmin:
 				drmin = drTrk
 				matchedTrack = trk[0]
+				itrk_ = trk[2]
 				if drTrk<0.01: break
 	   if not drmin<0.01: continue
 	   #print ientry, 'found electron', lep.Pt() 
@@ -656,7 +657,12 @@ for ientry in range(nentries):
 	   else: smearedEl.SetPtEtaPhiE(matchedTrack.Pt(),matchedTrack.Eta(),matchedTrack.Phi(),matchedTrack.E())
 	   #smearedEl.SetPtEtaPhiE(smear*lep.Pt(),lep.Eta(),lep.Phi(),smear*lep.E())
 	   if not (smearedEl.Pt()>candPtCut and smearedEl.Pt()<candPtUpperCut): continue
-	   SmearedElectrons.append([smearedEl, c.Electrons_charge[ilep], lep.Clone()])# matchedTrack])
+	   if PixMode:
+	   	if c.tracks_nValidTrackerHits[itrk_]==c.tracks_nValidPixelHits[itrk_]:
+	   		SmearedElectrons.append([smearedEl, c.Electrons_charge[ilep], lep.Clone()])
+	   if PixStripsMode:
+	   	if (c.tracks_nMissingOuterHits[itrk_]>=2 and c.tracks_nValidTrackerHits[itrk_]>c.tracks_nValidPixelHits[itrk_]):
+	   		SmearedElectrons.append([smearedEl, c.Electrons_charge[ilep], lep.Clone()])	   			   
 
 	SmearedMuons = []
 	TightMuons = []
@@ -1298,4 +1304,15 @@ print "just created file:", fnew.GetName()
 hNTrackerLayersDT_el.Write()
 hNTrackerLayersDT_mu.Write()
 fnew.Close()
+
+
+
+
+
+
+
+
+
+
+
 

@@ -66,7 +66,8 @@ binning['Ht']=[10,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [34,0,34]
-binning['Log10DedxMass'] = [20,-1,5]
+binning['Log10DedxMass'] = [10,-1,5]
+binning['DeDxAverage'] = [10,0,10]
 
 binningAnalysis = {}
 binningAnalysis['Met']=[200,250,400,700,900]
@@ -87,8 +88,8 @@ binningAnalysis['Ht']=[10,0,2000]
 binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
 binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
 binningAnalysis['BinNumber'] = [32,1,33]
-binningAnalysis['Log10DedxMass'] = [20,-1,5]
-
+binningAnalysis['Log10DedxMass'] = [10,-1,5]
+binningAnalysis['DeDxAverage'] = [10,0,10]
 
 def histoStyler(h,color=kBlack):
 	h.SetLineWidth(2)

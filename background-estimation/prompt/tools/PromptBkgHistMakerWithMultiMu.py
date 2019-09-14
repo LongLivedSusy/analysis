@@ -104,24 +104,33 @@ histoStyler(hMtPionUnMatched,kRed+1)
 inf = 999999
 
 regionCuts = {}
-varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'NPions', 'TrkPt', 'TrkEta','BinNumber']
-regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['LowMhtBaseline']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0 ),     (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (0,0 ),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrEl']        = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrMu']        = [(0,inf), (100,300), (2,inf), (1,5),   (1,1),   (0,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'Log10DedxMass','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'DeDxAverage','BinNumber']
+regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
 
+regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+regionCuts['BaselinePixAndStrips']=[(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+#regionCuts['TtbarCtrElPixOnly'] = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (-inf,inf),         (1,1),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+##regionCuts['TtbarCtrMuPixOnly']= [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,inf),   (0.3,inf),        (-inf,inf),         (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4),     (-inf,inf), (-1,inf)]
+#regionCuts['TtbarCtrElPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),  (1,1),   (0,inf), (1,0),     (0.3,inf),        (-inf,inf),         (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4),     (-inf,inf), (-1,inf)]
+#regionCuts['TtbarCtrMuPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),  (1,1),   (0,inf), (1,inf),   (0.3,inf),        (-inf,inf),         (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4),     (-inf,inf), (-1,inf)]
 
-regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),          (0,0),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-regionCuts['BaselinePixAndStrips']=[(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),          (0,0),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrElPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (1,1),       (0,inf),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-##regionCuts['TtbarCtrMuPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrElPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,0),     (0.3,inf),        (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
-#regionCuts['TtbarCtrMuPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,inf),     (0.3,inf),        (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+#regionCuts['LowMhtBasePixAndStrips']=[(0,inf),(150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),        (0,0  ),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
 
-#regionCuts['LowMhtBasePixAndStrips']=[(0,inf),(150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (0,0  ),     (0,0),    (candPtCut,inf), (0,2.4), (-1,inf)]
+'''
+varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'Log10DedxMass', 'NElectrons', 'NMuons', 'NHardMuons', 'NSoftMuons', 'NPions', 'TrkPt', 'TrkEta',           'DeDxAverage','BinNumber']
+regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (-inf,inf),        (0,inf),     (0,inf),     (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (-inf,inf),        (0,inf),     (0,inf),     (0,inf),     (0,inf),     (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),        (0,0 ),     (0,inf),     (0,inf),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
 
+regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),          (0,0),     (0,inf),     (0,inf),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+regionCuts['BaselinePixAndStrips']=[(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),          (0,0),     (0,inf),     (0,inf),     (0,inf),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+#regionCuts['TtbarCtrElPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (-inf,inf),        (1,1),     (0,inf),     (0,inf),       (0,inf),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+##regionCuts['TtbarCtrMuPixOnly']  = [(100,inf), (100,300), (2,inf), (1,5),  (1,1),   (1,inf), (0,inf),   (0.3,inf),        (-inf,inf),        (0,0),     (0,inf),     (0,inf),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+#regionCuts['TtbarCtrElPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,0),     (0.3,inf),        (-inf,inf),        (1,1),     (0,inf),     (0,inf),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+#regionCuts['TtbarCtrMuPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),   (1,1),   (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),      (0,0),     (0,inf),     (0,inf),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+'''
 
 indexVar = {}
 for ivar, var in enumerate(varlist_): indexVar[var] = ivar
@@ -137,41 +146,77 @@ for region in regionCuts:
 		histname = 'Fake'+region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname)  
 	   
-	
+
+lmasscutLlow = TMath.Log10(100)
+lmasscutLmid = TMath.Log10(450)
+lmasscutSlow = TMath.Log10(60)
+lmasscutSmid = TMath.Log10(150)
 binnumbers = {}
-listagain = ['Ht',  'Mht',    'NJets','BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'NPions', 'TrkPt','TrkEta','BinNumber']
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf))] = 1
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf))] = 2
-binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf))] = 3
-binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 4
-binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.5,inf))] = 5
-binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 6
-binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf))] = 7
-binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 8
-binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.5,inf))] = 9
-binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.5,inf))] = 10
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf))] = 11
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf))] = 12
-binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 13
-binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf))] = 14
-binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 15
-binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 16
-binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 17
-binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 18
-binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf))] = 19
-binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf))] = 20
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf))] = 21
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf))] = 22
-binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 23
-binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 24
-binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 25
-binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 26
-binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf))] = 27
-binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf))] = 28
-binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf))] = 29
-binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf))] = 30
-binnumbers[((0,inf),(0,400),  (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=31
-binnumbers[((0,inf),(400,inf),(0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=32
+listagain = ['Ht',  'Mht',    'NJets','BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets','Log10DedxMass',                  'NElectrons', 'NMuons', 'NPions', 'TrkPt','TrkEta','BinNumber']
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (lmasscutLlow,lmasscutLmid))] = 1
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (lmasscutLmid,inf))] = 2
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (lmasscutSlow,lmasscutSmid))] = 3
+binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (lmasscutSmid,inf))] = 4
+binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLlow,lmasscutLmid))] = 5
+binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLmid,inf))] = 6
+binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSlow,lmasscutSmid))] = 7
+binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSmid,inf))] = 8
+binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLlow,lmasscutLmid))] = 9
+binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLmid,inf))] = 10
+binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSlow,lmasscutSmid))] = 11
+binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSmid,inf))] = 12
+binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLlow,lmasscutLmid))] = 13
+binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLmid,inf))] = 14
+binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSlow,lmasscutSmid))] = 15
+binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSmid,inf))] = 16
+binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLlow,lmasscutLmid))] = 17
+binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.5,inf),          (lmasscutLmid,inf))] = 18
+binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSlow,lmasscutSmid))] = 19
+binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSmid,inf))] = 20
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (lmasscutLlow,lmasscutLmid))] = 21
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (lmasscutLmid,inf))] = 22
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (lmasscutSlow,lmasscutSmid))] = 23
+binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (lmasscutSmid,inf))] = 24
+binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 25
+binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutLmid,inf))] = 26
+binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSlow,lmasscutSmid))] = 27
+binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,inf),          (lmasscutSmid,inf))] = 28
+binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 29
+binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 30
+binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 31
+binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 32
+binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 33
+binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 34
+binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 35
+binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 36
+binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 37
+binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 38
+binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 39
+binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 40
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (lmasscutSlow,lmasscutSmid))] = 41
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (lmasscutSmid,inf))] = 42
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (lmasscutLlow,lmasscutLmid))] = 43
+binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (lmasscutLmid,inf))] = 44
+binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 45
+binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 46
+binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 47
+binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 48
+binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 49
+binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 50
+binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 51
+binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 52
+binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 53
+binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 54
+binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 55
+binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 56
+binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSlow,lmasscutSmid))] = 57
+binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutSmid,inf))] = 58
+binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLlow,lmasscutLmid))] = 59
+binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutLmid,inf))] = 60
+binnumbers[((0,inf),(0,400),  (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=61
+binnumbers[((0,inf),(400,inf),(0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=62
+
+
 
 def getBinNumber(fv):
 	for binkey in binnumbers:
@@ -220,8 +265,8 @@ if isdata:
 	fsmearname_short = 'usefulthings/DataDrivenSmear_Run2016_PixOnly.root'
 	fsmearname_long = 'usefulthings/DataDrivenSmear_Run2016_PixAndStrips.root'	
 else: 
-	fsmearname_short = 'usefulthings/DataDrivenSmear_AllMC_PixOnly.root'
-	fsmearname_long = 'usefulthings/DataDrivenSmear_AllMC_PixAndStrips.root'	
+	fsmearname_short = 'usefulthings/DataDrivenSmear_DYJets_PixOnly.root'
+	fsmearname_long = 'usefulthings/DataDrivenSmear_DYJets_PixAndStrips.root'
 	
 fsmear_short = TFile(fsmearname_short)
 fsmear_long = TFile(fsmearname_long)
@@ -229,6 +274,27 @@ fsmear_long = TFile(fsmearname_long)
 dResponseHist_el_short = {}
 dResponseHist_el_long = {}
 dResponseHist_mu_short = {}
+dResponseHist_mu_long = {}
+for iPtBinEdge, PtBinEdge in enumerate(PtBinEdgesForSmearing[:-1]):
+	for iEtaBinEdge, EtaBinEdge_ in enumerate(EtaBinEdgesForSmearing[:-1]):
+	   newHistKey = ((EtaBinEdge_,EtaBinEdgesForSmearing[iEtaBinEdge + 1]),(PtBinEdge,PtBinEdgesForSmearing[iPtBinEdge + 1]))
+	   print 'attempting to get', "htrkresp"+str(newHistKey)
+	   if '(1.4442,' in str(newHistKey): continue
+	   dResponseHist_el_short[newHistKey] = fsmear_short.Get("htrkresp"+str(newHistKey)+'El')
+	   dResponseHist_mu_short[newHistKey] = fsmear_short.Get("htrkresp"+str(newHistKey)+'Mu')
+	   dResponseHist_el_long[newHistKey] = fsmear_long.Get("htrkresp"+str(newHistKey)+'El')
+	   dResponseHist_mu_long[newHistKey] = fsmear_long.Get("htrkresp"+str(newHistKey)+'Mu')       	   
+
+def getSmearFactor(Eta, Pt, dResponseHist):
+	for histkey in  dResponseHist:
+	   if abs(Eta) > histkey[0][0] and abs(Eta) < histkey[0][1] and Pt > histkey[1][0] and Pt < histkey[1][1]:
+		   SF_trk = 10**(dResponseHist[histkey].GetRandom())
+		   return SF_trk #/SF_ele
+	print 'returning 1'
+	return 1
+	
+
+dResponseHist_el_short = {}
 dResponseHist_mu_long = {}
 for iPtBinEdge, PtBinEdge in enumerate(PtBinEdgesForSmearing[:-1]):
 	for iEtaBinEdge, EtaBinEdge_ in enumerate(EtaBinEdgesForSmearing[:-1]):
@@ -484,7 +550,6 @@ for ientry in range(nentries):
 	nShort, nLong = 0, 0
 	for itrack, track in enumerate(c.tracks):
 		if not track.Pt() > 10 : continue
-		if debugmode: print ientry, itrack, 'got a wiff of track', track.Pt()
 		if not abs(track.Eta()) < 2.4: continue
 		if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue
 		if verbose: print itrack, 'before baseline pt', track.Pt(), 'eta', track.Eta()        
@@ -519,7 +584,8 @@ for ientry in range(nentries):
 				print igp, bool(c.GenTaus_had[igp]==True), c.GenTaus_NProngs[igp] 
 		else:
 			print 'is fake'
-		disappearingTracks.append([track,dtstatus])
+		if dtstatus==1: disappearingTracks.append([track,dtstatus,c.tracks_deDxHarmonic2pixel[itrack]])
+		if dtstatus==2: disappearingTracks.append([track,dtstatus,c.tracks_deDxHarmonic2strips[itrack]])		
 
 
 	SmearedElectrons = []
@@ -562,7 +628,7 @@ for ientry in range(nentries):
 		smear = 1.0 
 		smearedEl.SetPtEtaPhiE(smear*matchedTrk[0].Pt(),matchedTrk[0].Eta(),matchedTrk[0].Phi(),smear*matchedTrk[0].E())
 		if not (smearedEl.Pt()>candPtCut and smearedEl.Pt()<candPtUpperCut): continue
-		SmearedElectrons.append([smearedEl,c.Electrons_charge[iel]])
+		SmearedElectrons.append([smearedEl,c.Electrons_charge[iel],c.tracks_deDxHarmonic2pixel[matchedTrk[2]],c.tracks_deDxHarmonic2strips[matchedTrk[2]]])
 		#print 'a lovely ele', ele.Pt(), smearedEle.Pt()
 
 
@@ -595,7 +661,7 @@ for ientry in range(nentries):
 		smearedMu.SetPtEtaPhiE(0, 0, 0, 0)        
 		smearedMu.SetPtEtaPhiE(smear*matchedTrk[0].Pt(),matchedTrk[0].Eta(),matchedTrk[0].Phi(),smear*matchedTrk[0].E())
 		if not (smearedMu.Pt()>candPtCut and smearedMu.Pt()<candPtUpperCut): continue
-		SmearedMuons.append([smearedMu,c.Muons_charge[ilep]])
+		SmearedMuons.append([smearedMu,c.Muons_charge[ilep],c.tracks_deDxHarmonic2pixel[matchedTrk[2]],c.tracks_deDxHarmonic2strips[matchedTrk[2]]])
 
 
 	SmearedPions = []
@@ -607,7 +673,8 @@ for ientry in range(nentries):
 		if (abs(pi.Eta()) < 1.566 and abs(pi.Eta()) > 1.4442): continue
 		if not abs(pi.Eta())<2.4: continue
 		if verbose: print 'passed eta and Pt'
-		if not c.TAPPionTracks_trkiso[ipi]<0.01: continue		
+		if not c.TAPPionTracks_trkiso[ipi]<0.01: continue
+		
 		drmin = inf
 		matchedTrk = TLorentzVector()
 		for trk in basicTracks:			
@@ -636,15 +703,8 @@ for ientry in range(nentries):
 		if bool(isPromptPi): fillth1(hMtPionMatched,c.TAPPionTracks_mT[ipi])
 		else: fillth1(hMtPionUnMatched,c.TAPPionTracks_mT[ipi])		
 		if not c.TAPPionTracks_mT[ipi]<100: continue #this is kind of the one thing different about the control than the T&P		
-		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi]]) 	
+		SmearedPions.append([smearedPi,c.TAPPionTracks_charge[ipi],c.tracks_deDxHarmonic2pixel[matchedTrk[2]],c.tracks_deDxHarmonic2strips[matchedTrk[2]]])
 		
-	####from T&P
-
-	#	print ientry, 'skipping for funny pion reason', len(SmearedPions), c.isoPionTracks
-	#	continue
-	#else: 
-	#	print ientry, 'no skipping', len(SmearedPions), c.isoPionTracks
-	
 	
 	singleElEvent_ = len(SmearedElectrons) >=1
 	singleMuEvent_ = len(SmearedMuons) >=1    
@@ -656,8 +716,8 @@ for ientry in range(nentries):
 	metvec = TLorentzVector()
 	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
 
-	if singleElEvent_:
-		elec = random.sample(SmearedElectrons,1)[0][0]
+	for elething in SmearedElectrons:
+		elec, elcharge, eldedxPixel, eldedxStrips = elething
 		adjustedMht = TLorentzVector()
 		adjustedMht.SetPxPyPzE(0,0,0,0)
 		adjustedJets = []
@@ -695,7 +755,13 @@ for ientry in range(nentries):
 		ptForKappa = pt
 		
 		#short
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), 1+nShort, nLong, mindphi, len(SmearedElectrons)-1, len(SmearedMuons), len(SmearedPions), pt,eta]
+		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_short)
+		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_short)
+		#smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_short)
+		#uncalibrated: log10dedxmass = TMath.Log10(TMath.Sqrt((eldedxPixel-2.557)*pow(smear*pt*TMath.CosH(eta),2)/2.579))
+		log10dedxmass = TMath.Log10(TMath.Sqrt((eldedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))#ave 2016 calibration
+		
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), 1+nShort, nLong, mindphi, log10dedxmass,len(SmearedElectrons)-1, len(SmearedMuons), len(SmearedPions), pt,eta,eldedxPixel]
 		fv.append(getBinNumber(fv))
 		kPixOnly = fetchKappa(abs(eta),ptForKappa, kappadictElPixOnly, shortMaxKappaPt)
 	
@@ -707,7 +773,11 @@ for ientry in range(nentries):
 					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight)
 		
 		#long        
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), nShort, 1+nLong, mindphi, len(SmearedElectrons)-1, len(SmearedMuons), len(SmearedPions), pt,eta]
+		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_long)
+		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_long)
+		#smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_long)
+		log10dedxmass = TMath.Log10(TMath.Sqrt((eldedxStrips-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), nShort, 1+nLong, mindphi, log10dedxmass,len(SmearedElectrons)-1, len(SmearedMuons), len(SmearedPions), pt,eta,eldedxStrips]
 		fv.append(getBinNumber(fv))                    
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictElPixAndStrips)
 		#kgen = fetchKappa(abs(eta),ptForKappa, fGenElProbePt_KappasPixAndStrips)
@@ -720,8 +790,8 @@ for ientry in range(nentries):
 					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight)                                        
 		
 		
-	if singleMuEvent_:
-		muon = random.sample(SmearedMuons,1)[0][0]
+	for muonthing in SmearedMuons:
+		muon, mucharge, mudedxPixel, mudedxStrips = muonthing
 		adjustedMht = TLorentzVector()
 		adjustedMht.SetPxPyPzE(0,0,0,0)
 		adjustedJets = []
@@ -755,7 +825,12 @@ for ientry in range(nentries):
 				pt = muon.Pt()
 				eta = abs(muon.Eta())    
 		ptForKappa = pt
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, len(SmearedElectrons), len(SmearedMuons)-1, len(SmearedPions),pt,eta]
+		
+		#short
+		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
+		smear *=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)		
+		log10dedxmass = TMath.Log10(TMath.Sqrt((mudedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, log10dedxmass,len(SmearedElectrons), len(SmearedMuons)-1, len(SmearedPions),pt,eta,mudedxPixel]
 		fv.append(getBinNumber(fv))
 		kPixOnly = fetchKappa(abs(eta),ptForKappa, kappadictMuPixOnly, shortMaxKappaPt)
 		for regionkey in regionCuts:
@@ -764,8 +839,13 @@ for ientry in range(nentries):
 				if selectionFeatureVector(fv,regionkey,varname):
 					fillth1(histoStructDict[hname].Control,fv[ivar], weight)
 					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight)
-		
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi, len(SmearedElectrons), len(SmearedMuons)-1, len(SmearedPions),pt,eta]
+					
+		#long
+		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
+		smear*=getSmearFactor(abs(eta),  min(pt,299.999), dResponseHist_mu_long)
+		#smear*=getSmearFactor(abs(eta),  min(pt,299.999), dResponseHist_mu_long)
+		log10dedxmass = TMath.Log10(TMath.Sqrt((mudedxStrips-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi,log10dedxmass, len(SmearedElectrons), len(SmearedMuons)-1, len(SmearedPions),pt,eta,mudedxStrips]
 		fv.append(getBinNumber(fv))
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictMuPixAndStrips)
 		for regionkey in regionCuts:
@@ -777,8 +857,8 @@ for ientry in range(nentries):
 						
 		
 		
-	if singlePiEvent_:
-		pion = random.sample(SmearedPions,1)[0][0]
+	for pithing in SmearedPions:
+		pion, picharge, pidedxPixel, pidedxStrips = pithing
 		adjustedMht = TLorentzVector()
 		adjustedMht.SetPxPyPzE(0,0,0,0)
 		adjustedJets = []
@@ -811,11 +891,17 @@ for ientry in range(nentries):
 						eta = abs(genpis[0].Eta())
 		else:
 				pt = pion.Pt()
-				eta = abs(pion.Eta())    
+				eta = abs(pion.Eta()) 				
+		ptForKappa = pt   
+		
 		#short
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta]
+		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
+		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
+		#smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
+		log10dedxmass = TMath.Log10(TMath.Sqrt((pidedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))		
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, log10dedxmass,len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta,pidedxPixel]
 		fv.append(getBinNumber(fv))
-		kPixOnly = fetchKappa(abs(eta),min(pt,9999.99), kappadictPiPixOnly, shortMaxKappaPt)
+		kPixOnly = fetchKappa(abs(eta),min(ptForKappa,9999.99), kappadictPiPixOnly, shortMaxKappaPt)
 		#print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
@@ -825,7 +911,11 @@ for ientry in range(nentries):
 					fillth1(histoStructDict[hname].Control,fv[ivar], weight)
 					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight)
 		#long
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi, len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta]
+		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
+		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
+		#smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
+		log10dedxmass = TMath.Log10(TMath.Sqrt((pidedxStrips-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi, log10dedxmass,len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta,pidedxStrips]
 		fv.append(getBinNumber(fv))
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictPiPixAndStrips)
 		#print 'kPixAndStrips', kPixAndStrips, 'eta', eta, 'pt', ptForKappa
@@ -837,7 +927,8 @@ for ientry in range(nentries):
 					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight)                        
 									
 	if presentDisTrkEvent:
-		dt = disappearingTracks[0][0]
+		dt, status, dedxDT = disappearingTracks[0]
+		print ientry, 'DT stuff dt, status, dedxDT ', dt, status, dedxDT 
 		isPromptEl = isMatched(dt, genels, 0.02)
 		isPromptMu = isMatched(dt, genmus, 0.02)
 		isPromptPi = isMatched(dt, genpis, 0.02)
@@ -880,8 +971,10 @@ for ientry in range(nentries):
 					eta = abs(isPromptPi.Eta()) 					               
 		else: 
 			pt = dt.Pt()
-			eta = abs(dt.Eta())    
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,len(RecoElectrons), len(RecoMuons), len(SmearedPions), pt, eta]
+			eta = abs(dt.Eta()) 
+				
+		log10dedxmass = TMath.Log10(TMath.Sqrt((dedxDT-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, log10mass, len(RecoElectrons), len(RecoMuons), len(SmearedPions), pt, eta,dedxDT]
 		fv.append(getBinNumber(fv))
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
@@ -911,5 +1004,6 @@ hMtPionUnMatched.Write()
 print 'just created', fnew_.GetName()
 fnew_.Close()
 fKappaPixOnly.Close()
-fsmearname_short.Close()
-fsmearname_long.Close()
+fsmear_short.Close()
+fsmear_long.Close()
+

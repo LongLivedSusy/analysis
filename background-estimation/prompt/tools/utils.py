@@ -64,8 +64,9 @@ binning['NPixStrips']=binning['NTags']
 binning['BTags']=[4,0,4]
 binning['Ht']=[10,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
-binning['Track1MassFromDedx'] = [25,0,1000]
-binning['BinNumber'] = [34,0,34]
+binning['DeDxAverage'] = [20,0,10]
+binning['Log10DedxMass'] = [10,0,5]
+binning['BinNumber'] = [64,0,64]
 
 binningAnalysis = {}
 binningAnalysis['Met']=[200,250,400,700,900]
@@ -84,8 +85,9 @@ binningAnalysis['NPixStrips']=binningAnalysis['NTags']
 binningAnalysis['BTags']=[4,0,4]
 binningAnalysis['Ht']=[10,0,2000]
 binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
-binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
-binningAnalysis['BinNumber'] = [32,1,33]
+binningAnalysis['Log10DedxMass'] = [10,0,5]
+binningAnalysis['DeDxAverage'] = [20,0,10]
+binningAnalysis['BinNumber'] = [62,1,63]
 
 
 def histoStyler(h,color=kBlack):
@@ -640,21 +642,21 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 				mva_ = evaluateBDT(readerPixelOnly, trackfv)
 				if mva_ > (dxyVtx*0.65/0.01-0.25) and c.tracks_trkRelIso[itrack]<0.01: return 1, mva_      #tightening if not mva_ > dxyVtx*0.5/0.01-0.3: return 0 in any fashion tended to kill the electron and pion, but only with dphileps
 				elif mva_ < (dxyVtx*0.65/0.01-0.5) and dxyVtx>0.02: return -1, mva_
-				else: return 0, -11
+				else: return 0, mva_
 		elif pixelStrips:
 				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
 				if mva_>(dxyVtx*0.7/0.01+0.05) and c.tracks_trkRelIso[itrack]<0.01: return 2, mva_# this made the MC "happy": if not (mva_>dxyVtx*0.6/0.01+0.05): return 0					
 				elif mva_<(dxyVtx*0.7/0.01-0.5) and dxyVtx>0.02: return -2, mva_
-				else: return 0, -11
+				else: return 0, mva_
 		else:
-				return 0, -11
+				return 0, mva_
 							 
 def isBaselineTrack(track, itrack, c, hMask):
 	if not abs(track.Eta())< 2.4 : return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
 	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
 	if not (c.tracks_ptError[itrack]/(track.Pt()*track.Pt()) < 10): return False
-	if not abs(c.tracks_dxyVtx[itrack]) < 0.05: return False    ##################hello, this should be synchronized with Viktor
+	if not abs(c.tracks_dxyVtx[itrack]) < 0.1: return False    ##################hello, this should be synchronized with Viktor
 	if not abs(c.tracks_dzVtx[itrack]) < 0.1 : return False
 	if not c.tracks_trkRelIso[itrack] < 0.2: return False
 	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False

@@ -7,6 +7,7 @@ fofinterest.ls()
 hElectron = fofinterest.Get('hElBaseline_BinNumberMethod')
 hMuon = fofinterest.Get('hMuBaseline_BinNumberMethod')
 hPion = fofinterest.Get('hPiBaseline_BinNumberMethod')
+hPion.Scale(0.5)
 hTruth = fofinterest.Get('hElBaseline_BinNumberTruth')
 
 hists = [hElectron, hMuon, hPion]

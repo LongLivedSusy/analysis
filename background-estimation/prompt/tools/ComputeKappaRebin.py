@@ -61,10 +61,10 @@ for key in keys:
 		h3tosubtract = file.Get(n2sub)
 		h3tosubtract.SetLineColor(kBlue+1)
 		h3tosubtract.Draw('same hist')
-
+		
 		hnum.Add(h1tosubtract,-1)
 		hnum.Add(h2tosubtract,-1)
-		#hnum.Add(h3tosubtract,-1)		
+		hnum.Add(h3tosubtract,-1)		
 	hden    = file.Get(name.replace('_num','_den').replace('DT','RECO'))	
 	if 'Gen' in name: hnum.SetLineColor(kAzure)
 	else: hnum.SetLineColor(kViolet)
@@ -75,19 +75,19 @@ for key in keys:
 	ratname = name.replace('_num','').replace('DT','Kappa')
 
 	xax = hnum.GetXaxis()
-	newbins = list(PtBinEdges)
+	newbinedges = list(PtBinEdges)
 	binNumbers2remove = []
 	for ibin in range(2, xax.GetNbins()+1):##just added+1
-		if hnum.GetBinContent(ibin)<2 or hden.GetBinContent(ibin)<2 or hnum.GetBinContent(ibin-1)<2 or hden.GetBinContent(ibin-1)<2:
+		if hnum.GetBinContent(ibin)<1 or hden.GetBinContent(ibin)<1 or hnum.GetBinContent(ibin-1)<1 or hden.GetBinContent(ibin-1)<1:
 			binNumbers2remove.append(ibin)
 	binNumbers2remove.reverse()
 	for binNumber in binNumbers2remove:
-		del newbins[binNumber-1]
-	if len(newbins)>=2: 
+		del newbinedges[binNumber-1]
+	if len(newbinedges)>=2: 
 		print 'old bins', PtBinEdges
-		print 'new bins', newbins
-		nbins = len(newbins)-1
-		newxs = array('d',newbins)
+		print 'new bins', newbinedges
+		nbins = len(newbinedges)-1
+		newxs = array('d',newbinedges)
 		hnum = hnum.Rebin(nbins,'',newxs)
 		hden = hden.Rebin(nbins,'',newxs)
 	
@@ -127,6 +127,8 @@ for key in keys:
 	elif nbins>40: 
 		funcs['f1'+ratname] = TF1('f1'+ratname,'0.001*[0]*exp([1]*(x-10)+[2]*(x-10)*(x-10))',5,2500)
 		#funcs['f1'+ratname] = TF1('f1'+ratname,'0.001*[0]*TMath::Landau((x-10),[1],[2])',5,350)		
+	elif nbins>40: 
+		funcs['f1'+ratname] = TF1('f1'+ratname,'0.001*[0]*exp([1]*(x-10)+[2]*(x-10))',5,2500)
 	elif nbins>2: 
 		#funcs['f1'+ratname] = TF1('f1'+ratname,'0.001*[0] * (exp(-[1]*x))',30,3500)
 		funcs['f1'+ratname] = TF1('f1'+ratname,'0.001*[0]*exp([1]*(x-10))',5,2500)
@@ -136,7 +138,7 @@ for key in keys:
 	funcs['f1'+ratname].SetParLimits(0,0, 9999)
 	#funcs['f1'+ratname].SetParLimits(2,0, 9999)
 	print 'nbins', nbins, ratname
-	hratio.Fit('f1'+ratname,'','EMRSN',5,2500)
+	hratio.Fit('f1'+ratname,'','EMRSN',15,180)
 	funcs['f1'+ratname].SetLineColor(hratio.GetLineColor())	
 
 	leg = mklegend(x1=.22, y1=.66, x2=.79, y2=.82)
