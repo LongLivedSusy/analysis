@@ -118,7 +118,7 @@ for region in regionCuts:
 		histoStructDict[histname] = mkHistoStruct(histname)	   
 
 lmasscutLlow = TMath.Log10(100)
-lmasscutLmid = TMath.Log10(450)
+lmasscutLmid = TMath.Log10(800)
 lmasscutSlow = TMath.Log10(60)
 lmasscutSmid = TMath.Log10(150)
 binnumbers = {}
@@ -183,7 +183,7 @@ binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,i
 binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (lmasscutLmid,inf))] = 58
 binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutSlow,lmasscutLmid))] = 59
 binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (lmasscutSmid,inf))] = 60
-binnumbers[((0,inf),(0,400),  (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=61
+binnumbers[((0,inf),(250,400),  (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=61
 binnumbers[((0,inf),(400,inf),(0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=62
 
 
