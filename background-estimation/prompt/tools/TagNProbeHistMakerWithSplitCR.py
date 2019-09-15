@@ -48,6 +48,7 @@ verbose = False
 DoGenMatching = False
 candPtCut = 25
 candPtUpperCut = 6499
+upperptforkappa = 200
 if SmearLeps4Zed: kappasmearlevellabel = 'YesZSmear'
 else: kappasmearlevellabel = 'NoZSmear'
 
@@ -1191,7 +1192,7 @@ for ientry in range(nentries):
 									print ientry, 'we got tau pi mtt', IMleplep
 									print 'we were working on', inputFileNames
 				if probeIsRecoMu:
-					kappa = fetchKappa(abs(ProbeEta),min(ProbePt,9999.99), kappadictMu, maxKappaPt)
+					kappa = fetchKappa(abs(ProbeEta),min(ProbePt,200), kappadictMu, maxKappaPt)
 					for histkey in  dInvMassMuFromTauRECOHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassMuFromTauRECOHist[histkey],IM, weight)
@@ -1202,7 +1203,7 @@ for ientry in range(nentries):
 								fillth1(hMuFromTauProbePt_RECOdens[histkey], ProbePt, weight)
 								fillth1(hMuFromTauProbePtWtd_RECOdens[histkey], ProbePt, kappa*weight)
 				if probeIsRecoEl:
-					kappa = fetchKappa(abs(ProbeEta),min(ProbePt,9999.99), kappadictEl, maxKappaPt)
+					kappa = fetchKappa(abs(ProbeEta),min(ProbePt,200), kappadictEl, maxKappaPt)
 					for histkey in  dInvMassElFromTauRECOHist:
 						if abs(ProbeEta) > histkey[0][0] and abs(ProbeEta) < histkey[0][1] and ProbePt > histkey[1][0] and ProbePt < histkey[1][1]:
 							fillth1(dInvMassElFromTauRECOHist[histkey],IM, weight)

@@ -65,7 +65,7 @@ binning['BTags']=[4,0,4]
 binning['Ht']=[10,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['Track1MassFromDedx'] = [25,0,1000]
-binning['BinNumber'] = [34,0,34]
+binning['BinNumber'] = [62,1,63]
 binning['Log10DedxMass'] = [10,-1,5]
 binning['DeDxAverage'] = [10,0,10]
 
@@ -87,7 +87,7 @@ binningAnalysis['BTags']=[4,0,4]
 binningAnalysis['Ht']=[10,0,2000]
 binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
 binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
-binningAnalysis['BinNumber'] = [32,1,33]
+binningAnalysis['BinNumber'] = [62,1,63]
 binningAnalysis['Log10DedxMass'] = [10,-1,5]
 binningAnalysis['DeDxAverage'] = [10,0,10]
 
@@ -494,7 +494,9 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 		leg.AddEntry(hTruth,title0,'lp')    
 	hTruth.SetTitle('')
 	hComponents[0].SetTitle('')	
+	hComponents[0].GetYaxis().SetRangeUser(0.001, 100*hTruth.GetMaximum())
 	hComponents[0].Draw('hist')
+	
 	for h in hComponents[1:]: 
 		h.Draw('hist same')
 		cGold.Update()
@@ -584,7 +586,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title 
 	else:
 		for ihComp, hComp in enumerate(hComponents):
 			leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
-		leg.AddEntry(hTruth,title0,'lp')    
+		leg.AddEntry(hTruth,title0,'p')    
 	hTruth.SetTitle('')
 	hComponents[0].SetTitle('')	
 	xax = hComponents[0].GetXaxis()

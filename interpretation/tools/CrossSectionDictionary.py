@@ -1,5 +1,3 @@
-from array import array
-from ROOT import *
 CrossSectionsPb = {}
 def loadCrossSections(model = "T1"):
   if model=="T1":
@@ -505,26 +503,3 @@ def loadCrossSections(model = "T1"):
 	CrossSectionsPb["T1"]["2990"]= 0.644E-05
 	CrossSectionsPb["T1"]["2995"]= 0.628E-05
 	CrossSectionsPb["T1"]["3000"]= 0.612E-05
-	
-	
-  if model=="Higgsino":
-	CrossSectionsPb["Higgsino"]= {}
-	CrossSectionsPb["Higgsino"]["100"]= 16797.2/1000
-	CrossSectionsPb["Higgsino"]["150"]= 3832.31/1000
-	CrossSectionsPb["Higgsino"]["200"]= 1335.62/1000
-	CrossSectionsPb["Higgsino"]["250"]= 577.314/1000
-	CrossSectionsPb["Higgsino"]["300"]= 284.85/1000
-	x, y = array( 'd' ), array( 'd' )
- 	keys = sorted(CrossSectionsPb['Higgsino'].keys())
- 	n = len(keys)
- 	for key in keys:
- 		x.append(float(key))
- 		y.append(float(CrossSectionsPb['Higgsino'][key])) 		
- 	gr = TGraph( n, x, y )
- 	CrossSectionsPb["Higgsino"]['graph'] = gr
-	
-	
-	
-	
-	
-	

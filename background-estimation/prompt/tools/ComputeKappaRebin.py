@@ -42,29 +42,43 @@ for key in keys:
 	  if 'Pi' in name: 
 	  	print 'subtracting stuff'
 		print 'integral before', hnum.Integral()
-		hnum.Draw('hist')
 		n2sub = name.replace('Pi','ElFromTau').replace('DT','RECO').replace('num','den').replace('Pt','PtWtd')
 		h1tosubtract = file.Get(n2sub)
 		h1tosubtract.SetLineColor(kGreen+1)
 		h1tosubtract.Draw('same hist')
 		hnum.SetLineColor(kBlue)
-		print 'integral after', hnum.Integral()
+		hnum.SetDirectory(0)		
 		n2sub = name.replace('Pi','MuFromTau').replace('DT','RECO').replace('num','den').replace('Pt','PtWtd')
 		h2tosubtract = file.Get(n2sub)
 		#h2tosubtract.SetLineColor(kViolet+1)
 		#h2tosubtract.Draw('same')
 		#c1.Update()
 		#pause()
-
+		
+		fnew.cd()
+		hnum.Write(hnum.GetName()+'_numb4sub')
+		fnew.ls()
+		print 'should see a numb4thing'
 		n2sub = name.replace('Pi','FakeFromTau').replace('DT','CR').replace('num','den').replace('Pt','PtWtd')
 		print 'now subtracting', n2sub, 'from', name
 		h3tosubtract = file.Get(n2sub)
 		h3tosubtract.SetLineColor(kBlue+1)
 		h3tosubtract.Draw('same hist')
-		
+		fnew.cd()
+		h1tosubtract.Write()
 		hnum.Add(h1tosubtract,-1)
+		print 'integral after ', h1tosubtract.GetName(), hnum.Integral()
+		fnew.cd()
+		h2tosubtract.Write()		
+		pause()
 		hnum.Add(h2tosubtract,-1)
-		hnum.Add(h3tosubtract,-1)		
+		print 'integral after mu', h2tosubtract.GetName(), hnum.Integral()		
+		fnew.cd()
+		h3tosubtract.Write()
+		hnum.Add(h3tosubtract,-1)
+
+
+		print 'integral after pi', h3tosubtract.GetName(), hnum.Integral()
 	hden    = file.Get(name.replace('_num','_den').replace('DT','RECO'))	
 	if 'Gen' in name: hnum.SetLineColor(kAzure)
 	else: hnum.SetLineColor(kViolet)
