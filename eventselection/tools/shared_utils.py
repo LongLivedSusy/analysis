@@ -66,8 +66,8 @@ binning['Ht']=[10,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [62,1,63]
-binning['Log10DedxMass'] = [10,-1,5]
-binning['DeDxAverage'] = [10,0,10]
+binning['Log10DedxMass'] = [10,0,5]
+binning['DeDxAverage'] = [20,0,10]
 
 binningAnalysis = {}
 binningAnalysis['Met']=[200,250,400,700,900]
@@ -88,8 +88,8 @@ binningAnalysis['Ht']=[10,0,2000]
 binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
 binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
 binningAnalysis['BinNumber'] = [62,1,63]
-binningAnalysis['Log10DedxMass'] = [10,-1,5]
-binningAnalysis['DeDxAverage'] = [10,0,10]
+binningAnalysis['Log10DedxMass'] = [10,0,5]
+binning['DeDxAverage'] = [20,0,10]
 
 def histoStyler(h,color=kBlack):
 	h.SetLineWidth(2)
@@ -493,8 +493,9 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 			leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
 		leg.AddEntry(hTruth,title0,'lp')    
 	hTruth.SetTitle('')
-	hComponents[0].SetTitle('')	
-	hComponents[0].GetYaxis().SetRangeUser(0.001, 100*hTruth.GetMaximum())
+	hComponents[0].SetTitle('')
+	if LinearScale: hComponents[0].GetYaxis().SetRangeUser(0, 1.5*hTruth.GetMaximum())
+	else: hComponents[0].GetYaxis().SetRangeUser(0.001, 100*hTruth.GetMaximum())
 	hComponents[0].Draw('hist')
 	
 	for h in hComponents[1:]: 
@@ -582,7 +583,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title 
 	title0 = hTruth.GetTitle()
 	if datamc=='MC':
 		for hcomp in hComponents: leg.AddEntry(hcomp,hcomp.GetTitle(),'lf')
-		leg.AddEntry(hTruth,hTruth.GetTitle(),'lpf')        
+		leg.AddEntry(hTruth,hTruth.GetTitle(),'p')        
 	else:
 		for ihComp, hComp in enumerate(hComponents):
 			leg.AddEntry(hComp, hComp.GetTitle(),'lpf')      
@@ -698,7 +699,7 @@ def stampFab(lumi,datamc='MC'):
 	tl.SetTextSize(1.6*tl.GetTextSize())
 	tl.DrawLatex(0.152,0.82, 'CMS')
 	tl.SetTextFont(extraTextFont)
-	tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' preliminary')
+	tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
 	tl.SetTextFont(regularfont)
 	if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
 	else: tl.DrawLatex(0.5,0.82,'#sqrt{s} = 13 TeV, L = '+str(lumi)+' fb^{-1}')
