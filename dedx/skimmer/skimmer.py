@@ -112,10 +112,11 @@ def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track):
     return region
 
 
-def pass_background_stitching(current_file_name, madHT):
+def pass_background_stitching(current_file_name, madHT, phase):
     if (madHT>0) and \
        ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
        ("WJetsToLNu_TuneCUETP8M1_13TeV" in current_file_name and madHT>100) or \
+       (phase == 1 and "TTJets_Tune" in current_file_name and madHT>600) or \
        ("HT-100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
        ("HT-200to300_" in current_file_name and (madHT<200 or madHT>300)) or \
        ("HT-200to400_" in current_file_name and (madHT<200 or madHT>400)) or \
@@ -147,22 +148,18 @@ def pass_background_stitching(current_file_name, madHT):
         return True
                 
 
-def isBaselineTrack(track, itrack, c, hMask, loose = False):
+def isBaselineTrack(track, itrack, c):
 
 	if not abs(track.Eta())< 2.4 : return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
 	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
 	if not (c.tracks_ptError[itrack]/(track.Pt()*track.Pt()) < 10): return False
-	if not loose and (not abs(c.tracks_dxyVtx[itrack]) < 0.1): return False
-	if not abs(c.tracks_dzVtx[itrack]) < 0.1 : return False
+	#if not loose and (not abs(c.tracks_dxyVtx[itrack]) < 0.1): return False
+	#if not abs(c.tracks_dzVtx[itrack]) < 0.1 : return False
 	if not c.tracks_trkRelIso[itrack] < 0.2: return False
 	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False
 	if not c.tracks_nMissingInnerHits[itrack]==0: return False
 	if not c.tracks_nMissingMiddleHits[itrack]==0: return False	
-	if hMask:
-		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
-    		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
-		if hMask.GetBinContent(ibinx, ibiny)==0: return False
 	return True
 
 
@@ -186,7 +183,7 @@ def passQCDHighMETFilter(t):
 def passesUniversalSelection(t):
     
     if not (bool(t.JetID) and  t.NVtx>0): return False
-    if not  passQCDHighMETFilter(t): return False
+    if not passQCDHighMETFilter(t): return False
     if not t.PFCaloMETRatio<2: return False
     if not t.globalTightHalo2016Filter: return False
     if not t.HBHEIsoNoiseFilter: return False
@@ -234,32 +231,6 @@ def get_minDeltaPhi_MHT_HEMJets(objects, MHT):
         return lowestDPhi
 
 
-def getBinContent_with_overflow(histo, xval, yval = False):
-    
-    if not yval:
-        # overflow for TH1Fs:
-        if xval >= histo.GetXaxis().GetXmax():
-            value = histo.GetBinContent(histo.GetXaxis().GetNbins())
-        else:
-            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval))
-        return value
-    else:
-        # overflow for TH2Fs:
-        if xval >= histo.GetXaxis().GetXmax() and yval < histo.GetYaxis().GetXmax():
-            xbins = histo.GetXaxis().GetNbins()
-            value = histo.GetBinContent(xbins, histo.GetYaxis().FindBin(yval))
-        elif xval < histo.GetXaxis().GetXmax() and yval >= histo.GetYaxis().GetXmax():
-            ybins = histo.GetYaxis().GetNbins()
-            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), ybins)
-        elif xval >= histo.GetXaxis().GetXmax() or yval >= histo.GetYaxis().GetXmax():
-            xbins = histo.GetXaxis().GetNbins()
-            ybins = histo.GetYaxis().GetNbins()
-            value = histo.GetBinContent(xbins, ybins)
-        else:
-            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
-        return value
-    
-
 def load_tmva_readers(phase):
     
     readers = {}
@@ -288,7 +259,7 @@ def load_tmva_readers(phase):
     return readers
     
 
-def get_disappearing_track_score(event, iCand, readers, loose = False):
+def get_disappearing_track_score(dt_tag_label, event, iCand, readers, loose = False):
     
     # check TMVA preselection and evaluate BDT score
     
@@ -297,6 +268,15 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
     if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
         category = "long"
         is_pixel_track = False
+
+    if "loose" in dt_tag_label:
+	use_dxy = False
+	use_dz = True
+	bdt = readers["bdt_loose-%s" % category]
+    else:
+	use_dxy = True
+	use_dz = True
+	bdt = readers["bdt-%s" % category]
                 
     ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
     
@@ -304,8 +284,8 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
     if is_pixel_track and not (event.tracks[iCand].Pt() > 30 and \
         abs(event.tracks[iCand].Eta()) < 2.4 and \
         event.tracks_trkRelIso[iCand] < 0.2 and \
-        (loose or event.tracks_dxyVtx[iCand] < 0.1) and \
-        event.tracks_dzVtx[iCand] < 0.1 and \
+        (not use_dxy or event.tracks_dxyVtx[iCand] < 0.1) and \
+        (not use_dz or event.tracks_dzVtx[iCand] < 0.1) and \
         ptErrOverPt2 < 10 and \
         event.tracks_nMissingMiddleHits[iCand] == 0 and \
         bool(event.tracks_trackQualityHighPurity[iCand]) == 1):
@@ -314,8 +294,8 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
     if not is_pixel_track and not (event.tracks[iCand].Pt() > 30 and \
         abs(event.tracks[iCand].Eta()) < 2.4 and \
         event.tracks_trkRelIso[iCand] < 0.2 and \
-        (loose or event.tracks_dxyVtx[iCand] < 0.1) and \
-        event.tracks_dzVtx[iCand] < 0.1 and \
+        (not use_dxy or event.tracks_dxyVtx[iCand] < 0.1) and \
+        (not use_dz or event.tracks_dzVtx[iCand] < 0.1) and \
         ptErrOverPt2 < 10 and \
         event.tracks_nMissingOuterHits[iCand] >= 2 and \
         event.tracks_nMissingMiddleHits[iCand] == 0 and \
@@ -327,8 +307,10 @@ def get_disappearing_track_score(event, iCand, readers, loose = False):
     else:
         bdt = readers["bdt_loose-%s" % category]
 
-    if not loose: bdt["tmva_variables"]["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
-    bdt["tmva_variables"]["dzVtx"][0] = event.tracks_dzVtx[iCand]
+    if use_dxy:
+        bdt["tmva_variables"]["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
+    if use_dz:
+        bdt["tmva_variables"]["dzVtx"][0] = event.tracks_dzVtx[iCand]
     bdt["tmva_variables"]["matchedCaloEnergy"][0] = event.tracks_matchedCaloEnergy[iCand]
     bdt["tmva_variables"]["trkRelIso"][0] = event.tracks_trkRelIso[iCand]
     bdt["tmva_variables"]["nValidPixelHits"][0] = event.tracks_nValidPixelHits[iCand]
@@ -363,7 +345,12 @@ def pass_pion_veto(event, iCand, deltaR = 0.03):
     return passpionveto
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", mask_file = False, verbose = False, iEv_start = False, debug = True, save_cleaned_variables = True):
+def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", verbose = False, iEv_start = False, debug = True, save_cleaned_variables = True):
+    
+    print "Input: %s" % event_tree_filenames
+    print "Output: %s" % track_tree_output
+    print "nevents: %s" % nevents
+    print "iEv_start: %s" % iEv_start
 
     # store runs for JSON output:
     runs = {}
@@ -394,6 +381,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 phase = 0
             elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
                 phase = 1
+    print "Phase:", phase
 
     #FIXME: no special handling for Autumn18 yet
     if data_period == "Autumn18":
@@ -412,14 +400,13 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tout = TTree("Events", "tout")
 
     # prepare variables for output tree   
-    float_branches = ["MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "dilepton_pt1", "dilepton_pt2"]
-    integer_branches = ["n_jets", "n_btags", "n_leptons", "n_allvertices", "n_NVtx", "EvtNumEven", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
+    float_branches = ["weight", "MET", "METPhi", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec"]
+    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
     if not is_data:
         float_branches.append("madHT")
         float_branches.append("CrossSection")
         float_branches.append("puWeight")
-        float_branches.append("NumInteractions")
     if save_cleaned_variables:
         float_branches.append("MHT_cleaned")
         float_branches.append("HT_cleaned")
@@ -446,13 +433,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if "tracks_" in label:
             track_variables.append(label)
 
-    # todo: use track_variables to get all track properties automatically
-
     # add our track vectors:
     tree_branch_values["tracks"] = 0
     tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_passpionveto', 'tracks_is_baseline_track', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_passpionveto', 'tracks_passmask', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
     for dt_tag_label in disappearing_track_tags:
         vector_int_branches += ["tracks_tagged_%s" % dt_tag_label]
     
@@ -460,19 +445,29 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_GenChi_pt', 'tracks_GenChi_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
     for dt_tag_label in disappearing_track_tags:
         vector_float_branches += ["tracks_mva_%s" % dt_tag_label]
+    
+    # if signal, save chargino info
+    if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
+        vector_float_branches += ["Genpar_Chargino_P"]
+        vector_float_branches += ["Genpar_Chargino_pt"]
+    
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
 
+
+
     # load and configure data mask:
-    if mask_file:
-        mask_file = TFile(mask_file, "open")
-	h_mask = False
-	#FIXME (conditions for each data period, MC etc..)
-	#h_mask = mask_file.Get("hEtaVsPhiDT_maskData-2016Data-2016")
+    if phase == 0:
+        mask_file = TFile("Masks.root", "open")
+	if is_data : 
+	    h_mask = mask_file.Get("hEtaVsPhiDT_maskData-2016Data-2016")
+	else :
+	    h_mask = mask_file.Get("hEtaVsPhiDT_maskMC-2016MC-2016")
+	print "Loaded mask:", h_mask
     else:
         h_mask = False
 
@@ -498,15 +493,20 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 runs[runnum] = []
             if lumisec not in runs[runnum]:
                 runs[runnum].append(lumisec)
+	    weight = event.PrescaleWeightHT
+	else:
+	    weight = 1.0 * event.GenTopWeight * event.puWeight * event.CrossSection / event.NumEvents
                 
         current_file_name = tree.GetFile().GetName()
         if tree.GetBranch("madHT"):
             madHT = event.madHT
-            if not pass_background_stitching(current_file_name, madHT): continue
+            if not pass_background_stitching(current_file_name, madHT, phase): continue
+	else:
+	    madHT = -10
                   
         # reset all branch values:
         for label in tree_branch_values:
-            if "tracks" in label or "region" in label:
+            if "tracks" in label or "Genpar" in label or "region" in label:
                 continue
             else:
                 tree_branch_values[label][0] = -1
@@ -616,6 +616,24 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values["HT_cleaned"][0] = HT_cleaned
                 tree_branch_values["MinDeltaPhiMhtJets_cleaned"][0] = MinDeltaPhiMhtJets_cleaned
 
+	# count number of good jets:
+        n_goodjets = 0 
+        for jet in event.Jets:
+            if jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
+                n_goodjets += 1
+
+        # count number of good leptons:
+        n_goodelectrons = 0 
+        n_goodmuons = 0 
+        for i, electron in enumerate(event.Electrons):
+            if electron.Pt() > 30 and abs(electron.Eta()) < 2.4 and bool(event.Electrons_mediumID[i]):
+                n_goodelectrons += 1
+        for i, muon in enumerate(event.Muons):
+            if muon.Pt() > 30 and abs(muon.Eta()) < 2.4 and bool(event.Muons_tightID[i]):
+                n_goodmuons += 1
+
+        n_goodleptons = n_goodelectrons + n_goodmuons
+
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
         mhtvec = TLorentzVector()
@@ -659,32 +677,33 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
      
         # for each event, first fill this list for each track         
         track_level_output = []
+        Gen_level_output = []
 
-        for iCand in range(len(event.tracks)):
+        for iCand, track in enumerate(event.tracks):
 
-            baseline = isBaselineTrack(event.tracks[iCand], iCand, event, h_mask, loose = True)
-            if not baseline: continue
+	    # discard tracks with pT<30 GeV
+	    if track.Pt() < 30 : continue
+
+	    if not isBaselineTrack(track, iCand, event) : continue
+
+            # check mask:
+            passmask = -1
+            if h_mask:
+                ibinx, ibiny = h_mask.GetXaxis().FindBin(track.Phi()), h_mask.GetYaxis().FindBin(track.Eta())
+                if h_mask.GetBinContent(ibinx, ibiny) == 0:
+                    passmask = 0 
+                else:
+                    passmask = 1 
             
-	    is_reco_lepton = check_is_reco_lepton(event, iCand, deltaR = 0.02)
-            if is_reco_lepton: continue
+	    is_reco_lepton = check_is_reco_lepton(event, iCand, deltaR = 0.01)
             
             passpionveto = pass_pion_veto(event, iCand, deltaR = 0.03)        
-            if not passpionveto: continue
             
             ptErrOverPt2 = event.tracks_ptError[iCand] / (event.tracks[iCand].Pt()**2)
 
             # check disappearing track tags:
             for dt_tag_label in disappearing_track_tags:                              
-                loose = False
-                if "loose" in dt_tag_label:
-                    loose = True                   
-                disappearing_track_tags[dt_tag_label] = get_disappearing_track_score(event, iCand, readers, loose = loose)
-
-            #keep_track = False
-            #for dt_tag_label in disappearing_track_tags:
-            #    if disappearing_track_tags[dt_tag_label] > -10:
-            #        keep_track = True
-            #if not keep_track: continue
+                disappearing_track_tags[dt_tag_label] = get_disappearing_track_score(dt_tag_label, event, iCand, readers)
 
             is_pixel_track = True
             if event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
@@ -750,6 +769,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_prompt_tau_leadtrk": is_prompt_tau_leadtrk,
                                      "tracks_prompt_tau_widecone": is_prompt_tau_widecone,
                                      "tracks_passpionveto": passpionveto,
+                                     "tracks_passmask": passmask,
                                      "tracks_is_reco_lepton": is_reco_lepton,
                                      "tracks_trkMiniRelIso": event.tracks_trkMiniRelIso[iCand],
                                      "tracks_trackJetIso": event.tracks_trackJetIso[iCand],
@@ -779,9 +799,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
 
                 deltaR = 999.
-		tracks_GenChi_P = 0.
-		tracks_GenChi_pt = 0.
-		tracks_massfromdeDxPixel_GenChiMomentum = 0.
+		Genpar_Chargino_P = 0.
+		Genpar_Chargino_pt = 0.
 
                 # track matching with closest gen-level chargino:
                 for k in range(len(event.GenParticles)):
@@ -789,12 +808,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 			deltaR_tmp = event.tracks[iCand].DeltaR(event.GenParticles[k])
 			if deltaR_tmp < deltaR :
 			    deltaR = deltaR_tmp
-			    tracks_GenChi_P = event.GenParticles[k].P()
-			    tracks_GenChi_pt = event.GenParticles[k].Pt()
+			    Genpar_Chargino_P = event.GenParticles[k].P()
+			    Genpar_Chargino_pt = event.GenParticles[k].Pt()
 
                 track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
-                track_level_output[-1]["tracks_GenChi_P"] = tracks_GenChi_P
-                track_level_output[-1]["tracks_GenChi_pt"] = tracks_GenChi_pt
+                track_level_output[-1]["Genpar_Chargino_P"] = Genpar_Chargino_P
+                track_level_output[-1]["Genpar_Chargino_pt"] = Genpar_Chargino_pt
 		
 
                 ## chargino matching with GenParticlesGeant collection:
@@ -836,26 +855,32 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values["n_genTaus"][0] = n_genTaus
 
         # save event-level variables:
+        try:
+            tree_branch_values["run"][0] = event.RunNum
+            tree_branch_values["lumisec"][0] = event.LumiBlockNum
+        except:
+            print "Error while saving event number info"
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
+        tree_branch_values["n_goodleptons"][0] = n_goodleptons
+        tree_branch_values["n_goodelectrons"][0] = n_goodelectrons
+        tree_branch_values["n_goodmuons"][0] = n_goodmuons
         tree_branch_values["n_btags"][0] = event.BTags
         tree_branch_values["n_jets"][0] = len(event.Jets)
+        tree_branch_values["n_goodjets"][0] = n_goodjets
         tree_branch_values["n_allvertices"][0] = event.nAllVertices
+        tree_branch_values["n_NVtx"][0] = event.NVtx
         tree_branch_values["PFCaloMETRatio"][0] = event.PFCaloMETRatio
         tree_branch_values["MET"][0] = event.MET
+        tree_branch_values["METPhi"][0] = event.METPhi
         tree_branch_values["MHT"][0] = event.MHT
         tree_branch_values["HT"][0] = event.HT
         tree_branch_values["MinDeltaPhiMhtJets"][0] = MinDeltaPhiMhtJets
-        tree_branch_values["n_NVtx"][0] = event.NVtx
+        tree_branch_values["weight"][0] = weight
         if not is_data:
             tree_branch_values["madHT"][0] = madHT
             tree_branch_values["CrossSection"][0] = event.CrossSection
             tree_branch_values["puWeight"][0] = event.puWeight
-            tree_branch_values["NumInteractions"][0] = event.NumInteractions
-        if event.EvtNum % 2 == 0:
-            tree_branch_values["EvtNumEven"][0] = 1
-        else:
-            tree_branch_values["EvtNumEven"][0] = 0
          
         # track-level variables:
         n_tracks = len(track_level_output)
@@ -891,7 +916,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
      
     fout.cd()
 
-    if mask_file:
+    if h_mask:
         mask_file.Close()
 
     fout.cd()
@@ -920,10 +945,9 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--input", dest = "inputfiles")
     parser.add_option("--output", dest = "outputfiles")
-    parser.add_option("--debug", dest = "debug", action = "store_true")
-    parser.add_option("--mask", dest = "maskfile", default = False)
     parser.add_option("--nev", dest = "nev", default = -1)
     parser.add_option("--iEv_start", dest = "iEv_start", default = 0)
+    parser.add_option("--debug", dest = "debug", action = "store_true")
     (options, args) = parser.parse_args()
     
     options.inputfiles = options.inputfiles.split(",")
@@ -934,6 +958,5 @@ if __name__ == "__main__":
     main(options.inputfiles,
          options.outputfiles,
          nevents = int(options.nev),
-         mask_file = options.maskfile,
          iEv_start = int(options.iEv_start),
          debug = options.debug)
