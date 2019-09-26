@@ -451,8 +451,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     
     # if signal, save chargino info
     if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
-        vector_float_branches += ["Genpar_Chargino_P"]
-        vector_float_branches += ["Genpar_Chargino_pt"]
+        vector_float_branches += ["tracks_chargino_P"]
+        vector_float_branches += ["tracks_chargino_pt"]
+        vector_float_branches += ["tracks_chargino_eta"]
+        vector_float_branches += ["tracks_chargino_phi"]
     
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
@@ -506,7 +508,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                   
         # reset all branch values:
         for label in tree_branch_values:
-            if "tracks" in label or "Genpar" in label or "region" in label:
+            if "tracks" in label or "region" in label:
                 continue
             else:
                 tree_branch_values[label][0] = -1
@@ -677,7 +679,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
      
         # for each event, first fill this list for each track         
         track_level_output = []
-        Gen_level_output = []
 
         for iCand, track in enumerate(event.tracks):
 
@@ -798,22 +799,30 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             # if signal, do chargino matching:
             if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
 
-                deltaR = 999.
-		Genpar_Chargino_P = 0.
-		Genpar_Chargino_pt = 0.
-
                 # track matching with closest gen-level chargino:
                 for k in range(len(event.GenParticles)):
+		    deltaR = 999.
+		    chargino_P = 0.
+		    chargino_pt = 0.
+		    chargino_eta = 0.
+		    chargino_phi = 0.
+
                     if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
 			deltaR_tmp = event.tracks[iCand].DeltaR(event.GenParticles[k])
+			chargino_P = event.GenParticles[k].P()
+			chargino_pt = event.GenParticles[k].Pt()
+			chargino_eta = event.GenParticles[k].Eta()
+			chargino_phi = event.GenParticles[k].Phi()
+			
 			if deltaR_tmp < deltaR :
 			    deltaR = deltaR_tmp
-			    Genpar_Chargino_P = event.GenParticles[k].P()
-			    Genpar_Chargino_pt = event.GenParticles[k].Pt()
 
-                track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
-                track_level_output[-1]["Genpar_Chargino_P"] = Genpar_Chargino_P
-                track_level_output[-1]["Genpar_Chargino_pt"] = Genpar_Chargino_pt
+			    track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
+                	    track_level_output[-1]["tracks_chargino_P"] = chargino_P
+                	    track_level_output[-1]["tracks_chargino_pt"] = chargino_pt
+                	    track_level_output[-1]["tracks_chargino_eta"] = chargino_eta
+                	    track_level_output[-1]["tracks_chargino_phi"] = chargino_phi
+
 		
 
                 ## chargino matching with GenParticlesGeant collection:

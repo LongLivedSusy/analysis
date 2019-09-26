@@ -7,7 +7,7 @@ import sys
 from GridEngineTools import runParallel
 import json
 
-def hadd_histograms(folder, runmode):
+def hadd_histograms(folder, runmode, delete_input_files = True, start = False, use_custom_hadd = True):
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -45,9 +45,19 @@ def hadd_histograms(folder, runmode):
     cmds = []
     os.system("mkdir -p %s_merged" % folder)
     for i, sample in enumerate(samples):
-        cmds.append("hadd -f %s_merged/%s.root %s/%s*.root" % (folder, sample, folder, sample))
+        if use_custom_hadd:
+            command = "./terahadd.py %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
+        else:
+            command = "hadd -f %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
+        if delete_input_files:
+            command += " && rm %s/%s*.root " % (folder, sample)
+            if " *" in command:
+                print "Wildcard rm command found, this should never happen!"
+                quit()
+        cmds.append(command)
 
-    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged_condor" % folder, dontCheckOnJobs=False)
+    #runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=False, confirm=not start, use_more_time=43200)
+    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=False, confirm=not start, use_more_time=False)
 
     os.system("cp %s/*py %s_merged/" % (folder, folder))
 
@@ -60,6 +70,11 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
     for year in years:
         for datastream in datastreams:
         
+            filename = "%s_merged/Run%s_%s.json" % (folder, year, datastream)
+
+            #if os.path.exists(filename):
+            #    continue
+
             print "Doing datastream Run%s_%s" % (year, datastream)
         
             combined_json = {}
@@ -76,7 +91,7 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
                     if run not in combined_json:
                         combined_json[run] = []
                     combined_json[run] += idict[run]
-                    #combined_json[run] = natsorted(combined_json[run])
+                    combined_json[run] = natsorted(combined_json[run])
             
                     if json_cleaning:
                         #test for overlap:
@@ -102,9 +117,8 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
                         combined_json[run] = cleaned_list
                         
             combined_json_text = str(combined_json).replace("'", '"')
-            filename = "%s_merged/Run%s_%s.json" % (folder, year, datastream)
         
-            with open(filename, "w") as fout:
+            with open(filename, "w+") as fout:
                 fout.write(combined_json_text)
         
                 print "%s written" % filename
@@ -121,7 +135,7 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
         
     print "Getting lumi for %s..." % json_file_name
     
-    status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s > %s.briloutput; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name, json_file_name))
+    status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json > %s.briloutput; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name, json_file_name))
     
     if status != 0:
         if not retry:
@@ -161,24 +175,29 @@ def get_lumis(folder, cern_username):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--add_jsons", dest="add_jsons", action="store_true")
+    parser.add_option("--json", dest="json", action="store_true")
     parser.add_option("--bril", dest="bril", action="store_true")
+    parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--runmode", dest="runmode", default="grid")
-    parser.add_option("--cern_username", dest="cern_username", default="vkutzner")
+    parser.add_option("--start", dest="start", action="store_true")
+    #parser.add_option("--cern_username", dest="cern_username", default="vkutzner")
+    parser.add_option("--cern_username", dest="cern_username", default="spak")
     (options, args) = parser.parse_args()
     if len(args) > 0:
         folder = args[0]
     else:
-        print "usage: ./merge_samples.py <folder>"
+        print "Merge everything: run with ./merge_samples.py --hadd --json --bril output_skim_14_moredata/"
         print "For brilcalc, make sure that you have brilws installed (pip install --user brilws)"
         print "Set your CERN username with --cern_username"
         quit()
 
-    if options.add_jsons:
-        merge_json_files(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-    elif options.bril:
+    if options.hadd:
+        hadd_histograms(folder, options.runmode, start = options.start)
+    if options.json:
+        merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+    if options.bril:
         get_lumis(folder, options.cern_username)
-    else:
-        hadd_histograms(folder, options.runmode)
-        merge_json_files(folder, years = ["2016", "2017", "2018"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-        get_lumis(folder, options.cern_username)
+    
+      
+    
+    
