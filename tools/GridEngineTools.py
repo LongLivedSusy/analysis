@@ -7,20 +7,24 @@ from time import sleep
 import datetime
 import subprocess
 import multiprocessing
+import commands
 
 def ShellExec(command):
     os.system(command)
 
 
-def runParallel(commands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False):
+def runParallel(mycommands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, confirm=True):
 
-    if runmode == "multiprocessing" or runmode == "multi":
+    if runmode == "multiprocessing" or runmode == "multi" or runmode == "single":
 
-        nCores = int(multiprocessing.cpu_count() * ncores_percentage)
-        print "Using %i cores" % nCores
+        if runmode == "single":
+            nCores = 1
+        else:
+            nCores = int(multiprocessing.cpu_count() * ncores_percentage)
+        print "Using %i core(s)..." % nCores
 
         pool = multiprocessing.Pool(nCores)
-        return pool.map(ShellExec, commands)
+        return pool.map(ShellExec, mycommands)
 
     elif runmode == "grid":
         
@@ -33,10 +37,36 @@ def runParallel(commands, runmode, condorDir="bird", cmsbase=False, qsubOptions=
 
         print "Using CMSSW base", cmsbase
 
-        return runCommands(commands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time)
+        return runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, confirm=confirm)
 
 
-def runCommands(commands, condorDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False):
+def babysit_jobs(condorDir):
+
+    status, output = commands.getstatusoutput("grep submitted %s/cluster_info" % condorDir)
+    cluster_number = output.split()[-1].replace(".", "")
+
+    print "Watching jobs on cluster #%s" % cluster_number
+
+    print "OWNER    BATCH_NAME     SUBMITTED   DONE   RUN    IDLE   HOLD  TOTAL JOB_IDS"
+    while True:
+        status, line = commands.getstatusoutput("condor_q | grep %s" % cluster_number)
+        if status != 0:
+            break
+        print line
+
+        jobs_done = line.split()[5].replace("_", "0")
+        jobs_running = line.split()[6].replace("_", "0")
+        jobs_total = line.split()[8]
+        if jobs_done == jobs_total:
+            break
+
+        sleep(200)
+
+    print "Jobs completed!"
+    return 0
+
+
+def runCommands(mycommands, condorDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, confirm=True):
 
     jobscript = '''#!/bin/bash
     echo "$QUEUE $JOB $HOST"
@@ -46,8 +76,11 @@ def runCommands(commands, condorDir="bird", cmsbase=False, qsubOptions=False, do
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
     cd CWD
+    export PYTHONPATH=$PYTHONPATH:$(pwd)/../tools
+    export PYTHONPATH=$PYTHONPATH:$(pwd)/../../tools
     PROCESSNUM=$(($1 + 1))
     CMD=$(sed ''"$PROCESSNUM"'q;d' BIRDDIR/args)
+    echo $CMD
     eval $CMD
     if [ $? -eq 0 ]
     then
@@ -76,7 +109,7 @@ def runCommands(commands, condorDir="bird", cmsbase=False, qsubOptions=False, do
     nJobsFailed = 0
 
     with open("%s/args" % condorDir, "w+") as fout:
-        fout.write("\n".join(commands) + "\n")
+        fout.write("\n".join(mycommands) + "\n")
 
     with open("%s/runjobs.sh" % condorDir, "w+") as fout:
         jobscript = jobscript.replace('CWD',cwd)
@@ -108,113 +141,23 @@ def runCommands(commands, condorDir="bird", cmsbase=False, qsubOptions=False, do
         output = $(Process).sh.o
         notification = Never
         %s
-        max_materialize = 1000
+        max_materialize = 1500
         priority = 0
         Queue %s
-    """ % (cwd + "/" + condorDir, additional_parameters, len(commands))
+    """ % (cwd + "/" + condorDir, additional_parameters, len(mycommands))
 
     with open("runjobs.submit", 'w') as outfile:
         outfile.write(submission_file_content)
 
+    if confirm:
+        raw_input("About to start %s jobs!" % len(mycommands))
+
     print "Starting submission..."
-    os.system("condor_submit runjobs.submit")
+    os.system("rm %s/*.sh.*" % condorDir)
+    os.system("condor_submit runjobs.submit > cluster_info")
     os.chdir("..")
+ 
+    status = babysit_jobs(condorDir)
 
-    print "Jobs are running!"
-
-    if dontCheckOnJobs: return
-
-    # Check if jobs are finished:
-
-    if not useGUI:
-
-        interval = 5
-        counter = 0
-        while(len(jobs) != nJobsDone + nJobsFailed):
-            counter += 1
-            nJobsDone = 0
-            nJobsFailed = 0
-            for job in jobs:
-                try:
-                    jobOutputFile = glob("%s/%s.sh.o*" % (condorDir,job))[0]
-                    ofile = open(jobOutputFile)
-                    ofileContents = ofile.read()
-                    if "Success" in ofileContents:
-                        nJobsDone += 1
-                    if "Failed" in ofileContents:
-                        nJobsFailed += 1
-                except:
-                    pass
-
-            PercentProcessed = int( 20 * float(nJobsDone + nJobsFailed) / len(jobs) )
-            line = "[" + PercentProcessed*"#" + (20-PercentProcessed)*" " + "]\t" + "%s jobs, running: %s, done: %s, failed: %s. Running since %is..." % (len(jobs), len(jobs)-nJobsDone-nJobsFailed, nJobsDone, nJobsFailed, counter*interval)
-            print line
-
-            sleep(interval)
-            
-        return 0
-
-    else:
-   
-        line = ""
-        import curses
-
-        class curses_screen:
-            def __enter__(self):
-                self.stdscr = curses.initscr()
-                curses.cbreak()
-                curses.noecho()
-                self.stdscr.keypad(1)
-                SCREEN_HEIGHT, SCREEN_WIDTH = self.stdscr.getmaxyx()
-                return self.stdscr
-            def __exit__(self,a,b,c):
-                curses.nocbreak()
-                self.stdscr.keypad(0)
-                curses.echo()
-                curses.endwin()
-
-        with curses_screen() as stdscr:
-
-            interval = 5
-            counter = 0
-
-            while(len(jobs) != nJobsDone + nJobsFailed):
-                counter += 1
-                nJobsDone = 0
-                nJobsFailed = 0
-                for job in jobs:
-                    try:
-                        jobOutputFile = glob("%s/%s.sh.o*" % (condorDir,job))[0]
-                        ofile = open(jobOutputFile)
-                        ofileContents = ofile.read()
-                        if "Success" in ofileContents:
-                            nJobsDone += 1
-                        if "Failed" in ofileContents:
-                            nJobsFailed += 1
-                    except:
-                        pass
-
-                PercentProcessed = int( 20 * float(nJobsDone + nJobsFailed) / len(jobs) )
-                line = "[" + PercentProcessed*"#" + (20-PercentProcessed)*" " + "]\t" + "%s jobs, running: %s, done: %s, failed: %s. Running since %is..." % (len(jobs), len(jobs)-nJobsDone-nJobsFailed, nJobsDone, nJobsFailed, counter*interval)
-                stdscr.addstr(2,4, line)
-                stdscr.refresh()
-
-                sleep(interval)
-
-        print line
-
-    if nJobsFailed>0:
-
-        print "There were failed jobs. Check error output files:\n"
-        jobErrorFiles = glob("%s/%s.sh.e*" % (condorDir,job))
-        for jobErrorFile in jobErrorFiles:
-            print jobErrorFile
-
-        print "\nAfter checking, resubmit with the following commands:"
-        for shFile in glob("%s/%s.sh" % (condorDir,job)):
-            print 'qsub -l %s -cwd ' % qsubOptions + shFile + '&'
-
-        quit()
-
-    return 0
+    return status
 
