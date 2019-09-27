@@ -21,11 +21,14 @@ if __name__ == '__main__' :
 	os.system("mkdir -p %s"%OUTDIR)
 
     # Samples
+    #path = "../../skimmer/skim_16DataMC_merged/"
     path = "../../skimmer/output_skim_Summer16_merged/"
     #samples = ["*"]
     #samples = ["Run2016*"]
     samples = ["Summer16*"]
     #samples = ["Summer16.g1800_"]
+    
+   
     for sample in samples : 
 	inputfiles = glob(path+"/*%s*.root"%sample)
     

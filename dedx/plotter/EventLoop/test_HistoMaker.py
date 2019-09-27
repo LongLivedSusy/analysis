@@ -21,8 +21,8 @@ if __name__ == '__main__' :
 	os.system("mkdir -p %s"%OUTDIR)
 
     # Samples
-    #path = "../../skimmer/output_skim_Summer16_Run2016MET_merged/"
-    path = "../../skimmer/output_skim_Summer16_merged/"
+    path = "../../skimmer/skim_16DataMC_merged/"
+    #path = "../../skimmer/output_skim_Summer16_merged/"
     #samples = ["Summer16.DYJetsToLL_M-50_TuneCUETP8M1"]
     #samples = ["Summer16.WW_"]
     samples = ["Summer16.g1800_chi1400_27_200970_step4_*AODSIM"]
