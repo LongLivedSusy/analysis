@@ -105,10 +105,10 @@ inf = 999999
 
 regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'Log10DedxMass','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'DeDxAverage','BinNumber']
-regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['Baseline']           = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-
+#regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+#regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+regionCuts['BaselineNoMu']       = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+regionCuts['BaselineWithMu']     = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (1,inf),    (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
 regionCuts['BaselinePixOnly']    = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
 regionCuts['BaselinePixAndStrips']=[(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
 #regionCuts['TtbarCtrElPixOnly'] = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (-inf,inf),         (1,1),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
@@ -148,7 +148,7 @@ for region in regionCuts:
 	   
 
 lmasscutLlow = TMath.Log10(100)
-lmasscutLmid = TMath.Log10(450)
+lmasscutLmid = TMath.Log10(800)
 lmasscutSlow = TMath.Log10(60)
 lmasscutSmid = TMath.Log10(150)
 binnumbers = {}

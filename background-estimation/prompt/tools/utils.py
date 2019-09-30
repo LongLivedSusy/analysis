@@ -69,12 +69,12 @@ binning['Log10DedxMass'] = [10,0,5]
 binning['BinNumber'] = [64,0,64]
 
 binningAnalysis = {}
-binningAnalysis['Met']=[200,250,400,700,900]
+binningAnalysis['Met']=[150,200,250,400,700,900]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
 binningAnalysis['TrkEta']=EtaBinEdges
 binningAnalysis['TrkLen']=[2, 1, 3]
-binningAnalysis['NJets']=[1,2,6,8]
+binningAnalysis['NJets']=[1,2,4,8]
 binningAnalysis['NLeptons']=[3,0,3]
 binningAnalysis['NElectrons']=binningAnalysis['NLeptons']
 binningAnalysis['NMuons']=binningAnalysis['NLeptons']

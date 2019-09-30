@@ -19,13 +19,13 @@ phase = 0
 drawhists = True
 
 if phase==0:
-	fCentralMC = 'output/totalweightedbkgsDataDrivenMC.root'
+	fCentralMC = 'output/totalweightedbkgsDataDrivenMCYesZSmear.root'
 	#fCentralMC = 'output/totalweightedbkgsNoSmearedKappa.root'
 	#fCentralMC = 'test.root'
 	#fCentralMC = 'output/totalweightedbkgsTrueKappa.root'
-	#listOfVariationFilenames = ['output/totalweightedbkgsDataDrivenMC.root']
+	listOfVariationFilenames = ['output/totalweightedbkgsDataDrivenMCNoZSmear.root']
 	#listOfVariationFilenames = ['output/totalweightedbkgsTrueKappa.root']
-	listOfVariationFilenames = ['output/totalweightedbkgsNoSmearedKappa.root']#,'output/totalweightedbkgsTrueKappa.root']
+	#listOfVariationFilenames = ['output/totalweightedbkgsNoSmearedKappa.root']#,'output/totalweightedbkgsTrueKappa.root']
 	#listOfVariationFilenames = []
 if phase==1:
 	fCentralMC = 'output/totalweightedbkgsDataDrivenMCPhase1.root'
@@ -37,11 +37,11 @@ variationColors = [kBlue-1, kBlue, kBlue+1]
 
 drawVariations = True
 usePredictionWithClosureCorrection = False
-CombineLeptons_ = False
+CombineLeptons_ = True
 			
 
 
-testscale = 1.0
+testscale = lumi*1000
 
 
 infile = TFile(fCentralMC)
@@ -106,14 +106,14 @@ for key in sorted(keys):#[:241]:
 	truthname = truthname.replace('Control','Truth')
 	truthname = truthname.replace('barBarf','barControl')
 	hVarTruth = infile.Get(truthname)
-	hVarTruth.Scale(testscale,'width')
+	hVarTruth.Scale(testscale)
 	hVarTruth.SetTitle('MC observed (truth)')
 	if CombineLeptons_: 
 		mu2add = infile.Get(truthname.replace('hEl','hMu'))
-		mu2add.Scale(testscale, 'width')
+		mu2add.Scale(testscale)
 		hVarTruth.Add(mu2add)
 		pi2add = infile.Get(truthname.replace('hEl','hPi'))
-		pi2add.Scale(testscale, 'width')
+		pi2add.Scale(testscale)
 		hVarTruth.Add(pi2add)
 		#hVarTruth.Add(infile.Get(truthname.replace('hEl','hFake')))
 			
@@ -124,7 +124,7 @@ for key in sorted(keys):#[:241]:
 	methodname = methodname.replace('barBarf','barControl')
 			
 	hVarMethod = infile.Get(methodname)
-	hVarMethod.Scale(testscale, 'width')
+	hVarMethod.Scale(testscale)
 	if 'hMu'==name[:3]: 
 		hVarMethod.SetLineColor(kViolet+2)
 		hVarControl.SetLineColor(kRed+2)
@@ -135,10 +135,10 @@ for key in sorted(keys):#[:241]:
 		hVarMethod.SetLineColor(kGreen+3)
 	if CombineLeptons_: 
 		h2add = infile.Get(methodname.replace('hEl','hMu'))
-		h2add.Scale(testscale, 'width')
+		h2add.Scale(testscale)
 		hVarMethod.Add(h2add)
 		h2add2 = infile.Get(methodname.replace('hEl','hPi'))
-		h2add2.Scale(testscale, 'width')
+		h2add2.Scale(testscale)
 		hVarMethod.Add(h2add2)
 		hVarMethod.SetLineColor(kCyan-7)
 		hVarControl.SetLineColor(kCyan+2)
@@ -207,11 +207,11 @@ for key in sorted(keys):#[:241]:
 		hAlt = f.Get(methodname)
 		hAlt.SetDirectory(0)
 		hAlt.SetLineColor(kAzure)
-		hAlt.Scale(testscale, 'width')
+		hAlt.Scale(testscale)
 		hAlt.SetTitle('')
 		if CombineLeptons_: 
 			h2add = f.Get(methodname.replace('hEl','hMu'))
-			h2add.Scale(testscale, 'width')
+			h2add.Scale(testscale)
 			hAlt.Add(h2add)
 			#h2add2 = f.Get(methodname.replace('hEl','hPi'))
 			#h2add2.Scale(testscale)
@@ -235,7 +235,7 @@ for key in sorted(keys):#[:241]:
 	hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,hVarTruth,[hVarMethod],datamc='MC',lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
 	#hratio.GetYaxis().SetRangeUser(0.0,2.5)
 	hratio.GetYaxis().SetRangeUser(-0.1,2.6)	
-	hratio.GetYaxis().SetTitle('Events/bin width')
+	hratio.GetYaxis().SetTitle('Events/bin')
 	#hratio.GetYaxis().SetRangeUser(-3,3)		
 	hratio.SetLineColor(kBlack)
 	for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
@@ -250,7 +250,7 @@ for key in sorted(keys):#[:241]:
 	hVarMethod.SetTitle('')
 	hVarTruth.SetTitle('')	
 	hVarControl.SetTitle('')
-	hVarControl.Scale(testscale, 'width')
+	hVarControl.Scale(testscale)
 	hVarControl.SetMarkerColor(hVarControl.GetLineColor())		
 	hVarControl.SetMarkerStyle(23)
 	hVarControl.SetLineColor(kWhite)
@@ -265,7 +265,9 @@ for key in sorted(keys):#[:241]:
 	c1.Write()
 	#hVarTruth.Write()
 	#hVarMethod.Write()
-	c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
+	
+	#c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
+	
 	clist.append(c1)
 	#c1.Delete()
 	hratios.append([hratio, hmethodsyst])

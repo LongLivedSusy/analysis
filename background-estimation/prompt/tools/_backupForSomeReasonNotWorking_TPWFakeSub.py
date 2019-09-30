@@ -538,6 +538,7 @@ for ientry in range(nentries):
 	if debugmode:
 		if not ientry in [175,193]: continue
 	if ientry%verbosity==0: print 'now processing event number', ientry, 'of', nentries
+	#if not ientry==864317: continue	
 	c.GetEntry(ientry)
 	if isdata: weight = 1
 	else: 
@@ -981,6 +982,7 @@ for ientry in range(nentries):
 				
 		#taus
 		if doPions:
+		 #dtIsGenEl, dtIsGenMu, dtIsGenPi_, dtIsGenFake = False, False, False, False		
 		 for itag, tag in enumerate(TightLeptons):
 			if not tag[1]==charge: continue
 			IM  =  0 
@@ -1001,23 +1003,17 @@ for ientry in range(nentries):
 				#if not abs(correctedMet.DeltaPhi(dt[0]))<3.14159/2: continue
 				#if not abs(correctedMet.DeltaPhi(tag[0]))<3.14159/2: continue
 				#if PixStripsMode:
-			
-			
-			
-			
-				#hello!!!
-				#if not isMatched_([dt[0]], genpis, 0.02): continue ######################################### Note this is matched
-			
+
+				#if not isMatched_([dt[0]], genpis, 0.02): continue ######################################### Note this is matched			
 				dphileps = abs(dt[0].DeltaPhi(tag[0]))
 				#hDPhiLepsPiDT.Fill(correctedMet.DeltaPhi(dt[0]))
 				if not dphileps<2.8: continue
 				if not dphileps<2.8: continue#3.14159: continue
-			
 				IMleplep = mttsam1(correctedMet, tag[0], dt[0])
 				#IMleplep = PreciseMtautau(correctedMet.Pt(), correctedMet.Phi(),  tag[0], dt[0])#basil
 	
 				if (IMleplep < 0): 
-					print 'something horribly wrong, space-like event c'
+					print 'nothing terrible went wrong, just not a good z->tautau match'
 					continue
 				dIM = abs(IMleplep - zmass)
 				if(dIM < dmMin):
@@ -1027,6 +1023,7 @@ for ientry in range(nentries):
 					dtindex = dt[1]
 					#fill layers hist here					
 					probeIsDt = True
+					print ientry, 'juts flipped on probeIsDt', probeIsDt
 					probeIsCrDt = False
 					probeIsRecoEl = False
 					probeIsRecoMu = False
@@ -1036,7 +1033,7 @@ for ientry in range(nentries):
 					if isMatched_(dt, genels, 0.02): dtIsGenEl = True
 					elif isMatched_(dt, genmus, 0.02): dtIsGenMu = True
 					elif isMatched_(dt, genpis, 0.02): dtIsGenPi_ = True					
-					else: dtIsGenFake = True																				
+					else: dtIsGenFake = True		
 				
 				
 			for idt, dt in enumerate(disappearingCRTracks):
@@ -1089,7 +1086,7 @@ for ientry in range(nentries):
 				if not dphileps<2.8: continue
 				if not dphileps<2.8: continue#3.14159: continue
 							
-				IMleplep = mttsam1(correctedMet, tag[0], smearedPi[2]) 
+				IMleplep = mttsam1(correctedMet, tag[0], smearedPi[2]) 			
 				#if not isMatched_([smearedPi[0]], genpis, 0.02): continue
 				dIM = abs(IMleplep - zmass)
 				if(dIM < dmMin):
@@ -1159,6 +1156,7 @@ for ientry in range(nentries):
 				ProbeEta = abs(probeTlv.Eta())
 						
 				if probeIsDt:
+					print 'dtIsGenPi_=', dtIsGenPi_
 					fillth1(hNTrackerLayersDT_mu, c.tracks_trackerLayersWithMeasurement[dtindex], weight)
 					#if DoGenMatching:
 					#	if isgenmatched == 0: continue #uncomment to skip isGenMatcheding of Probes
@@ -1183,6 +1181,9 @@ for ientry in range(nentries):
 						for histkey in  hPiProbePt_RECOdens:
 							if abs(ProbeEta) > histkey[0] and abs(ProbeEta) < histkey[1]:
 								fillth1(hPiProbePt_RECOdens[histkey], ProbePt, weight)
+								if ProbePt>180:
+									print ientry, 'we got tau pi mtt', IMleplep
+									print 'we were working on', inputFileNames
 				if probeIsRecoMu:
 					kappa = fetchKappa(abs(ProbeEta),min(ProbePt,9999.99), kappadictMu, maxKappaPt)
 					for histkey in  dInvMassMuFromTauRECOHist:
