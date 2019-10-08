@@ -1,7 +1,7 @@
 from ROOT import *
 import numpy as np
 from glob import glob
-from utils import *
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 gROOT.SetBatch()
 gROOT.SetStyle('Plain')
 zmass = 91

@@ -1,5 +1,6 @@
 from ROOT import *
-from utils import *
+import os, sys
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 
 gStyle.SetOptStat(0)
 gROOT.SetBatch(1)

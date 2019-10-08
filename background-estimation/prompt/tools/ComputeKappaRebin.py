@@ -1,5 +1,6 @@
 from ROOT import *
-from utils import *
+import os, sys
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 from namelib import *
 import sys
 from random import shuffle

@@ -1,7 +1,7 @@
 from ROOT import *
-from utils import *
 #from utilsII import *
 import os, sys
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 from glob import glob
 gStyle.SetOptStat(0)
 gROOT.SetBatch(1)
@@ -41,7 +41,7 @@ CombineLeptons_ = True
 			
 
 
-testscale = lumi*1000
+testscale = 1# = lumi*1000
 
 
 infile = TFile(fCentralMC)
@@ -266,7 +266,7 @@ for key in sorted(keys):#[:241]:
 	#hVarTruth.Write()
 	#hVarMethod.Write()
 	
-	#c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
+	c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
 	
 	clist.append(c1)
 	#c1.Delete()

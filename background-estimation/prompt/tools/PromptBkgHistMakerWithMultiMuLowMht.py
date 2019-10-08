@@ -1,14 +1,14 @@
-import os, sys
-import time
-import numpy as np
 from ROOT import *
-from utils import *
+import os, sys
 from glob import glob
 from random import shuffle
+import time
+import numpy as np
 import random
 gROOT.SetStyle('Plain')
-gROOT.SetBatch(1)
+#gROOT.SetBatch(1)
 
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False
 
 specialTauPiValidation = False
@@ -105,13 +105,13 @@ inf = 999999
 
 regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-#regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-#regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['BaselineNoMu']       = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['BaselineWithMu']     = [(0,inf), (250,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (1,inf),    (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-#regionCuts['HighNJetBaseline']   = [(0,inf), (150,inf), (4,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['BaselinePixOnly']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
-regionCuts['BaselinePixAndStrips']=[(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+#regionCuts['NoCutsPixOnly']      = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (1,inf), (0,0),       (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+#regionCuts['NoCutsPixAndStrips'] = [(0,inf), (0.0,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),     (0.0,inf),        (-inf,inf),         (0,inf),     (0,inf),  (0,inf),  (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+regionCuts['BaselineNoMu']       = [(0,inf), (280,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+regionCuts['BaselineWithMu']     = [(0,inf), (280,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (1,inf),    (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+#regionCuts['HighNJetBaseline']   = [(0,inf), (150,inf), (4,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+regionCuts['BaselinePixOnly']    = [(0,inf), (280,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-inf,inf)]
+regionCuts['BaselinePixAndStrips']=[(0,inf), (280,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-inf,inf)]
 #regionCuts['TtbarCtrElPixOnly'] = [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,0),     (0.3,inf),        (-inf,inf),         (1,1),       (0,inf),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
 ##regionCuts['TtbarCtrMuPixOnly']= [(100,inf), (100,300), (2,inf), (1,5),   (1,1),   (1,inf), (0,inf),   (0.3,inf),        (-inf,inf),         (0,0),       (1,1),     (0,0),    (candPtCut,inf), (0,2.4),     (-inf,inf), (-1,inf)]
 #regionCuts['TtbarCtrElPixAndStrips']=[(100,inf),(100,300),(2,inf), (1,5),  (1,1),   (0,inf), (1,0),     (0.3,inf),        (-inf,inf),         (1,1),       (0,0),     (0,0),    (candPtCut,inf), (0,2.4),     (-inf,inf), (-1,inf)]
@@ -214,6 +214,11 @@ def getBinNumber(fv):
 			if not (fv[iwindow]>=window[0] and fv[iwindow]<=window[1]): foundbin = False
 		if foundbin: return binnumbers[binkey]
 	return -1
+
+
+ftrig = TFile('usefulthings/triggersRa2bRun2_v4_withTEffs.root')
+ttrig = ftrig.Get('tEffhMetMhtRealXMht;1')
+gtrig = TGraphAsymmErrors(ttrig.GetPassedHistogram(), ttrig.GetTotalHistogram())
 
 c = TChain("TreeMaker2/PreSelection")
 for ifile, f in enumerate(inputFiles):
@@ -457,18 +462,6 @@ import time
 t1 = time.time()
 i0=0
 
-triggerIndecesV2 = {}
-triggerIndecesV2['SingleElCocktail'] = [14, 15, 16, 17, 18, 19, 20, 21]
-#triggerIndecesV2['MhtMet6pack'] = [108,110,114,123,124,125,126,128,129,130,131,132,133,122,134]#123
-triggerIndecesV2["SingleMuCocktail"] = [24,25,26,27,28,30,31,32]
-
-triggerIndeces = triggerIndecesV2
-
-def PassTrig(c,trigname):
-	for trigidx in triggerIndeces[trigname]: 
-		if c.TriggerPass[trigidx]==1: 
-			return True
-	return False
 
 matchedpinum = 0.0001
 unmatchedpinum = 0.0001
@@ -488,20 +481,29 @@ for ientry in range(nentries):
 	c.GetEntry(ientry) 
 	hHt.Fill(c.HT)
 	if isdata: weight = 1
-	else: 
-		weight = c.CrossSection#*c.puWeight
+	else: 		
+		weight = c.CrossSection*gtrig.Eval(c.MHT)#*c.puWeight
 		#weight = c.puWeight
 		#weight = 1.0
 	hHtWeighted.Fill(c.HT,weight)
 
 
-
+	if ientry==0:
+		for itrig in range(len(c.TriggerPass)):
+			print itrig, c.TriggerNames[itrig], c.TriggerPrescales[itrig], c.HT
+		print '='*20
+        
+        
+        
 	if not isdata:
 	  isValidHtRange = False
 	  for madrange in madranges:
 		if (c.madHT>madrange[0] and c.madHT<madrange[1]):
 			isValidHtRange = True
 			break 
+	else:	
+		#print ientry, c.MHT, PassTrig(c, 'MhtMet6pack')
+		if not PassTrig(c, 'MhtMet6pack'): continue
 	  #####if not isValidHtRange: continue
 
 	genels = []
@@ -630,6 +632,7 @@ for ientry in range(nentries):
 		if verbose: print 'passed eta and Pt'
 		if not c.Muons_passIso[ilep]: continue
 		if not c.Muons_tightID[ilep]: continue
+		if lep.Pt()>candPtCut: RecoMuons.append([lep,c.Muons_charge[ilep]])		
 		drmin = inf
 		matchedTrk = TLorentzVector()
 		for trk in basicTracks:
@@ -643,7 +646,7 @@ for ientry in range(nentries):
 		if not drmin<0.01: continue
 		#print ientry, 'found muon', lep.Pt() 
 		
-		if lep.Pt()>candPtCut: RecoMuons.append([lep,c.Muons_charge[ilep]])    
+		   
 		if not c.Muons_MTW[ilep]<100: continue
 		smear = 1
 		smearedMu = TLorentzVector()
@@ -698,7 +701,7 @@ for ientry in range(nentries):
 	singleElEvent_ = len(SmearedElectrons) >=1
 	singleMuEvent_ = len(SmearedMuons) >=1    
 	singlePiEvent_ = len(SmearedPions) >=1    
-	presentDisTrkEvent = len(disappearingTracks) >=1# and len(SmearedElectrons) ==0 and len(SmearedMuons)==0 ##try commenting out last two
+	presentDisTrkEvent = len(disappearingTracks) >=1# and len(RecoElectrons) ==0 and len(RecoMuons)==0 ##try commenting out last two
 
 	if not (singleElEvent_ or presentDisTrkEvent or singleMuEvent_ or singlePiEvent_): continue
 
@@ -752,23 +755,24 @@ for ientry in range(nentries):
 		#uncalibrated
 		log10dedxmass = TMath.Log10(TMath.Sqrt((eldedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
 		#listagain = ['Ht','Mht',           'NJets',      'BTags'        ,'NTags',             'NPix', 'NPixStrips','MinDPhiMhtJets','DeDxAverage','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), 1+nShort, nLong, mindphi, eldedxPixel,len(SmearedElectrons)-1, len(SmearedMuons), len(SmearedPions), pt,eta,log10dedxmass]
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), 1+nShort, nLong, mindphi, eldedxPixel,len(RecoElectrons)-1, len(RecoMuons), len(SmearedPions), pt,eta,log10dedxmass]
 		fv.append(getBinNumber(fv))
 		kPixOnly = fetchKappa(abs(eta),ptForKappa, kappadictElPixOnly, shortMaxKappaPt)
-	
+		trigcor = gtrig.Eval(adjustedMht.Pt())/gtrig.Eval(c.MHT)
+		
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
 				hname = 'El'+regionkey+'_'+varname
 				if selectionFeatureVector(fv,regionkey,varname):
 					fillth1(histoStructDict[hname].Control,fv[ivar], weight)
-					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight)
+					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight*trigcor)
 		
 		#long        
 		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_long)
 		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_long)
 		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_el_long)
 		log10dedxmass = TMath.Log10(TMath.Sqrt((eldedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), nShort, 1+nLong, mindphi, eldedxPixel,len(SmearedElectrons)-1, len(SmearedMuons), len(SmearedPions), pt,eta,log10dedxmass]
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks), nShort, 1+nLong, mindphi, eldedxPixel,len(RecoElectrons)-1, len(RecoMuons), len(SmearedPions), pt,eta,log10dedxmass]
 		fv.append(getBinNumber(fv))                    
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictElPixAndStrips)
 		#kgen = fetchKappa(abs(eta),ptForKappa, fGenElProbePt_KappasPixAndStrips)
@@ -778,7 +782,7 @@ for ientry in range(nentries):
 				hname = 'El'+regionkey+'_'+varname
 				if selectionFeatureVector(fv,regionkey,varname):
 					if 'Pix' in regionkey or 'Bin' in varname: fillth1(histoStructDict[hname].Control,fv[ivar], weight)# skip double counting 1-lep region
-					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight)                                        
+					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight*trigcor)                                        
 		
 		
 	for muonthing in SmearedMuons:
@@ -821,22 +825,25 @@ for ientry in range(nentries):
 		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
 		smear *=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)		
 		log10dedxmass = TMath.Log10(TMath.Sqrt((mudedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, mudedxPixel,len(SmearedElectrons), len(SmearedMuons)-1, len(SmearedPions),pt,eta,log10dedxmass]
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, mudedxPixel,len(RecoElectrons), len(RecoMuons)-1, len(SmearedPions),pt,eta,log10dedxmass]
 		fv.append(getBinNumber(fv))
+		
+		trigcor = gtrig.Eval(adjustedMht.Pt())/gtrig.Eval(c.MHT)
+				
 		kPixOnly = fetchKappa(abs(eta),ptForKappa, kappadictMuPixOnly, shortMaxKappaPt)
 		for regionkey in regionCuts:
 			for ivar, varname in enumerate(varlist_):
 				hname = 'Mu'+regionkey+'_'+varname
 				if selectionFeatureVector(fv,regionkey,varname):
 					fillth1(histoStructDict[hname].Control,fv[ivar], weight)
-					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight)
+					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight*trigcor)
 					
 		#long
 		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
 		smear*=getSmearFactor(abs(eta),  min(pt,299.999), dResponseHist_mu_long)
 		smear*=getSmearFactor(abs(eta),  min(pt,299.999), dResponseHist_mu_long)
 		log10dedxmass = TMath.Log10(TMath.Sqrt((mudedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi,mudedxPixel, len(SmearedElectrons), len(SmearedMuons)-1, len(SmearedPions),pt,eta,log10dedxmass]
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi,mudedxPixel, len(RecoElectrons), len(RecoMuons)-1, len(SmearedPions),pt,eta,log10dedxmass]
 		fv.append(getBinNumber(fv))
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictMuPixAndStrips)
 		for regionkey in regionCuts:
@@ -844,7 +851,7 @@ for ientry in range(nentries):
 				hname = 'Mu'+regionkey+'_'+varname
 				if selectionFeatureVector(fv,regionkey,varname):
 					if 'Pix' in regionkey or 'Bin' in varname: fillth1(histoStructDict[hname].Control,fv[ivar], weight)
-					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight)                        
+					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight*trigcor)                        
 						
 		
 		
@@ -890,8 +897,9 @@ for ientry in range(nentries):
 		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
 		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_short)
 		log10dedxmass = TMath.Log10(TMath.Sqrt((pidedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))		
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, pidedxPixel,len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta,log10dedxmass]
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),1+nShort,nLong, mindphi, pidedxPixel,len(RecoElectrons), len(RecoMuons), len(SmearedPions)-1,pt,eta,log10dedxmass]
 		fv.append(getBinNumber(fv))
+		trigcor = gtrig.Eval(adjustedMht.Pt())/gtrig.Eval(c.MHT)
 		kPixOnly = fetchKappa(abs(eta),min(ptForKappa,9999.99), kappadictPiPixOnly, shortMaxKappaPt)
 		#print 'kPixOnly', kPixOnly, 'eta', eta, 'pt', ptForKappa
 		for regionkey in regionCuts:
@@ -900,13 +908,13 @@ for ientry in range(nentries):
 				#if 'TrkEta' in hname: print ientry, 'filling hname ', hname, fv
 				if selectionFeatureVector(fv,regionkey,varname):
 					fillth1(histoStructDict[hname].Control,fv[ivar], weight)
-					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight)
+					fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight*trigcor)
 		#long
 		smear = getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
 		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
 		smear*=getSmearFactor(abs(eta), min(pt,299.999), dResponseHist_mu_long)
 		log10dedxmass = TMath.Log10(TMath.Sqrt((pidedxPixel-3.01)*pow(smear*pt*TMath.CosH(eta),2)/1.74))
-		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi, pidedxPixel,len(SmearedElectrons), len(SmearedMuons), len(SmearedPions)-1,pt,eta,log10dedxmass]
+		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags, 1+len(disappearingTracks),nShort,nLong+1, mindphi, pidedxPixel,len(RecoElectrons), len(RecoMuons), len(SmearedPions)-1,pt,eta,log10dedxmass]
 		fv.append(getBinNumber(fv))
 		kPixAndStrips = fetchKappa(abs(eta),ptForKappa, kappadictPiPixAndStrips)
 		#print 'kPixAndStrips', kPixAndStrips, 'eta', eta, 'pt', ptForKappa
@@ -915,7 +923,7 @@ for ientry in range(nentries):
 				hname = 'Pi'+regionkey+'_'+varname
 				if selectionFeatureVector(fv,regionkey,varname):
 					if 'Pix' in regionkey or 'Bin' in varname: fillth1(histoStructDict[hname].Control,fv[ivar], weight)
-					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight)                        
+					fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight*trigcor)                        
 									
 	if presentDisTrkEvent:
 		dt, status, dedxDT = disappearingTracks[0]
@@ -963,7 +971,7 @@ for ientry in range(nentries):
 		else: 
 			pt = dt.Pt()
 			eta = abs(dt.Eta()) 
-				
+										
 		log10dedxmass = TMath.Log10(TMath.Sqrt((dedxDT-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
 		fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxDT, len(RecoElectrons), len(RecoMuons), len(SmearedPions), pt, eta,log10dedxmass]
 		fv.append(getBinNumber(fv))

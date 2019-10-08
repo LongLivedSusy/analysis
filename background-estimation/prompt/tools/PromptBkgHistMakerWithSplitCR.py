@@ -2,7 +2,7 @@ import os, sys
 import time
 import numpy as np
 from ROOT import *
-from utils import *
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 from glob import glob
 from random import shuffle
 import random
