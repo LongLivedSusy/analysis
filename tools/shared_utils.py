@@ -44,33 +44,41 @@ epsilon = 0.0001
 
 binning = {}
 #binning['Met']=[0,20,50,100,150,250,400,650,800,900,1000]
-binning['Met']=[15,0,1200]
+binning['Met']=[45,0,1200]
 binning['Mht']=binning['Met']
 #binning['TrkPt']=[15,30,50,100,300]
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,400,410]#good for gen check, and two eta bins
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,310]
 binning['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
+binning['TrkPt']=[45,0,50]#[15, 30, 60, 120, 130]#just seemed to work very well######comment out after studies
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 binning['TrkEta']=EtaBinEdges
+binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
 binning['NJets']=[10,0,10]
 binning['NLeptons']=[5,0,5]
 binning['NElectrons']=binning['NLeptons']
 binning['NMuons']=binning['NLeptons']
 binning['NPions']=binning['NLeptons']
+binning['MuPt']=[30,0,300]
+binning['ElPt']=[30,0,300]
+binning['ElEta']=[30,-3,3]###comment out ater studies
+binning['MuEta']=[30,-3,3]###comment out ater studies
+binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['NTags']=[3,0,3]
 binning['NPix']=binning['NTags']
 binning['NPixStrips']=binning['NTags']
 binning['BTags']=[4,0,4]
-binning['Ht']=[10,0,2000]
+binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
+binning['DeDxAverage'] = [20,0,10]
 binning['Track1MassFromDedx'] = [25,0,1000]
-binning['BinNumber'] = [64,0,64]
+binning['BinNumber'] = [51,0,51]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [20,0,10]
 
 binningAnalysis = {}
-binningAnalysis['Met']=[200,250,400,700,900]
+binningAnalysis['Met']=[15,0,1200]#[200,250,400,700,900]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
 binningAnalysis['TrkEta']=EtaBinEdges
@@ -86,10 +94,10 @@ binningAnalysis['NPixStrips']=binningAnalysis['NTags']
 binningAnalysis['BTags']=[4,0,4]
 binningAnalysis['Ht']=[10,0,2000]
 binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
+binningAnalysis['DeDxAverage'] = [20,0,10]
 binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
-binningAnalysis['BinNumber'] = [62,1,63]
+binningAnalysis['BinNumber'] = [50,1,50]
 binningAnalysis['Log10DedxMass'] = [10,0,5]
-binning['DeDxAverage'] = [20,0,10]
 
 def histoStyler(h,color=kBlack):
 	h.SetLineWidth(2)
@@ -852,11 +860,366 @@ def overflow(h):
 	h.AddBinContent((bin-1),c)
 
 
+def passQCDHighMETFilter(t):
+    metvec = mkmet(t.MET, t.METPhi)
+    for ijet, jet in enumerate(t.Jets):
+        if not (jet.Pt() > 200): continue
+        if not (t.Jets_muonEnergyFraction[ijet]>0.5):continue 
+        if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
+    return True
+
+
+def passQCDHighMETFilter2(t):
+    if len(t.Jets)>0:
+        metvec = TLorentzVector()
+        metvec.SetPtEtaPhiE(t.MET, 0, t.METPhi,0)
+        if abs(t.Jets[0].DeltaPhi(metvec))>(3.14159-0.4) and t.Jets_neutralEmEnergyFraction[0]<0.03:
+            return False
+    return True
+
+def passesUniversalSelection(t):
+    if not (bool(t.JetID) and  t.NVtx>0): return False
+    if not (t.NElectrons==0 and t.NMuons==0 and t.isoElectronTracks==0 and t.isoMuonTracks==0 and t.isoPionTracks==0): return False
+    if not  passQCDHighMETFilter(t): return False
+    if not passQCDHighMETFilter2(t): return False
+    if not t.PFCaloMETRatio<5: return False
+    if not t.globalSuperTightHalo2016Filter: return False
+    if not t.HBHENoiseFilter: return False    
+    if not t.HBHEIsoNoiseFilter: return False
+    if not t.eeBadScFilter: return False      
+    if not t.BadChargedCandidateFilter: return False
+    if not t.BadPFMuonFilter: return False
+    if not t.CSCTightHaloFilter: return False
+    if not passesPhotonVeto(t): return False    
+    if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
+    if not t.ecalBadCalibReducedExtraFilter: return False
+    if not t.ecalBadCalibReducedFilter: return False         
+    return True
+
+
+
+
+def passesUniversalDataSelection(t):
+    if not (bool(t.JetID) and  t.NVtx>0): return False
+    if not (t.NElectrons==0 and t.NMuons==0 and t.isoElectronTracks==0 and t.isoMuonTracks==0 and t.isoPionTracks==0): return False
+    if not  passQCDHighMETFilter(t): return False
+    if not passQCDHighMETFilter2(t): return False
+    if not t.PFCaloMETRatio<5: return False
+    if not t.globalSuperTightHalo2016Filter: return False
+    if not t.HBHENoiseFilter: return False    
+    if not t.HBHEIsoNoiseFilter: return False
+    if not t.eeBadScFilter: return False      
+    if not t.BadChargedCandidateFilter: return False
+    if not t.BadPFMuonFilter: return False
+    if not t.CSCTightHaloFilter: return False
+    if not passesPhotonVeto(t): return False    
+    if not t.EcalDeadCellTriggerPrimitiveFilter: return False                         
+    return True
+    
+
 triggerIndeces = {}
-triggerIndeces['MhtMet6pack'] = [109,110,111,112,114,115,116]#123
+triggerIndeces['MhtMet6pack'] = [124,109,110,111,112,114,115,116]#123
 def PassTrig(c,trigname):
 	for trigidx in triggerIndeces[trigname]: 
 		if c.TriggerPass[trigidx]==1: return True
 	return False
 
 
+'''
+0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
+1 HLT_AK8DiPFJet280_200_TrimMass30_v 0 10
+2 HLT_AK8DiPFJet300_200_TrimMass30_v -1 1
+3 HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v 0 1
+4 HLT_AK8PFHT800_TrimMass50_v -1 1
+5 HLT_AK8PFHT850_TrimMass50_v -1 1
+6 HLT_AK8PFHT900_TrimMass50_v -1 1
+7 HLT_AK8PFJet360_TrimMass30_v 0 1
+8 HLT_AK8PFJet400_TrimMass30_v -1 1
+9 HLT_AK8PFJet420_TrimMass30_v -1 1
+10 HLT_AK8PFJet450_v -1 1
+11 HLT_AK8PFJet500_v -1 1
+12 HLT_AK8PFJet550_v -1 1
+13 HLT_CaloJet500_NoJetID_v 0 1
+14 HLT_CaloJet550_NoJetID_v -1 1
+15 HLT_DiCentralPFJet55_PFMET110_v 0 1
+16 HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v 0 1
+17 HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350_v -1 1
+18 HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v 0 1
+19 HLT_DoubleMu8_Mass8_PFHT300_v 0 1
+20 HLT_DoubleMu8_Mass8_PFHT350_v -1 1
+21 HLT_Ele105_CaloIdVT_GsfTrkIdT_v 0 1
+22 HLT_Ele115_CaloIdVT_GsfTrkIdT_v 0 1
+23 HLT_Ele135_CaloIdVT_GsfTrkIdT_v -1 1
+24 HLT_Ele145_CaloIdVT_GsfTrkIdT_v -1 1
+25 HLT_Ele15_IsoVVVL_PFHT350_PFMET50_v 0 1
+26 HLT_Ele15_IsoVVVL_PFHT350_v 0 1
+27 HLT_Ele15_IsoVVVL_PFHT400_v -1 1
+28 HLT_Ele15_IsoVVVL_PFHT450_CaloBTagCSV_4p5_v -1 1
+29 HLT_Ele15_IsoVVVL_PFHT450_PFMET50_v -1 1
+30 HLT_Ele15_IsoVVVL_PFHT450_v -1 1
+31 HLT_Ele15_IsoVVVL_PFHT600_v 0 1
+32 HLT_Ele20_WPLoose_Gsf_v -1 1
+33 HLT_Ele20_eta2p1_WPLoose_Gsf_v -1 1
+34 HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v 0 1
+35 HLT_Ele25_eta2p1_WPTight_Gsf_v 0 1
+36 HLT_Ele27_WPTight_Gsf_v 0 1
+37 HLT_Ele27_eta2p1_WPLoose_Gsf_v 0 1
+38 HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v -1 1
+39 HLT_Ele32_WPTight_Gsf_v -1 1
+40 HLT_Ele35_WPTight_Gsf_v -1 1
+41 HLT_Ele45_WPLoose_Gsf_v 0 1
+42 HLT_Ele50_IsoVVVL_PFHT400_v -1 1
+43 HLT_Ele50_IsoVVVL_PFHT450_v -1 1
+44 HLT_IsoMu16_eta2p1_MET30_v 0 1
+45 HLT_IsoMu20_v 0 1
+46 HLT_IsoMu22_eta2p1_v -1 1
+47 HLT_IsoMu22_v 0 1
+48 HLT_IsoMu24_eta2p1_v -1 1
+49 HLT_IsoMu24_v 0 1
+50 HLT_IsoMu27_v 0 1
+51 HLT_IsoTkMu22_v 0 1
+52 HLT_IsoTkMu24_v 0 1
+53 HLT_Mu15_IsoVVVL_PFHT350_PFMET50_v 0 1
+54 HLT_Mu15_IsoVVVL_PFHT350_v 0 1
+55 HLT_Mu15_IsoVVVL_PFHT400_v -1 1
+56 HLT_Mu15_IsoVVVL_PFHT450_CaloBTagCSV_4p5_v -1 1
+57 HLT_Mu15_IsoVVVL_PFHT450_PFMET50_v -1 1
+58 HLT_Mu15_IsoVVVL_PFHT450_v -1 1
+59 HLT_Mu15_IsoVVVL_PFHT600_v 0 1
+60 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v 0 1
+61 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v 0 1
+62 HLT_Mu45_eta2p1_v 0 1
+63 HLT_Mu50_IsoVVVL_PFHT400_v -1 1
+64 HLT_Mu50_IsoVVVL_PFHT450_v -1 1
+65 HLT_Mu50_v 0 1
+66 HLT_Mu55_v 0 1
+67 HLT_PFHT1050_v -1 1
+68 HLT_PFHT180_v -1 1
+69 HLT_PFHT200_v 0 1
+70 HLT_PFHT250_v 0 1
+71 HLT_PFHT300_PFMET100_v 0 1
+72 HLT_PFHT300_PFMET110_v 0 1
+73 HLT_PFHT300_v 0 512
+74 HLT_PFHT350_v 0 256
+75 HLT_PFHT370_v -1 1
+76 HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2_v -1 1
+77 HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v -1 1
+78 HLT_PFHT380_SixPFJet32_v -1 1
+79 HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v 0 1
+80 HLT_PFHT400_SixJet30_v 0 2
+81 HLT_PFHT400_v 0 128
+82 HLT_PFHT430_SixJet40_BTagCSV_p056_v -1 1
+83 HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5_v -1 1
+84 HLT_PFHT430_SixPFJet40_v -1 1
+85 HLT_PFHT430_v -1 1
+86 HLT_PFHT450_SixJet40_BTagCSV_p056_v 0 1
+87 HLT_PFHT450_SixJet40_v 0 1
+88 HLT_PFHT450_SixPFJet40_PFBTagCSV_1p5_v -1 1
+89 HLT_PFHT475_v 0 64
+90 HLT_PFHT500_PFMET100_PFMHT100_IDTight_v -1 1
+91 HLT_PFHT500_PFMET110_PFMHT110_IDTight_v -1 1
+92 HLT_PFHT510_v -1 1
+93 HLT_PFHT590_v -1 1
+94 HLT_PFHT600_v 0 16
+95 HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v 0 1
+96 HLT_PFHT650_v 0 8
+97 HLT_PFHT680_v -1 1
+98 HLT_PFHT700_PFMET85_PFMHT85_IDTight_v -1 1
+99 HLT_PFHT700_PFMET95_PFMHT95_IDTight_v -1 1
+100 HLT_PFHT780_v -1 1
+101 HLT_PFHT800_PFMET75_PFMHT75_IDTight_v -1 1
+102 HLT_PFHT800_PFMET85_PFMHT85_IDTight_v -1 1
+103 HLT_PFHT800_v 0 1
+104 HLT_PFHT890_v -1 1
+105 HLT_PFHT900_v 0 1
+106 HLT_PFJet450_v 0 1
+107 HLT_PFJet500_v 0 1
+108 HLT_PFJet550_v -1 1
+109 HLT_PFMET100_PFMHT100_IDTight_PFHT60_v -1 1
+110 HLT_PFMET100_PFMHT100_IDTight_v 0 1
+111 HLT_PFMET110_PFMHT110_IDTight_PFHT60_v -1 1
+112 HLT_PFMET110_PFMHT110_IDTight_v 0 1
+113 HLT_PFMET120_PFMHT120_IDTight_HFCleaned_v -1 1
+114 HLT_PFMET120_PFMHT120_IDTight_PFHT60_HFCleaned_v -1 1
+115 HLT_PFMET120_PFMHT120_IDTight_PFHT60_v -1 1
+116 HLT_PFMET120_PFMHT120_IDTight_v 0 1
+117 HLT_PFMET130_PFMHT130_IDTight_PFHT60_v -1 1
+118 HLT_PFMET130_PFMHT130_IDTight_v -1 1
+119 HLT_PFMET140_PFMHT140_IDTight_PFHT60_v -1 1
+120 HLT_PFMET140_PFMHT140_IDTight_v -1 1
+121 HLT_PFMET500_PFMHT500_IDTight_CalBTagCSV_3p1_v -1 1
+122 HLT_PFMET700_PFMHT700_IDTight_CalBTagCSV_3p1_v -1 1
+123 HLT_PFMET800_PFMHT800_IDTight_CalBTagCSV_3p1_v -1 1
+124 HLT_PFMET90_PFMHT90_IDTight_v 0 1
+125 HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v -1 1
+126 HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v 0 1
+127 HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_PFHT60_v -1 1
+128 HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v 0 1
+129 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_HFCleaned_v -1 1
+130 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v -1 1
+131 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v 0 1
+132 HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_PFHT60_v -1 1
+133 HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_v -1 1
+134 HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_PFHT60_v -1 1
+135 HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v -1 1
+136 HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v 0 1
+137 HLT_Photon135_PFMET100_v 0 1
+138 HLT_Photon165_HE10_v 0 1
+139 HLT_Photon165_R9Id90_HE10_IsoM_v 0 1
+140 HLT_Photon175_v 0 1
+141 HLT_Photon200_v -1 1
+142 HLT_Photon300_NoHE_v 0 1
+143 HLT_Photon90_CaloIdL_PFHT500_v 0 1
+144 HLT_Photon90_CaloIdL_PFHT600_v 0 1
+145 HLT_Photon90_CaloIdL_PFHT700_v -1 1
+146 HLT_TkMu100_v -1 1
+147 HLT_TkMu50_v -1 1
+0 HLT_AK8DiPFJet250_200_TrimMass30_v 15 0.0
+1 HLT_AK8DiPFJet280_200_TrimMass30_v 10 0.0
+2 HLT_AK8DiPFJet300_200_TrimMass30_v 1 0.0
+3 HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v 1 0.0
+4 HLT_AK8PFHT800_TrimMass50_v 1 0.0
+5 HLT_AK8PFHT850_TrimMass50_v 1 0.0
+6 HLT_AK8PFHT900_TrimMass50_v 1 0.0
+7 HLT_AK8PFJet360_TrimMass30_v 1 0.0
+8 HLT_AK8PFJet400_TrimMass30_v 1 0.0
+9 HLT_AK8PFJet420_TrimMass30_v 1 0.0
+10 HLT_AK8PFJet450_v 1 0.0
+11 HLT_AK8PFJet500_v 1 0.0
+12 HLT_AK8PFJet550_v 1 0.0
+13 HLT_CaloJet500_NoJetID_v 1 0.0
+14 HLT_CaloJet550_NoJetID_v 1 0.0
+15 HLT_DiCentralPFJet55_PFMET110_v 1 0.0
+16 HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v 1 0.0
+17 HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_DZ_PFHT350_v 1 0.0
+18 HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v 1 0.0
+19 HLT_DoubleMu8_Mass8_PFHT300_v 1 0.0
+20 HLT_DoubleMu8_Mass8_PFHT350_v 1 0.0
+21 HLT_Ele105_CaloIdVT_GsfTrkIdT_v 1 0.0
+22 HLT_Ele115_CaloIdVT_GsfTrkIdT_v 1 0.0
+23 HLT_Ele135_CaloIdVT_GsfTrkIdT_v 1 0.0
+24 HLT_Ele145_CaloIdVT_GsfTrkIdT_v 1 0.0
+25 HLT_Ele15_IsoVVVL_PFHT350_PFMET50_v 1 0.0
+26 HLT_Ele15_IsoVVVL_PFHT350_v 1 0.0
+27 HLT_Ele15_IsoVVVL_PFHT400_v 1 0.0
+28 HLT_Ele15_IsoVVVL_PFHT450_CaloBTagCSV_4p5_v 1 0.0
+29 HLT_Ele15_IsoVVVL_PFHT450_PFMET50_v 1 0.0
+30 HLT_Ele15_IsoVVVL_PFHT450_v 1 0.0
+31 HLT_Ele15_IsoVVVL_PFHT600_v 1 0.0
+32 HLT_Ele20_WPLoose_Gsf_v 1 0.0
+33 HLT_Ele20_eta2p1_WPLoose_Gsf_v 1 0.0
+34 HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v 1 0.0
+35 HLT_Ele25_eta2p1_WPTight_Gsf_v 1 0.0
+36 HLT_Ele27_WPTight_Gsf_v 1 0.0
+37 HLT_Ele27_eta2p1_WPLoose_Gsf_v 1 0.0
+38 HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v 1 0.0
+39 HLT_Ele32_WPTight_Gsf_v 1 0.0
+40 HLT_Ele35_WPTight_Gsf_v 1 0.0
+41 HLT_Ele45_WPLoose_Gsf_v 1 0.0
+42 HLT_Ele50_IsoVVVL_PFHT400_v 1 0.0
+43 HLT_Ele50_IsoVVVL_PFHT450_v 1 0.0
+44 HLT_IsoMu16_eta2p1_MET30_v 1 0.0
+45 HLT_IsoMu20_v 1 0.0
+46 HLT_IsoMu22_eta2p1_v 1 0.0
+47 HLT_IsoMu22_v 1 0.0
+48 HLT_IsoMu24_eta2p1_v 1 0.0
+49 HLT_IsoMu24_v 1 0.0
+50 HLT_IsoMu27_v 1 0.0
+51 HLT_IsoTkMu22_v 1 0.0
+52 HLT_IsoTkMu24_v 1 0.0
+53 HLT_Mu15_IsoVVVL_PFHT350_PFMET50_v 1 0.0
+54 HLT_Mu15_IsoVVVL_PFHT350_v 1 0.0
+55 HLT_Mu15_IsoVVVL_PFHT400_v 1 0.0
+56 HLT_Mu15_IsoVVVL_PFHT450_CaloBTagCSV_4p5_v 1 0.0
+57 HLT_Mu15_IsoVVVL_PFHT450_PFMET50_v 1 0.0
+58 HLT_Mu15_IsoVVVL_PFHT450_v 1 0.0
+59 HLT_Mu15_IsoVVVL_PFHT600_v 1 0.0
+60 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v 1 0.0
+61 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v 1 0.0
+62 HLT_Mu45_eta2p1_v 1 0.0
+63 HLT_Mu50_IsoVVVL_PFHT400_v 1 0.0
+64 HLT_Mu50_IsoVVVL_PFHT450_v 1 0.0
+65 HLT_Mu50_v 1 0.0
+66 HLT_Mu55_v 1 0.0
+67 HLT_PFHT1050_v 1 0.0
+68 HLT_PFHT180_v 1 0.0
+69 HLT_PFHT200_v 1 0.0
+70 HLT_PFHT250_v 1 0.0
+71 HLT_PFHT300_PFMET100_v 1 0.0
+72 HLT_PFHT300_PFMET110_v 1 0.0
+73 HLT_PFHT300_v 512 0.0
+74 HLT_PFHT350_v 256 0.0
+75 HLT_PFHT370_v 1 0.0
+76 HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2_v 1 0.0
+77 HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v 1 0.0
+78 HLT_PFHT380_SixPFJet32_v 1 0.0
+79 HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v 1 0.0
+80 HLT_PFHT400_SixJet30_v 2 0.0
+81 HLT_PFHT400_v 128 0.0
+82 HLT_PFHT430_SixJet40_BTagCSV_p056_v 1 0.0
+83 HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5_v 1 0.0
+84 HLT_PFHT430_SixPFJet40_v 1 0.0
+85 HLT_PFHT430_v 1 0.0
+86 HLT_PFHT450_SixJet40_BTagCSV_p056_v 1 0.0
+87 HLT_PFHT450_SixJet40_v 1 0.0
+88 HLT_PFHT450_SixPFJet40_PFBTagCSV_1p5_v 1 0.0
+89 HLT_PFHT475_v 64 0.0
+90 HLT_PFHT500_PFMET100_PFMHT100_IDTight_v 1 0.0
+91 HLT_PFHT500_PFMET110_PFMHT110_IDTight_v 1 0.0
+92 HLT_PFHT510_v 1 0.0
+93 HLT_PFHT590_v 1 0.0
+94 HLT_PFHT600_v 16 0.0
+95 HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v 1 0.0
+96 HLT_PFHT650_v 8 0.0
+97 HLT_PFHT680_v 1 0.0
+98 HLT_PFHT700_PFMET85_PFMHT85_IDTight_v 1 0.0
+99 HLT_PFHT700_PFMET95_PFMHT95_IDTight_v 1 0.0
+100 HLT_PFHT780_v 1 0.0
+101 HLT_PFHT800_PFMET75_PFMHT75_IDTight_v 1 0.0
+102 HLT_PFHT800_PFMET85_PFMHT85_IDTight_v 1 0.0
+103 HLT_PFHT800_v 1 0.0
+104 HLT_PFHT890_v 1 0.0
+105 HLT_PFHT900_v 1 0.0
+106 HLT_PFJet450_v 1 0.0
+107 HLT_PFJet500_v 1 0.0
+108 HLT_PFJet550_v 1 0.0
+109 HLT_PFMET100_PFMHT100_IDTight_PFHT60_v 1 0.0
+110 HLT_PFMET100_PFMHT100_IDTight_v 1 0.0
+111 HLT_PFMET110_PFMHT110_IDTight_PFHT60_v 1 0.0
+112 HLT_PFMET110_PFMHT110_IDTight_v 1 0.0
+113 HLT_PFMET120_PFMHT120_IDTight_HFCleaned_v 1 0.0
+114 HLT_PFMET120_PFMHT120_IDTight_PFHT60_HFCleaned_v 1 0.0
+115 HLT_PFMET120_PFMHT120_IDTight_PFHT60_v 1 0.0
+116 HLT_PFMET120_PFMHT120_IDTight_v 1 0.0
+117 HLT_PFMET130_PFMHT130_IDTight_PFHT60_v 1 0.0
+118 HLT_PFMET130_PFMHT130_IDTight_v 1 0.0
+119 HLT_PFMET140_PFMHT140_IDTight_PFHT60_v 1 0.0
+120 HLT_PFMET140_PFMHT140_IDTight_v 1 0.0
+121 HLT_PFMET500_PFMHT500_IDTight_CalBTagCSV_3p1_v 1 0.0
+122 HLT_PFMET700_PFMHT700_IDTight_CalBTagCSV_3p1_v 1 0.0
+123 HLT_PFMET800_PFMHT800_IDTight_CalBTagCSV_3p1_v 1 0.0
+124 HLT_PFMET90_PFMHT90_IDTight_v 1 0.0
+125 HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_PFHT60_v 1 0.0
+126 HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v 1 0.0
+127 HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_PFHT60_v 1 0.0
+128 HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v 1 0.0
+129 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_HFCleaned_v 1 0.0
+130 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v 1 0.0
+131 HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v 1 0.0
+132 HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_PFHT60_v 1 0.0
+133 HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_v 1 0.0
+134 HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_PFHT60_v 1 0.0
+135 HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_v 1 0.0
+136 HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v 1 0.0
+137 HLT_Photon135_PFMET100_v 1 0.0
+138 HLT_Photon165_HE10_v 1 0.0
+139 HLT_Photon165_R9Id90_HE10_IsoM_v 1 0.0
+140 HLT_Photon175_v 1 0.0
+141 HLT_Photon200_v 1 0.0
+142 HLT_Photon300_NoHE_v 1 0.0
+143 HLT_Photon90_CaloIdL_PFHT500_v 1 0.0
+144 HLT_Photon90_CaloIdL_PFHT600_v 1 0.0
+145 HLT_Photon90_CaloIdL_PFHT700_v 1 0.0
+146 HLT_TkMu100_v 1 0.0
+147 HLT_TkMu50_v 1 0.0
+'''
