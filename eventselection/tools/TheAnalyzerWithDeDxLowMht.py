@@ -180,8 +180,8 @@ binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1),(0,0),  (1,1),      (0.3,
 binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1),(0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf))] = 46
 binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1),(1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutLmid))] = 47
 binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1),(1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf))] = 48
-binnumbers[((0,inf),(150,300),  (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=61
-binnumbers[((0,inf),(300,inf),(0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=62
+binnumbers[((0,inf),(150,300),  (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=50
+binnumbers[((0,inf),(300,inf),(0,inf),(0,inf),(2,inf),(0,inf),(0,inf),    (0.0,inf))]=51
 
 
 
