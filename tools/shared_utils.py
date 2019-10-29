@@ -859,7 +859,11 @@ def overflow(h):
 	c = h.GetBinContent(bin)
 	h.AddBinContent((bin-1),c)
 
-
+def mkmet(metPt, metPhi):
+    met = TLorentzVector()
+    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
+    return met
+    
 def passQCDHighMETFilter(t):
     metvec = mkmet(t.MET, t.METPhi)
     for ijet, jet in enumerate(t.Jets):
