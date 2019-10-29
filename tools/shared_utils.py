@@ -894,8 +894,8 @@ def passesUniversalSelection(t):
     if not t.BadPFMuonFilter: return False
     if not t.CSCTightHaloFilter: return False
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
-    if not t.ecalBadCalibReducedExtraFilter: return False
-    if not t.ecalBadCalibReducedFilter: return False         
+    #if not t.ecalBadCalibReducedExtraFilter: return False
+    #if not t.ecalBadCalibReducedFilter: return False         
     return True
 
 
