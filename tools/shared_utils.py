@@ -859,11 +859,6 @@ def overflow(h):
 	c = h.GetBinContent(bin)
 	h.AddBinContent((bin-1),c)
 
-def mkmet(metPt, metPhi):
-
-    met = TLorentzVector()
-    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
-    return met 
 
 def passQCDHighMETFilter(t):
     metvec = mkmet(t.MET, t.METPhi)
@@ -884,7 +879,6 @@ def passQCDHighMETFilter2(t):
 
 def passesUniversalSelection(t):
     if not (bool(t.JetID) and  t.NVtx>0): return False
-    if not (t.NElectrons==0 and t.NMuons==0 and t.isoElectronTracks==0 and t.isoMuonTracks==0 and t.isoPionTracks==0): return False
     if not  passQCDHighMETFilter(t): return False
     if not passQCDHighMETFilter2(t): return False
     if not t.PFCaloMETRatio<5: return False
@@ -895,7 +889,6 @@ def passesUniversalSelection(t):
     if not t.BadChargedCandidateFilter: return False
     if not t.BadPFMuonFilter: return False
     if not t.CSCTightHaloFilter: return False
-    if not passesPhotonVeto(t): return False    
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
     if not t.ecalBadCalibReducedExtraFilter: return False
     if not t.ecalBadCalibReducedFilter: return False         
@@ -903,10 +896,8 @@ def passesUniversalSelection(t):
 
 
 
-
 def passesUniversalDataSelection(t):
     if not (bool(t.JetID) and  t.NVtx>0): return False
-    if not (t.NElectrons==0 and t.NMuons==0 and t.isoElectronTracks==0 and t.isoMuonTracks==0 and t.isoPionTracks==0): return False
     if not  passQCDHighMETFilter(t): return False
     if not passQCDHighMETFilter2(t): return False
     if not t.PFCaloMETRatio<5: return False
@@ -917,7 +908,6 @@ def passesUniversalDataSelection(t):
     if not t.BadChargedCandidateFilter: return False
     if not t.BadPFMuonFilter: return False
     if not t.CSCTightHaloFilter: return False
-    if not passesPhotonVeto(t): return False    
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False                         
     return True
     
