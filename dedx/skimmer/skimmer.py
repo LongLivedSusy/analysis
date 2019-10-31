@@ -106,6 +106,7 @@ def isBaselineTrack(track, itrack, c):
 	return True
 
 
+'''
 def mkmet(metPt, metPhi):
 
     met = TLorentzVector()
@@ -122,7 +123,6 @@ def passQCDHighMETFilter(t):
         if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
     return True  
     
-'''
 def passesUniversalSelection(t):
     
     if not (bool(t.JetID) and  t.NVtx>0): return False
@@ -302,7 +302,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tree = TChain(treename)
     for iFile in event_tree_filenames:
         tree.Add(iFile)
-   
+    
+    tree.Show()
+
     fout = TFile(track_tree_output, "recreate")
 
     # write number of events to histogram:
@@ -389,7 +391,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         vector_float_branches_tracks += ["tracks_mva_%s" % dt_tag_label]
     
     # if signal, save chargino info
-    #if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
     if tree.GetBranch("GenParticles") and ("g1800" in event_tree_filenames[0] or "SMS" in event_tree_filenames[0]):
         vector_float_branches_tracks += ["tracks_chargino_P"]
         vector_float_branches_tracks += ["tracks_chargino_pt"]
@@ -403,18 +404,28 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     # add our electron vectors:
     tree_branch_values["Electrons"] = 0
     tout.Branch('Electrons', 'std::vector<TLorentzVector>', tree_branch_values["Electrons"])
-    vector_int_branches_electrons = ['electrons_charge', 'electrons_mediumID', 'electrons_tightID']
+    vector_int_branches_electrons = ['electrons_charge', 'electrons_mediumID', 'electrons_tightID', 'electrons_passIso']
     for branch in vector_int_branches_electrons:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
     
+    vector_float_branches_electrons = ['electrons_MiniIso', 'electrons_pt', 'electrons_eta', 'electrons_phi']
+    for branch in vector_float_branches_electrons:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
+    
     # add our muon vectors:
     tree_branch_values["Muons"] = 0
     tout.Branch('Muons', 'std::vector<TLorentzVector>', tree_branch_values["Muons"])
-    vector_int_branches_muons = ['muons_charge', 'muons_mediumID', 'muons_tightID']
+    vector_int_branches_muons = ['muons_charge', 'muons_mediumID', 'muons_tightID', 'muons_passIso']
     for branch in vector_int_branches_muons:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
+    
+    vector_float_branches_muons = ['muons_MiniIso', 'muons_pt', 'muons_eta', 'muons_phi']
+    for branch in vector_float_branches_muons:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
     
     # load and configure data mask:
     if phase == 0:
@@ -585,18 +596,20 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         for i, electron in enumerate(event.Electrons):
 	    if not electron.Pt() > 30 : continue
 	    if not abs(electron.Eta()) < 2.4 : continue
+	    if not (abs(electron.Eta()) < 1.4442 or abs(electron.Eta()) > 1.566) : continue
 	    
 	    n_goodelectrons += 1
-	    electrons_charge = event.Electrons_charge[i]
-	    electrons_mediumID = bool(event.Electrons_mediumID[i])
-	    electrons_tightID = bool(event.Electrons_tightID[i])
-        
             electron_level_output.append(
                                    {
                                      "Electrons": event.Electrons[i],
                                      "electrons_charge": event.Electrons_charge[i],
                                      "electrons_mediumID": bool(event.Electrons_mediumID[i]),
                                      "electrons_tightID": bool(event.Electrons_tightID[i]),
+                                     "electrons_MiniIso": event.Electrons_MiniIso[i],
+                                     "electrons_passIso": bool(event.Electrons_passIso[i]),
+                                     "electrons_pt": electron.Pt(),
+                                     "electrons_eta": electron.Eta(),
+                                     "electrons_phi": electron.Phi(),
 				     }
 				   )
         
@@ -607,16 +620,17 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 	    if not abs(muon.Eta()) < 2.4: continue
 
             n_goodmuons += 1
-	    muon_charge = event.Muons_charge[i]
-	    muon_mediumID = bool(event.Muons_mediumID[i])
-	    muon_tightID = bool(event.Muons_tightID[i])
-            
 	    muon_level_output.append(
                                    {
                                      "Muons": event.Muons[i],
                                      "muons_charge": event.Muons_charge[i],
                                      "muons_mediumID": bool(event.Muons_mediumID[i]),
                                      "muons_tightID": bool(event.Muons_tightID[i]),
+                                     "muons_MiniIso": event.Muons_MiniIso[i],
+                                     "muons_passIso": bool(event.Muons_passIso[i]),
+                                     "muons_pt": muon.Pt(),
+                                     "muons_eta": muon.Eta(),
+                                     "muons_phi": muon.Phi(),
 				     }
 				   )
         
@@ -875,8 +889,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         
 	for branch in vector_int_branches_electrons:
             tree_branch_values[branch] = ROOT.std.vector(int)(n_electrons)
-        #for branch in vector_float_branches_electrons:
-        #    tree_branch_values[branch] = ROOT.std.vector(double)(n_electrons)
+        for branch in vector_float_branches_electrons:
+            tree_branch_values[branch] = ROOT.std.vector(double)(n_electrons)
         
 	# register electron-level branches:
         for label in tree_branch_values:
@@ -894,8 +908,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         
 	for branch in vector_int_branches_muons:
             tree_branch_values[branch] = ROOT.std.vector(int)(n_muons)
-        #for branch in vector_float_branches_muons:
-        #    tree_branch_values[branch] = ROOT.std.vector(double)(n_muons)
+        for branch in vector_float_branches_muons:
+            tree_branch_values[branch] = ROOT.std.vector(double)(n_muons)
         
 	# register muon-level branches:
         for label in tree_branch_values:
