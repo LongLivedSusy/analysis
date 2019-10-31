@@ -6,6 +6,7 @@ from optparse import OptionParser
 import collections
 import json
 import math
+from shared_utils import *
 
 def prepareReader(xmlfilename, vars_training, vars_spectator, tmva_variables):
 
@@ -51,65 +52,6 @@ def get_tmva_info(path):
                 configuration = configuration.replace(":", ", ")
 
     return {"method": method, "configuration": configuration, "variables": training_variables, "spectators": spectator_variables, "preselection": preselection}
-
-
-def get_signal_region(event, MinDeltaPhiMhtJets, n_DT, is_pixel_track):
-  
-    NJets = len(event.Jets)
-    MHT = event.MHT
-    n_btags = event.BTags
-    is_tracker_track = not is_pixel_track
-
-    binnumbers = collections.OrderedDict()
-    #           'Ht',             'Mht',                'NJets',            'BTags',            'NTags',            'NPix',             'NPixStrips',       'MinDPhiMhtJets'
-    binnumbers[((0,float("inf")), (250,400),            (1,1),              (0,float("inf")),   (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 1
-    binnumbers[((0,float("inf")), (250,400),            (2,5),              (0,0),              (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 2
-    binnumbers[((0,float("inf")), (250,400),            (2,5),              (1,5),              (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 3
-    binnumbers[((0,float("inf")), (250,400),            (6,float("inf")),   (0,0),              (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 4
-    binnumbers[((0,float("inf")), (250,400),            (6,float("inf")),   (1,float("inf")),   (1,1),              (0,0),              (1,1),              (0.5,float("inf")))] = 5
-    binnumbers[((0,float("inf")), (400,700),            (1,1),              (0,float("inf")),   (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 6
-    binnumbers[((0,float("inf")), (400,700),            (2,5),              (0,0),              (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 7
-    binnumbers[((0,float("inf")), (400,700),            (2,5),              (1,5),              (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 8
-    binnumbers[((0,float("inf")), (400,700),            (6,float("inf")),   (0,0),              (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 9
-    binnumbers[((0,float("inf")), (400,700),            (6,float("inf")),   (1,float("inf")),   (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 10
-    binnumbers[((0,float("inf")), (700,float("inf")),   (1,1),              (0,float("inf")),   (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 11
-    binnumbers[((0,float("inf")), (700,float("inf")),   (2,5),              (0,0),              (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 12
-    binnumbers[((0,float("inf")), (700,float("inf")),   (2,5),              (1,5),              (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 13
-    binnumbers[((0,float("inf")), (700,float("inf")),   (6,float("inf")),   (0,0),              (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 14
-    binnumbers[((0,float("inf")), (700,float("inf")),   (6,float("inf")),   (1,float("inf")),   (1,1),              (0,0),              (1,1),              (0.3,float("inf")))] = 15
-    binnumbers[((0,float("inf")), (250,400),            (1,1),              (0,float("inf")),   (1,1),              (1,1),              (0,0),              (0.5,float("inf")))] = 16
-    binnumbers[((0,float("inf")), (250,400),            (2,5),              (0,0),              (1,1),              (1,1),              (0,0),              (0.5,float("inf")))] = 17
-    binnumbers[((0,float("inf")), (250,400),            (2,5),              (1,5),              (1,1),              (1,1),              (0,0),              (0.5,float("inf")))] = 18
-    binnumbers[((0,float("inf")), (250,400),            (6,float("inf")),   (0,0),              (1,1),              (1,1),              (0,0),              (0.5,float("inf")))] = 19
-    binnumbers[((0,float("inf")), (250,400),            (6,float("inf")),   (1,float("inf")),   (1,1),              (1,1),              (0,0),              (0.5,float("inf")))] = 20
-    binnumbers[((0,float("inf")), (400,700),            (1,1),              (0,float("inf")),   (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 21
-    binnumbers[((0,float("inf")), (400,700),            (2,5),              (0,0),              (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 22
-    binnumbers[((0,float("inf")), (400,700),            (2,5),              (1,5),              (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 23
-    binnumbers[((0,float("inf")), (400,700),            (6,float("inf")),   (0,0),              (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 24
-    binnumbers[((0,float("inf")), (400,700),            (6,float("inf")),   (1,float("inf")),   (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 25
-    binnumbers[((0,float("inf")), (700,float("inf")),   (1,1),              (0,float("inf")),   (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 26
-    binnumbers[((0,float("inf")), (700,float("inf")),   (2,5),              (0,0),              (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 27
-    binnumbers[((0,float("inf")), (700,float("inf")),   (2,5),              (1,5),              (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 28
-    binnumbers[((0,float("inf")), (700,float("inf")),   (6,float("inf")),   (0,0),              (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 29
-    binnumbers[((0,float("inf")), (700,float("inf")),   (6,float("inf")),   (1,float("inf")),   (1,1),              (1,1),              (0,0),              (0.3,float("inf")))] = 30
-    binnumbers[((0,float("inf")), (250,400),            (1,float("inf")),   (0,float("inf")),   (2,float("inf")),   (0,float("inf")),   (0,float("inf")),   (0.0,float("inf")))] = 31
-    binnumbers[((0,float("inf")), (400,float("inf")),   (1,float("inf")),   (0,float("inf")),   (2,float("inf")),   (0,float("inf")),   (0,float("inf")),   (0.0,float("inf")))] = 32
-
-    region = 0
-    for binkey in binnumbers:
-        if MHT >= binkey[1][0] and MHT <= binkey[1][1] and \
-           NJets >= binkey[2][0] and NJets <= binkey[2][1] and \
-           n_btags >= binkey[3][0] and n_btags <= binkey[3][1] and \
-           n_DT >= binkey[4][0] and n_DT <= binkey[4][1] and \
-           is_pixel_track >= binkey[5][0] and is_pixel_track <= binkey[5][1] and \
-           is_tracker_track >= binkey[6][0] and is_tracker_track <= binkey[6][1] and \
-           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1]:
-            region = binnumbers[binkey]
-            break
-
-    #print "MinDeltaPhiMhtJets, n_DT, is_pixel_track, NJets, MHT, n_btags, is_tracker_track, region:", MinDeltaPhiMhtJets, n_DT, is_pixel_track, NJets, MHT, n_btags, is_tracker_track, region
-
-    return region
 
 
 def pass_background_stitching(current_file_name, madHT, phase):
@@ -160,6 +102,7 @@ def isBaselineTrack(track, itrack, c):
 	if not (c.tracks_trackerLayersWithMeasurement[itrack] >= 2 and c.tracks_nValidTrackerHits[itrack] >= 2): return False
 	if not c.tracks_nMissingInnerHits[itrack]==0: return False
 	if not c.tracks_nMissingMiddleHits[itrack]==0: return False	
+	if not c.tracks_chi2perNdof[itrack]<2.88: return False
 	return True
 
 
@@ -179,7 +122,7 @@ def passQCDHighMETFilter(t):
         if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
     return True  
     
-
+'''
 def passesUniversalSelection(t):
     
     if not (bool(t.JetID) and  t.NVtx>0): return False
@@ -193,7 +136,7 @@ def passesUniversalSelection(t):
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False
     if not t.eeBadScFilter: return False 
     return True
-
+'''
 
 def particle_is_in_HEM_failure_region(particle):
 
@@ -400,8 +343,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tout = TTree("Events", "tout")
 
     # prepare variables for output tree   
-    float_branches = ["weight", "MET", "METPhi", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec"]
-    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
+    float_branches = ["weight", "MET", "METPhi", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "event", "run", "lumisec"]
+    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "passesUniversalSelection", "passesUniversalDataSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus"]
 
     if not is_data:
         float_branches.append("madHT")
@@ -422,10 +365,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values[variable] = array( 'i', [ -1 ] )
         tout.Branch( variable, tree_branch_values[variable], '%s/I' % variable )
 
-    # add regions vector:
-    tree_branch_values["region"] = 0
-    tout.Branch("region", 'std::vector<int>', tree_branch_values["region"])    
-
     # get variables of tree
     track_variables = []
     for i in range(len(tree.GetListOfBranches())):
@@ -437,31 +376,46 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tree_branch_values["tracks"] = 0
     tout.Branch('tracks', 'std::vector<TLorentzVector>', tree_branch_values["tracks"])
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_passpionveto', 'tracks_passmask', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
+    vector_int_branches_tracks = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_passpionveto', 'tracks_passmask', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge']
     for dt_tag_label in disappearing_track_tags:
-        vector_int_branches += ["tracks_tagged_%s" % dt_tag_label]
+        vector_int_branches_tracks += ["tracks_tagged_%s" % dt_tag_label]
     
-    for branch in vector_int_branches:
+    for branch in vector_int_branches_tracks:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
+    vector_float_branches_tracks = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_P', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm']
     for dt_tag_label in disappearing_track_tags:
-        vector_float_branches += ["tracks_mva_%s" % dt_tag_label]
+        vector_float_branches_tracks += ["tracks_mva_%s" % dt_tag_label]
     
     # if signal, save chargino info
-    if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
-        vector_float_branches += ["tracks_chargino_P"]
-        vector_float_branches += ["tracks_chargino_pt"]
-        vector_float_branches += ["tracks_chargino_eta"]
-        vector_float_branches += ["tracks_chargino_phi"]
+    #if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
+    if tree.GetBranch("GenParticles") and ("g1800" in event_tree_filenames[0] or "SMS" in event_tree_filenames[0]):
+        vector_float_branches_tracks += ["tracks_chargino_P"]
+        vector_float_branches_tracks += ["tracks_chargino_pt"]
+        vector_float_branches_tracks += ["tracks_chargino_eta"]
+        vector_float_branches_tracks += ["tracks_chargino_phi"]
     
-    for branch in vector_float_branches:
+    for branch in vector_float_branches_tracks:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
 
-
-
+    # add our electron vectors:
+    tree_branch_values["Electrons"] = 0
+    tout.Branch('Electrons', 'std::vector<TLorentzVector>', tree_branch_values["Electrons"])
+    vector_int_branches_electrons = ['electrons_charge', 'electrons_mediumID', 'electrons_tightID']
+    for branch in vector_int_branches_electrons:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
+    
+    # add our muon vectors:
+    tree_branch_values["Muons"] = 0
+    tout.Branch('Muons', 'std::vector<TLorentzVector>', tree_branch_values["Muons"])
+    vector_int_branches_muons = ['muons_charge', 'muons_mediumID', 'muons_tightID']
+    for branch in vector_int_branches_muons:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
+    
     # load and configure data mask:
     if phase == 0:
         mask_file = TFile("Masks.root", "open")
@@ -497,6 +451,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 runs[runnum].append(lumisec)
 	    weight = event.PrescaleWeightHT
 	else:
+	    #FIXME : GenTopWeight seems wrong
 	    weight = 1.0 * event.GenTopWeight * event.puWeight * event.CrossSection / event.NumEvents
                 
         current_file_name = tree.GetFile().GetName()
@@ -508,13 +463,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                   
         # reset all branch values:
         for label in tree_branch_values:
-            if "tracks" in label or "region" in label:
+            if "tracks" or "Muons" or "Electrons" in label:
                 continue
             else:
                 tree_branch_values[label][0] = -1
-
-        region = []
-
+	
+	'''
         # set selection flags (veto event later if it does not fit into any selection):
         dilepton_CR = False
         qcd_CR = False
@@ -617,24 +571,56 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values["MHT_cleaned"][0] = MHT_cleaned
                 tree_branch_values["HT_cleaned"][0] = HT_cleaned
                 tree_branch_values["MinDeltaPhiMhtJets_cleaned"][0] = MinDeltaPhiMhtJets_cleaned
+	'''
 
 	# count number of good jets:
         n_goodjets = 0 
         for jet in event.Jets:
-            if jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
+            if bool(event.JetID) and jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
                 n_goodjets += 1
 
         # count number of good leptons:
         n_goodelectrons = 0 
-        n_goodmuons = 0 
+        electron_level_output = []
         for i, electron in enumerate(event.Electrons):
-            if electron.Pt() > 30 and abs(electron.Eta()) < 2.4 and bool(event.Electrons_mediumID[i]):
-                n_goodelectrons += 1
+	    if not electron.Pt() > 30 : continue
+	    if not abs(electron.Eta()) < 2.4 : continue
+	    
+	    n_goodelectrons += 1
+	    electrons_charge = event.Electrons_charge[i]
+	    electrons_mediumID = bool(event.Electrons_mediumID[i])
+	    electrons_tightID = bool(event.Electrons_tightID[i])
+        
+            electron_level_output.append(
+                                   {
+                                     "Electrons": event.Electrons[i],
+                                     "electrons_charge": event.Electrons_charge[i],
+                                     "electrons_mediumID": bool(event.Electrons_mediumID[i]),
+                                     "electrons_tightID": bool(event.Electrons_tightID[i]),
+				     }
+				   )
+        
+	n_goodmuons = 0 
+        muon_level_output = []
         for i, muon in enumerate(event.Muons):
-            if muon.Pt() > 30 and abs(muon.Eta()) < 2.4 and bool(event.Muons_tightID[i]):
-                n_goodmuons += 1
+	    if not muon.Pt() > 30 : continue
+	    if not abs(muon.Eta()) < 2.4: continue
 
-        n_goodleptons = n_goodelectrons + n_goodmuons
+            n_goodmuons += 1
+	    muon_charge = event.Muons_charge[i]
+	    muon_mediumID = bool(event.Muons_mediumID[i])
+	    muon_tightID = bool(event.Muons_tightID[i])
+            
+	    muon_level_output.append(
+                                   {
+                                     "Muons": event.Muons[i],
+                                     "muons_charge": event.Muons_charge[i],
+                                     "muons_mediumID": bool(event.Muons_mediumID[i]),
+                                     "muons_tightID": bool(event.Muons_tightID[i]),
+				     }
+				   )
+        
+	n_goodleptons = n_goodelectrons + n_goodmuons
 
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
@@ -644,8 +630,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         nj = 0
         nb = 0
         for ijet, jet in enumerate(event.Jets):
-            if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
-            nj+=1
+            if not (n_goodjets > 0) : continue
             if event.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
             if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets:
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
@@ -683,7 +668,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         for iCand, track in enumerate(event.tracks):
 
 	    # discard tracks with pT<30 GeV
-	    if track.Pt() < 30 : continue
+	    if not track.Pt() > 30 : continue
 
 	    if not isBaselineTrack(track, iCand, event) : continue
 
@@ -760,8 +745,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_matchedCaloEnergy": event.tracks_matchedCaloEnergy[iCand],
                                      "tracks_trkRelIso": event.tracks_trkRelIso[iCand],
                                      "tracks_ptErrOverPt2": ptErrOverPt2,
-                                     "tracks_pt": event.tracks[iCand].Pt(),
                                      "tracks_P": event.tracks[iCand].P(),
+                                     "tracks_pt": event.tracks[iCand].Pt(),
                                      "tracks_eta": event.tracks[iCand].Eta(),
                                      "tracks_phi": event.tracks[iCand].Phi(),
                                      "tracks_prompt_electron": is_prompt_electron,
@@ -797,31 +782,30 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     track_level_output[-1]["tracks_tagged_%s" % dt_tag_label] = 0
 
             # if signal, do chargino matching:
-            if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
+            #if tree.GetBranch("GenParticles") and "g1800" in event_tree_filenames[0]:
+            if tree.GetBranch("GenParticles") and ("g1800" in event_tree_filenames[0] or "SMS" in event_tree_filenames[0]):
 
                 # track matching with closest gen-level chargino:
+		deltaR = 999.
                 for k in range(len(event.GenParticles)):
-		    deltaR = 999.
-		    chargino_P = 0.
-		    chargino_pt = 0.
-		    chargino_eta = 0.
-		    chargino_phi = 0.
 
-                    if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
+		    #FIXME : check for SMS signal chargino pdgid:1000024 then status==52
+                    #if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
+                    if abs(event.GenParticles_PdgId[k]) == 1000024 :
 			deltaR_tmp = event.tracks[iCand].DeltaR(event.GenParticles[k])
-			chargino_P = event.GenParticles[k].P()
-			chargino_pt = event.GenParticles[k].Pt()
-			chargino_eta = event.GenParticles[k].Eta()
-			chargino_phi = event.GenParticles[k].Phi()
 			
 			if deltaR_tmp < deltaR :
 			    deltaR = deltaR_tmp
+			    chargino_P = event.GenParticles[k].P()
+			    chargino_pt = event.GenParticles[k].Pt()
+			    chargino_eta = event.GenParticles[k].Eta()
+			    chargino_phi = event.GenParticles[k].Phi()
 
-			    track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
-                	    track_level_output[-1]["tracks_chargino_P"] = chargino_P
-                	    track_level_output[-1]["tracks_chargino_pt"] = chargino_pt
-                	    track_level_output[-1]["tracks_chargino_eta"] = chargino_eta
-                	    track_level_output[-1]["tracks_chargino_phi"] = chargino_phi
+		track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
+        	track_level_output[-1]["tracks_chargino_P"] = chargino_P
+        	track_level_output[-1]["tracks_chargino_pt"] = chargino_pt
+        	track_level_output[-1]["tracks_chargino_eta"] = chargino_eta
+        	track_level_output[-1]["tracks_chargino_phi"] = chargino_phi
 
 		
 
@@ -837,32 +821,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 for line in sorted(track_level_output[-1].keys()):
                     print "%s: %s" %(line, track_level_output[-1][line])
 
-        # check if genLeptons are present in event:
-        if not is_data:
-
-            n_genLeptons = 0
-            n_genElectrons = 0
-            n_genMuons = 0
-            n_genTaus = 0
-            for k in range(len(event.GenParticles)):
-
-                absPdgId = abs(event.GenParticles_PdgId[k])
-                
-                if absPdgId == 11:
-                    n_genElectrons += 1
-                    n_genLeptons += 1
-                elif absPdgId == 13:
-                    n_genMuons += 1
-                    n_genLeptons += 1
-                elif absPdgId == 15:
-                    n_genTaus += 1
-                    n_genLeptons += 1
-                    
-                tree_branch_values["n_genLeptons"][0] = n_genLeptons
-                tree_branch_values["n_genElectrons"][0] = n_genElectrons
-                tree_branch_values["n_genMuons"][0] = n_genMuons
-                tree_branch_values["n_genTaus"][0] = n_genTaus
-
         # save event-level variables:
         try:
             tree_branch_values["run"][0] = event.RunNum
@@ -870,6 +828,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         except:
             print "Error while saving event number info"
         tree_branch_values["passesUniversalSelection"][0] = passesUniversalSelection(event)
+        tree_branch_values["passesUniversalDataSelection"][0] = passesUniversalDataSelection(event)
         tree_branch_values["n_leptons"][0] = len(event.Electrons) + len(event.Muons)
         tree_branch_values["n_goodleptons"][0] = n_goodleptons
         tree_branch_values["n_goodelectrons"][0] = n_goodelectrons
@@ -895,9 +854,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         n_tracks = len(track_level_output)
         tree_branch_values["tracks"] = ROOT.std.vector(TLorentzVector)(n_tracks)
       
-        for branch in vector_int_branches:
+        for branch in vector_int_branches_tracks:
             tree_branch_values[branch] = ROOT.std.vector(int)(n_tracks)
-        for branch in vector_float_branches:
+        for branch in vector_float_branches_tracks:
             tree_branch_values[branch] = ROOT.std.vector(double)(n_tracks)
 
         # register track-level branches:
@@ -909,19 +868,46 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         for i, track_output_dict in enumerate(track_level_output):
             for label in track_output_dict:
                 tree_branch_values[label][i] = track_output_dict[label]
-
-        # get signal region information:
-        if event.MHT>250 and len(event.Jets)>0:
-            region.append(get_signal_region(event, MinDeltaPhiMhtJets, 1, True))
-            region.append(get_signal_region(event, MinDeltaPhiMhtJets, 1, False))
-            region.append(get_signal_region(event, MinDeltaPhiMhtJets, 2, True))
-            region = filter(lambda a: a != 0, region)
-            tree_branch_values["region"] = ROOT.std.vector(int)(len(region))
-            tout.SetBranchAddress("region", tree_branch_values["region"])
-            for i in range(len(region)):
-                tree_branch_values["region"][i] = region[i]
+	
+	# electron-level variables:
+	n_electrons = len(electron_level_output)
+        tree_branch_values["Electrons"] = ROOT.std.vector(TLorentzVector)(n_electrons)
         
-        tout.Fill()
+	for branch in vector_int_branches_electrons:
+            tree_branch_values[branch] = ROOT.std.vector(int)(n_electrons)
+        #for branch in vector_float_branches_electrons:
+        #    tree_branch_values[branch] = ROOT.std.vector(double)(n_electrons)
+        
+	# register electron-level branches:
+        for label in tree_branch_values:
+            if "electrons" in label:
+                tout.SetBranchAddress(label, tree_branch_values[label])
+        
+	# save electron-level properties:
+        for i, electron_output_dict in enumerate(electron_level_output):
+            for label in electron_output_dict:
+                tree_branch_values[label][i] = electron_output_dict[label]
+
+	# muon-level variables:
+	n_muons = len(muon_level_output)
+        tree_branch_values["Muons"] = ROOT.std.vector(TLorentzVector)(n_muons)
+        
+	for branch in vector_int_branches_muons:
+            tree_branch_values[branch] = ROOT.std.vector(int)(n_muons)
+        #for branch in vector_float_branches_muons:
+        #    tree_branch_values[branch] = ROOT.std.vector(double)(n_muons)
+        
+	# register muon-level branches:
+        for label in tree_branch_values:
+            if "muons" in label:
+                tout.SetBranchAddress(label, tree_branch_values[label])
+        
+	# save muon-level properties:
+        for i, muon_output_dict in enumerate(muon_level_output):
+            for label in muon_output_dict:
+                tree_branch_values[label][i] = muon_output_dict[label]
+	
+	tout.Fill()
      
     fout.cd()
 
