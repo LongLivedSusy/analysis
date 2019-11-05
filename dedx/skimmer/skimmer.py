@@ -402,8 +402,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
 
     # add our electron vectors:
-    tree_branch_values["Electrons"] = 0
-    tout.Branch('Electrons', 'std::vector<TLorentzVector>', tree_branch_values["Electrons"])
+    tree_branch_values["electrons"] = 0
+    tout.Branch('electrons', 'std::vector<TLorentzVector>', tree_branch_values["electrons"])
     vector_int_branches_electrons = ['electrons_charge', 'electrons_mediumID', 'electrons_tightID', 'electrons_passIso']
     for branch in vector_int_branches_electrons:
         tree_branch_values[branch] = 0
@@ -415,8 +415,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
     
     # add our muon vectors:
-    tree_branch_values["Muons"] = 0
-    tout.Branch('Muons', 'std::vector<TLorentzVector>', tree_branch_values["Muons"])
+    tree_branch_values["muons"] = 0
+    tout.Branch('muons', 'std::vector<TLorentzVector>', tree_branch_values["muons"])
     vector_int_branches_muons = ['muons_charge', 'muons_mediumID', 'muons_tightID', 'muons_passIso']
     for branch in vector_int_branches_muons:
         tree_branch_values[branch] = 0
@@ -474,7 +474,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                   
         # reset all branch values:
         for label in tree_branch_values:
-            if "tracks" or "Muons" or "Electrons" in label:
+            if "tracks" or "muons" or "electrons" in label:
                 continue
             else:
                 tree_branch_values[label][0] = -1
@@ -601,7 +601,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 	    n_goodelectrons += 1
             electron_level_output.append(
                                    {
-                                     "Electrons": event.Electrons[i],
+                                     "electrons": event.Electrons[i],
                                      "electrons_charge": event.Electrons_charge[i],
                                      "electrons_mediumID": bool(event.Electrons_mediumID[i]),
                                      "electrons_tightID": bool(event.Electrons_tightID[i]),
@@ -622,7 +622,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             n_goodmuons += 1
 	    muon_level_output.append(
                                    {
-                                     "Muons": event.Muons[i],
+                                     "muons": event.Muons[i],
                                      "muons_charge": event.Muons_charge[i],
                                      "muons_mediumID": bool(event.Muons_mediumID[i]),
                                      "muons_tightID": bool(event.Muons_tightID[i]),
@@ -637,7 +637,15 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 	n_goodleptons = n_goodelectrons + n_goodmuons
 
         # calculate MinDeltaPhiMhtJets:
-        csv_b = 0.8838
+        '''Must integrate these:
+                CSV      DeepCSV
+        2016   0.8484    0.6324
+        
+        2017  0.8838     0.4941
+        
+        2018  0.8838     0.4941
+	'''
+        csv_b = 0.6324
         mhtvec = TLorentzVector()
         mhtvec.SetPtEtaPhiE(event.MHT, 0, event.MHTPhi, event.MHT)
         MinDeltaPhiMhtJets = 9999
@@ -885,7 +893,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 	
 	# electron-level variables:
 	n_electrons = len(electron_level_output)
-        tree_branch_values["Electrons"] = ROOT.std.vector(TLorentzVector)(n_electrons)
+        tree_branch_values["electrons"] = ROOT.std.vector(TLorentzVector)(n_electrons)
         
 	for branch in vector_int_branches_electrons:
             tree_branch_values[branch] = ROOT.std.vector(int)(n_electrons)
@@ -904,7 +912,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
 	# muon-level variables:
 	n_muons = len(muon_level_output)
-        tree_branch_values["Muons"] = ROOT.std.vector(TLorentzVector)(n_muons)
+        tree_branch_values["muons"] = ROOT.std.vector(TLorentzVector)(n_muons)
         
 	for branch in vector_int_branches_muons:
             tree_branch_values[branch] = ROOT.std.vector(int)(n_muons)
