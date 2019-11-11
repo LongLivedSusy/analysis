@@ -297,7 +297,7 @@ def Struct(*args, **kwargs):
 	return type(name, (object,), {'__init__': init, '__slots__': kwargs.keys()})
 
 
-def mkHistoStruct(hname):
+def mkHistoStruct(hname, binning=binning):
 	if '_' in hname: var = hname[hname.find('_')+1:]
 	else: var =  hname
 	histoStruct = Struct('Truth','Control','Method')

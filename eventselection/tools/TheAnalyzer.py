@@ -20,6 +20,8 @@ from array import array
 gROOT.SetStyle('Plain')
 #gROOT.SetBatch(1)
 
+thebinning = binningAnalysis
+
 debugmode = False
 
 defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_50cm/July5-SUMMER19sig/g1700_chi1550_27_200970_step4_50miniAODSIM_*_RA2AnalysisTree.root"
@@ -103,11 +105,11 @@ inf = 999999
 regionCuts = {}
 #varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'Log10DedxMass','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'DeDxAverage','BinNumber']
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-regionCuts['Baseline']           = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['HighNJetBaseline']   = [(0,inf), (150,inf), (4,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['BaselineMuVeto']     = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),    (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-regionCuts['BaselinePixOnly']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,0),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
-regionCuts['BaselinePixAndStrips']=[(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,0),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+regionCuts['Baseline']           = [(0,inf), (0,inf),   (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),(0,0), (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+#regionCuts['HighNJetBaseline']   = [(0,inf), (150,inf), (4,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+#regionCuts['BaselineMuVeto']     = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),    (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
+#regionCuts['BaselinePixOnly']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,0),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
+#regionCuts['BaselinePixAndStrips']=[(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,0),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
 def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
 	iomits = []
 	for cut in omitcuts.split('Vs'): iomits.append(indexVar[cut])
@@ -123,7 +125,7 @@ histoStructDict = {}
 for region in regionCuts:
 	for var in varlist_:
 		histname = region+'_'+var
-		histoStructDict[histname] = mkHistoStruct(histname)	   
+		histoStructDict[histname] = mkHistoStruct(histname, thebinning)	   
 
 
 ldedxcutLlow = 3.0
