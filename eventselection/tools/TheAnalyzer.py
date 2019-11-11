@@ -126,8 +126,6 @@ for region in regionCuts:
 	for var in varlist_:
 		histname = region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname, thebinning)	   
-
-
 ldedxcutLlow = 3.0
 ldedxcutLmid = 5.0
 ldedxcutSlow = 2.1
