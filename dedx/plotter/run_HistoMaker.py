@@ -9,6 +9,7 @@ Recompile=True
 #Recompile=False
 
 OUTDIR = "./histos"
+#OUTDIR = "./histos_test"
 
 if __name__ == '__main__' :
 
@@ -21,32 +22,33 @@ if __name__ == '__main__' :
 	os.system("mkdir -p %s"%OUTDIR)
 
     # Samples
-    #path = "../../skimmer/skim_16DataMC_merged/"
-    path = "../../skimmer/output_skim_Summer16_merged/"
+    path = "../../skimmer/skim_16DataMCv4_merged/"
     #samples = ["*"]
-    #samples = ["Run2016*"]
-    samples = ["Summer16*"]
-    #samples = ["Summer16.g1800_"]
+    #samples = ["Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"]
+    samples = ["*Summer16*","Run2016*MET*"]
     
-   
+    inputfiles=[]
     for sample in samples : 
-	inputfiles = glob(path+"/*%s*.root"%sample)
+	inputlist = glob(path+"/*%s*.root"%sample)
+	inputfiles.extend(inputlist)
     
     inputfiles = sorted(inputfiles)
-
+    
     commands=[]
     for inputfile in inputfiles: 
 	label = inputfile.split("/")[-1]
 	isData = False
 	isSignal = False
-	if "Run" in label : isData = True
-	elif "g1800" in label : isSignal = True
+	if "Run201" in label : 
+	    isData = True
+	elif "g1800" in label or "SMS" in label : 
+	    isData = False
+	    isSignal = True
 	
 	command = "./HistoMaker %s %s h_%s %s %s"%(inputfile,OUTDIR,label,isData,isSignal)
 	commands.append(command)
 	print "input files : %s, isData :%s, isSignal : %s"%(label,isData,isSignal)
     
-    raw_input("Submit continue?")
     runParallel(commands, "grid", condorDir="condor", dontCheckOnJobs=True)
     #runParallel(commands, "multi", condorDir="condor", dontCheckOnJobs=True)
 

@@ -67,6 +67,7 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
 	    histos[label].Scale(lumi)
 	## signal scaling factor : cross-section in pb
         if samples[label]["type"] == "sg":
+	    signal_scaling_factor = samples[label]["xsec"]
 	    histos[label].Scale(lumi*signal_scaling_factor)
 
         if histos[label].GetMinimum(0) < global_minimum:
@@ -214,7 +215,7 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     ratio.GetXaxis().SetTitleSize(0.13)
     ratio.GetYaxis().SetTitleSize(0.13)
     ratio.GetYaxis().SetTitleOffset(0.38)
-    ratio.GetYaxis().SetRangeUser(-1,5)
+    ratio.GetYaxis().SetRangeUser(0,2)
     ratio.GetYaxis().SetNdivisions(6)
     ratio.GetXaxis().SetLabelSize(0.15)
     ratio.GetYaxis().SetLabelSize(0.15)

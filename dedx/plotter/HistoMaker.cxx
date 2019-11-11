@@ -86,31 +86,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TTree *fChain = (TTree*)f->Get("Events");
     fChain->SetBranchStatus("*",1);  // enable all branches
     //fChain->SetBranchStatus("*",0);  // disable all branches
-    //if (!IsData){
-    //    fChain->SetBranchStatus("CrossSection",1);  // activate branchname
-    //    fChain->SetBranchStatus("puWeight",1);  // activate branchname
-    //}
-    //fChain->SetBranchStatus("MET",1);  // activate branchname
-    //fChain->SetBranchStatus("MHT",1);  // activate branchname
-    //fChain->SetBranchStatus("HT",1);  // activate branchname
-    //fChain->SetBranchStatus("MinDeltaPhiMhtJets",1);  // activate branchname
-    //fChain->SetBranchStatus("n_jets",1);  // activate branchname
-    //fChain->SetBranchStatus("n_btags",1);  // activate branchname
-    //fChain->SetBranchStatus("n_leptons",1);  // activate branchname
-    //fChain->SetBranchStatus("passesUniversalSelection",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_is_pixel_track",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_nValidPixelHits",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_nValidTrackerHits",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_is_reco_lepton",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_dxyVtx",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_P",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_pt",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_deDxHarmonic2pixel",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_deDxHarmonic2strips",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_mva_bdt",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_mva_bdt_loose",1);  // activate branchname
-    //fChain->SetBranchStatus("tracks_chiCandGenMatchingDR",1);  // activate branchname
 
     // Declaration of leaf types
     Float_t         weight;
@@ -120,7 +95,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     Float_t         HT;
     Float_t         MinDeltaPhiMhtJets;
     Float_t         PFCaloMETRatio;
-    Float_t         dilepton_invmass;
     Float_t         madHT;
     Float_t         CrossSection;
     Float_t         puWeight;
@@ -132,10 +106,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     Int_t           n_leptons;
     Int_t           n_allvertices;
     Int_t           n_NVtx;
-    Int_t           dilepton_CR;
-    Int_t           qcd_CR;
-    Int_t           qcd_sideband_CR;
-    Int_t           dilepton_leptontype;
     Int_t           passesUniversalSelection;
     Int_t           n_genLeptons;
     Int_t           n_genElectrons;
@@ -143,7 +113,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     Int_t           n_genTaus;
     Int_t           n_jets_cleaned;
     Int_t           n_btags_cleaned;
-    vector<int>     *region;
     vector<TLorentzVector> *tracks;
     vector<int>     *tracks_is_pixel_track;
     vector<int>     *tracks_pixelLayersWithMeasurement;
@@ -194,10 +163,28 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     vector<double>  *tracks_LabXYcm;
     vector<double>  *tracks_mva_bdt;
     vector<double>  *tracks_mva_bdt_loose;
+    
+    vector<TLorentzVector> *muons;
+    vector<int>     *muons_charge;
+    vector<int>     *muons_mediumID;
+    vector<int>     *muons_tightID;
+    vector<int>     *muons_passIso;
+    vector<double>  *muons_MiniIso;
+    vector<double>  *muons_pt;
+    vector<double>  *muons_eta;
+    vector<double>  *muons_phi;
+    
+    vector<TLorentzVector> *electrons;
+    vector<int>     *electrons_charge;
+    vector<int>     *electrons_mediumID;
+    vector<int>     *electrons_tightID;
+    vector<int>     *electrons_passIso;
+    vector<double>  *electrons_MiniIso;
+    vector<double>  *electrons_pt;
+    vector<double>  *electrons_eta;
+    vector<double>  *electrons_phi;
 
     // List of branches
-    if (!IsData){
-    }
     TBranch        *b_weight;   //!
     TBranch        *b_MET;   //!
     TBranch        *b_METPhi;   //!
@@ -205,7 +192,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TBranch        *b_HT;   //!
     TBranch        *b_MinDeltaPhiMhtJets;   //!
     TBranch        *b_PFCaloMETRatio;   //!
-    TBranch        *b_dilepton_invmass;   //!
     TBranch        *b_madHT;   //!
     TBranch        *b_CrossSection;   //!
     TBranch        *b_puWeight;   //!
@@ -217,10 +203,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TBranch        *b_n_leptons;   //!
     TBranch        *b_n_allvertices;   //!
     TBranch        *b_n_NVtx;   //!
-    TBranch        *b_dilepton_CR;   //!
-    TBranch        *b_qcd_CR;   //!
-    TBranch        *b_qcd_sideband_CR;   //!
-    TBranch        *b_dilepton_leptontype;   //!
     TBranch        *b_passesUniversalSelection;   //!
     TBranch        *b_n_genLeptons;   //!
     TBranch        *b_n_genElectrons;   //!
@@ -228,7 +210,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TBranch        *b_n_genTaus;   //!
     TBranch        *b_n_jets_cleaned;   //!
     TBranch        *b_n_btags_cleaned;   //!
-    TBranch        *b_region;   //!
     TBranch        *b_tracks;   //!
     TBranch        *b_tracks_is_pixel_track;   //!
     TBranch        *b_tracks_pixelLayersWithMeasurement;   //!
@@ -279,10 +260,27 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TBranch        *b_tracks_LabXYcm;   //!
     TBranch        *b_tracks_mva_bdt;   //!
     TBranch        *b_tracks_mva_bdt_loose;   //!
+    TBranch        *b_muons;   //!
+    TBranch        *b_muons_charge;   //!
+    TBranch        *b_muons_mediumID;   //!
+    TBranch        *b_muons_tightID;   //!
+    TBranch        *b_muons_passIso;   //!
+    TBranch        *b_muons_MiniIso;   //!
+    TBranch        *b_muons_pt;   //!
+    TBranch        *b_muons_eta;   //!
+    TBranch        *b_muons_phi;   //!
+    TBranch        *b_electrons;   //!
+    TBranch        *b_electrons_charge;   //!
+    TBranch        *b_electrons_mediumID;   //!
+    TBranch        *b_electrons_tightID;   //!
+    TBranch        *b_electrons_passIso;   //!
+    TBranch        *b_electrons_MiniIso;   //!
+    TBranch        *b_electrons_pt;   //!
+    TBranch        *b_electrons_eta;   //!
+    TBranch        *b_electrons_phi;   //!
 
     cout << "Initialize variables at HistMaker" << endl;
     // Set object pointer
-    region = 0;
     tracks = 0;
     tracks_is_pixel_track = 0;
     tracks_pixelLayersWithMeasurement = 0;
@@ -333,6 +331,23 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     tracks_LabXYcm = 0;
     tracks_mva_bdt = 0;
     tracks_mva_bdt_loose = 0;
+    muons = 0;
+    muons_mediumID = 0;
+    muons_tightID = 0;
+    muons_passIso = 0;
+    muons_MiniIso = 0;
+    muons_pt = 0;
+    muons_eta = 0;
+    muons_phi = 0;
+    electrons = 0;
+    electrons_mediumID = 0;
+    electrons_tightID = 0;
+    electrons_passIso = 0;
+    electrons_MiniIso = 0;
+    electrons_pt = 0;
+    electrons_eta = 0;
+    electrons_phi = 0;
+
     
     // Set branch addresses and branch pointers
     fChain->SetMakeClass(1);
@@ -350,7 +365,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("HT", &HT, &b_HT);
     fChain->SetBranchAddress("MinDeltaPhiMhtJets", &MinDeltaPhiMhtJets, &b_MinDeltaPhiMhtJets);
     fChain->SetBranchAddress("PFCaloMETRatio", &PFCaloMETRatio, &b_PFCaloMETRatio);
-    fChain->SetBranchAddress("dilepton_invmass", &dilepton_invmass, &b_dilepton_invmass);
     fChain->SetBranchAddress("MHT_cleaned", &MHT_cleaned, &b_MHT_cleaned);
     fChain->SetBranchAddress("HT_cleaned", &HT_cleaned, &b_HT_cleaned);
     fChain->SetBranchAddress("MinDeltaPhiMhtJets_cleaned", &MinDeltaPhiMhtJets_cleaned, &b_MinDeltaPhiMhtJets_cleaned);
@@ -359,10 +373,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("n_leptons", &n_leptons, &b_n_leptons);
     fChain->SetBranchAddress("n_allvertices", &n_allvertices, &b_n_allvertices);
     fChain->SetBranchAddress("n_NVtx", &n_NVtx, &b_n_NVtx);
-    fChain->SetBranchAddress("dilepton_CR", &dilepton_CR, &b_dilepton_CR);
-    fChain->SetBranchAddress("qcd_CR", &qcd_CR, &b_qcd_CR);
-    fChain->SetBranchAddress("qcd_sideband_CR", &qcd_sideband_CR, &b_qcd_sideband_CR);
-    fChain->SetBranchAddress("dilepton_leptontype", &dilepton_leptontype, &b_dilepton_leptontype);
     fChain->SetBranchAddress("passesUniversalSelection", &passesUniversalSelection, &b_passesUniversalSelection);
     fChain->SetBranchAddress("n_genLeptons", &n_genLeptons, &b_n_genLeptons);
     fChain->SetBranchAddress("n_genElectrons", &n_genElectrons, &b_n_genElectrons);
@@ -370,7 +380,6 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("n_genTaus", &n_genTaus, &b_n_genTaus);
     fChain->SetBranchAddress("n_jets_cleaned", &n_jets_cleaned, &b_n_jets_cleaned);
     fChain->SetBranchAddress("n_btags_cleaned", &n_btags_cleaned, &b_n_btags_cleaned);
-    fChain->SetBranchAddress("region", &region, &b_region);
     fChain->SetBranchAddress("tracks", &tracks, &b_tracks);
     fChain->SetBranchAddress("tracks_is_pixel_track", &tracks_is_pixel_track, &b_tracks_is_pixel_track);
     fChain->SetBranchAddress("tracks_pixelLayersWithMeasurement", &tracks_pixelLayersWithMeasurement, &b_tracks_pixelLayersWithMeasurement);
@@ -421,6 +430,22 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     fChain->SetBranchAddress("tracks_LabXYcm", &tracks_LabXYcm, &b_tracks_LabXYcm);
     fChain->SetBranchAddress("tracks_mva_bdt", &tracks_mva_bdt, &b_tracks_mva_bdt);
     fChain->SetBranchAddress("tracks_mva_bdt_loose", &tracks_mva_bdt_loose, &b_tracks_mva_bdt_loose);
+    fChain->SetBranchAddress("muons", &muons, &b_muons);
+    fChain->SetBranchAddress("muons_mediumID", &muons_mediumID, &b_muons_mediumID);
+    fChain->SetBranchAddress("muons_tightID", &muons_tightID, &b_muons_tightID);
+    fChain->SetBranchAddress("muons_passIso", &muons_passIso, &b_muons_passIso);
+    fChain->SetBranchAddress("muons_MiniIso", &muons_MiniIso, &b_muons_MiniIso);
+    fChain->SetBranchAddress("muons_pt", &muons_pt, &b_muons_pt);
+    fChain->SetBranchAddress("muons_eta", &muons_eta, &b_muons_eta);
+    fChain->SetBranchAddress("muons_phi", &muons_phi, &b_muons_phi);
+    fChain->SetBranchAddress("electrons", &electrons, &b_electrons);
+    fChain->SetBranchAddress("electrons_mediumID", &electrons_mediumID, &b_electrons_mediumID);
+    fChain->SetBranchAddress("electrons_tightID", &electrons_tightID, &b_electrons_tightID);
+    fChain->SetBranchAddress("electrons_passIso", &electrons_passIso, &b_electrons_passIso);
+    fChain->SetBranchAddress("electrons_MiniIso", &electrons_MiniIso, &b_electrons_MiniIso);
+    fChain->SetBranchAddress("electrons_pt", &electrons_pt, &b_electrons_pt);
+    fChain->SetBranchAddress("electrons_eta", &electrons_eta, &b_electrons_eta);
+    fChain->SetBranchAddress("electrons_phi", &electrons_phi, &b_electrons_phi);
    
     // Output root file
     TFile* fout = new TFile(Form("./%s/%s",outdir,outputfile),"recreate");
@@ -449,15 +474,15 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TH1D* h_TrackPt_strips = new TH1D("TrackPt_strips","TrackPt",50,0,1000);
     TH1D* h_TrackPt_strips_chargino = new TH1D("TrackPt_strips_chargino","TrackPt_chargino",50,0,1000);
     TH1D* h_TrackPt_strips_GenMatch = new TH1D("TrackPt_strips_GenMatch","TrackPt_GenMatch",50,0,1000);
-    TH1D* h_TrackDedx_pixel = new TH1D("TrackDedx_pixel","TrackDedx",100,0,10);
-    TH1D* h_TrackDedx_pixel_chargino = new TH1D("TrackDedx_pixel_chargino","TrackDedx_chargino",100,0,10);
+    TH1D* h_TrackDedx_pixel = new TH1D("TrackDedx_pixel","TrackDedx",20,0,20);
+    TH1D* h_TrackDedx_pixel_chargino = new TH1D("TrackDedx_pixel_chargino","TrackDedx_chargino",20,0,20);
     TH1D* h_TrackMass_pixel = new TH1D("TrackMass_pixel","Log10(TrackMass_pixel)",50,0,5.5);
     TH1D* h_TrackMass_pixel_calib = new TH1D("TrackMass_pixel_calib","Log10(TrackMass_pixel_calib)",50,0,5.5);
     TH1D* h_TrackMass_pixel_charginoMomentum = new TH1D("TrackMass_pixel_charginoMomentum","Log10(TrackMass_pixel_charginoMomentum)",50,0,5.5);
     TH1D* h_TrackMass_pixel_GenMatch = new TH1D("TrackMass_pixel_GenMatch","Log10(TrackMass_pixel_GenMatch)",50,0,5.5);
     
-    TH1D* h_TrackDedx_strips = new TH1D("TrackDedx_strips","TrackDedx_strips",100,0,10);
-    TH1D* h_TrackDedx_strips_chargino = new TH1D("TrackDedx_strips_chargino","TrackDedx_strips_chargino",100,0,10);
+    TH1D* h_TrackDedx_strips = new TH1D("TrackDedx_strips","TrackDedx_strips",20,0,20);
+    TH1D* h_TrackDedx_strips_chargino = new TH1D("TrackDedx_strips_chargino","TrackDedx_strips_chargino",20,0,20);
     TH1D* h_TrackMass_strips = new TH1D("TrackMass_strips","Log10(TrackMass_strips)",50,0,5.5);
     TH1D* h_TrackMass_strips_calib = new TH1D("TrackMass_strips_calib","Log10(TrackMass_strips_calib)",50,0,5.5);
     TH1D* h_TrackMass_strips_charginoMomentum = new TH1D("TrackMass_strips_charginoMomentum","Log10(TrackMass_strips_charginoMomentum)",50,0,5.5);
@@ -467,82 +492,207 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     TH1D* h_Track_deltaR_with_chargino_pixel = new TH1D("Track_deltaR_with_chargino_pixel","Track_deltaR__with_chargino_pixel",20,0,0.1);
     TH1D* h_Track_deltaR_with_chargino_strips = new TH1D("Track_deltaR_with_chargino_strips","Track_deltaR_with_chargino_strips",20,0,0.1);
     
-    TH1D* h_CR1_MET = new TH1D("MET_CR1","MET",100,0,1000);
-    TH1D* h_CR1_MHT = new TH1D("MHT_CR1","MHT",100,0,1000);
-    TH1D* h_CR1_HT = new TH1D("HT_CR1","HT",200,0,2000);
-    TH1D* h_CR1_MinDeltaPhiMhtJets = new TH1D("dPhiMhtJets_CR1","dPhiMhtJets",100,0,1);
-    TH1D* h_CR1_n_jets = new TH1D("n_jets_CR1","n_jets",20,0,20);
-    TH1D* h_CR1_n_btags = new TH1D("n_btags_CR1","n_btags",10,0,10);
-    TH1D* h_CR1_n_leptons = new TH1D("n_leptons_CR1","n_leptons",10,0,10);
-    TH1D* h_CR1_n_DT = new TH1D("n_DT_CR1","n_DT",5,0,5);
-    TH1D* h_CR1_TrackPt_pixel = new TH1D("TrackPt_pixel_CR1","TrackPt",20,0,1000);
-    TH1D* h_CR1_TrackPt_strips = new TH1D("TrackPt_strips_CR1","TrackPt",20,0,1000);
-    TH1D* h_CR1_TrackDedx_pixel = new TH1D("TrackDedx_pixel_CR1","TrackDedx",100,0,10);
-    TH1D* h_CR1_TrackDedx_strips = new TH1D("TrackDedx_strips_CR1","TrackDedx",100,0,10);
-    TH1D* h_CR1_TrackMass_pixel = new TH1D("TrackMass_pixel_CR1","Log10(TrackMass_pixel)",50,0,5.5);
-    TH1D* h_CR1_TrackMass_strips = new TH1D("TrackMass_strips_CR1","Log10(TrackMass_strips)",50,0,5.5);
-    TH1D* h_CR1_TrackMass_weightedPixelStripsMass = new TH1D("TrackMass_weightedPixelStripsMass_CR1","Log10(TrackMass_weightedPixelStripsMass)",50,0,5.5);
+    TH1D* h_CR_noDT_MET = new TH1D("MET_CR_noDT","MET",100,0,1000);
+    TH1D* h_CR_noDT_MHT = new TH1D("MHT_CR_noDT","MHT",100,0,1000);
+    TH1D* h_CR_noDT_HT = new TH1D("HT_CR_noDT","HT",200,0,2000);
+    TH1D* h_CR_noDT_MinDeltaPhiMhtJets = new TH1D("dPhiMhtJets_CR_noDT","dPhiMhtJets",100,0,1);
+    TH1D* h_CR_noDT_n_jets = new TH1D("n_jets_CR_noDT","n_jets",20,0,20);
+    TH1D* h_CR_noDT_n_btags = new TH1D("n_btags_CR_noDT","n_btags",10,0,10);
+    TH1D* h_CR_noDT_n_leptons = new TH1D("n_leptons_CR_noDT","n_leptons",10,0,10);
+    TH1D* h_CR_noDT_n_DT = new TH1D("n_DT_CR_noDT","n_DT",5,0,5);
+    TH1D* h_CR_noDT_TrackP = new TH1D("TrackP_CR_noDT","TrackP",20,0,1000);
+    TH1D* h_CR_noDT_TrackPt = new TH1D("TrackPt_CR_noDT","TrackPt",20,0,1000);
+    TH1D* h_CR_noDT_TrackDedx_pixel = new TH1D("TrackDedx_pixel_CR_noDT","TrackDedx",20,0,20);
+    TH1D* h_CR_noDT_TrackDedx_strips = new TH1D("TrackDedx_strips_CR_noDT","TrackDedx",20,0,20);
     
+    TH1D* h_CR1muon_MET = new TH1D("MET_CR1muon","MET",50,0,1000);
+    TH1D* h_CR1muon_MHT = new TH1D("MHT_CR1muon","MHT",50,0,1000);
+    TH1D* h_CR1muon_HT = new TH1D("HT_CR1muon","HT",50,0,2000);
+    TH1D* h_CR1muon_MinDeltaPhiMhtJets = new TH1D("dPhiMhtJets_CR1muon","dPhiMhtJets",100,0,1);
+    TH1D* h_CR1muon_n_jets = new TH1D("n_jets_CR1muon","n_jets",20,0,20);
+    TH1D* h_CR1muon_n_btags = new TH1D("n_btags_CR1muon","n_btags",10,0,10);
+    TH1D* h_CR1muon_n_leptons = new TH1D("n_leptons_CR1muon","n_leptons",10,0,10);
+    TH1D* h_CR1muon_n_track_short = new TH1D("n_track_short_CR1muon","n_track_short",5,0,5);
+    TH1D* h_CR1muon_n_track_long = new TH1D("n_track_long_CR1muon","n_track_long",5,0,5);
+    TH1D* h_CR1muon_n_track = new TH1D("n_track_CR1muon","n_track",5,0,5);
+    TH1D* h_CR1muon_TrackP_pixel = new TH1D("TrackP_pixel_CR1muon","TrackP",20,0,1000);
+    TH1D* h_CR1muon_TrackPt_pixel = new TH1D("TrackPt_pixel_CR1muon","TrackPt",20,0,1000);
+    TH1D* h_CR1muon_TrackP_strips = new TH1D("TrackP_strips_CR1muon","TrackP",20,0,1000);
+    TH1D* h_CR1muon_TrackPt_strips = new TH1D("TrackPt_strips_CR1muon","TrackPt",20,0,1000);
+    TH1D* h_CR1muon_TrackDedx_pixel = new TH1D("TrackDedx_pixel_CR1muon","TrackDedx",20,0,20);
+    TH1D* h_CR1muon_TrackDedx_strips = new TH1D("TrackDedx_strips_CR1muon","TrackDedx",20,0,20);
+    TH1D* h_n_muon = new TH1D("n_muon","n_muon",10,0,10);
+    TH1D* h_muonPt = new TH1D("muonPt","muonPt",30,0,300);
+    TH1D* h_CR1muonPt = new TH1D("muonPt_CR1muon","muonPt",30,0,300);
+    TH1D* h_muonEta = new TH1D("muonEta","muonEta",30,-3,3);
+    TH1D* h_muonPhi = new TH1D("muonPhi","muonPhi",30,-3,3);
+    
+    TH1D* h_CR1electron_MET = new TH1D("MET_CR1electron","MET",50,0,1000);
+    TH1D* h_CR1electron_MHT = new TH1D("MHT_CR1electron","MHT",50,0,1000);
+    TH1D* h_CR1electron_HT = new TH1D("HT_CR1electron","HT",50,0,2000);
+    TH1D* h_CR1electron_MinDeltaPhiMhtJets = new TH1D("dPhiMhtJets_CR1electron","dPhiMhtJets",100,0,1);
+    TH1D* h_CR1electron_n_jets = new TH1D("n_jets_CR1electron","n_jets",20,0,20);
+    TH1D* h_CR1electron_n_btags = new TH1D("n_btags_CR1electron","n_btags",10,0,10);
+    TH1D* h_CR1electron_n_leptons = new TH1D("n_leptons_CR1electron","n_leptons",10,0,10);
+    TH1D* h_CR1electron_n_track_short = new TH1D("n_track_short_CR1electron","n_track_short",5,0,5);
+    TH1D* h_CR1electron_n_track_long = new TH1D("n_track_long_CR1electron","n_track_long",5,0,5);
+    TH1D* h_CR1electron_n_track = new TH1D("n_track_CR1electron","n_track",5,0,5);
+    TH1D* h_CR1electron_TrackP_pixel = new TH1D("TrackP_pixel_CR1electron","TrackP",20,0,1000);
+    TH1D* h_CR1electron_TrackPt_pixel = new TH1D("TrackPt_pixel_CR1electron","TrackPt",20,0,1000);
+    TH1D* h_CR1electron_TrackP_strips = new TH1D("TrackP_strips_CR1electron","TrackP",20,0,1000);
+    TH1D* h_CR1electron_TrackPt_strips = new TH1D("TrackPt_strips_CR1electron","TrackPt",20,0,1000);
+    TH1D* h_CR1electron_TrackDedx_pixel = new TH1D("TrackDedx_pixel_CR1electron","TrackDedx",20,0,20);
+    TH1D* h_CR1electron_TrackDedx_strips = new TH1D("TrackDedx_strips_CR1electron","TrackDedx",20,0,20);
+    TH1D* h_n_electron = new TH1D("n_electron","n_electron",10,0,10);
+    TH1D* h_electronPt = new TH1D("electronPt","electronPt",30,0,300);
+    TH1D* h_CR1electronPt = new TH1D("electronPt_CR1electron","electronPt",30,0,300);
+    TH1D* h_electronEta = new TH1D("electronEta","electronEta",30,-3,3);
+    TH1D* h_electronPhi = new TH1D("electronPhi","electronPhi",30,-3,3);
+    //TH1D* h_CR1_TrackMass_pixel = new TH1D("TrackMass_pixel_CR1","Log10(TrackMass_pixel)",50,0,5.5);
+    //TH1D* h_CR1_TrackMass_pixel_calib = new TH1D("TrackMass_pixel_CR1_calib","Log10(TrackMass_pixel)",50,0,5.5);
+    //TH1D* h_CR1_TrackMass_strips = new TH1D("TrackMass_strips_CR1","Log10(TrackMass_strips)",50,0,5.5);
+    //TH1D* h_CR1_TrackMass_strips_calib = new TH1D("TrackMass_strips_CR1_calib","Log10(TrackMass_strips)",50,0,5.5);
+    //TH1D* h_CR1_TrackMass_weightedPixelStripsMass = new TH1D("TrackMass_weightedPixelStripsMass_CR1","Log10(TrackMass_weightedPixelStripsMass)",50,0,5.5);
+    
+    TH1D* h_CR2_MET = new TH1D("MET_CR2","MET",100,0,1000);
+    TH1D* h_CR2_MHT = new TH1D("MHT_CR2","MHT",100,0,1000);
+    TH1D* h_CR2_HT = new TH1D("HT_CR2","HT",200,0,2000);
+    TH1D* h_CR2_MinDeltaPhiMhtJets = new TH1D("dPhiMhtJets_CR2","dPhiMhtJets",100,0,1);
+    TH1D* h_CR2_n_jets = new TH1D("n_jets_CR2","n_jets",20,0,20);
+    TH1D* h_CR2_n_btags = new TH1D("n_btags_CR2","n_btags",10,0,10);
+    TH1D* h_CR2_n_leptons = new TH1D("n_leptons_CR2","n_leptons",10,0,10);
+    TH1D* h_CR2_n_DT = new TH1D("n_DT_CR2","n_DT",5,0,5);
+    TH1D* h_CR2_n_DT_short = new TH1D("n_DT_short_CR2","n_DT_short",5,0,5);
+    TH1D* h_CR2_n_DT_long = new TH1D("n_DT_long_CR2","n_DT_long",5,0,5);
+    TH1D* h_CR2_TrackP_pixel = new TH1D("TrackP_pixel_CR2","TrackP",20,0,1000);
+    TH1D* h_CR2_TrackPt_pixel = new TH1D("TrackPt_pixel_CR2","TrackPt",20,0,1000);
+    TH1D* h_CR2_TrackP_strips = new TH1D("TrackP_strips_CR2","TrackP",20,0,1000);
+    TH1D* h_CR2_TrackPt_strips = new TH1D("TrackPt_strips_CR2","TrackPt",20,0,1000);
+    TH1D* h_CR2_TrackDedx_pixel = new TH1D("TrackDedx_pixel_CR2","TrackDedx",20,0,20);
+    TH1D* h_CR2_TrackDedx_strips = new TH1D("TrackDedx_strips_CR2","TrackDedx",20,0,20);
+    TH1D* h_CR2_TrackMass_pixel = new TH1D("TrackMass_pixel_CR2","Log10(TrackMass_pixel)",50,0,5.5);
+    TH1D* h_CR2_TrackMass_pixel_calib = new TH1D("TrackMass_pixel_CR2_calib","Log10(TrackMass_pixel)",50,0,5.5);
+    TH1D* h_CR2_TrackMass_strips = new TH1D("TrackMass_strips_CR2","Log10(TrackMass_strips)",50,0,5.5);
+    TH1D* h_CR2_TrackMass_strips_calib = new TH1D("TrackMass_strips_CR2_calib","Log10(TrackMass_strips)",50,0,5.5);
 
     // 2D Histograms
     TH2D* h2_TrackP_charginoP_pixel = new TH2D("TrackP_charginoP_pixel","TrackP vs charginoP pixel", 100, 0, 2000, 100, 0, 2000);
     TH2D* h2_MET_charginoPt_pixel = new TH2D("MET_charginoPt_pixel","MET vs charginoPt pixel", 100, 0, 1000, 100, 0, 2000);
     TH2D* h2_MET_TrackPt_pixel = new TH2D("MET_TrackPt_pixel","MET vs TrackPt pixel", 100, 0, 1000, 100, 0, 2000);
-    TH2D* h2_METPhi_charginoPhi_pixel = new TH2D("METPhi_charginoPhi_pixel","METPhi vs charginoPhi pixel", 100, 0, 1000, 100, 0, 2000);
-    TH2D* h2_METPhi_TrackPhi_pixel = new TH2D("METPhi_TrackPhi_pixel","METPhi vs TrackPhi pixel", 100, 0, 1000, 100, 0, 2000);
+    TH2D* h2_METPhi_charginoPhi_pixel = new TH2D("METPhi_charginoPhi_pixel","METPhi vs charginoPhi pixel", 100, 0, 4, 100, 0, 4);
+    TH2D* h2_METPhi_TrackPhi_pixel = new TH2D("METPhi_TrackPhi_pixel","METPhi vs TrackPhi pixel", 100, 0, 4, 100, 0, 4);
     TH2D* h2_TrackP_charginoP_strips = new TH2D("TrackP_charginoP_strips","TrackP vs charginoP strips", 100, 0, 2000, 100, 0, 2000);
     TH2D* h2_MET_charginoPt_strips = new TH2D("MET_charginoPt_strips","MET vs charginoPt strips", 100, 0, 1000, 100, 0, 2000);
     TH2D* h2_MET_TrackPt_strips = new TH2D("MET_TrackPt_strips","MET vs TrackPt strips", 100, 0, 1000, 100, 0, 2000);
-    TH2D* h2_METPhi_charginoPhi_strips = new TH2D("METPhi_charginoPhi_strips","METPhi vs charginoPhi strips", 100, 0, 1000, 100, 0, 2000);
-    TH2D* h2_METPhi_TrackPhi_strips = new TH2D("METPhi_TrackPhi_strips","METPhi vs TrackPhi strips", 100, 0, 1000, 100, 0, 2000);
+    TH2D* h2_METPhi_charginoPhi_strips = new TH2D("METPhi_charginoPhi_strips","METPhi vs charginoPhi strips", 100, 0, 4, 100, 0, 4);
+    TH2D* h2_METPhi_TrackPhi_strips = new TH2D("METPhi_TrackPhi_strips","METPhi vs TrackPhi strips", 100, 0, 4, 100, 0, 4);
     
     cout << "Total entry : " << fChain->GetEntries() << endl;
     Long64_t nentries = fChain->GetEntries();
-    Int_t    n_DT_short = 0;
-    Int_t    n_DT_long = 0;
-    Int_t    n_DT = 0;
-    Double_t charginoDedx;
-    Double_t trackDedxPixel;
-    Double_t trackDedxStrips;
-    Double_t trackMassPixel;
-    Double_t trackMassStrips;
-    Double_t trackMassPixel_calib;
-    Double_t trackMassStrips_calib;
-    Double_t trackMass_chargino;
     
     // Event loop start
     for (Long64_t ientry=0; ientry<nentries; ++ientry){
+    //for (Long64_t ientry=0; ientry<1000; ++ientry){
 	if (ientry %100000 ==0) cout << ientry << "th event passing" << endl;
+	//cout << ientry << "th event" << endl;
 
 	fChain->GetEntry(ientry);
-
+	
+	Int_t    n_DT_short = 0;
+    	Int_t    n_DT_long = 0;
+    	Int_t    n_DT = 0;
+	Int_t	 n_muon = 0;
+	Int_t	 n_electron = 0;
+    	Double_t charginoDedx;
+    	Double_t trackDedxPixel;
+    	Double_t trackDedxStrips;
+    	//Double_t trackMassPixel;
+    	//Double_t trackMassStrips;
+    	//Double_t trackMassPixel_calib;
+    	//Double_t trackMassStrips_calib;
+    	//Double_t trackMass_chargino;
+    
+	
 	//FIXME : Currently 'weight' in skim file is wrong(GenTopWeight)
-	weight = 1.0 * puWeight * CrossSection / nentries;
+	if (IsData) weight = 1.0;
+	else weight = 1.0 * puWeight * CrossSection / nentries;
 
 	// Event selection start
-	if (IsData && not passesUniversalSelection) continue;
+	if (not passesUniversalSelection) continue; // Nvtx, JetID, various filters
 	if (not (n_jets > 0)) continue;
+	if (not (MET>280 && MinDeltaPhiMhtJets>0.3)) continue;
+	
+	// Muon loop start
+	for (UInt_t imuon=0; imuon < muons->size(); ++imuon){
+	    if (not((*muons_pt)[imuon] > 30)) continue;
+	    if (not((*muons_tightID)[imuon])) continue;
+	    if (not((*muons_passIso)[imuon])) continue;
+	    n_muon++;
+	    FillHisto(h_muonPt, (*muons_pt)[imuon],weight);
+	    FillHisto(h_muonEta, (*muons_eta)[imuon],weight);
+	    FillHisto(h_muonPhi, (*muons_phi)[imuon],weight);
+	} // Muon loop end
+	FillHisto(h_n_muon, n_muon,weight);
+	
+	// Electron loop start
+	for (UInt_t ielectron=0; ielectron < electrons->size(); ++ielectron){
+	    if (not((*electrons_pt)[ielectron] > 30)) continue;
+	    if (not((*electrons_tightID)[ielectron])) continue;
+	    if (not((*electrons_passIso)[ielectron])) continue;
+	    n_electron++;
+	    FillHisto(h_electronPt, (*electrons_pt)[ielectron],weight);
+	    FillHisto(h_electronEta, (*electrons_eta)[ielectron],weight);
+	    FillHisto(h_electronPhi, (*electrons_phi)[ielectron],weight);
+	} // Electron loop End
+	FillHisto(h_n_electron, n_electron,weight);
+	    
+	// Veto event if no leptons exist
+	//if (n_muon==0 || n_electron==0) continue;
+	if (n_muon==1){
+	    FillHisto(h_CR1muonPt, (*muons_pt)[0],weight);
+	    FillHisto(h_CR1muon_MET, MET, weight);
+	    FillHisto(h_CR1muon_MHT, MHT, weight);
+	    FillHisto(h_CR1muon_HT, HT, weight);
+	    FillHisto(h_CR1muon_n_jets, n_jets, weight);
+	}
+	if(n_electron==1){
+	    FillHisto(h_CR1electronPt, (*electrons_pt)[0],weight);
+	    FillHisto(h_CR1electron_MET, MET, weight);
+	    FillHisto(h_CR1electron_MHT, MHT, weight);
+	    FillHisto(h_CR1electron_HT, HT, weight);
+	    FillHisto(h_CR1electron_n_jets, n_jets, weight);
+	}
 
 	// SR region
-	if (MET>200 && MHT>200 && HT>100 && MinDeltaPhiMhtJets>0.3){
+	if (MET>280 && MinDeltaPhiMhtJets>0.3){
 	    n_DT = 0;
 	    n_DT_short = 0;
 	    n_DT_long = 0;
+	    trackDedxPixel = 0;
+	    trackDedxStrips = 0;
+	    //trackMassPixel = 0;
+	    //trackMassStrips = 0;
+	    //trackMassPixel_calib = 0;
+	    //trackMassStrips_calib = 0;
 	
 	    // track loop start 
 	    for (UInt_t itrack=0; itrack < tracks->size(); ++itrack){
 	        if (not((*tracks_pt)[itrack] > 30)) continue;
-	        if ((*tracks_is_reco_lepton)[itrack]) continue;
+	        //if ((*tracks_is_reco_lepton)[itrack]) continue;
+	        if (not((*tracks_passpionveto)[itrack])) continue;
+	        if (not((*tracks_passPFCandVeto)[itrack])) continue;
 		
 		trackDedxPixel = (*tracks_deDxHarmonic2pixel)[itrack];
 		trackDedxStrips = (*tracks_deDxHarmonic2strips)[itrack];
 
-		trackMassPixel = TMath::Sqrt((trackDedxPixel-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
-		trackMassStrips = TMath::Sqrt((trackDedxStrips-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
-		trackMassPixel_calib = TMath::Sqrt((trackDedxPixel-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
-		trackMassStrips_calib = TMath::Sqrt((trackDedxStrips-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
-		charginoDedx = 2.579*TMath::Sqrt(1400)/TMath::Sqrt((*tracks_chargino_P)[itrack]) + 2.557;
-		trackMass_chargino = TMath::Sqrt((charginoDedx-2.557)*TMath::Power((*tracks_chargino_P)[itrack],2)/2.579);
+		//trackMassPixel = TMath::Sqrt((trackDedxPixel-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		//trackMassStrips = TMath::Sqrt((trackDedxStrips-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		//trackMassPixel_calib = TMath::Sqrt((trackDedxPixel-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+		//trackMassStrips_calib = TMath::Sqrt((trackDedxStrips-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+		if (IsSignal) {
+		    charginoDedx = 2.579*TMath::Sqrt(1400)/TMath::Sqrt((*tracks_chargino_P)[itrack]) + 2.557;
+		    //trackMass_chargino = TMath::Sqrt((charginoDedx-2.557)*TMath::Power((*tracks_chargino_P)[itrack],2)/2.579);
+		}
 
 		// Short track selection
 	        if ((*tracks_is_pixel_track)[itrack]==1 && ((*tracks_mva_bdt_loose)[itrack]>(*tracks_dxyVtx)[itrack]*(0.5/0.01)-0.3))
@@ -552,20 +702,20 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 	            FillHisto(h_TrackP_pixel,(*tracks_P)[itrack],weight);
 	            FillHisto(h_TrackPt_pixel,(*tracks_pt)[itrack],weight);
 	            FillHisto(h_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
-	            if (trackDedxPixel>2.557) FillHisto(h_TrackMass_pixel,TMath::Log10(trackMassPixel),weight);
-		    if (trackDedxPixel>3.01) FillHisto(h_TrackMass_pixel_calib,TMath::Log10(trackMassPixel_calib),weight);
 	            FillHisto(h_Track_deltaR_with_chargino_pixel,(*tracks_chiCandGenMatchingDR)[itrack],weight);
+	            //if (trackDedxPixel>2.557) FillHisto(h_TrackMass_pixel,TMath::Log10(trackMassPixel),weight);
+		    //if (trackDedxPixel>3.01) FillHisto(h_TrackMass_pixel_calib,TMath::Log10(trackMassPixel_calib),weight);
 		    
 		    // Gen-level chargino 
 		    if (IsSignal) {
 		        FillHisto(h_TrackP_pixel_chargino,(*tracks_chargino_P)[itrack],weight);
 	            	FillHisto(h_TrackPt_pixel_chargino,(*tracks_chargino_pt)[itrack],weight);
-		    	FillHisto(h_TrackMass_pixel_charginoMomentum,TMath::Log10(trackMass_chargino),weight);
+		    	//FillHisto(h_TrackMass_pixel_charginoMomentum,TMath::Log10(trackMass_chargino),weight);
 			FillHisto(h_TrackDedx_pixel_chargino,charginoDedx,weight);
 		    }else {
 		        FillHisto(h_TrackP_pixel_chargino,(*tracks_P)[itrack],weight);
 			FillHisto(h_TrackPt_pixel_chargino,(*tracks_pt)[itrack],weight);
-		    	FillHisto(h_TrackMass_pixel_charginoMomentum,TMath::Log10(trackMassPixel),weight);
+		    	//FillHisto(h_TrackMass_pixel_charginoMomentum,TMath::Log10(trackMassPixel),weight);
 			FillHisto(h_TrackDedx_pixel_chargino,(*tracks_deDxHarmonic2pixel)[itrack],weight);
 		    }
 		    
@@ -573,12 +723,14 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 		    if ((*tracks_chiCandGenMatchingDR)[itrack] < 0.01){
 		    	FillHisto(h_TrackP_pixel_GenMatch,(*tracks_P)[itrack],weight);
 			FillHisto(h_TrackPt_pixel_GenMatch,(*tracks_pt)[itrack],weight);
-		    	FillHisto(h_TrackMass_pixel_GenMatch,TMath::Log10(trackMassPixel),weight);
-		    	FillHisto(h2_TrackP_charginoP_pixel,(*tracks_P)[itrack],(*tracks_chargino_P)[itrack],weight);
-		    	FillHisto(h2_MET_charginoPt_pixel,MET,(*tracks_chargino_P)[itrack],weight);
+		    	//FillHisto(h_TrackMass_pixel_GenMatch,TMath::Log10(trackMassPixel),weight);
 		    	FillHisto(h2_MET_TrackPt_pixel,MET,(*tracks_P)[itrack],weight);
-		    	FillHisto(h2_METPhi_charginoPhi_pixel,METPhi,(*tracks_chargino_phi)[itrack],weight);
 		    	FillHisto(h2_METPhi_TrackPhi_pixel,METPhi,(*tracks_phi)[itrack],weight);
+			if (IsSignal) {
+			   FillHisto(h2_TrackP_charginoP_pixel,(*tracks_P)[itrack],(*tracks_chargino_P)[itrack],weight);
+		    	   FillHisto(h2_MET_charginoPt_pixel,MET,(*tracks_chargino_P)[itrack],weight);
+		    	   FillHisto(h2_METPhi_charginoPhi_pixel,METPhi,(*tracks_chargino_phi)[itrack],weight);
+			}
 		    }
 		    
 	        }
@@ -591,20 +743,20 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 	            FillHisto(h_TrackP_strips,(*tracks_P)[itrack],weight);
 	            FillHisto(h_TrackPt_strips,(*tracks_pt)[itrack],weight);
 	            FillHisto(h_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
-	            if (trackDedxStrips>2.557) FillHisto(h_TrackMass_strips,TMath::Log10(trackMassStrips),weight);
-		    if (trackDedxStrips>3.01) FillHisto(h_TrackMass_strips_calib,TMath::Log10(trackMassStrips_calib),weight);
+	            //if (trackDedxStrips>2.557) FillHisto(h_TrackMass_strips,TMath::Log10(trackMassStrips),weight);
+		    //if (trackDedxStrips>3.01) FillHisto(h_TrackMass_strips_calib,TMath::Log10(trackMassStrips_calib),weight);
 	            FillHisto(h_Track_deltaR_with_chargino_strips,(*tracks_chiCandGenMatchingDR)[itrack],weight);
 		    
 		    // Gen-level chargino 
 		    if (IsSignal) {
 		        FillHisto(h_TrackP_strips_chargino,(*tracks_chargino_P)[itrack],weight);
 	            	FillHisto(h_TrackPt_strips_chargino,(*tracks_chargino_pt)[itrack],weight);
-		    	FillHisto(h_TrackMass_strips_charginoMomentum,TMath::Log10(trackMass_chargino),weight);
+		    	//FillHisto(h_TrackMass_strips_charginoMomentum,TMath::Log10(trackMass_chargino),weight);
 			FillHisto(h_TrackDedx_strips_chargino,charginoDedx,weight);
 		    }else {
 		        FillHisto(h_TrackP_strips_chargino,(*tracks_P)[itrack],weight);
 			FillHisto(h_TrackPt_strips_chargino,(*tracks_pt)[itrack],weight);
-		    	FillHisto(h_TrackMass_strips_charginoMomentum,TMath::Log10(trackMassStrips),weight);
+		    	//FillHisto(h_TrackMass_strips_charginoMomentum,TMath::Log10(trackMassStrips),weight);
 			FillHisto(h_TrackDedx_strips_chargino,(*tracks_deDxHarmonic2strips)[itrack],weight);
 		    }
 
@@ -612,62 +764,164 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
 		    if ((*tracks_chiCandGenMatchingDR)[itrack] < 0.01){
 		    	FillHisto(h_TrackP_strips_GenMatch,(*tracks_P)[itrack],weight);
 			FillHisto(h_TrackPt_strips_GenMatch,(*tracks_pt)[itrack],weight);
-		    	FillHisto(h_TrackMass_strips_GenMatch,TMath::Log10(trackMassStrips),weight);
-		    	FillHisto(h2_TrackP_charginoP_strips,(*tracks_P)[itrack],(*tracks_chargino_P)[itrack],weight);
-		    	FillHisto(h2_MET_charginoPt_strips,MET,(*tracks_chargino_P)[itrack],weight);
+		    	//FillHisto(h_TrackMass_strips_GenMatch,TMath::Log10(trackMassStrips),weight);
 		    	FillHisto(h2_MET_TrackPt_strips,MET,(*tracks_P)[itrack],weight);
-		    	FillHisto(h2_METPhi_charginoPhi_strips,METPhi,(*tracks_chargino_phi)[itrack],weight);
 		    	FillHisto(h2_METPhi_TrackPhi_strips,METPhi,(*tracks_phi)[itrack],weight);
+			if (IsSignal) {
+			   FillHisto(h2_TrackP_charginoP_strips,(*tracks_P)[itrack],(*tracks_chargino_P)[itrack],weight);
+		    	   FillHisto(h2_MET_charginoPt_strips,MET,(*tracks_chargino_P)[itrack],weight);
+		    	   FillHisto(h2_METPhi_charginoPhi_strips,METPhi,(*tracks_chargino_phi)[itrack],weight);
+			}
 		    }
 	        }
+		// no DT region
+		else 
+		{
+	            FillHisto(h_CR_noDT_TrackP,(*tracks_P)[itrack],weight);
+	            FillHisto(h_CR_noDT_TrackPt,(*tracks_pt)[itrack],weight);
+	            FillHisto(h_CR_noDT_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
+	            FillHisto(h_CR_noDT_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
+		}
 	    } // End of track loop
 	   
 	    n_DT = n_DT_short + n_DT_long;
 
-	    if (n_DT==0 ) continue;
-
-	    FillHisto(h_MET,MET,weight);
-	    FillHisto(h_MHT,MHT,weight);
-	    FillHisto(h_HT,HT,weight);
-	    FillHisto(h_n_jets,n_jets,weight);
-	    FillHisto(h_n_btags,n_btags,weight);
-	    FillHisto(h_n_DT_short,n_DT_short,weight);
-	    FillHisto(h_n_DT_long,n_DT_long,weight);
-	    FillHisto(h_n_DT,n_DT,weight);
+	    if (n_DT==0 ){
+		FillHisto(h_CR_noDT_MET,MET,weight);
+	    	FillHisto(h_CR_noDT_MHT,MHT,weight);
+	    	FillHisto(h_CR_noDT_HT,HT,weight);
+	    	FillHisto(h_CR_noDT_n_jets,n_jets,weight);
+	    	FillHisto(h_CR_noDT_n_btags,n_btags,weight);
+	    	FillHisto(h_CR_noDT_n_leptons,n_leptons,weight);
+	    	FillHisto(h_CR_noDT_n_DT,n_DT,weight);
+	    }
+	    else if (n_DT >0)
+	    {
+		FillHisto(h_MET,MET,weight);
+	    	FillHisto(h_MHT,MHT,weight);
+	    	FillHisto(h_HT,HT,weight);
+	    	FillHisto(h_n_jets,n_jets,weight);
+	    	FillHisto(h_n_btags,n_btags,weight);
+	    	FillHisto(h_n_leptons,n_leptons,weight);
+	    	FillHisto(h_n_DT_short,n_DT_short,weight);
+	    	FillHisto(h_n_DT_long,n_DT_long,weight);
+	    	FillHisto(h_n_DT,n_DT,weight);
+	    }
 	    
 	} // End of SR region
 	
-	// CR1 (track-lepton matching)
-	if (MET>200 && MHT>200 && HT>100 && MinDeltaPhiMhtJets>0.3){
-	    FillHisto(h_CR1_MET,MET,weight);
-	    FillHisto(h_CR1_MHT,MHT,weight);
-	    FillHisto(h_CR1_HT,HT,weight);
-	    FillHisto(h_CR1_n_jets,n_jets,weight);
-	    FillHisto(h_CR1_n_btags,n_btags,weight);
-	    FillHisto(h_CR1_n_leptons,n_leptons,weight);
+	// CR1 : lepton 
+	if (MET>200 && MinDeltaPhiMhtJets>0.3){
+	    Int_t n_track = 0;
+	    Int_t n_track_short = 0;
+	    Int_t n_track_long = 0;
+	    Double_t trackDedxPixel = 0;
+	    Double_t tracDedxStrips = 0;
+
+	    // track loop start 
+	    for (UInt_t itrack=0; itrack < tracks->size(); ++itrack){
+	        if (not((*tracks_pt)[itrack] > 30)) continue;
+	        //if (not((*tracks_is_reco_lepton)[itrack])) continue; // track is reco lepton
+
+		trackDedxPixel = (*tracks_deDxHarmonic2pixel)[itrack];
+		trackDedxStrips = (*tracks_deDxHarmonic2strips)[itrack];
+		
+		// Track Mass study is held at the moment
+		//trackMassPixel = TMath::Sqrt((trackDedxPixel-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		//trackMassStrips = TMath::Sqrt((trackDedxStrips-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		//trackMassPixel_calib = TMath::Sqrt((trackDedxPixel-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+		//trackMassStrips_calib = TMath::Sqrt((trackDedxStrips-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+
+		// Short track selection
+	        if ((*tracks_is_pixel_track)[itrack]==1)
+	        {
+		    n_track_short++;
+	            //FillHisto(h_CR1muon_TrackP_pixel,(*tracks_P)[itrack],weight);
+	            //FillHisto(h_CR1muon_TrackPt_pixel,(*tracks_pt)[itrack],weight);
+	            //FillHisto(h_CR1muon_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
+	            //if (trackDedxPixel>2.557) FillHisto(h_CR1_TrackMass_pixel,TMath::Log10(trackMassPixel),weight);
+		    //if (trackDedxPixel>3.01) FillHisto(h_CR1_TrackMass_pixel_calib,TMath::Log10(trackMassPixel_calib),weight);
+		    
+	        }
+
+		// Long track selection
+		else if ((*tracks_is_pixel_track)[itrack]==0)
+	        {
+		    n_track_long++;
+	            //FillHisto(h_CR1_TrackP_strips,(*tracks_P)[itrack],weight);
+	            //FillHisto(h_CR1_TrackPt_strips,(*tracks_pt)[itrack],weight);
+	            //FillHisto(h_CR1_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
+	            //if (trackDedxStrips>2.557) FillHisto(h_CR1_TrackMass_strips,TMath::Log10(trackMassStrips),weight);
+		    //if (trackDedxStrips>3.01) FillHisto(h_CR1_TrackMass_strips_calib,TMath::Log10(trackMassStrips_calib),weight);
+	        }
+	    } // End of track loop
+	    
+	    //n_track = n_track_short + n_track_long;
+	    //if (n_track==0 ) continue;
+	    
+	} // End of CR1
+
+	/*
+	// CR2 : Inverted BDT (fake-like track)
+	if (MET>200 && MinDeltaPhiMhtJets>0.3){
+	    n_DT = 0;
+	    n_DT_short = 0;
+	    n_DT_long = 0;
+	    trackDedxPixel = 0;
+	    trackDedxStrips = 0;
 	    
 	    // track loop start 
 	    for (UInt_t itrack=0; itrack < tracks->size(); ++itrack){
 	        if (not((*tracks_pt)[itrack] > 30)) continue;
-	        if (not((*tracks_is_reco_lepton)[itrack])) continue; // track is reco lepton
-	        //if ((*tracks_mva_bdt)[itrack]>0.1 && (*tracks_is_pixel_track)[itrack]==1)
-	        if ((*tracks_mva_bdt_loose)[itrack] > ((*tracks_dxyVtx)[itrack]*(0.5/0.01) - 0.3) && (*tracks_is_pixel_track)[itrack]==1)
+	        if ((*tracks_is_reco_lepton)[itrack]) continue; 
+
+		trackDedxPixel = (*tracks_deDxHarmonic2pixel)[itrack];
+		trackDedxStrips = (*tracks_deDxHarmonic2strips)[itrack];
+
+		//trackMassPixel = TMath::Sqrt((trackDedxPixel-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		//trackMassStrips = TMath::Sqrt((trackDedxStrips-2.557)*TMath::Power((*tracks_P)[itrack],2)/2.579);
+		//trackMassPixel_calib = TMath::Sqrt((trackDedxPixel-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+		//trackMassStrips_calib = TMath::Sqrt((trackDedxStrips-3.01)*TMath::Power((*tracks_P)[itrack],2)/1.74);
+
+		// Short track selection with inverted BDT
+	        if ((*tracks_mva_bdt_loose)[itrack] < ((*tracks_dxyVtx)[itrack]*(0.5/0.01) - 0.3) && (*tracks_is_pixel_track)[itrack]==1)
 	        {
-	            FillHisto(h_CR1_TrackPt_pixel,(*tracks_pt)[itrack],weight);
-	            FillHisto(h_CR1_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
+		    n_DT_short++;
+	            FillHisto(h_CR2_TrackP_pixel,(*tracks_P)[itrack],weight);
+	            FillHisto(h_CR2_TrackPt_pixel,(*tracks_pt)[itrack],weight);
+	            FillHisto(h_CR2_TrackDedx_pixel,(*tracks_deDxHarmonic2pixel)[itrack],weight);
+	            //if (trackDedxPixel>2.557) FillHisto(h_CR2_TrackMass_pixel,TMath::Log10(trackMassPixel),weight);
+		    //if (trackDedxPixel>3.01) FillHisto(h_CR2_TrackMass_pixel_calib,TMath::Log10(trackMassPixel_calib),weight);
+		    
 	        }
-	        //if ((*tracks_mva_bdt)[itrack]>0.25 && (*tracks_is_pixel_track)[itrack]==0)
-	        if ((*tracks_mva_bdt_loose)[itrack] > ((*tracks_dxyVtx)[itrack]*(0.6/0.01) + 0.05) && (*tracks_is_pixel_track)[itrack]==0)
+
+		// Long track selection with inverted BDT
+		else if ((*tracks_mva_bdt_loose)[itrack] < ((*tracks_dxyVtx)[itrack]*(0.6/0.01) + 0.05) && (*tracks_is_pixel_track)[itrack]==0)
 	        {
-	            FillHisto(h_CR1_TrackPt_strips,(*tracks_pt)[itrack],weight);
-	            FillHisto(h_CR1_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
-	            FillHisto(h_CR1_TrackMass_strips,TMath::Log10(trackMassStrips),weight);
+		    n_DT_long++;
+	            FillHisto(h_CR2_TrackP_strips,(*tracks_P)[itrack],weight);
+	            FillHisto(h_CR2_TrackPt_strips,(*tracks_pt)[itrack],weight);
+	            FillHisto(h_CR2_TrackDedx_strips,(*tracks_deDxHarmonic2strips)[itrack],weight);
+	            //if (trackDedxStrips>2.557) FillHisto(h_CR2_TrackMass_strips,TMath::Log10(trackMassStrips),weight);
+		    //if (trackDedxStrips>3.01) FillHisto(h_CR2_TrackMass_strips_calib,TMath::Log10(trackMassStrips_calib),weight);
 	        }
 	    } // End of track loop
 	    
-	} // End of CR1
-    
-    
+	    n_DT = n_DT_short + n_DT_long;
+	    if (n_DT==0 ) continue;
+	    
+	    FillHisto(h_CR2_MET,MET,weight);
+	    FillHisto(h_CR2_MHT,MHT,weight);
+	    FillHisto(h_CR2_HT,HT,weight);
+	    FillHisto(h_CR2_n_jets,n_jets,weight);
+	    FillHisto(h_CR2_n_btags,n_btags,weight);
+	    FillHisto(h_CR2_n_leptons,n_leptons,weight);
+	    FillHisto(h_CR2_n_DT,n_DT,weight);
+	    FillHisto(h_CR2_n_DT_short,n_DT_short,weight);
+	    FillHisto(h_CR2_n_DT_long,n_DT_long,weight);
+	    
+	} // End of CR2
+*/	
     } // End of Event loop
 
     h_MET->Write();
@@ -707,20 +961,82 @@ int HistoMaker(const char* inputfile, const char* outdir, const char* outputfile
     h_Track_deltaR_with_chargino_pixel->Write();
     h_Track_deltaR_with_chargino_strips->Write();
 
-    h_CR1_MET->Write();
-    h_CR1_MHT->Write();
-    h_CR1_HT->Write();
-    h_CR1_n_jets->Write();
-    h_CR1_n_btags->Write();
-    h_CR1_n_leptons->Write();
-    h_CR1_TrackPt_pixel->Write();
-    h_CR1_TrackPt_strips->Write();
-    h_CR1_TrackDedx_pixel->Write();
-    h_CR1_TrackDedx_strips->Write();
-    h_CR1_TrackMass_pixel->Write();
-    h_CR1_TrackMass_strips->Write();
-    h_CR1_TrackMass_weightedPixelStripsMass->Write();
+    h_CR_noDT_MET->Write();
+    h_CR_noDT_MHT->Write();
+    h_CR_noDT_HT->Write();
+    h_CR_noDT_n_jets->Write();
+    h_CR_noDT_n_btags->Write();
+    h_CR_noDT_n_leptons->Write();
+    h_CR_noDT_n_DT->Write();
+    h_CR_noDT_TrackP->Write();
+    h_CR_noDT_TrackPt->Write();
+    h_CR_noDT_TrackDedx_pixel->Write();
+    h_CR_noDT_TrackDedx_strips->Write();
+    
+    h_CR1muon_MET->Write();
+    h_CR1muon_MHT->Write();
+    h_CR1muon_HT->Write();
+    h_CR1muon_n_jets->Write();
+    h_CR1muon_n_btags->Write();
+    h_CR1muon_n_leptons->Write();
+    h_CR1muon_TrackP_pixel->Write();
+    h_CR1muon_TrackP_strips->Write();
+    h_CR1muon_TrackPt_pixel->Write();
+    h_CR1muon_TrackPt_strips->Write();
+    h_CR1muon_TrackDedx_pixel->Write();
+    h_CR1muon_TrackDedx_strips->Write();
+    //h_CR1muon_TrackMass_pixel->Write();
+    //h_CR1muon_TrackMass_pixel_calib->Write();
+    //h_CR1muon_TrackMass_strips->Write();
+    //h_CR1muon_TrackMass_strips_calib->Write();
+    h_n_muon->Write();
+    h_muonPt->Write();
+    h_CR1muonPt->Write();
+    h_muonEta->Write();
+    h_muonPhi->Write();
 
+    h_CR1electron_MET->Write();
+    h_CR1electron_MHT->Write();
+    h_CR1electron_HT->Write();
+    h_CR1electron_n_jets->Write();
+    h_CR1electron_n_btags->Write();
+    h_CR1electron_n_leptons->Write();
+    h_CR1electron_TrackP_pixel->Write();
+    h_CR1electron_TrackP_strips->Write();
+    h_CR1electron_TrackPt_pixel->Write();
+    h_CR1electron_TrackPt_strips->Write();
+    h_CR1electron_TrackDedx_pixel->Write();
+    h_CR1electron_TrackDedx_strips->Write();
+    //h_CR1electron_TrackMass_pixel->Write();
+    //h_CR1electron_TrackMass_pixel_calib->Write();
+    //h_CR1electron_TrackMass_strips->Write();
+    //h_CR1electron_TrackMass_strips_calib->Write();
+    h_n_electron->Write();
+    h_electronPt->Write();
+    h_CR1electronPt->Write();
+    h_electronEta->Write();
+    h_electronPhi->Write();
+    
+    h_CR2_MET->Write();
+    h_CR2_MHT->Write();
+    h_CR2_HT->Write();
+    h_CR2_n_jets->Write();
+    h_CR2_n_btags->Write();
+    h_CR2_n_leptons->Write();
+    h_CR2_n_DT->Write();
+    h_CR2_n_DT_short->Write();
+    h_CR2_n_DT_long->Write();
+    h_CR2_TrackP_pixel->Write();
+    h_CR2_TrackP_strips->Write();
+    h_CR2_TrackPt_pixel->Write();
+    h_CR2_TrackPt_strips->Write();
+    h_CR2_TrackDedx_pixel->Write();
+    h_CR2_TrackDedx_strips->Write();
+    h_CR2_TrackMass_pixel->Write();
+    h_CR2_TrackMass_pixel_calib->Write();
+    h_CR2_TrackMass_strips_calib->Write();
+    
+    
     h2_TrackP_charginoP_pixel->Write();
     h2_MET_charginoPt_pixel->Write();
     h2_MET_TrackPt_pixel->Write();
