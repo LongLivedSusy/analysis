@@ -44,24 +44,24 @@ epsilon = 0.0001
 
 binning = {}
 #binning['Met']=[0,20,50,100,150,250,400,650,800,900,1000]
-binning['Met']=[45,0,1200]
+binning['Met']=[450,0,1200]
 binning['Mht']=binning['Met']
 #binning['TrkPt']=[15,30,50,100,300]
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,400,410]#good for gen check, and two eta bins
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,310]
 binning['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
-binning['TrkPt']=[45,0,50]#[15, 30, 60, 120, 130]#just seemed to work very well######comment out after studies
+binning['TrkPt']=[15, 30, 60, 120, 130]#just seemed to work very well######comment out after studies
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 binning['TrkEta']=EtaBinEdges
-binning['TrkEta']=[30,-3,3]###comment out ater studies
+#binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
 binning['NJets']=[10,0,10]
 binning['NLeptons']=[5,0,5]
 binning['NElectrons']=binning['NLeptons']
 binning['NMuons']=binning['NLeptons']
 binning['NPions']=binning['NLeptons']
-binning['MuPt']=[30,0,300]
-binning['ElPt']=[30,0,300]
+binning['MuPt']=[60,0,600]
+binning['ElPt']=[60,0,600]
 binning['ElEta']=[30,-3,3]###comment out ater studies
 binning['MuEta']=[30,-3,3]###comment out ater studies
 binning['TrkEta']=[30,-3,3]###comment out ater studies
@@ -73,13 +73,18 @@ binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['DeDxAverage'] = [20,0,10]
 binning['Track1MassFromDedx'] = [25,0,1000]
-binning['BinNumber'] = [51,0,51]
+binning['BinNumber'] = [69,0,69]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [20,0,10]
 
 binningAnalysis = {}
-binningAnalysis['Met']=[15,0,1200]#[200,250,400,700,900]
+binningAnalysis = binning
+
+binningAnalysis['Met']=[45,0,1200]
 binningAnalysis['Mht']=binningAnalysis['Met']
+binningAnalysis['BinNumber'] = [67,1,68]
+
+'''
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
 binningAnalysis['TrkEta']=EtaBinEdges
 binningAnalysis['TrkLen']=[2, 1, 3]
@@ -96,8 +101,9 @@ binningAnalysis['Ht']=[10,0,2000]
 binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
 binningAnalysis['DeDxAverage'] = [20,0,10]
 binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
-binningAnalysis['BinNumber'] = [50,1,50]
+binningAnalysis['BinNumber'] = [50,1,51]
 binningAnalysis['Log10DedxMass'] = [10,0,5]
+'''
 
 def histoStyler(h,color=kBlack):
 	h.SetLineWidth(2)
@@ -883,19 +889,25 @@ def passQCDHighMETFilter2(t):
 
 def passesUniversalSelection(t):
     if not (bool(t.JetID) and  t.NVtx>0): return False
+    #print 'made a'
     if not  passQCDHighMETFilter(t): return False
     if not passQCDHighMETFilter2(t): return False
-    if not t.PFCaloMETRatio<5: return False
+    #print 'made b'    
+    #if not t.PFCaloMETRatio<5: return False # turned off now that we use muons
     if not t.globalSuperTightHalo2016Filter: return False
+    #print 'made c'    
     if not t.HBHENoiseFilter: return False    
     if not t.HBHEIsoNoiseFilter: return False
     if not t.eeBadScFilter: return False      
+    #print 'made d'    
     if not t.BadChargedCandidateFilter: return False
     if not t.BadPFMuonFilter: return False
+    #print 'made e'    
     if not t.CSCTightHaloFilter: return False
+    #print 'made f'        
     if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
-    #if not t.ecalBadCalibReducedExtraFilter: return False
-    #if not t.ecalBadCalibReducedFilter: return False         
+    ##if not t.ecalBadCalibReducedExtraFilter: return False
+    ##if not t.ecalBadCalibReducedFilter: return False         
     return True
 
 
