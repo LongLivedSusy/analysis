@@ -7,6 +7,7 @@ import plotting
 import uuid
 import GridEngineTools
 import collections
+from tools.tags import tags
 
 def get_interpolated_histogram(histo):
 
@@ -120,140 +121,28 @@ def get_configurations(threads):
 
     binning = collections.OrderedDict()    
 
+    binning["tracks_pt"] = [20, 0, 1000]
     binning["HT"] = [10, 0, 1000]
     binning["MHT"] = [10, 0, 1000]
     binning["n_allvertices"] = [20, 0, 100]
     binning["n_goodjets"] = [50, 0, 50]
     binning["n_btags"] = [10, 0, 10]
     binning["MinDeltaPhiMhtJets"] = [100, 0, 5]
+    binning["tracks_eta"] = [60, -2.5, 2.5]
+    binning["tracks_phi"] = [60, -3.2, 3.2]
 
-    good_track = " && tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passmask!=0 "
+    selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
 
-    regioncuts = collections.OrderedDict()
-    #regioncuts["tight_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1",
-    #                            "numerator_cuts": good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt>0.1 ",
-    #                            "denominator_cuts": " ",
-    #                          }
-    #regioncuts["tight_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1",
-    #                            "numerator_cuts": good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt>0.25 ",
-    #                            "denominator_cuts": " ",
-    #                          }
-    #regioncuts["loose1_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
-    #                          }
-    #regioncuts["loose1_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.01",
-    #                          }
-    #regioncuts["loose2_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
-    #                          }
-    #regioncuts["loose2_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx>0.02 && tracks_dxyVtx<0.1",
-    #                          }
-    #regioncuts["loose3_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
-    #                          }
-    #regioncuts["loose3_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
-    #                          }
-    #regioncuts["loose4_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) - 0.1)",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) - 0.1)",
-    #                          }
-    #regioncuts["loose4_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.15)",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) + 0.15)",
-    #                          }
-    #regioncuts["loose3_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
-    #                          }
-    #regioncuts["loose3_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>tracks_dxyVtx*0.5/0.01",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<tracks_dxyVtx*0.5/0.01",
-    #                          }
-    #regioncuts["loose4_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) - 0.1)",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) - 0.1)",
-    #                          }
-    #regioncuts["loose4_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.15)",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) + 0.15)",
-    #                          }
-    #regioncuts["loose5_short"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.5/0.01) - 0.3)",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.5/0.01) - 0.3)",
-    #                          }
-    #regioncuts["loose5_long"] = {
-    #                            "base_cuts": "passesUniversalSelection==1" + good_track,
-    #                            "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.6/0.01) + 0.05)",
-    #                            "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.6/0.01) + 0.05)",
-    #                          }
-    
-    regioncuts["loose6_short"] = {
-                                "base_cuts": "passesUniversalSelection==1 " + good_track,
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.65/0.01) - 0.25)",
-                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.65/0.01) - 0.25)",
-                              }
-    regioncuts["loose6_long"] = {
-                                "base_cuts": "passesUniversalSelection==1 " + good_track,
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.05)",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) + 0.05)",
-                              }
-    regioncuts["looseloose6dz1_short"] = {
-                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.1 " + good_track,
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.65/0.01) - 0.25)",
-                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.65/0.01) - 0.25)",
-                              }
-    regioncuts["looseloose6dz1_long"] = {
-                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.3 " + good_track,
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.7/0.01) + 0.05)",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.7/0.01) + 0.05)",
-                              }
-    regioncuts["looseloose6dz3_short"] = {
-                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.3 " + good_track,
-                                "numerator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.65/0.01) - 0.25)",
-                                "denominator_cuts": " && tracks_is_pixel_track==1 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.65/0.01) - 0.25)",
-                              }
-    regioncuts["looseloose6dz3_long"] = {
-                                "base_cuts": "passesUniversalSelection==1 && tracks_dzVtx<0.3 " + good_track,
-                                "numerator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose>(tracks_dxyVtx*(0.7/0.01) + 0.05)",
-                                "denominator_cuts": " && tracks_is_pixel_track==0 && tracks_mva_bdt_looseloose<(tracks_dxyVtx*(0.7/0.01) + 0.05)",
-                              }
-
-    #selected_datasets = ["Summer16", "Fall17"]
-    #selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
-    selected_datasets = ["Summer16", "Run2016", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
-    
     variables = [
-                 "HT",
-                 "MHT",
-                 "n_goodjets",
-                 "n_allvertices",
-                 "n_btags",
-                 "MinDeltaPhiMhtJets",
+                 #"tracks_pt",
+                 #"HT",
+                 #"MHT",
+                 #"n_goodjets",
+                 #"n_allvertices",
+                 #"n_btags",
+                 #"MinDeltaPhiMhtJets",
                  "HT:n_allvertices",
+                 #"tracks_eta:tracks_phi",
                 ]
     
     regions = collections.OrderedDict()
@@ -262,11 +151,11 @@ def get_configurations(threads):
     
     configurations = []
 
-    for label in regioncuts:
+    for label in tags.tags:
 
-        numerator_cuts = regioncuts[label]["numerator_cuts"]
-        denominator_cuts = regioncuts[label]["denominator_cuts"]
-        base_cuts = regioncuts[label]["base_cuts"]
+        numerator_cuts = tags.tags[label]["SR"]
+        denominator_cuts = tags.tags[label]["CR"]
+        base_cuts = tags.tags[label]["base_cuts"]
 
         for selected_dataset in selected_datasets:
             for variable in variables:          
@@ -330,7 +219,6 @@ if __name__ == "__main__":
         commands = []
         for i in range(len(configurations)):
             commands.append("./get_fakerate.py --index %s" % i)
-        #GridEngineTools.runParallel(commands, options.runmode, condorDir = "get_fakerate.condor", confirm=not options.start, use_more_time=60*60*5)
         GridEngineTools.runParallel(commands, options.runmode, condorDir = "get_fakerate.condor", confirm=not options.start)
 
         if "multi" in options.runmode:

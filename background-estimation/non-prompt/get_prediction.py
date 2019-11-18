@@ -6,6 +6,7 @@ import math, os, glob
 from GridEngineTools import runParallel
 import collections
 from array import array
+import tools.tags as tags
 
 def getBinContent_with_overflow(histo, xval, yval = False):
     
@@ -33,67 +34,144 @@ def getBinContent_with_overflow(histo, xval, yval = False):
         return value
 
 
-def get_signal_region(MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track):
+def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename):
   
     is_tracker_track = not is_pixel_track
-
+    inf = 9999
     binnumbers = collections.OrderedDict()
-    #           'Ht',             'Mht',                'NJets',            'BTags',            'NTags',            'NPix',             'NPixStrips',       'MinDPhiMhtJets'
-    binnumbers[((0,float("inf")),(250,400),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),      (0.5,float("inf")))] = 1
-    binnumbers[((0,float("inf")),(250,400),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 2
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.5,float("inf")))] = 3
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 4
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.5,float("inf")))] = 5
-    binnumbers[((0,float("inf")),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 6
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),      (0.5,float("inf")))] = 7
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 8
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),      (0.5,float("inf")))] = 9
-    binnumbers[((0,float("inf")),(250,400),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 10
-    binnumbers[((0,float("inf")),(400,700),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 11
-    binnumbers[((0,float("inf")),(400,700),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 12
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 13
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 14
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 15
-    binnumbers[((0,float("inf")),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 16
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 17
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 18
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 19
-    binnumbers[((0,float("inf")),(400,700),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 20
-    binnumbers[((0,float("inf")),(700,float("inf")),(1,1),  (0,float("inf")),(1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 21
-    binnumbers[((0,float("inf")),(700,float("inf")),(1,1),  (0,float("inf")),(1,1),  (1,1),  (0,0),      (0.5,float("inf")))] = 22
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 23
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 24
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 25
-    binnumbers[((0,float("inf")),(700,float("inf")),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 26
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(0,0),  (1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 27
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(0,0),  (1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 28
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(1,float("inf")),(1,1),  (0,0),  (1,1),      (0.3,float("inf")))] = 29
-    binnumbers[((0,float("inf")),(700,float("inf")),(6,float("inf")),(1,float("inf")),(1,1),  (1,1),  (0,0),      (0.3,float("inf")))] = 30
-    binnumbers[((0,float("inf")),(0,400),  (0,float("inf")),(0,float("inf")),(2,float("inf")),(0,float("inf")),(0,float("inf")),    (0.0,float("inf")))]= 31
-    binnumbers[((0,float("inf")),(400,float("inf")),(0,float("inf")),(0,float("inf")),(2,float("inf")),(0,float("inf")),(0,float("inf")),    (0.0,float("inf")))]= 32
+
+    ldedxcutLlow = 3.0
+    ldedxcutLmid = 5.0
+    ldedxcutSlow = 2.1
+    ldedxcutSmid = 4.0
+    binnumbers = {}
+    listagain = ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+    binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 1
+    binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 2
+    binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 3
+    binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 4
+
+    binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 5
+    binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 6
+    binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 7
+    binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 8
+
+
+    binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 9
+    binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 10
+    binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 11
+    binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 12
+
+
+    binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 13
+    binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 14
+    binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 15
+    binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 16
+
+    binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 17
+    binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 18
+    binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 19
+    binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 20
+
+    binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 21
+    binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 22
+    binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 23
+    binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 24
+
+    binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 25
+    binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 26
+    binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 27
+    binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 28
+
+    binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 29
+    binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 30
+    binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 31
+    binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 32
+
+
+    binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 33
+    binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 34
+    binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 35
+    binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 36
+
+    binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 37
+    binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 38
+    binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 39
+    binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 40
+
+    binnumbers[((1000,inf),(300,inf),(5,inf),(0,0), (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 41
+    binnumbers[((1000,inf),(300,inf),(5,inf),(0,0), (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 42
+    binnumbers[((1000,inf),(300,inf),(5,inf),(0,0), (1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 43
+    binnumbers[((1000,inf),(300,inf),(5,inf),(0,0),  (1,1), (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 44
+
+    binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 45
+    binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 46
+    binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 47
+    binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 48
+
+
+    #listagain =  ['Ht',  'Mht',    'NJets','BTags','NTags','NPix','NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+    binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 49
+    binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 50
+    binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 51
+    binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 52
+
+
+    binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 53
+    binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 54
+    binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 55
+    binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 56
+
+    binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 57
+    binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 58
+    binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 59
+    binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 60
+
+    binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 61
+    binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 62
+    binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 63
+    binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 64
+    #listagain =  ['Ht',  'Mht',    'NJets','BTags','NTags','NPix','NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+    binnumbers[((0,inf),  (150,300), (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (0,0))]   = 65
+    binnumbers[((0,inf),  (300,inf), (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (0,0))]   = 66
+    binnumbers[((0,inf),  (0,inf),   (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (1,inf))] = 67 
+
+    #listagain = ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 
     region = 0
     for binkey in binnumbers:
-        if MHT >= binkey[1][0] and MHT <= binkey[1][1] and \
+        if HT >= binkey[0][0] and HT <= binkey[0][1] and \
+           MHT >= binkey[1][0] and MHT <= binkey[1][1] and \
            NJets >= binkey[2][0] and NJets <= binkey[2][1] and \
            n_btags >= binkey[3][0] and n_btags <= binkey[3][1] and \
            n_DT >= binkey[4][0] and n_DT <= binkey[4][1] and \
            is_pixel_track >= binkey[5][0] and is_pixel_track <= binkey[5][1] and \
            is_tracker_track >= binkey[6][0] and is_tracker_track <= binkey[6][1] and \
-           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1]:
-            region = binnumbers[binkey]
-            break
+           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1] and \
+           DeDxAverage >= binkey[8][0] and DeDxAverage <= binkey[8][1] and \
+           n_goodelectrons >= binkey[9][0] and n_goodelectrons <= binkey[9][1] and \
+           n_goodmuons >= binkey[10][0] and n_goodmuons <= binkey[10][1]:
+              region = binnumbers[binkey]
+              break
 
-    return region
-        
+    if region>0 and "Run201" in filename and "MET" in filename:
+        if region<=48 or region==65 or region==66:
+            return region
+        else:
+            return 0
+    elif region>0 and "Run201" in filename and "SingleMuon" in filename:
+        if region>=49 or region<=64 or region==67:
+            return region
+        else:
+            return 0
+    else:
+        return region
+    
+    
 
-def main(input_filenames, output_file, fakerate_file = "fakerate.root", bdt_folder = False, nevents = -1, treename = "Events", event_start = 0):
 
-    # load tree
-    tree = TChain(treename)
-    for iFile in input_filenames:
-        tree.Add(iFile)
-   
+def main(input_filenames, output_file, nevents = -1, treename = "Events", event_start = 0, fakerate_file = "fakerate.root", unweighted = False, vetocuts = ""):
+
     # check if data:
     phase = 0
     data_period = ""
@@ -107,110 +185,84 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", bdt_fold
                 phase = 0
             elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
                 phase = 1
-    
-    # output histograms
-    histos = {}
-    histos["HT"] = TH1F("HT", "HT", 10, 0, 1000)
-    histos["MHT"] = TH1F("MHT", "MHT", 10, 0, 1000)
-    histos["n_goodjets"] = TH1F("n_jets", "n_jets", 11, 0, 11)
-    histos["MinDeltaPhiMhtJets"] = TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 20, 0, 1)
-    histos["n_btags"] = TH1F("n_btags", "n_btags", 21, 0, 20)
-    histos["region_long"] = TH1F("region_long", "region_long", 33, 0, 33)
-    histos["region_short"] = TH1F("region_short", "region_short", 33, 0, 33)
-    histos["region_multi"] = TH1F("region_multi", "region_multi", 33, 0, 33)
 
-    control_regions = {
-                        #"cr0": "event.passesUniversalSelection==1                   and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
-                        "cr1": "event.passesUniversalSelection==1 and event.MHT>50  and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
-                        #"cr2": "event.passesUniversalSelection==1 and event.MHT>100 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
-                        #"cr3": "event.passesUniversalSelection==1 and event.MHT>150 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
-                        #"cr4": "event.passesUniversalSelection==1 and event.MHT>200 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
-                        #"cr5": "event.passesUniversalSelection==1 and event.MHT>250 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
+    # load tree
+    tree = TChain(treename)
+
+    nev = 0
+    ignore_files =  []
+    for tree_file in input_filenames:
+        try:
+            fin = TFile(tree_file)
+            fin.Get("nev")
+            fin.Get(treename)
+        except:
+            fin.Close()
+            "Ignoring file: %s" % tree_file
+            ignore_files.append(ignore_files)
+            print "Ignoring", tree_file
+            continue
+
+        if not is_data:
+            #fin = TFile(tree_file)
+            h_nev = fin.Get("nev")
+            nev += h_nev.GetBinContent(1)
+            fin.Close()
+
+    tree = TChain(treename)       
+    for i, tree_file in enumerate(input_filenames):
+        if not tree_file in ignore_files:
+            tree.Add(tree_file)
+   
+    # output histograms
+    histos = {
+                "HT": TH1F("HT", "HT", 10, 0, 2000),
+                "MET": TH1F("MET", "MET", 15, 0, 1200),
+                "MHT": TH1F("MHT", "MHT", 15, 0, 1200),
+                "n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
+                "n_goodelectrons": TH1F("n_goodelectrons", "n_goodelectrons", 5, 0, 5),
+                "n_goodmuons": TH1F("n_goodmuons", "n_goodmuons", 5, 0, 5),
+                "MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
+                "n_btags": TH1F("n_btags", "n_btags", 4, 0, 4),
+                "Track1MassFromDedx": TH1F("Track1MassFromDedx", "Track1MassFromDedx", 25, 0, 1000),
+                "Log10DedxMass": TH1F("Log10DedxMass", "Log10DedxMass", 10, 0, 5),
+                "DeDxAverage": TH1F("DeDxAverage", "DeDxAverage", 20, 0, 10),
+                "n_tags": TH1F("n_tags", "n_tags", 3, 0, 3),
+                "region": TH1F("region", "region", 68, 0, 68),
+             }
+
+    event_selection = {
+                #"baseline":         "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodelectrons==0",
+                #"baseline_noveto":  "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
+                #"baseline_muveto":  "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==0",
+                #"baseline_mu":      "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons>0",
+                "baseline_singlemu":      "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==1"
+
                       }
 
     output_variables = histos.keys()
 
-    #tag_names = ["tight", "loose1", "loose2", "loose3", "loose4"]
-    tag_names = ["loose6", "looseloose6dz1", "looseloose6dz3"]
-
-    # load fake rate histograms:
-    fakerate_regions = []
-    for i_region in ["qcd_lowMHT"]:
-        for i_cond in tag_names:
-            for i_cat in ["_short", "_long"]:
-                fakerate_regions.append(i_region + "_" + i_cond + i_cat)
-
-    #fakerate_variables = ["HT", "n_allvertices", "HT:n_allvertices", "BDT1", "BDT2", "BDT3", "BDT4", "BDT5", "BDT6", "BDT7", "BDT8", "BDT9"]
-    #fakerate_variables = ["HT:n_allvertices", "BDT1", "BDT2", "BDT3", "BDT4", "BDT5", "BDT6", "BDT7", "BDT8", "BDT9"]
-    fakerate_variables = ["HT:n_allvertices"]
-
-    if fakerate_file:
-        
-        # load fakerate maps:
+    h_fakerates = {}
+    
+    for tag in tags.tags:
+        fakerate_variable = "HT:n_allvertices"
+        fakerate_maptag = "qcd_lowMHT_%s" % tag
         tfile_fakerate = TFile(fakerate_file, "open")
-
-        # get all fakerate histograms:
-        h_fakerates = {}
-        for region in fakerate_regions:
-            for variable in fakerate_variables:    
-
-                if "BDT" in variable: continue
-               
-                hist_name = region + "/" + data_period + "/fakerate_" + variable.replace(":", "_")
-                
-                hist_name = hist_name.replace("//", "/")
-                try:
-                    h_fakerates[hist_name] = tfile_fakerate.Get(hist_name)
-                except:
-                    print "Can't read, using FR=1", hist_name
-                    h_fakerates[hist_name] = TH1F(hist_name, hist_name, 1, -10000, 10000)
-                    h_fakerates[hist_name].Fill(1)
+        h_fakerates["%s-short" % tag] = tfile_fakerate.Get("%s_short/%s/fakerate_%s" % (fakerate_maptag, data_period, fakerate_variable.replace(":", "_")))
+        h_fakerates["%s-long" % tag] = tfile_fakerate.Get("%s_long/%s/fakerate_%s" % (fakerate_maptag, data_period, fakerate_variable.replace(":", "_")))
 
     # add more histograms
-    more_hists = []
     for variable in output_variables:               
-        for fakerate_variable in fakerate_variables:
-            for category in ["short", "long"]:
-                for cr in control_regions:
-                    for label in ["tagged", "prediction"]:
-                        for fr_region in fakerate_regions:
-                                h_suffix = "_%s_%s_%s_%s" % (fr_region, fakerate_variable.replace(":", "_"), label, cr)
-                                histos[variable + h_suffix] = histos[variable].Clone()
-                                histos[variable + h_suffix].SetName(variable + h_suffix)
-                    
-                    for tag in tag_names:
-                        for itype in ["fakebg", "promptbg", "control", "tagged"]:
-                            h_suffix =  "_%s_%s_%s_%s" % (tag, itype, category, cr)
-                            histos[variable + h_suffix] = histos[variable].Clone()
-                            histos[variable + h_suffix].SetName(variable + h_suffix)
-                            more_hists.append(h_suffix[1:])
-
+        for category in ["short", "long", "multi"]:
+            for cr in event_selection:
+                    for itype in ["signalfake", "signalprompt", "control", "controlfake", "controlprompt", "signal", "prediction"]:
+                        h_name = "%s_%s_%s_%s" % (variable, itype, category, cr)
+                        histos[h_name] = histos[variable].Clone()
+                        histos[h_name].SetName(h_name)
+    
     if nevents > 0:
         nev = nevents
-    else:
-        nev = tree.GetEntries()
-
-    # Predict the regression target
-    if bdt_folder:
-        bdt_tags = [
-                     "fakerate_Summer16_qcd_lowMHT_tight_short",
-                     "fakerate_Summer16_qcd_lowMHT_tight_long",
-                     "fakerate_Summer16_qcd_lowMHT_loose3_short",
-                     "fakerate_Summer16_qcd_lowMHT_loose3_long",
-                     "fakerate_Summer16_qcd_lowMHT_loose4_short",
-                     "fakerate_Summer16_qcd_lowMHT_loose4_long",
-                   ]
-
-        readers = {}
-        tmva_variables = {}
-        tmva_variables["HT"] = array('f',[0])
-        tmva_variables["n_allvertices"] = array('f',[0])
-        for bdt_tag in bdt_tags:
-            readers[bdt_tag] = TMVA.Reader()
-            readers[bdt_tag].AddVariable("HT", tmva_variables["HT"])
-            readers[bdt_tag].AddVariable("n_allvertices", tmva_variables["n_allvertices"])
-            for i_BDT in ["BDT1", "BDT2", "BDT3", "BDT4", "BDT5", "BDT6", "BDT7", "BDT8", "BDT9"]:
-                readers[bdt_tag].BookMVA(i_BDT, "%s/weights_%s/TMVARegression_%s.weights.xml" % (bdt_folder, bdt_tag, i_BDT))
+        print "Using fixed number of events"
 
     print "Looping over %s events" % nev
 
@@ -222,304 +274,174 @@ def main(input_filenames, output_file, fakerate_file = "fakerate.root", bdt_fold
         if (iEv+1) % 10000 == 0:
             print "Processing event %s / %s" % (iEv + 1, nev)
 
-        weight = 1.0 * event.CrossSection * event.puWeight / tree.GetEntries()
+        if is_data:
+            weight = 1.0
+        else:
+            weight = 1.0 * event.CrossSection * event.puWeight / nev
 
         # check if event passes control region
         pass_cr = {}    
-        for cr in control_regions:
-            pass_cr[cr] = eval(control_regions[cr])
+        for cr in event_selection:
+            pass_cr[cr] = eval(event_selection[cr])
         
         passes_cr = False
         for cr in pass_cr:
             if pass_cr[cr]:
                 passes_cr = True
                 break
-        
         if not passes_cr: continue
         
-        event.region_short = get_signal_region(event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, 1, True)
-        event.region_long = get_signal_region(event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, 1, False)
-        event.region_multi = get_signal_region(event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, 2, True)
+        for tag in tags.tags:
 
-        #############################
-        # we're in a control region #
-        #############################              
+            good_track = tags.convert_cut_string(tags.good_track)
 
-        for cr in pass_cr:
-            
-            # check if event passes this control region:
-            if not pass_cr[cr]: continue
-            
-            for variable in output_variables:
-            
-                value = eval("event.%s" % variable)
-            
-                ###################################################
-                # for each tag, check if in signal/control region #
-                ###################################################
-            
-                flags = {}
-                for label in more_hists:
-                    for control_region in control_regions:
-                        label = label.replace("_%s" % control_region, "")
-                    flags[label] = 0
-
-                def set_flag(label, flags, event, itrack):
-                    if event.tracks_is_pixel_track[itrack]==1:
-                        flags[label + "_short"] += 1
-                    elif event.tracks_is_pixel_track[itrack]==0:
-                        flags[label + "_long"] += 1
-                    return flags
-
-                # loop over tracks:
-                #for i in range(len(event.tracks)):
-                for i in range(len(event.tracks_pt)):
-            
-                    is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1 or event.tracks_prompt_tau_leadtrk[i]==1
-                    is_fake_track = not is_prompt_track
-                    good_track = event.tracks_is_reco_lepton[i]==0 and event.tracks_passPFCandVeto[i]==1 and event.tracks_passpionveto[i]==1 and event.tracks_passmask[i]!=0
-
-                    if "tight" in tag_names:
-                        # tight tag
-                        if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt[i]>0.1 and good_track:
-                            flags = set_flag("tight_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("tight_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("tight_promptbg", flags, event, i)
-                        flags["tight_control_short"] += 1
-                        if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt[i]>0.25 and good_track:
-                            flags = set_flag("tight_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("tight_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("tight_promptbg", flags, event, i)
-                        flags["tight_control_long"] += 1
-
-                    if "loose1" in tag_names:
-                        # loose1 tag: default tag to go
-                        if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.01 and good_track:
-                            flags = set_flag("loose1_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose1_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose1_promptbg", flags, event, i)
-                        if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.01 and good_track:
-                            flags = set_flag("loose1_control", flags, event, i)
-
-                    if "loose2" in tag_names:                    
-                        # loose2 tag: Akshansh's recipe
-                        if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]<=0.01 and good_track:
-                            flags = set_flag("loose2_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose2_fakebg", flags, event, i)
-                            if is_prompt_track:
-                                flags = set_flag("loose2_promptbg", flags, event, i)
-                        if event.tracks_mva_bdt_loose[i]>0 and event.tracks_dxyVtx[i]>0.02 and event.tracks_dxyVtx[i]<0.1 and good_track:
-                            flags = set_flag("loose2_control", flags, event, i)
-
-
-                    if "loose3" in tag_names:            
-                        # loose3 tag: fancy cut function
-                        if event.tracks_mva_bdt_loose[i]>event.tracks_dxyVtx[i]*0.5/0.01 and good_track:
-                            flags = set_flag("loose3_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose3_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose3_promptbg", flags, event, i)
-                        if event.tracks_mva_bdt_loose[i]<event.tracks_dxyVtx[i]*0.5/0.01 and good_track:
-                            flags = set_flag("loose3_control", flags, event, i)                        
-
-                    if "loose4" in tag_names:                    
-                        # loose4 tag: fancy cut function, Sams changes
-                        if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]>(event.tracks_dxyVtx[i]*0.7/0.01 - 0.1) and good_track:
-                            flags = set_flag("loose4_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose4_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose4_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]<(event.tracks_dxyVtx[i]*0.7/0.01 - 0.1) and good_track:
-                            flags["loose4_control_short"] += 1
-                        if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]>(event.tracks_dxyVtx[i]*0.7/0.01 + 0.15) and good_track:
-                            flags = set_flag("loose4_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose4_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose4_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]<(event.tracks_dxyVtx[i]*0.7/0.01 + 0.15) and good_track:
-                            flags["loose4_control_long"] += 1
-
-                    if "loose5" in tag_names:                    
-                        # loose5 tag: fancy cut function, Sams changes
-                        if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]>(event.tracks_dxyVtx[i]*0.5/0.01 - 0.3) and good_track:
-                            flags = set_flag("loose5_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose5_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose5_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]<(event.tracks_dxyVtx[i]*0.5/0.01 - 0.3) and good_track:
-                            flags["loose5_control_short"] += 1
-                        if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]>(event.tracks_dxyVtx[i]*0.6/0.01 + 0.05) and good_track:
-                            flags = set_flag("loose5_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose5_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose5_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]<(event.tracks_dxyVtx[i]*0.6/0.01 + 0.05) and good_track:
-                            flags["loose5_control_long"] += 1
-
-                    if "loose6" in tag_names:                    
-                        if event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]>(event.tracks_dxyVtx[i]*(0.65/0.01) - 0.25) and good_track:
-                            flags = set_flag("loose6_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose6_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose6_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==1 and event.tracks_mva_bdt_loose[i]<(event.tracks_dxyVtx[i]*(0.65/0.01) - 0.25) and good_track:
-                            flags["loose6_control_short"] += 1
-                        if event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]>(event.tracks_dxyVtx[i]*(0.7/0.01) + 0.05) and good_track:
-                            flags = set_flag("loose6_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("loose6_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("loose6_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==0 and event.tracks_mva_bdt_loose[i]<(event.tracks_dxyVtx[i]*(0.7/0.01) + 0.05) and good_track:
-                            flags["loose6_control_long"] += 1
-
-                    if "looseloose6dz1" in tag_names:                    
-                        if event.tracks_is_pixel_track[i]==1 and event.tracks_dzVtx[i]<0.1 and event.tracks_mva_bdt_looseloose[i]>(event.tracks_dxyVtx[i]*(0.65/0.01) - 0.25) and good_track:
-                            flags = set_flag("looseloose6dz1_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("looseloose6dz1_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("looseloose6dz1_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==1 and event.tracks_dzVtx[i]<0.1 and event.tracks_mva_bdt_looseloose[i]<(event.tracks_dxyVtx[i]*(0.65/0.01) - 0.25) and good_track:
-                            flags["looseloose6dz1_control_short"] += 1
-                        if event.tracks_is_pixel_track[i]==0 and event.tracks_dzVtx[i]<0.1 and event.tracks_mva_bdt_looseloose[i]>(event.tracks_dxyVtx[i]*(0.7/0.01) + 0.05) and good_track:
-                            flags = set_flag("looseloose6dz1_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("looseloose6dz1_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("looseloose6dz1_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==0 and event.tracks_dzVtx[i]<0.1 and event.tracks_mva_bdt_looseloose[i]<(event.tracks_dxyVtx[i]*(0.7/0.01) + 0.05) and good_track:
-                            flags["looseloose6dz1_control_long"] += 1
-
-                    if "looseloose6dz3" in tag_names:                    
-                        if event.tracks_is_pixel_track[i]==1 and event.tracks_dzVtx[i]<0.3 and event.tracks_mva_bdt_looseloose[i]>(event.tracks_dxyVtx[i]*(0.65/0.01) - 0.25) and good_track:
-                            flags = set_flag("looseloose6dz3_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("looseloose6dz3_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("looseloose6dz3_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==1 and event.tracks_dzVtx[i]<0.3 and event.tracks_mva_bdt_looseloose[i]<(event.tracks_dxyVtx[i]*(0.65/0.01) - 0.25) and good_track:
-                            flags["looseloose6dz3_control_short"] += 1
-                        if event.tracks_is_pixel_track[i]==0 and event.tracks_dzVtx[i]<0.3 and event.tracks_mva_bdt_looseloose[i]>(event.tracks_dxyVtx[i]*(0.7/0.01) + 0.05) and good_track:
-                            flags = set_flag("looseloose6dz3_tagged", flags, event, i)
-                            if is_fake_track:
-                                flags = set_flag("looseloose6dz3_fakebg", flags, event, i)
-                            elif is_prompt_track:
-                                flags = set_flag("looseloose6dz3_promptbg", flags, event, i)
-                        elif event.tracks_is_pixel_track[i]==0 and event.tracks_dzVtx[i]<0.3 and event.tracks_mva_bdt_looseloose[i]<(event.tracks_dxyVtx[i]*(0.7/0.01) + 0.05) and good_track:
-                            flags["looseloose6dz3_control_long"] += 1
-
-                # check if event has at least one interesting track:
-                event_ignore = True
-                for flag in flags:
-                    if flags[flag] > 0:
-                        event_ignore = False
-                        break
-                if event_ignore: continue
+            for cr in pass_cr:
                 
-                for label in flags:
-                    if flags[label]:
-                        if variable + "_" + label + "_" + cr in histos:
-
-                            # for multiple DR search bins, count n_DT for this label:
-                            if variable == "region_multi":
-                                if flags[label]<2:
-                                    continue
-
-                            histos[variable + "_" + label + "_" + cr].Fill(value, weight)
-           
-                ###################################################
-                # get fake rate from histogram/map for each event #
-                ###################################################
-            
-                if fakerate_file:
-
-                    for fakerate_variable in fakerate_variables:
-                
-                        if "BDT" in fakerate_variable: continue
-
-                        if ":" in fakerate_variable:
-                            xvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[1])
-                            yvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[0])
-                        else:                
-                            xvalue = eval("event.%s" % fakerate_variable)
+                # check if event passes this control region:
+                if not pass_cr[cr]: continue
                         
-                        for fr_region in fakerate_regions:              
+                # count DTs in signal and control regions:
+                is_short_signal = 0
+                is_short_signal_fake = 0
+                is_short_signal_prompt = 0
+                is_short_control = 0
+                is_long_signal = 0
+                is_long_signal_fake = 0
+                is_long_signal_prompt = 0
+                is_long_control = 0
+                dedx_signal = 0
+                dedx_control = 0
+                log10dedxmass_signal = 0
+                log10dedxmass_control = 0
+                region_signal = 0
+                region_control = 0
+                is_pixel_track_signal = False
+                is_pixel_track_control = False
+            
+                for i in range(len(event.tracks_pt)):
                 
-                            hist_name = fr_region + "/" + data_period + "/fakerate_" + fakerate_variable.replace(":", "_")
-                
-                            #FIXME
-                            if "dilepton" in hist_name and "interpolated" in hist_name:
-                                continue
-                                hist_name = hist_name.replace("HT", "HT_cleaned")
-                
-                            try:
-                                if ":" in fakerate_variable:
-                                    fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue, yval = yvalue)
-                                else:                
-                                    fakerate = getBinContent_with_overflow(h_fakerates[hist_name], xvalue)
-                            except:
-                                print "ERROR getting fake rate for", hist_name
-                                quit()
-                            
-                            if "short" in hist_name:
-                                if ("tight" in tag_names and "tight" in hist_name and flags["tight_control_short"]) or \
-                                   ("loose6" in tag_names and "loose6" in hist_name and flags["loose6_control_short"]) or \
-                                   ("loose6dz1" in tag_names and "loose6dz1" in hist_name and flags["loose6dz1_control_short"]) or \
-                                   ("loose6dz3" in tag_names and "loose6dz3" in hist_name and flags["loose6dz3_control_short"]) or \
-                                   ("loose6dzX" in tag_names and "loose6dzX" in hist_name and flags["loose6dzX_control_short"]) or \
-                                   ("loose1" in tag_names and "loose1" in hist_name and flags["loose1_control_short"]) or \
-                                   ("loose2" in tag_names and "loose2" in hist_name and flags["loose2_control_short"]) or \
-                                   ("loose3" in tag_names and "loose3" in hist_name and flags["loose3_control_short"]) or \
-                                   ("loose4" in tag_names and "loose4" in hist_name and flags["loose4_control_short"]) or \
-                                   ("loose5" in tag_names and "loose5" in hist_name and flags["loose5_control_short"]):
+                    is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1 or event.tracks_prompt_tau_leadtrk[i]==1
+                    is_fake_track = event.tracks_fake[i]==1
 
-                                   if variable == "region_multi":
-                                       fakerate = fakerate*fakerate
-                                    
-                                   histos[variable + "_" + fr_region + "_" + fakerate_variable.replace(":", "_") + "_prediction_" + cr].Fill(value, weight * fakerate)
-                
-                            elif "long" in hist_name:
-                                if ("tight" in tag_names and "tight" in hist_name and flags["tight_control_long"]) or \
-                                   ("loose6" in tag_names and "loose6" in hist_name and flags["loose6_control_long"]) or \
-                                   ("loose6dz1" in tag_names and "loose6dz1" in hist_name and flags["loose6dz1_control_long"]) or \
-                                   ("loose6dz3" in tag_names and "loose6dz3" in hist_name and flags["loose6dz3_control_long"]) or \
-                                   ("loose6dzX" in tag_names and "loose6dzX" in hist_name and flags["loose6dzX_control_long"]) or \
-                                   ("loose1" in tag_names and "loose1" in hist_name and flags["loose1_control_long"]) or \
-                                   ("loose2" in tag_names and "loose2" in hist_name and flags["loose2_control_long"]) or \
-                                   ("loose3" in tag_names and "loose3" in hist_name and flags["loose3_control_long"]) or \
-                                   ("loose4" in tag_names and "loose4" in hist_name and flags["loose4_control_long"]) or \
-                                   ("loose5" in tag_names and "loose5" in hist_name and flags["loose5_control_long"]):
+                    log10dedxmass = TMath.Log10(TMath.Sqrt((event.tracks_deDxHarmonic2pixel[i]-3.01) * pow(event.tracks_pt[i] * TMath.CosH(event.tracks_eta[i]),2)/1.74))
+                    dedx = event.tracks_deDxHarmonic2pixel[i]
 
-                                   if variable == "region_multi":
-                                       fakerate = fakerate*fakerate
+                    # short:
+                    if eval(tags.convert_cut_string(tags.tags[tag]["SR_short"])) and eval(good_track):
+                        log10dedxmass_signal = log10dedxmass
+                        dedx_signal = dedx
+                        is_pixel_track_signal = True
+                        is_short_signal += 1
+                        if is_fake_track:
+                            is_short_signal_fake += 1
+                        elif is_prompt_track:
+                            is_short_signal_prompt += 1                        
+                    elif eval(tags.convert_cut_string(tags.tags[tag]["CR_short"])) and eval(good_track):
+                        log10dedxmass_control = log10dedxmass
+                        dedx_control = dedx
+                        is_pixel_track_control = True
+                        is_short_control += 1
+                    
+                    # long:
+                    if eval(tags.convert_cut_string(tags.tags[tag]["SR_long"])) and eval(good_track):
+                        log10dedxmass_signal = log10dedxmass
+                        dedx_signal = dedx
+                        is_pixel_track_signal = False
+                        is_long_signal += 1
+                        if is_fake_track:
+                            is_long_signal_fake += 1
+                        elif is_prompt_track:
+                            is_long_signal_prompt += 1                        
+                    elif eval(tags.convert_cut_string(tags.tags[tag]["CR_long"])) and eval(good_track):
+                        log10dedxmass_control = log10dedxmass
+                        dedx_control = dedx
+                        is_pixel_track_control = False
+                        is_long_control += 1
+                    
+                n_DT_signal = is_short_signal + is_long_signal
+                n_DT_control = is_short_control + is_long_control
+                    
+                # get region bin:
+                if n_DT_signal > 0:
+                    region_signal = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT_signal, is_pixel_track_signal, dedx_signal, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
+                if n_DT_control > 0:
+                    region_control = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT_control, is_pixel_track_control, dedx_control, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
 
-                                   histos[variable + "_" + fr_region + "_" + fakerate_variable.replace(":", "_") + "_prediction_" + cr].Fill(value, weight * fakerate)
+                # get fake rate for event:
+                fakerate_short = -1
+                fakerate_long = -1
+                if ":" in fakerate_variable:
+                    xvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[1])
+                    yvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[0])                
+                    fakerate_short = getBinContent_with_overflow(h_fakerates["%s-short" % tag], xvalue, yval = yvalue)
+                    fakerate_long = getBinContent_with_overflow(h_fakerates["%s-long" % tag], xvalue, yval = yvalue)
+                else:                
+                    xvalue = eval("event.%s" % fakerate_variable)
+                    fakerate_short = getBinContent_with_overflow(h_fakerates["%s-short" % tag], xvalue)
+                    fakerate_long = getBinContent_with_overflow(h_fakerates["%s-long" % tag], xvalue)
 
-                if bdt_folder:
-                    tmva_variables["HT"][0] = event.HT
-                    tmva_variables["n_allvertices"][0] = event.n_allvertices
-                    for fr_region in fakerate_regions:
-                        bdt_tag = "fakerate_%s_%s" % (data_period, fr_region)
-                        if bdt_tag in readers:
-                            for i_BDT in fakerate_variables:
-                                if not "BDT" in i_BDT: continue
-                                fakerate = readers[bdt_tag].EvaluateRegression(i_BDT)[0]
-                                print "fakerate =", fakerate
-                                histos[variable + "_" + fr_region + "_" + i_BDT + "_prediction_" + cr].Fill(value, weight * fakerate)
+                # fill histograms:    
+                for variable in output_variables:
+
+                    if variable == "region":
+                        value = region_signal                
+                    elif variable == "Track1MassFromDedx":
+                        value = 10**log10dedxmass_signal
+                    elif variable == "Log10DedxMass":
+                        value = log10dedxmass_signal
+                    elif variable == "DeDxAverage":
+                        value = dedx_signal
+                    elif variable == "n_tags":
+                        value = is_short_signal + is_long_signal
+                    else:
+                        value = eval("event.%s" % variable)
+
+                    if n_DT_signal == 1:
+                        if is_short_signal == 1:
+                            histos[variable + "_signal_short_" + cr].Fill(value, weight)
+                        if is_short_signal_fake == 1:
+                            histos[variable + "_signalfake_short_" + cr].Fill(value, weight)
+                        if is_short_signal_prompt == 1:
+                            histos[variable + "_signalprompt_short_" + cr].Fill(value, weight)
+                        if is_long_signal == 1:
+                            histos[variable + "_signal_long_" + cr].Fill(value, weight)
+                        if is_long_signal_fake == 1:
+                            histos[variable + "_signalfake_long_" + cr].Fill(value, weight)
+                        if is_long_signal_prompt == 1:
+                            histos[variable + "_signalprompt_long_" + cr].Fill(value, weight)
+                    elif n_DT_signal >= 2:
+                        if (is_short_signal + is_long_signal) >= 2:
+                            histos[variable + "_signal_multi_" + cr].Fill(value, weight)
+                        if (is_short_signal_fake + is_long_signal_fake) >= 2: 
+                            histos[variable + "_signalfake_multi_" + cr].Fill(value, weight)
+                        if (is_short_signal_prompt + is_long_signal_prompt) >= 2: 
+                            histos[variable + "_signalprompt_multi_" + cr].Fill(value, weight)
+
+                    if variable == "region":
+                        value = region_control
+                    elif variable == "Track1MassFromDedx":
+                        value = 10**log10dedxmass_control
+                    elif variable == "Log10DedxMass":
+                        value = log10dedxmass_control
+                    elif variable == "DeDxAverage":
+                        value = dedx_control
+                    elif variable == "n_tags":
+                        value = is_short_control + is_long_control
+
+                    if n_DT_control == 1:
+                        if is_short_control == 1:
+                            histos[variable + "_control_short_" + cr].Fill(value, weight)
+                            histos[variable + "_prediction_short_" + cr].Fill(value, weight * fakerate_short)
+                        if is_long_control == 1:
+                            histos[variable + "_control_long_" + cr].Fill(value, weight)
+                            histos[variable + "_prediction_long_" + cr].Fill(value, weight * fakerate_long)
+                    elif n_DT_control >= 2:
+                        if is_short_control >= 2 and is_long_control == 0:
+                            histos[variable + "_prediction_multi_" + cr].Fill(value, weight * fakerate_short * fakerate_short)
+                        elif is_short_control == 0 and is_long_control >= 2:
+                            histos[variable + "_prediction_multi_" + cr].Fill(value, weight * fakerate_long * fakerate_long)
+                        else:
+                            histos[variable + "_prediction_multi_" + cr].Fill(value, weight * fakerate_short * fakerate_long)
 
     if event_start>0:
         output_file = output_file.replace(".root", "_%s.root" % event_start)
@@ -536,7 +458,9 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--input", dest = "inputfiles")
     parser.add_option("--output", dest = "outputfiles")
-    parser.add_option("--prediction_folder", dest = "prediction_folder", default="prediction")
+    parser.add_option("--folder", dest = "prediction_folder", default="prediction")
+    parser.add_option("--hadd", dest="hadd", action="store_true")
+    parser.add_option("--unweighted", dest="unweighted", action="store_true")
     parser.add_option("--nev", dest = "nev", default = -1)
     parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 50)
     parser.add_option("--event_start", dest = "event_start", default = 0)
@@ -544,10 +468,24 @@ if __name__ == "__main__":
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
     (options, args) = parser.parse_args()
-       
+    
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
-    
+
+    if options.hadd:
+        os.system("hadd -f %s/prediction_Summer16-all.root %s/Summer16*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-DY.root %s/Summer16.DY*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-WJets.root %s/Summer16.WJets*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-TT.root %s/Summer16.TT*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-QCD.root %s/Summer16.QCD*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-ZJets.root %s/Summer16.ZJets*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-WJets+TT.root %s/Summer16.WJets*.root %s/Summer16.TT*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Summer16-QCD+ZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Run2016_SingleMuon.root %s/Run2016*SingleMuon*.root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Run2016_SingleMuonMET.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleMuon*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
+        quit()
+
     # run parallel if input is a folder:
     if options.inputfiles[-1] == "/":
         print "Got input folder, running in batch mode (%s)" % options.runmode
@@ -555,10 +493,24 @@ if __name__ == "__main__":
         input_files = glob.glob(options.inputfiles + "/*.root")
         os.system("mkdir -p %s" % options.prediction_folder)
         commands = []
-
+        
         for input_file in input_files:
-            if "QCD_HT" not in input_file and "ZJetsToNuNu_HT" not in input_file: continue
-                
+
+            use_file = False
+
+            if "Summer16.DYJetsToLL" in input_file: use_file = True
+            if "Summer16.QCD" in input_file: use_file = True
+            if "Summer16.WJetsToLNu" in input_file: use_file = True
+            if "Summer16.ZJetsToNuNu_HT" in input_file: use_file = True
+            if "Summer16.WW_TuneCUETP8M1" in input_file: use_file = True
+            if "Summer16.WZ_TuneCUETP8M1" in input_file: use_file = True
+            if "Summer16.ZZ_TuneCUETP8M1" in input_file: use_file = True
+            #if "Summer16.TTJets_TuneCUETP8M1" in input_file: use_file = True
+            if "Summer16.TT" in input_file: use_file = True
+            if "Run2016" in input_file and "MET" in input_file: use_file = True
+            if "Run2016" in input_file and "SingleMuon" in input_file: use_file = True
+            if not use_file: continue
+            
             # get nev:
             tree = TChain("Events")
             tree.Add(input_file)
@@ -570,8 +522,8 @@ if __name__ == "__main__":
                 
                 event_start = i * nev_per_interval
                 
-                commands.append("./get_prediction.py --input %s --output %s/%s --nev %s --fakerate_file %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, options.fakerate_file, event_start))
-           
+                commands.append("./get_prediction.py --input %s --output %s/%s --nev %s --fakerate_file %s --event_start %s --unweighted %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, options.fakerate_file, event_start, options.unweighted))
+        
         runParallel(commands, options.runmode, condorDir = "get_prediction.condor", use_more_mem=False, use_more_time=False, confirm=not options.start)
 
     # otherwise run locally:
@@ -583,4 +535,5 @@ if __name__ == "__main__":
              nevents = int(options.nev),
              fakerate_file = options.fakerate_file,
              event_start = int(options.event_start),
+             unweighted = options.unweighted,
             )

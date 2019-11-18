@@ -23,8 +23,9 @@ def hadd_histograms(folder, runmode, delete_input_files = True, start = False, u
                 ignore_item = True
         if ignore_item: continue
 
-        sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-3] )
-        sample_name = sample_name.replace("_ext1AOD","").replace("_ext2AOD","").replace("_ext3AOD","")
+        #sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-3] )
+        sample_name = item.split("/")[-1].split("AOD_")[0]        
+        #sample_name = sample_name.replace("_ext1AOD","").replace("_ext2AOD","").replace("_ext3AOD","")
         sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","")
 
         if "Run201" in sample_name:
@@ -37,7 +38,7 @@ def hadd_histograms(folder, runmode, delete_input_files = True, start = False, u
         samples.append(sample_name)
 
     samples = list(set(samples))
-
+    
     print "Merging samples of folder %s:" % folder
     for sample in samples:
         print sample
@@ -63,6 +64,8 @@ def hadd_histograms(folder, runmode, delete_input_files = True, start = False, u
 
 
 def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
+
+    os.system("mkdir -p %s_merged" % folder)
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -135,7 +138,8 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
         
     print "Getting lumi for %s..." % json_file_name
     
-    status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json > %s.briloutput; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name, json_file_name))
+    #status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name, json_file_name))
+    status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name))
     
     if status != 0:
         if not retry:
@@ -155,6 +159,8 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
 
 
 def get_lumis(folder, cern_username):
+
+    os.system("mkdir -p %s_merged" % folder)
 
     lumis = {}
     for json_file in glob.glob("%s_merged/*json" % folder):

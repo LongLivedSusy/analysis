@@ -3,11 +3,9 @@ import os, glob
 from optparse import OptionParser
 from GridEngineTools import runParallel
 
-n_duplicates = 0
+def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./looper.py $INPUT $OUTPUT 0 0", nowildcard=False, process_files_individually=True):
 
-def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./looper.py $INPUT $OUTPUT 0 0", nowildcard=False, list_of_duplicates = []):
-
-    global n_duplicates
+    # note: process_files_individually will create a huge number of files (n_outputfile = n_inputfile) !
 
     commands = []
 
@@ -23,24 +21,22 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
         
         if len(ifile_list)==0:
             continue
-
-        #if list_of_duplicates and len(list_of_duplicates)>0:
-        #    for duplicate in list_of_duplicates:
-        #        if duplicate in ifile_list:
-        #            ifile_list.remove(duplicate)
-        #            n_duplicates += 1
-        #    print "Removed %s duplicates in total!" % n_duplicates
-
+        
         print "Looping over %s files (%s)" % (len(ifile_list), sample)
        
         file_segments = [ifile_list[x:x+files_per_job] for x in range(0,len(ifile_list),files_per_job)]
 
-        for inFile_segment in file_segments:
-            cmd = ""
-            for inFile in inFile_segment:
-                #in_tree = str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", "")
-                out_tree = output_folder + "/" + inFile.split("/")[-1].split(".root")[0] + "_skim.root"
-                cmd += command.replace("$INPUT", inFile).replace("$OUTPUT", out_tree) + "; "
+        for i_inFile_segment, inFile_segment in enumerate(file_segments):
+
+            if process_files_individually:
+                cmd = ""
+                for inFile in inFile_segment:
+                    out_tree = output_folder + "/" + inFile.split("/")[-1].split(".root")[0] + "_skim.root"
+                    cmd += command.replace("$INPUT", inFile).replace("$OUTPUT", out_tree) + "; "
+            else:
+                inFile = str(inFile_segment).replace(", ", ",").replace("[", "").replace("]", "")
+                out_tree = "%s/%s_%s_skim.root" % (output_folder, sample, i_inFile_segment)
+                cmd = command.replace("$INPUT", inFile).replace("$OUTPUT", out_tree) + "; "
             commands.append(cmd)
                         
     return commands
@@ -57,14 +53,10 @@ def do_submission(commands, output_folder, condorDir = "bird", executable = "loo
 def get_data_sample_names(folder, globstring = "*"):
     
     samples = []
-        
     for item in glob.glob(folder + "/" + globstring + ".root"):
-                
         sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-2] )
         samples.append(sample_name)
-
     samples = list(set(samples))
-
     return samples
     
 
@@ -78,7 +70,7 @@ def get_userlist():
     return userlist
 
 
-def get_ntuple_datasets(globstring_list, add_signals = True):
+def get_ntuple_datasets(globstring_list, add_signals = False):
 
     globstrings = globstring_list.split(",")
 
@@ -121,91 +113,36 @@ def get_ntuple_datasets(globstring_list, add_signals = True):
     return ntuples
     
 
-from collections import defaultdict
-def list_duplicates(seq):
-    tally = defaultdict(list)
-    for i,item in enumerate(seq):
-        tally[item].append(i)
-    return ((key,locs) for key,locs in tally.items() 
-                            if len(locs)>1)
-
-
-def get_list_of_duplicates(ntuples):
-
-    #os.system("rm delete_duplicates.sh")
-    list_of_duplicates = []
-
-    file_names = []
-    full_paths = []
-
-    print "Checking for duplicates..."
-
-    for folder in ntuples:
-        for identifier in ntuples[folder]:
-            file_names += glob.glob(folder + "/" + identifier + "*.root")
-
-    for i in range(len(file_names)):
-        full_paths.append(file_names[i])
-        file_names[i] = file_names[i].split("/")[-1]
-
-    unique_files = list(set(file_names))
-
-    if len(file_names) != len(unique_files):
-
-        print "# present files =", len(file_names)
-        print "# unique files  =", len(unique_files)
-        print "# dupes         =", len(file_names) - len(unique_files)
-        
-        indices_to_be_removed = []
-        for dup_indices in list(list_duplicates(file_names)):
-            indices = dup_indices[1]
-            if len(indices)>1:
-                indices_to_be_removed += indices[1:]
-
-        indices_to_be_removed = list(set(indices_to_be_removed))
-
-        print "Found %s duplicates!" % len(indices_to_be_removed)
-
-        removed_files = []
-        for i in indices_to_be_removed:
-            #cmd = "gfal-rm srm://dcache-se-cms.desy.de/%s" % full_paths[i]
-            #os.system("echo '%s' >> delete_duplicates.sh" % cmd)
-            list_of_duplicates.append(full_paths[i])
-
-    else:
-
-        print "No duplicates"
-
-    return list_of_duplicates
-
-
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default=60)
+    parser.add_option("--nfiles", dest="files_per_job", default=50)
     parser.add_option("--start", dest="start", action="store_true")
+    parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
+    parser.add_option("--cuts", dest="cuts", default = "")
     parser.add_option("--dataset", dest="dataset")
     parser.add_option("--output_folder", dest="output_folder")
     (options, args) = parser.parse_args()
 
-    mc_summer16 = "Summer16.DYJetsToLL*,Summer16.QCD*,Summer16.WJetsToLNu*,Summer16.ZJetsToNuNu*,Summer16.WW_TuneCUETP8M1*,Summer16.WZ_TuneCUETP8M1*,Summer16.ZZ_TuneCUETP8M1*,Summer16.TTJets_TuneCUETP8M1_13TeV*,Summer16.TTJets_HT*"
-    mc_fall17 = "RunIIFall17MiniAODv2.DYJetsToLL*,RunIIFall17MiniAODv2.QCD*,RunIIFall17MiniAODv2.WJetsToLNu*,RunIIFall17MiniAODv2.ZJetsToNuNu*,RunIIFall17MiniAODv2.WW*,RunIIFall17MiniAODv2.WZ*,RunIIFall17MiniAODv2.ZZ*,RunIIFall17MiniAODv2.TTJets_Tune*,RunIIFall17MiniAODv2.TTJets_HT*,RunIIFall17MiniAODv2.GJets_HT*"
+    mc_summer16 = "Summer16.DYJetsToLL*,Summer16.QCD*,Summer16.WJetsToLNu*,Summer16.ZJetsToNuNu*,Summer16.WW_TuneCUETP8M1*,Summer16.WZ_TuneCUETP8M1*,Summer16.ZZ_TuneCUETP8M1*,Summer16.TT*"
+    mc_fall17 = "RunIIFall17MiniAODv2.DYJetsToLL*,RunIIFall17MiniAODv2.QCD*,RunIIFall17MiniAODv2.WJetsToLNu*,RunIIFall17MiniAODv2.ZJetsToNuNu*,RunIIFall17MiniAODv2.WW*,RunIIFall17MiniAODv2.WZ*,RunIIFall17MiniAODv2.ZZ*,RunIIFall17MiniAODv2.TT*,RunIIFall17MiniAODv2.TTJets_HT*,RunIIFall17MiniAODv2.GJets_HT*"
     data_phase0 = "Run2016*"
     data_phase1 = "Run2017*,Run2018*"
+    mc_sms = "RunIISummer16MiniAODv3.SMS*"
 
     ######## defaults ########
     if not options.command:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
-        options.dataset = mc_summer16 + "," + data_phase0
-        #options.dataset = mc_fall17 + "," + data_phase1
+        options.dataset = mc_summer16 + "," + data_phase0 + "," + mc_sms
+        # + "," + mc_fall17 + "," + data_phase1
     if not options.output_folder:
-        options.output_folder = "skim_40_hasdupes"
+        options.output_folder = "skim_50"
     ######## defaults ########
 
     commands = []
-    ntuples = get_ntuple_datasets(options.dataset, add_signals = True)
+    ntuples = get_ntuple_datasets(options.dataset, add_signals = options.add_signals)
 
     for folder in ntuples:
     

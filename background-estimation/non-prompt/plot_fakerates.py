@@ -44,7 +44,7 @@ def do_1D_plot(root_file, category, variable, tag, regions = [], data_periods = 
     canvas.SetLeftMargin(0.14)
     canvas.SetLogy(True)
     
-    legend = TLegend(0.4, 0.65, 0.85, 0.85)
+    legend = TLegend(0.55, 0.6, 0.85, 0.85)
     legend.SetTextSize(0.025)
     legend.SetBorderSize(0)
 
@@ -82,7 +82,15 @@ def do_1D_plot(root_file, category, variable, tag, regions = [], data_periods = 
         elif "long" in label:
             desc = "long tracks, MC"
 
-        legend.AddEntry(histos[label], label)
+        desc = label
+        desc = desc.replace("qcd_lowMHT_loose6_", "")
+        desc = desc.replace("_", "")
+        desc = desc.replace("short", "short tracks, ")
+        desc = desc.replace("long", "long tracks, ")
+        desc = desc.replace("fakerateHT", "")
+        desc = desc.replace("fakeratenallvertices", "")
+        desc = desc.replace("fakeratetrackspt", "")
+        legend.AddEntry(histos[label], desc)
 
     if autoscaling:
         global_ymin = 1e10
@@ -140,7 +148,7 @@ def do_1D_plot(root_file, category, variable, tag, regions = [], data_periods = 
 
     stamp_plot()
     canvas.SetTitle("fakerate-%s-%s-%s-%s" % (variable, category, tag, period) )    
-    canvas.SaveAs("fakerate/fakerate-%s-%s-%s-%s.pdf" % (variable, category, tag, period) )
+    canvas.SaveAs("plots/fakerate-%s-%s-%s-%s.pdf" % (variable, category, tag, period) )
 
     if outfile:
         fout = TFile(outfile, "update")
@@ -150,7 +158,7 @@ def do_1D_plot(root_file, category, variable, tag, regions = [], data_periods = 
     fin.Close()
 
 
-def do_2D_plot(root_file, hist_name, extra_text, outfile = False):
+def do_2D_plot(root_file, hist_name, extra_text, outfile = False, ratio = False):
 
     fin = TFile(root_file, "read")
     
@@ -164,8 +172,29 @@ def do_2D_plot(root_file, hist_name, extra_text, outfile = False):
     canvas = TCanvas("fakerate", "fakerate", 800, 800)  
     canvas.SetRightMargin(0.16)
     canvas.SetLeftMargin(0.14)
-    canvas.SetLogz(True)
-    
+
+    if ratio:
+        if "Run2016G" in hist_name:
+            fake_rate_mc = fin.Get(hist_name.replace("Run2016G", "Summer16"))
+            fake_rate.Divide(fake_rate_mc)
+        elif "Run2017" in hist_name:
+            print "Getting", hist_name.replace("Run2017", "Fall17")
+            fake_rate_mc = fin.Get(hist_name.replace("Run2017", "Fall17"))
+            fake_rate.Divide(fake_rate_mc)
+
+        fake_rate.SetTitle(";number of vertices;H_{T} (GeV);Data/MC")
+        fake_rate.GetZaxis().SetRangeUser(0,2)
+        hist_name += "_ratio"
+        canvas.SetLogz(False)
+    else:
+        canvas.SetLogz(True)
+        fake_rate.GetZaxis().SetRangeUser(1e-4,1e0)
+
+    if "tracks_phi" in hist_name:
+        #fake_rate.Rebin2D(2, 2)
+        gStyle.SetPalette(1)
+        fake_rate.GetZaxis().SetRangeUser(1e-3,1e0)
+ 
     latex=TLatex()
     latex.SetNDC()
     latex.SetTextAngle(0)
@@ -180,11 +209,11 @@ def do_2D_plot(root_file, hist_name, extra_text, outfile = False):
     #fake_rate.GetZaxis().SetRangeUser(1e-6, 1e-1)
     fake_rate.Draw("COLZ")
     
-    latex.DrawLatex(0.18, 0.87, extra_text)
+    #latex.DrawLatex(0.18, 0.87, extra_text)
 
     stamp_plot()
     canvas.SetTitle("fakeratemap_" + hist_name.replace("/", "_").replace("fakerate_", "") + "_" + tag)
-    canvas.SaveAs("fakerate/fakeratemap_" + hist_name.replace("/", "_").replace("fakerate_", "") + "_" + tag + ".pdf")
+    canvas.SaveAs("plots/fakeratemap_" + hist_name.replace("/", "_").replace("fakerate_", "") + "_" + tag + ".pdf")
 
     if outfile:
         fout = TFile(outfile, "update")
@@ -204,24 +233,24 @@ if __name__ == "__main__":
         # do 1D fakerate comparison plots:
         #for category in ["combined", "short", "long"]:
         for category in ["combined"]:
-            #for variable in ["n_allvertices", "HT", "MHT", "MinDeltaPhiMhtJets", "NumInteractions", "n_btags", "n_jets"]:
-            for variable in ["n_allvertices", "HT"]:
-                for tag in ["loose5"]:
+            for variable in ["n_allvertices", "HT", "MHT", "n_btags", "n_goodjets", "tracks_pt"]:
+                for tag in ["loose6"]:
 
                     if "Summer16" in data_type:
-                        data_periods = [data_type, "Run2016C", "Run2016E", "Run2016F", "Run2016G"]
+                        data_periods = [data_type, "Run2016C", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
                     elif "Fall17" in data_type:
                         data_periods = [data_type, "Run2017"]
 
+                    print data_type, category, variable, tag
                     do_1D_plot(root_file, category, variable, tag, regions = ["qcd_lowMHT"], data_periods = data_periods, outfile = out_file)
 
     # 2D plots
     # redo the 2D plots in a slightly nicer way:
-    for region in ["qcd_lowMHT"]:
-        for data_type in ["Summer16", "Run2016", "Fall17", "Run2017"]:
-            for category in ["short", "long"]:
-                for tag in ["loose5"]:
-                    for variable in ["HT_n_allvertices"]:
+    for variable in ["HT_n_allvertices", "tracks_eta_tracks_phi"]:
+        for region in ["qcd_lowMHT"]:
+            for data_type in ["Summer16", "Run2016", "Run2016G", "Fall17", "Run2017", "Run2018"]:
+                for category in ["short", "long"]:
+                    for tag in ["loose6"]:
                         if "interpolated" in variable and region == "dilepton":
                             variable = variable.replace("HT", "HT_cleaned")
                         else:
@@ -235,4 +264,6 @@ if __name__ == "__main__":
                             extra_text = "%s MC (%s region, %s tracks)" % (data_type, region, category)
 
                         do_2D_plot(root_file, hist_name, extra_text, outfile = out_file)
+                        if "2016G" in data_type or "2017" in data_type:
+                            do_2D_plot(root_file, hist_name, extra_text, outfile = out_file, ratio = True)
 
