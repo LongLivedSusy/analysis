@@ -36,6 +36,10 @@ process                            0             1          2        3
 rate                             $RATE0           $RATE1       $RATE2       $RATE3
 ---------------------------------------------------------------------------
 lumi_13TeV               lnN    1.027           1.027       1.027   1.027    Luminosity Error
+Sys                     shapeN2   1		        -	         -        -       Systematic error 
+Sys                     shapeN2   -             1            -        -       Systematic error
+Sys                     shapeN2   -             -            1        -       Systematic error
+Sys                     shapeN2   -             -            -        1       Systematic error
 * autoMCStats 0 1
 """
 
@@ -180,6 +184,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
 
         os.system("cd ../histograms/combined/; chmod +x run_combine.sh; ./run_combine.sh")
 
+        break
 
 merge_histograms(variable, signals_path, prompt_bg_file)
 
