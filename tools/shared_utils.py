@@ -930,9 +930,12 @@ def passesUniversalDataSelection(t):
 
 triggerIndeces = {}
 triggerIndeces['MhtMet6pack'] = [124,109,110,111,112,114,115,116]#123
+triggerIndeces['SingleMuon'] = [49,50,65]
+triggerIndeces['SingleElectron'] = [36,39,40]
 def PassTrig(c,trigname):
 	for trigidx in triggerIndeces[trigname]: 
 		if c.TriggerPass[trigidx]==1: return True
+		#print "Passing trigger %s, index:%s"%(c.TriggerNames[trigidx],trigidx)
 	return False
 
 
