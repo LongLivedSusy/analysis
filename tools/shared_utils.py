@@ -73,7 +73,7 @@ binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['DeDxAverage'] = [20,0,10]
 binning['Track1MassFromDedx'] = [25,0,1000]
-binning['BinNumber'] = [69,0,69]
+binning['BinNumber'] = [86,0,86]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [20,0,10]
 binning['DeDxZones'] = [0.0,3.1,99]
@@ -83,7 +83,7 @@ binningAnalysis = binning
 
 binningAnalysis['Met']=[45,0,1200]
 binningAnalysis['Mht']=binningAnalysis['Met']
-binningAnalysis['BinNumber'] = [67,1,68]
+binningAnalysis['BinNumber'] = [84,1,85]
 
 '''
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
@@ -1020,6 +1020,7 @@ binnumbers[((0,inf),   (150,inf), (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.
 binnumbers[((0,inf),   (150,300), (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (0,0))]   = 81
 binnumbers[((0,inf),   (300,inf), (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (0,0))]   = 82
 binnumbers[((0,inf),   (0,inf),   (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (1,inf))] = 83 
+binnumbers[((0,inf),   (0,inf),   (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (1,inf),(0,inf))]= 84
 
 susybypdg = {}
 susybypdg[1000021] = 'Glu'
