@@ -1,10 +1,8 @@
 '''
 ---------------------BR: 100%-----------------------
 /pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_10cm/*/*.root
-
 python tools/TheAnalyzerWithDeDx.py --fnamekeyword "/nfs/dust/cms/user/singha/FullSim/final_ext/NtupleProduction20June/Signal200cm_aug/g2100_chi400_27_200970_step4_50miniAODSIM_112_RA2AnalysisTree.root"
 #/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-FEE6C100-4AA5-E911-9CD0-B496910A9A28_RA2AnalysisTree.root
-
 #python tools/TheAnalyzerWithDeDxLowMht.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-*.root"
 '''
 
@@ -22,9 +20,11 @@ gROOT.SetStyle('Plain')
 
 thebinning = binningAnalysis
 
+
+newfileEachsignal = True
 debugmode = False
 
-defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_50cm/July5-SUMMER19sig/g1700_chi1550_27_200970_step4_50miniAODSIM_*_RA2AnalysisTree.root"
+defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_230000-FCD9083D-3E88-E911-B3D1-0CC47A7EEE76_RA2AnalysisTree.root"#"/pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_50cm/July5-SUMMER19sig/g1700_chi1550_27_200970_step4_50miniAODSIM_*_RA2AnalysisTree.root"
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--updateevery", type=int, default=1000,help="analyzer script to batch")
@@ -61,25 +61,13 @@ if is2018: BTAG_deepCSV = 2.55
 btag_cut = BTAG_deepCSV
 
 from CrossSectionDictionary import *
-if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames: model = 'T1'
+if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames or 'T1' in inputFileNames: model = 'T1'
 elif 'Higgsino' in inputFileNames:  model = 'Higgsino'
 else: model = 'Other'
 	
-
+print 'were considering model', model
 loadCrossSections(model)
 
-
-if 'Higgsino' in inputFileNames: 
-	mothermass = float(inputFileNames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
-	xsecpb = CrossSectionsPb[model]['graph'].Eval(mothermass)
-	print 'xsec was', xsecpb
-	exit(0)	
-elif 'Other' in model:
-	xsecpb = 1
-else:
-	mothermass = inputFileNames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
-	xsecpb = CrossSectionsPb[model][mothermass]
-	print 'got xsec', xsecpb, 'for mothermass', mothermass
 
 
 if phase==0: mvathreshes=[.1,.25] #these are not used currently
@@ -88,119 +76,16 @@ else: mvathreshes=[0.15,0.0] #these are not used currently
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('Summer16.','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
 
+if not newfileEachsignal:
+	newfname = 'AnalysisHists_'+identifier+'.root'
+	fnew_ = TFile(newfname,'recreate')
+	print 'creating file', fnew_.GetName()
 
-newfname = 'AnalysisHists_'+identifier+'.root'
-fnew_ = TFile(newfname,'recreate')
-print 'creating file', fnew_.GetName()
-
-hHt = TH1F('hHt','hHt',100,0,3000)
-hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
-hBdtVsDxyIsLong = TH2F('hBdtVsDxyIsLong','hBdtVsDxyIsLong',20,0,0.2,24,-.6,0.6)
-hBdtVsDxyIsShort = TH2F('hBdtVsDxyIsShort','hBdtVsDxyIsShort',20,0,0.2,24,-.6,0.6)
-
-#hHt = TH1F('hHt','hHt',100,0,3000)
 
 inf = 999999
-
 regionCuts = {}
-#varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'Log10DedxMass','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'DeDxAverage','BinNumber']
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 regionCuts['Baseline']           = [(0,inf), (0,inf),   (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),(0,0), (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
-#regionCuts['HighNJetBaseline']   = [(0,inf), (150,inf), (4,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),  (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-#regionCuts['BaselineMuVeto']     = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,0),    (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf),  (-1,inf)]
-#regionCuts['BaselinePixOnly']    = [(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,0),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
-#regionCuts['BaselinePixAndStrips']=[(0,inf), (150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),     (0.3,inf),        (-inf,inf),         (0,0),       (0,0),   (0,0),    (candPtCut,inf), (0,2.4),      (-inf,inf), (-1,inf)]
-def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
-	iomits = []
-	for cut in omitcuts.split('Vs'): iomits.append(indexVar[cut])
-	for i, feature in enumerate(fvector):
-		if i in iomits: continue
-		if not (feature>=regionCuts[regionkey][i][0] and feature<=regionCuts[regionkey][i][1]):
-			return False
-	return True
-	
-indexVar = {}
-for ivar, var in enumerate(varlist_): indexVar[var] = ivar
-histoStructDict = {}
-for region in regionCuts:
-	for var in varlist_:
-		histname = region+'_'+var
-		histoStructDict[histname] = mkHistoStruct(histname, thebinning)	   
-ldedxcutLlow = 3.0
-ldedxcutLmid = 5.0
-ldedxcutSlow = 2.1
-ldedxcutSmid = 4.0
-binnumbers = {}
-listagain = ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 1
-binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 2
-binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 3
-binnumbers[((0,inf),(150,300),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 4
-binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 5
-binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 6
-binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 7
-binnumbers[((0,inf),(150,300),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 8
-binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 9
-binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 10
-binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 11
-binnumbers[((0,inf),(150,300),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 12
-binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 13
-binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 14
-binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 15
-binnumbers[((0,inf),(150,300),(5,inf),  (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 16
-binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 17
-binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 18
-binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 19
-binnumbers[((0,inf),(150,300),(5,inf),  (1,inf),(1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 20
-binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 21
-binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (0,0),  (1,1),      (0.0,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 22
-binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 23
-binnumbers[((0,inf),(300,inf),(1,1),    (0,inf),(1,1),  (1,1),  (0,0),      (0.0,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 24
-binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 25
-binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 26
-binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 27
-binnumbers[((0,inf),(300,inf),(2,4),    (0,0),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 28
-binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),   (0,0))] = 29
-binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (0,0),  (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),   (0,0))] = 30
-binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),   (0,0))] = 31
-binnumbers[((0,inf),(300,inf),(2,4),    (1,5),  (1,1),  (1,1),  (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),   (0,0))] = 32
-binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 33
-binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 34
-binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 35
-binnumbers[((0,1000),(300,inf),(5,inf), (0,0),  (1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 36
-binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 37
-binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 38
-binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 39
-binnumbers[((0,1000),(300,inf),(5,inf), (1,inf),(1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 40
-binnumbers[((1000,inf),(300,inf),(5,inf),(0,0), (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 41
-binnumbers[((1000,inf),(300,inf),(5,inf),(0,0), (1,1),  (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 42
-binnumbers[((1000,inf),(300,inf),(5,inf),(0,0), (1,1),  (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 43
-binnumbers[((1000,inf),(300,inf),(5,inf),(0,0),  (1,1), (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 44
-binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (0,0), (1,1),      (0.3,inf),          (ldedxcutLlow,ldedxcutLmid),(0,0),    (0,0))] = 45
-binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (0,0), (1,1),      (0.3,inf),          (ldedxcutLmid,inf),         (0,0),    (0,0))] = 46
-binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (1,1), (0,0),      (0.3,inf),          (ldedxcutSlow,ldedxcutSmid),(0,0),    (0,0))] = 47
-binnumbers[((1000,inf),(300,inf),(5,inf),(1,inf),(1,1), (1,1), (0,0),      (0.3,inf),          (ldedxcutSmid,inf),         (0,0),    (0,0))] = 48
-#listagain =  ['Ht',  'Mht',    'NJets','BTags','NTags','NPix','NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 49
-binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 50
-binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 51
-binnumbers[((0,inf), (0,150),   (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 52
-binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 53
-binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 54
-binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 55
-binnumbers[((0,inf), (150,inf), (0,inf), (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 56
-binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 57
-binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 58
-binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 59
-binnumbers[((0,inf), (0,150),   (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 60
-binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLlow,ldedxcutLmid), (0,0), (1,inf))] = 61
-binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (ldedxcutLmid,inf),          (0,0), (1,inf))] = 62
-binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSlow,ldedxcutSmid), (0,0), (1,inf))] = 63
-binnumbers[((0,inf), (150,inf), (0,inf),(1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (ldedxcutSmid,inf),          (0,0), (1,inf))] = 64
-#listagain =  ['Ht',  'Mht',    'NJets','BTags','NTags','NPix','NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),  (150,300), (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (0,0))]   = 65
-binnumbers[((0,inf),  (300,inf), (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (0,0))]   = 66
-binnumbers[((0,inf),  (0,inf),   (0,inf),(0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (ldedxcutSlow,inf),          (0,0), (1,inf))] = 67 
 
 
 
@@ -223,7 +108,7 @@ nentries = c.GetEntries()
 #nentries = 100
 
 
-signalweight = xsecpb*1.0/nentries
+
 c.Show(0)
 
 
@@ -255,17 +140,8 @@ import time
 t1 = time.time()
 i0=0
 
-triggerIndecesV2 = {}
-triggerIndecesV2['MhtMet6pack'] = [108,110,114,123,124,125,126,128,129,130,131,132,133,122,134]
-triggerIndeces = triggerIndecesV2
-
-def PassTrig(c,trigname):
-	for trigidx in triggerIndeces[trigname]: 
-		if c.TriggerPass[trigidx]==1: 
-			return True
-	return False
-
-
+orderedmasses = []
+newfname = ''
 print nentries, 'events to be analyzed'
 for ientry in range(nentries):
 	if ientry%updateevery==0:
@@ -276,26 +152,69 @@ for ientry in range(nentries):
 
 	if verbose: print 'getting entry', ientry
 	c.GetEntry(ientry) 
+	
+	if newfileEachsignal:
+		susymasses = []
+		susies = []
+		for igp, gp in enumerate(c.GenParticles):		
+			if not abs(c.GenParticles_PdgId[igp])>1000000: continue
+			#if c.GenParticles_Status[igp]==23: continue
+			pid = abs(c.GenParticles_PdgId[igp])
+			if not pid in susies:				
+				susies.append(pid)
+				susymasses.append([pid,round(gp.M(),2)])
+						
+		orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
+		orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
+		
+		if not orderedmasses==orderedmasses_:
+			print 'failed comparison between', orderedmasses, 'and', orderedmasses_
+			orderedmasses = orderedmasses_
+			if not newfname=='':
+				fnew_.cd()
+				hHt.Write()
+				hHtWeighted.Write()
+				writeHistoStruct(histoStructDict, 'truth')
+				print 'just created', fnew_.GetName()
+				fnew_.Close()
+			print 'creating new file based on', orderedmasses
+			newfname = 'Hists'
+			for ip, susypid in enumerate(orderedmasses):
+				print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
+				newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
+			newfname+='_time'+str(round(time.time(),4)).replace('.','p')+'.root'
+			fnew_ = TFile(newfname,'recreate')
+			print 'creating file', fnew_.GetName()				
+			hHt = TH1F('hHt','hHt',100,0,3000)
+			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
+			indexVar = {}
+			for ivar, var in enumerate(varlist_): indexVar[var] = ivar
+			histoStructDict = {}
+			for region in regionCuts:
+				for var in varlist_:
+					histname = region+'_'+var
+					histoStructDict[histname] = mkHistoStruct(histname, thebinning)
+					
+			if 'Higgsino' in inputFileNames: 
+				mothermass = float(inputFileNames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
+				xsecpb = CrossSectionsPb[model]['graph'].Eval(mothermass)
+				print 'xsec was', xsecpb
+				exit(0)			
+			elif 'T1' in model:
+				mothermass = orderedmasses[0][1]#inputFileNames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
+				xsecpb = CrossSectionsPb[model][str(int(mothermass))]
+				print 'got xsec', xsecpb, 'for mothermass', mothermass					
+			else:
+				xsecpb = 1
+			signalweight = xsecpb				
+						
 	hHt.Fill(c.HT)
 	if isdata: weight = 1
 	else: 
 		weight = signalweight*c.puWeight
 		#weight = 1.0
-	hHtWeighted.Fill(c.HT,weight)
-
-	if c.MET>100:
-		if not c.CaloMET/c.MET<5.0: continue
-
-	#print 'abs(c.MHT-c.MET)', abs(c.MHT-c.MET)
-	
-	if False:
-	  print ientry, '='*10
-	  for igp, gp in enumerate(c.GenParticles):
-		if not gp.Pt()>5: continue
-		if not abs(c.GenParticles_PdgId[igp])>1000000: continue
-		if c.GenParticles_Status[igp]==23: continue
-		print igp, 'pdgid ', c.GenParticles_PdgId[igp], ' pT=', gp.Pt(), gp.Eta(), 'status', c.GenParticles_Status[igp]
-
+	hHtWeighted.Fill(c.HT,weight)								
+				
 	'''
 	#genchis = []
 	#for igp, gp in enumerate(c.GenParticles):
@@ -317,8 +236,6 @@ for ientry in range(nentries):
 		if not (track.Pt() > candPtCut and track.Pt()<candPtUpperCut): continue     
 		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, mvathreshes)
 		
-		if c.tracks_nValidPixelHits[itrack]==c.tracks_nValidTrackerHits[itrack]: fillth2(hBdtVsDxyIsShort, c.tracks_dxyVtx[itrack], mva)
-		else: fillth2(hBdtVsDxyIsLong, c.tracks_dxyVtx[itrack], mva)
 		if not dtstatus>0: continue
 		drlep = 99
 		passeslep = True
@@ -327,7 +244,17 @@ for ientry in range(nentries):
 			if drlep<0.01: 
 				passeslep = False
 				break            
-		if not passeslep: continue 
+		if not passeslep: continue
+		isjet = False
+		for jet in c.Jets:
+			if jet.DeltaR(track)<0.4: 
+				isjet = True
+				break
+		if isjet: 
+			#if track.Pt()>50: print 'threw away this guy'
+			continue		
+		#if track.Pt()>50: print 'kept this guy, probably signal'	
+		
 		dedx = -1
 		if dtstatus==1: 
 			nShort+=1
@@ -431,7 +358,6 @@ for ientry in range(nentries):
 		dedx = -1
 		Log10DedxMass = 0.01
 		
-		
 	adjustedBTags = 0        
 	adjustedJets = []
 	adjustedHt = 0
@@ -464,14 +390,10 @@ for ientry in range(nentries):
 			if selectionFeatureVector(fv,regionkey,varname):
 				fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], weight)
 		
-	
-
 fnew_.cd()
 hHt.Write()
 hHtWeighted.Write()
 writeHistoStruct(histoStructDict, 'truth')
-hBdtVsDxyIsShort.Write()
-hBdtVsDxyIsLong.Write()
 print 'just created', fnew_.GetName()
-fnew_.Close()
+fnew_.Close()	
 fMask.Close()
