@@ -19,8 +19,6 @@ gROOT.SetStyle('Plain')
 #gROOT.SetBatch(1)
 
 thebinning = binningAnalysis
-
-
 newfileEachsignal = True
 debugmode = False
 
@@ -64,17 +62,20 @@ from CrossSectionDictionary import *
 if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames or 'T1' in inputFileNames: model = 'T1'
 elif 'Higgsino' in inputFileNames:  model = 'Higgsino'
 else: model = 'Other'
-	
 print 'were considering model', model
 loadCrossSections(model)
 
 
-
-if phase==0: mvathreshes=[.1,.25] #these are not used currently
-else: mvathreshes=[0.15,0.0] #these are not used currently
-
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('Summer16.','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
+
+
+ftrig = TFile(os.environ['CMSSW_BASE']+'/src/analysis/triggerefficiency/susy-trig-plots.root')#triggersRa2bRun2_v4_withTEffs.root')
+ttrig = ftrig.Get('tEffhMetMhtRealXMht;1')
+hpass = ttrig.GetPassedHistogram().Clone('hpass')
+htotal = ttrig.GetTotalHistogram().Clone('htotal')
+gtrig = TGraphAsymmErrors(hpass, htotal)
+
 
 if not newfileEachsignal:
 	newfname = 'AnalysisHists_'+identifier+'.root'
@@ -87,6 +88,17 @@ regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 regionCuts['Baseline']           = [(0,inf), (0,inf),   (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),(0,0), (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
 
+ncuts = 13
+def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
+	if not fvector[0]>=fvector[1]: return False
+	iomits = []
+	for cut in omitcuts.split('Vs'): iomits.append(indexVar[cut])
+	for i, feature in enumerate(fvector):
+		if i>=ncuts: continue
+		if i in iomits: continue
+		if not (feature>=regionCuts[regionkey][i][0] and feature<=regionCuts[regionkey][i][1]):
+			return False
+	return True
 
 
 def getBinNumber(fv):
@@ -206,12 +218,12 @@ for ientry in range(nentries):
 				print 'got xsec', xsecpb, 'for mothermass', mothermass					
 			else:
 				xsecpb = 1
-			signalweight = xsecpb				
+			signalweight = xsecpb
 						
 	hHt.Fill(c.HT)
 	if isdata: weight = 1
 	else: 
-		weight = signalweight*c.puWeight
+		weight = signalweight*c.puWeight*gtrig.Eval(c.MHT)
 		#weight = 1.0
 	hHtWeighted.Fill(c.HT,weight)								
 				
@@ -234,7 +246,7 @@ for ientry in range(nentries):
 		if not isBaselineTrack(track, itrack, c, hMask): continue
 		basicTracks.append([track,c.tracks_charge[itrack], itrack])		
 		if not (track.Pt() > candPtCut and track.Pt()<candPtUpperCut): continue     
-		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, mvathreshes)
+		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
 		
 		if not dtstatus>0: continue
 		drlep = 99

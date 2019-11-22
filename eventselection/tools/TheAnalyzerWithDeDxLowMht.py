@@ -322,14 +322,14 @@ for ientry in range(nentries):
 		if c.tracks_nValidPixelHits[itrack]==c.tracks_nValidTrackerHits[itrack]: fillth2(hBdtVsDxyIsShort, c.tracks_dxyVtx[itrack], mva)
 		else: fillth2(hBdtVsDxyIsLong, c.tracks_dxyVtx[itrack], mva)
 		if not dtstatus>0: continue
-		drlep = 99
-		passeslep = True
+		drlep = 99			
+		islep = False
 		for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
 			drlep = min(drlep, lep.DeltaR(track))
 			if drlep<0.01: 
-				passeslep = False
+				islep = True
 				break            
-		if not passeslep: continue 
+		if islep: continue 
 		dedx = -1
 		if dtstatus==1: 
 			nShort+=1
