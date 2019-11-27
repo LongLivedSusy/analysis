@@ -9,8 +9,8 @@ import array
 
 def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_text = "", xlabel = False, lumi = 36000, autoscaling = True, xmax = False, ymax = False, ymin = False, fr_regions = [], fr_maps = [], output_root_file = False, pdf_output = True, outpath = "plots"):
 
-    if variable == "region":
-        canvas_label = canvas_label.replace("_short", "").replace("_long", "")
+    #if variable == "region":
+    #    canvas_label = canvas_label.replace("_short", "").replace("_long", "")
 
     if "Run201" in output_root_file:
         is_data = True
@@ -26,13 +26,14 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     tfile = TFile(root_file, "open")
 
     # get histograms -- special handling for regions histogram:
-    if variable == "region":
+    if False:
+        #if variable == "region":
     
         # create empty region hists
-        histos["mc_CR"] = TH1F("mc_CR", "mc_CR", 68, 0, 68)
-        histos["mc_nonprompt"] = TH1F("mc_nonprompt", "mc_nonprompt", 68, 0, 68)
-        histos["mc_prompt"] = TH1F("mc_prompt", "mc_prompt", 68, 0, 68)
-        histos["mc_prediction"] = TH1F("mc_prediction", "mc_prediction", 68, 0, 68)
+        histos["mc_CR"] = TH1F("mc_CR", "mc_CR", 88, 1, 89)
+        histos["mc_nonprompt"] = TH1F("mc_nonprompt", "mc_nonprompt", 88, 1, 89)
+        histos["mc_prompt"] = TH1F("mc_prompt", "mc_prompt", 88, 1, 89)
+        histos["mc_prediction"] = TH1F("mc_prediction", "mc_prediction", 88, 1, 89)
     
         # get histograms:
         for icategory in ["short", "long", "multi"]:
@@ -116,7 +117,6 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     canvas_label = canvas_label.replace("_HT", "_Ht")
     canvas_label = canvas_label.replace("_MinDeltaPhiMhtJets", "_MinDPhiMhtJets")
     canvas_label = canvas_label.replace("_region", "_BinNumber")
-
 
     canvas = TCanvas(canvas_label, canvas_label, 800, 800)
     canvas.SetRightMargin(0.06)
@@ -221,7 +221,7 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
             ratios[label].GetXaxis().SetTitleSize(0.13)
             ratios[label].GetYaxis().SetTitleSize(0.13)
             ratios[label].GetYaxis().SetTitleOffset(0.38)
-            ratios[label].GetYaxis().SetRangeUser(0,5)
+            ratios[label].GetYaxis().SetRangeUser(0,2)
             ratios[label].GetYaxis().SetNdivisions(4)
             ratios[label].GetXaxis().SetLabelSize(0.15)
             ratios[label].GetYaxis().SetLabelSize(0.15)
@@ -253,24 +253,30 @@ if __name__ == "__main__":
     parser = OptionParser()
     (options, args) = parser.parse_args()
 
-    prediction_folder = "prediction-newfixed7"
+    prediction_folder = "prediction7"
 
-    for data_period in ["Summer16-all", "Summer16-WJets+TT", "Summer16-QCD+ZJets", "Run2016_MET", "Run2016_SingleMuon", "Run2016_SingleMuonMET"]:
-
+    #for data_period in ["Summer16-all", "Summer16-WJets+TT", "Summer16-QCD+ZJets", "Run2016_MET", "Run2016_SingleMuon", "Run2016_SingleMuonMET"]:
+    #for data_period in ["Run2016_MET", "Run2016_SingleMuonMET"]:
+    for data_period in ["Summer16-QCD+ZJets", "Run2016_MET", "Run2016_SingleMuonMET"]:
+    
         os.system("rm closure_%s.root" % data_period)
 
         root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
 
-        for variable in ["region", "n_tags", "DeDxAverage", "Log10DedxMass", "Track1MassFromDedx", "n_btags", "MinDeltaPhiMhtJets", "n_goodmuons", "n_goodelectrons", "n_goodjets", "MET", "MHT", "HT"]:
-        #for variable in ["region"]:
+        #for variable in ["region", "n_tags", "DeDxAverage", "Log10DedxMass", "Track1MassFromDedx", "n_btags", "MinDeltaPhiMhtJets", "n_goodmuons", "n_goodelectrons", "n_goodjets", "MET", "MHT", "HT"]:
+        for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
+            #for variable in ["region"]:
+            #for variable in ["region"]:
             for tag in ["loose8"]:
-                #for category in ["short", "long", "combined"]:
-                for category in ["combined"]:
+                for category in ["short", "long", "combined"]:
+                #for category in ["combined"]:
                     
-                    if variable == "region" and category == "long": continue
-                    
+                    #if variable == "region" and category == "long": continue
+                    #if variable == "region" and data_period != "Run2016_SingleMuonMET": continue
+                    #if data_period == "Run2016_SingleMuonMET" and variable != "region": continue         
+
                     #for cr in ["cr50", "cr50muveto", "cr50mu"]:
-                    for cr in ["baseline", "baseline_noveto", "baseline_mu"]:
+                    for cr in ["baseline", "baseline_muveto", "baseline_mu", "baseline_MHT50_noveto", "baseline_MHT50_muveto", "baseline_MHT50_mu"]:
 
                         if "mht50muons" == cr and "SingleMuon" not in data_period: continue
                         if "mht50muveto" == cr and "MET" not in data_period: continue
