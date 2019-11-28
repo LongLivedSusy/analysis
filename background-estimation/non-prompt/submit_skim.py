@@ -116,7 +116,7 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default=50)
+    parser.add_option("--nfiles", dest="files_per_job", default=62)
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
@@ -135,10 +135,11 @@ if __name__ == "__main__":
     if not options.command:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
-        options.dataset = mc_summer16 + "," + data_phase0 + "," + mc_sms
-        # + "," + mc_fall17 + "," + data_phase1
+        # options.dataset = mc_summer16 + "," + data_phase0 + "," + mc_sms
+        #options.dataset = mc_fall17 + "," + data_phase1
+        options.dataset = ""
     if not options.output_folder:
-        options.output_folder = "skim_50"
+        options.output_folder = "skim_50_signals"
     ######## defaults ########
 
     commands = []
