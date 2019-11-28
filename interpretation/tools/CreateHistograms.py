@@ -8,10 +8,11 @@ gROOT.SetBatch(1)
 # prepare histograms for combine which contain the prompt and fake background prediction as well as signal and data
 
 # ////////////////configure////////////////////////
-combine_path = "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
-signals_path = "../histograms/signal/"
-prompt_bg_file = "../histograms/background/prompt-bg-results.root"
-variable = "BinNumberMethod"
+combine_path =   "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
+signals_path =   "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Signal/"
+prompt_bg_file = "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Background/prompt-bg-results.root"
+variable =       "BinNumberMethod"
+out_path =       "histograms-combined"
 # ////////////////configure////////////////////////
 
 
@@ -63,7 +64,8 @@ def get_integral(histo):
 
 def merge_histograms(variable, signals_path, prompt_bg_file):
 
-    os.system("rm ../histograms/combined/*root")
+    os.system("mdkir -p %s" % out_path)
+    os.system("rm %s/*root" % out_path)
 
     for signal_point in glob.glob(signals_path + "/*root"):
 
@@ -141,7 +143,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_obs_down.SetName("data_obs_SysDown")
 
         output_file_name = signal_point.split("/")[-1]
-        fout = TFile("../histograms/combined/%s" % output_file_name, "recreate")
+        fout = TFile("%s/%s" % (out_path, output_file_name), "recreate")
         h_signal.Write()
         h_signal_up.Write()
         h_signal_down.Write()
@@ -169,7 +171,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         datacard = datacard.replace("$LABEL", "Signalg%s_chi%s" % (gluino_mass, lsp_mass) )
         datacard = datacard.replace("$ROOTFILE", output_file_name )
 
-        datacard_file = "../histograms/combined/%s" % output_file_name.replace(".root", ".txt")
+        datacard_file = "%s/%s" % (out_path, output_file_name.replace(".root", ".txt"))
         with open(datacard_file, "w") as datacard_fout:
             datacard_fout.write(datacard)
 

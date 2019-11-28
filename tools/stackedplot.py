@@ -18,9 +18,9 @@ def get_histograms_from_folder(folder, samples, variable, cutstring, nBinsX, xmi
     return histos
 
 
-def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC", lumi=1.0, ymin=False, ymax=False, xmin=False, xmax=True):
+def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_scaling_factor=1.0, suffix="", logx=False, logy=True, miniylabel="Data/MC", lumi=False, ymin=False, ymax=False, xmin=False, xmax=False, yaxis_label="Events", output_folder = ".", include_data = True, width=900):
  
-    canvas = TCanvas("canvas", "canvas", 900, 800)
+    canvas = TCanvas("canvas", "canvas", width, 800)
 
     pad1 = TPad("pad1", "pad1", 0, 0.16, 1, 1.0)
     pad1.SetRightMargin(0.05)
@@ -57,18 +57,22 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
 
     samples_for_sorting = []
 
-    # get lumi value:
+    # get total lumi value:
     plot_has_data = False
+    total_lumi = 0
     for label in sorted(histos):
-        if samples[label]["type"] == "data":
+        if samples[label]["type"] == "data" and include_data:
             plot_has_data = True
-            lumi = samples[label]["lumi"]
+            total_lumi += samples[label]["lumi"]
+    
+    if not lumi and plot_has_data:
+        lumi = total_lumi
 
     # plot backgrounds:
     for label in sorted(histos):
 
         if samples[label]["type"] == "bg" or samples[label]["type"] == "sg":
-            histos[label].Scale(lumi)
+            histos[label].Scale(lumi * 1000.0)
 
         if histos[label].GetMinimum(0) < global_minimum:
             global_minimum = histos[label].GetMinimum(0) 
@@ -93,7 +97,7 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
                                 
     mcstack.Draw("hist")
     mcstack.GetXaxis().SetLabelSize(0)   
-    mcstack.SetTitle(";;Events")
+    mcstack.SetTitle(";;%s" % yaxis_label)
     mcstack.GetYaxis().SetTitleOffset(1.3)
     mcstack.GetXaxis().SetTitleOffset(1.3)
 
@@ -108,16 +112,24 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
             legend.AddEntry(histos[label], label)
 
     # plot data:
-    for label in sorted(histos):
-        if samples[label]["type"] == "data":
-            histos[label].SetLineColor(samples[label]["color"])
-            histos[label].SetMarkerColor(samples[label]["color"])
-            histos[label].SetMarkerColor(samples[label]["color"])
-            histos[label].SetMarkerStyle(20)
-            histos[label].SetMarkerSize(1)
-            histos[label].SetLineWidth(0)
-            histos[label].Draw("same p")
-            legend.AddEntry(histos[label], label)
+    if plot_has_data:
+
+        combined_data = 0
+        for label in sorted(histos):
+            if samples[label]["type"] == "data":
+                if combined_data == 0:
+                    combined_data = histos[label].Clone()
+                else:
+                     combined_data.Add(histos[label])        
+
+        combined_data.SetLineColor(kBlack)
+        combined_data.SetMarkerColor(kBlack)
+        combined_data.SetMarkerColor(kBlack)
+        combined_data.SetMarkerStyle(20)
+        combined_data.SetMarkerSize(1)
+        combined_data.SetLineWidth(3)
+        combined_data.Draw("same E & X0")
+        legend.AddEntry(combined_data, "Data")
 
     # set minimum/maximum ranges   
     if global_minimum != 0:
@@ -151,7 +163,6 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     latex.SetTextAlign(31)
     latex.SetTextSize(0.35 * t)
 
-    lumi = lumi/1000
     latex.DrawLatex(0.95, 0.95, "%.1f fb^{-1} (13 TeV)" % lumi)
     
     #latex.SetTextSize(0.35*t)
@@ -170,16 +181,8 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
                  combined_mc_background.Add(histos[label])        
 
     if plot_has_data:
-    
-        data = 0
-        for label in sorted(histos):
-            if samples[label]["type"] == "data":
-                data = histos[label].Clone()
-    
-        ratio = data.Clone()
-    
+        ratio = combined_data.Clone()
     else:
-        
         ratio = combined_mc_background.Clone()
         
     ratio.Divide(combined_mc_background)
@@ -197,6 +200,9 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     ratio.GetXaxis().SetLabelSize(0.15)
     ratio.GetYaxis().SetLabelSize(0.15)
     
-    os.system("mkdir -p %s/plots" % folder)
-    canvas.SaveAs("%s/plots/%s%s.pdf" % (folder, variable, suffix))
-
+    if len(output_folder)>0:
+        os.system("mkdir -p %s" % output_folder)
+    canvas.SaveAs("%s/%s%s.pdf" % (output_folder, variable, suffix))
+    canvas.SaveAs("%s/%s%s.root" % (output_folder, variable, suffix))
+    print "\n****************\n"
+    

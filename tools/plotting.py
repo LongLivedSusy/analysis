@@ -32,7 +32,7 @@ def stamp_plot():
     tl.SetTextFont(extraTextFont)
     tl.SetTextSize(1.0/0.85*tl.GetTextSize())
     xlab = 0.213
-    tl.DrawLatex(xlab,0.915, ' preliminary')
+    tl.DrawLatex(xlab,0.915, ' Work in Progress')
     tl.SetTextFont(regularfont)
     tl.SetTextSize(0.81*tl.GetTextSize())    
     thingy = ''
@@ -89,18 +89,38 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     return histo
 
 
-def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=False, scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, numevents=-1):
+def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, numevents=-1):
+    
+    is_data = False
+    if "Run201" in tree_files[0]:
+        is_data = True      
+
+    nev = 0
+    ignore_files =  []
+    for tree_file in tree_files:
+        try:
+            fin = TFile(tree_file)
+            fin.Get("nev")
+            fin.Get(tree_folder_name)
+        except:
+            fin.Close()
+            "Ignoring file: %s" % tree_file
+            ignore_files.append(ignore_files)
+            print "Ignoring", tree_file
+            continue
+
+        if not is_data:
+            #fin = TFile(tree_file)
+            h_nev = fin.Get("nev")
+            nev += h_nev.GetBinContent(1)
+            fin.Close()
 
     tree = TChain(tree_folder_name)       
     for i, tree_file in enumerate(tree_files):
-        tree.Add(tree_file)
+        if not tree_file in ignore_files:
+            tree.Add(tree_file)
 
-    if "Run201" in tree_files[0]:
-        is_data = True
-    else:
-        is_data = False
-
-    # xsection and puweight scaling:
+    ## xsection and puweight scaling:
     if not is_data:
         cutstring = "(%s)*CrossSection*puWeight%s" % (cutstring, scaling)
     else:
@@ -115,23 +135,8 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=Fa
     else:
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
 
-    # divide by number of total events in sample
     if not is_data:
-        try:
-            # check for nev histogram
-            nev = 0
-            for tree_file in tree_files:
-                fin = TFile(tree_file)
-                hnev = fin.Get("nev")
-                nev += hnev.GetBinContent(1)
-                fin.Close()
-        except:
-            # otherwise, take number of entries of tree
-            print "## using tree.GetEntries() for weighting"
-            nev = tree.GetEntries()
-
-        if nev > 0:
-            histo.Scale(1.0/nev)
+        histo.Scale(1.0/nev)
 
     return histo
 
@@ -151,7 +156,7 @@ def get_histogram_from_file_wrapper(args):
     scaling = args[10]
     numevents = args[11]
 
-    print "Thread started..."
+    #print "Thread started..."
 
     histogram = get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, file_contains_histograms=False, numevents=numevents)
 
@@ -195,14 +200,12 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
             samples.append(identifier)
 
     samples = list(set(samples))
+    
     print "selected_sample:", selected_sample
     print "Found samples matching ''%s'':" % selected_sample, samples
 
     pool_args = []
     for i_sample, sample in enumerate(samples):
-
-        #FIXME, manual cross section:
-        if "g1800" in sample: scaling = "*0.00276133"
 
         filenames = glob.glob(sample + "*root")
 
@@ -218,7 +221,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         if threads != 1:
             if threads == -1:
                 # start thread pool with half of all cores
-                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.5))
+                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.7))
             else:
                 # start thread pool with specified number of cores
                 pool = multiprocessing.Pool(threads)
@@ -244,7 +247,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         quit()
 
     try:
-        print "h_combined.GetEntries()", str(h_combined.GetEntries())
+        print "n_total=%s" % h_combined.GetEntries()
         return h_combined
     except:
         print "Empty histogram"

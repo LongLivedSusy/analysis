@@ -76,6 +76,8 @@ def runCommands(mycommands, condorDir="bird", cmsbase=False, qsubOptions=False, 
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
     cd CWD
+    export PYTHONDONTWRITEBYTECODE=1
+    export PYTHONPATH=$PYTHONPATH:$(pwd)/../
     export PYTHONPATH=$PYTHONPATH:$(pwd)/../tools
     export PYTHONPATH=$PYTHONPATH:$(pwd)/../../tools
     PROCESSNUM=$(($1 + 1))
