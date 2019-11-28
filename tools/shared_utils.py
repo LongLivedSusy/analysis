@@ -6,7 +6,7 @@ dedxcutLow = 3.1
 dedxcutMid = 5.0
 
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
-PtBinEdges = [0,20,24,27,30,31,32,34,36,38,40,45,50,60,90,120,180, 250]#best
+PtBinEdges = [0,20,24,27,30,31,32,34,36,38,40,45,50,60,90,120,180,250]#best
 #PtBinEdges = [32,250]#for inv. mass plots
 EtaBinEdges = [0, 2.4]#best
 
@@ -68,15 +68,16 @@ binning['DeDxAverage'] = [20,0,10]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [90,0,90]
 binning['Log10DedxMass'] = [10,0,5]
-binning['DeDxAverage'] = [20,0,10]
+binning['DeDxAverage'] = [100,0,10]
 binning['DeDxZones'] = [0.0,dedxcutLow,dedxcutMid,99]
 
 binningAnalysis = {}
-binningAnalysis = binning
+for key in binning: binningAnalysis[key] = binning[key]
 
 binningAnalysis['Met']=[45,0,1200]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [88,1,89]
+binningAnalysis['DeDxAverage'] = [0,3.1,4.0,5.0,10.0]
 
 '''
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
@@ -836,7 +837,7 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 			
 			
 def isBaselineTrack(track, itrack, c, hMask):
-	if not abs(track.Eta())< 2.4 : return False
+	if not abs(track.Eta())< 2.4: return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
 	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
 	if not (c.tracks_ptError[itrack]/(track.Pt()*track.Pt()) < 10): return False
@@ -847,6 +848,7 @@ def isBaselineTrack(track, itrack, c, hMask):
 	if not c.tracks_nMissingInnerHits[itrack]==0: return False
 	if not c.tracks_nMissingMiddleHits[itrack]==0: return False
 	if not c.tracks_chi2perNdof[itrack]<2.88: return 0
+	if not c.tracks_pixelLayersWithMeasurement[itrack]>2: return 0
 	if hMask!='':
 		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
 		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
@@ -1006,7 +1008,7 @@ binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0
 binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 78
 binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 79
 binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 80
-#listagain =  ['Ht',  'Mht',    'NJets','BTags','NTags','NPix','NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+#listagain =  ['Ht',  'Mht',      'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 binnumbers[((0,inf),   (150,300), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))]   = 81
 binnumbers[((0,inf),   (150,300), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))]   = 82
 binnumbers[((0,inf),   (300,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))]   = 83
