@@ -18,11 +18,11 @@ from array import array
 gROOT.SetStyle('Plain')
 #gROOT.SetBatch(1)
 
-thebinning = binningAnalysis
+thebinning = binning
 newfileEachsignal = True
 debugmode = False
 
-defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_230000-FCD9083D-3E88-E911-B3D1-0CC47A7EEE76_RA2AnalysisTree.root"#"/pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_50cm/July5-SUMMER19sig/g1700_chi1550_27_200970_step4_50miniAODSIM_*_RA2AnalysisTree.root"
+defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-FEE6C100-4AA5-E911-9CD0-B496910A9A28_RA2AnalysisTree.root"#"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_230000-FCD9083D-3E88-E911-B3D1-0CC47A7EEE76_RA2AnalysisTree.root"#"/pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_50cm/July5-SUMMER19sig/g1700_chi1550_27_200970_step4_50miniAODSIM_*_RA2AnalysisTree.root"
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--updateevery", type=int, default=1000,help="analyzer script to batch")
@@ -61,6 +61,7 @@ btag_cut = BTAG_deepCSV
 from CrossSectionDictionary import *
 if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames or 'T1' in inputFileNames: model = 'T1'
 elif 'Higgsino' in inputFileNames:  model = 'Higgsino'
+elif 'T2tb' in inputFileNames: model = 'T2tt'
 else: model = 'Other'
 print 'were considering model', model
 loadCrossSections(model)
@@ -85,8 +86,8 @@ if not newfileEachsignal:
 
 inf = 999999
 regionCuts = {}
-varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-regionCuts['Baseline']           = [(0,inf), (0,inf),   (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.3,inf),        (-inf,inf),         (0,0 ),      (0,inf),(0,0), (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+regionCuts['Baseline']           = [(0,inf), (0,inf),   (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.0,inf),        (-inf,inf),         (0,inf),  (0,inf), (110,inf), (90,inf),(0,0), (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
 
 ncuts = 13
 def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
@@ -197,8 +198,8 @@ for ientry in range(nentries):
 			newfname+='_time'+str(round(time.time(),4)).replace('.','p')+'.root'
 			fnew_ = TFile(newfname,'recreate')
 			print 'creating file', fnew_.GetName()				
-			hHt = TH1F('hHt','hHt',100,0,3000)
-			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
+			hHt = TH1F('hHt','hHt',200,0,10000)
+			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',200,0,10000)
 			indexVar = {}
 			for ivar, var in enumerate(varlist_): indexVar[var] = ivar
 			histoStructDict = {}
@@ -220,12 +221,7 @@ for ientry in range(nentries):
 				xsecpb = 1
 			signalweight = xsecpb
 						
-	hHt.Fill(c.HT)
-	if isdata: weight = 1
-	else: 
-		weight = signalweight*c.puWeight*gtrig.Eval(c.MHT)
-		#weight = 1.0
-	hHtWeighted.Fill(c.HT,weight)								
+	hHt.Fill(c.HT)		
 				
 	'''
 	#genchis = []
@@ -253,7 +249,7 @@ for ientry in range(nentries):
 		passeslep = True
 		for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
 			drlep = min(drlep, lep.DeltaR(track))
-			if drlep<0.01: 
+			if drlep<0.1: 
 				passeslep = False
 				break            
 		if not passeslep: continue
@@ -262,11 +258,7 @@ for ientry in range(nentries):
 			if jet.DeltaR(track)<0.4: 
 				isjet = True
 				break
-		if isjet: 
-			#if track.Pt()>50: print 'threw away this guy'
-			continue		
-		#if track.Pt()>50: print 'kept this guy, probably signal'	
-		
+		if isjet:  continue		
 		dedx = -1
 		if dtstatus==1: 
 			nShort+=1
@@ -274,7 +266,6 @@ for ientry in range(nentries):
 		if dtstatus==2: 
 			nLong+=1			
 			dedx = c.tracks_deDxHarmonic2pixel[itrack]
-	
 		disappearingTracks.append([track,dtstatus,dedx, itrack])
 
 	RecoElectrons = []
@@ -285,19 +276,7 @@ for ientry in range(nentries):
 		if debugmode: print 'passed eta and Pt'
 		if not c.Electrons_passIso[iel]: continue
 		if not c.Electrons_tightID[iel]: continue
-		if debugmode: print 'passed that nice tight id'
-		drmin = inf
-		matchedTrk = TLorentzVector()
-		for trk in basicTracks:
-			drTrk = trk[0].DeltaR(ele)
-			if drTrk<drmin:
-				if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-				drmin = drTrk
-				matchedTrk = trk
-				if drTrk<0.01: 
-					break
-		if not drmin<0.01: continue
-		if ele.Pt()>candPtCut: RecoElectrons.append([ele, c.Electrons_charge[iel]])
+		if ele.Pt()>candPtCut: RecoElectrons.append([ele, iel])
 
 
 	RecoMuons = []
@@ -308,17 +287,7 @@ for ientry in range(nentries):
 		if verbose: print 'passed eta and Pt'
 		if not c.Muons_passIso[ilep]: continue
 		if not c.Muons_tightID[ilep]: continue
-		drmin = inf
-		matchedTrk = TLorentzVector()
-		for trk in basicTracks:
-			if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-			drTrk = trk[0].DeltaR(lep)
-			if drTrk<drmin:
-				drmin = drTrk
-				matchedTrk = trk
-				if drTrk<0.01: break
-		if not drmin<0.01: continue
-		if lep.Pt()>candPtCut: RecoMuons.append([lep,c.Muons_charge[ilep]])    
+		if lep.Pt()>candPtCut: RecoMuons.append([lep,ilep])    
 
 
 	#print 'len(RecoMuons)', len(RecoMuons)
@@ -326,27 +295,8 @@ for ientry in range(nentries):
 	for ipi, pi in enumerate(c.TAPPionTracks):
 		if (abs(pi.Eta()) < 1.566 and abs(pi.Eta()) > 1.4442): continue
 		if not abs(pi.Eta())<2.4: continue
-		if not c.TAPPionTracks_trkiso[ipi]<0.2: continue
-		drmin = inf
-		matchedTrk = TLorentzVector()
-		for trk in basicTracks:
-			drTrk = trk[0].DeltaR(pi)
-			if drTrk<drmin:
-				if not c.tracks_nMissingOuterHits[trk[2]]==0: continue
-				if c.tracks_passPFCandVeto[trk[2]]: continue
-				drmin = drTrk
-				matchedTrk = trk
-				if drTrk<0.01: 
-					break
-		if not drmin<0.01: continue
-		passeslep = True
-		for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)):
-		   drlep = lep.DeltaR(pi)
-		   if drlep<0.01: 
-			  passeslep = False
-			  break
-		if not passeslep: continue	  	   		
-		
+		if not c.TAPPionTracks_trkiso[ipi]<0.2: continue  	   		
+		if pi.Pt()>candPtCut: SmearedPions.append([pi,ipi])    
 		
 	#print 'len(disappearingTracks)', len(disappearingTracks)
 	presentDisTrkEvent = len(disappearingTracks) >=1
@@ -393,8 +343,29 @@ for ientry in range(nentries):
 	mindphi = 4
 	for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht))) 
 	
-	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedx, len(RecoElectrons), len(RecoMuons), len(SmearedPions), pt, eta, Log10DedxMass]
+	if len(RecoElectrons)>0: 
+		mT = c.Electrons_MTW[RecoElectrons[0][1]]
+		if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoElectrons[0][0]+dt).M()
+		else: invmass = 999			
+	elif len(RecoMuons)>0: 
+		mT = c.Muons_MTW[RecoMuons[0][1]]
+		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoMuons[0][0]+dt).M()
+		else: invmass = 999			
+	else: 
+		mT = 999
+		invmass = 999	
+	
+	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedx, len(RecoElectrons), len(RecoMuons), invmass, mT, len(SmearedPions), pt, eta, Log10DedxMass]
 	fv.append(getBinNumber(fv))
+	
+	if isdata: weight = 1
+	elif len(RecoElectrons)+len(RecoMuons)>0: 
+		weight = signalweight*c.puWeight
+	else: 
+		weight = signalweight*c.puWeight*gtrig.Eval(c.MHT)
+		#weight = 1.0
+	hHtWeighted.Fill(c.HT,signalweight)
+		
 	#print fv
 	#for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]	
 	for regionkey in regionCuts:

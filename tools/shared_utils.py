@@ -44,8 +44,10 @@ binning['Mht']=binning['Met']
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,310]
 binning['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
 binning['TrkPt']=[15, 30, 60, 120, 130]#just seemed to work very well######comment out after studies
+binning['TrkPt']=[100,0,500]
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 binning['TrkEta']=EtaBinEdges
+binning['TrkEta']=[30,-3,3]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
 binning['NJets']=[10,0,10]
@@ -65,6 +67,8 @@ binning['BTags']=[4,0,4]
 binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['DeDxAverage'] = [20,0,10]
+binning['InvMass'] = [100,0,200]
+binning['LepMT'] = [100,0,500]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [90,0,90]
 binning['Log10DedxMass'] = [10,0,5]
@@ -78,6 +82,8 @@ binningAnalysis['Met']=[45,0,1200]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [88,1,89]
 binningAnalysis['DeDxAverage'] = [0,3.4,4.7,6.0,10.0]
+binningAnalysis['InvMass'] = [20,0,200]
+binningAnalysis['LepMT'] = [20,0,200]
 
 '''
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
@@ -175,9 +181,9 @@ def mkcanvas_wide(name):
 	c1 = TCanvas(name,name,1200,700)
 	c1.Divide(2,1)
 	c1.GetPad(1).SetBottomMargin(.14)
-	c1.GetPad(1).SetLeftMargin(.14)
+	c1.GetPad(1).SetLeftMargin(.1)
 	c1.GetPad(2).SetBottomMargin(.14)
-	c1.GetPad(2).SetLeftMargin(.14)    
+	c1.GetPad(2).SetLeftMargin(.1)    
 	c1.GetPad(1).SetGridx()
 	c1.GetPad(1).SetGridy()
 	c1.GetPad(2).SetGridx()
@@ -372,7 +378,7 @@ def pause(str_='push enter key when ready'):
 		raw_input('')
 
 datamc = 'Data'
-def stamp(lumi='35.9', showlumi = False, WorkInProgress = True):    
+def stamp(lumi='35.9', showlumi = False, WorkInProgress = True):
 	tl.SetTextFont(cmsTextFont)
 	tl.SetTextSize(0.98*tl.GetTextSize())
 	tl.DrawLatex(0.135,0.915, 'CMS')
@@ -391,22 +397,17 @@ def stamp(lumi='35.9', showlumi = False, WorkInProgress = True):
 	tl.SetTextSize(1.0/0.81*tl.GetTextSize())  
 
 
-def stamp2(lumi='35.9', showlumi = False):    
+def stamp2(lumi,datamc='MC'):
 	tl.SetTextFont(cmsTextFont)
-	tl.SetTextSize(0.98*tl.GetTextSize())
-	tl.DrawLatex(0.1,0.91, 'CMS')
+	tl.SetTextSize(1.6*tl.GetTextSize())
+	tl.DrawLatex(0.152,0.82, 'CMS')
 	tl.SetTextFont(extraTextFont)
-	tl.SetTextSize(1.0/0.98*tl.GetTextSize())
-	xlab = 0.213
-	tl.DrawLatex(xlab,0.91, ('MC' in datamc)*' simulation '+'preliminary')
+	tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
 	tl.SetTextFont(regularfont)
-	tl.SetTextSize(0.81*tl.GetTextSize())    
-	thingy = ''
-	if showlumi: thingy+='#sqrt{s}=13 TeV, L = '+str(lumi)+' fb^{-1}'
-	xthing = 0.6202
-	if not showlumi: xthing+=0.13
-	tl.DrawLatex(xthing,0.91,thingy)
-	tl.SetTextSize(1.0/0.81*tl.GetTextSize()) 
+	if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
+	else: tl.DrawLatex(0.47,0.82,'#sqrt{s} = 13 TeV, L = '+str(lumi)+' fb^{-1}')
+	#tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')	
+	tl.SetTextSize(tl.GetTextSize()/1.6)
 
 
 #------------------------------------------------------------------------------
@@ -467,7 +468,7 @@ def isMatched_(obj, col, dR=0.02, verbose = False):
 			return thing
 	return False
 
-def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
+def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
 	cGold.cd()
 	pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
 	pad1.SetBottomMargin(0.0)
@@ -518,7 +519,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 	hComponents[0].Draw('axis same')           
 	leg.Draw()        
 	cGold.Update()
-	stampFab(lumi,datamc)
+	stamp2(lumi,datamc)
 	cGold.Update()
 	cGold.cd()
 	pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
@@ -560,10 +561,10 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', Line
 	pad1.cd()
 	hComponents.reverse()
 	hTruth.SetTitle(title0)
-	return hRatio
+	return hRatio, pad1, pad2
 
 
-def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
+def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
 	cGold.cd()
 	pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
 	pad1.SetBottomMargin(0.0)
@@ -618,7 +619,6 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='mc',lumi=35.9, title 
 		print 'there are actually components here!'
 		h.Draw('hist same')
 		cGold.Update()
-		print 'updating stack', h
 	#hComponents[0].Draw('same') 
 	hTruth.Draw('p same')
 	hTruth.Draw('e same')    
@@ -884,13 +884,14 @@ def passQCDHighMETFilter2(t):
     return True
 
 def passesUniversalSelection(t):
-    if not (bool(t.JetID) and  t.NVtx>0): return False
+    #if not bool(t.JetID): return False
+    if not t.NVtx>0: return False
     #print 'made a'
     if not  passQCDHighMETFilter(t): return False
     if not passQCDHighMETFilter2(t): return False
     #print 'made b'    
     #if not t.PFCaloMETRatio<5: return False # turned off now that we use muons
-    if not t.globalSuperTightHalo2016Filter: return False
+    ###if not t.globalSuperTightHalo2016Filter: return False
     #print 'made c'    
     if not t.HBHENoiseFilter: return False    
     if not t.HBHEIsoNoiseFilter: return False
@@ -924,9 +925,8 @@ def passesUniversalDataSelection(t):
     return True
     
 
-
 binnumbers = {}
-listagain = ['Ht',   'Mht',    'NJets',  'BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+listagain = ['Ht',   'Mht',    'NJets',  'BTags',  'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']#, 'TrackLepMass', 'LepMT'
 binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
 binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
 binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 3

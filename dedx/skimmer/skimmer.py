@@ -1495,6 +1495,19 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
     
+    # add our jet vectors:
+    tree_branch_values["jets"] = 0
+    tout.Branch('jets', 'std::vector<TLorentzVector>', tree_branch_values["jets"])
+    vector_int_branches_jets = ['jets_ID']
+    for branch in vector_int_branches_jets:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
+    
+    vector_float_branches_jets = ['jets_pt', 'jets_eta', 'jets_phi']
+    for branch in vector_float_branches_jets:
+        tree_branch_values[branch] = 0
+        tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
+    
     # load and configure data mask:
     if phase == 0:
         mask_file= TFile("Masks.root", "open")
@@ -1551,7 +1564,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 runs[runnum] = []
             if lumisec not in runs[runnum]:
                 runs[runnum].append(lumisec)
-	    #weight = event.PrescaleWeightHT
 	    weight = 1.0
 	else:
 	    weight = 1.0 * event.puWeight * event.CrossSection
@@ -1570,37 +1582,32 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             else:
                 tree_branch_values[label][0] = -1
 	
-	# trigger
+	# data trigger
 	PassTrig_MhtMet = False
 	PassTrig_SingleMuon = False
 	PassTrig_SingleElectron = False
-	if PassTrig(event,'MhtMet6pack'):
-	    PassTrig_MhtMet = True
-	if PassTrig(event,'SingleMuon'):
-	    PassTrig_SingleMuon = True
-	if PassTrig(event,'SingleElectron'):
-	    PassTrig_SingleElectron = True
-	
-	passTrig = PassTrig_MhtMet or PassTrig_SingleMuon or PassTrig_SingleElectron
-	if not passTrig : continue
+	if is_data:
+	    if PassTrig(event,'MhtMet6pack'):
+	        PassTrig_MhtMet = True
+	    if PassTrig(event,'SingleMuon'):
+	        PassTrig_SingleMuon = True
+	    if PassTrig(event,'SingleElectron'):
+	        PassTrig_SingleElectron = True
+	    
+	    passTrig = PassTrig_MhtMet or PassTrig_SingleMuon or PassTrig_SingleElectron
+	    if not passTrig : continue
 
-	# some filters and JetID, etc..
+	# Require Nvtx, JetID and some filters..
 	passed_UniversalSelection = passesUniversalSelection(event)
-	if not passed_UniversalSelection: continue
-
-	# count number of good jets:
-        n_goodjets = 0 
-        for jet in event.Jets:
-            if bool(event.JetID) and jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
-                n_goodjets += 1
+	#if not passed_UniversalSelection: continue
 
         # count number of good leptons:
         n_goodelectrons = 0 
         electron_level_output = []
         for i, electron in enumerate(event.Electrons):
-	    if not electron.Pt() > 30 : continue
-	    if not abs(electron.Eta()) < 2.4 : continue
-	    if not (abs(electron.Eta()) < 1.4442 or abs(electron.Eta()) > 1.566) : continue
+	    if not (electron.Pt() > 30) : continue
+	    if not (abs(electron.Eta()) < 2.4) : continue
+	    if not ((abs(electron.Eta()) < 1.4442) or (abs(electron.Eta()) > 1.566)) : continue
 	    
 	    n_goodelectrons += 1
             electron_level_output.append(
@@ -1620,8 +1627,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 	n_goodmuons = 0 
         muon_level_output = []
         for i, muon in enumerate(event.Muons):
-	    if not muon.Pt() > 30 : continue
-	    if not abs(muon.Eta()) < 2.4: continue
+	    if not (muon.Pt() > 30) : continue
+	    if not (abs(muon.Eta()) < 2.4) : continue
 
             n_goodmuons += 1
 	    muon_level_output.append(
@@ -1643,7 +1650,25 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         # throw away low-MHT events for zero good leptons:
         if n_goodleptons==0 and event.MHT<50: continue
 
-        # calculate MinDeltaPhiMhtJets:
+	# count number of good jets:
+        n_goodjets = 0 
+        jet_level_output = []
+        for i, jet in enumerate(event.Jets):
+	    if not (jet.Pt() > 30) : continue
+	    if not (abs(jet.Eta()) < 2.4) : continue
+            
+	    n_goodjets += 1
+            jet_level_output.append(
+                                   {
+                                     "jets": event.Jets[i],
+                                     "jets_ID": bool(event.Jets_ID[i]),
+                                     "jets_pt": jet.Pt(),
+                                     "jets_eta": jet.Eta(),
+                                     "jets_phi": jet.Phi(),
+				     }
+				   )
+        
+	# calculate MinDeltaPhiMhtJets:
         '''Must integrate these:
                 CSV      DeepCSV
         2016   0.8484    0.6324
@@ -1656,13 +1681,13 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         mhtvec = TLorentzVector()
         mhtvec.SetPtEtaPhiE(event.MHT, 0, event.MHTPhi, event.MHT)
         MinDeltaPhiMhtJets = 9999
-        nj = 0
         nb = 0
         for ijet, jet in enumerate(event.Jets):
             if not (n_goodjets > 0) : continue
-            if event.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
-            if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets:
-                MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
+            if event.Jets_bDiscriminatorCSV[ijet]>csv_b : nb+=1
+            if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets :
+		MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
+	
         
 	# check if genLeptons are present in event:
         if not is_data:
@@ -1938,6 +1963,25 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         for i, muon_output_dict in enumerate(muon_level_output):
             for label in muon_output_dict:
                 tree_branch_values[label][i] = muon_output_dict[label]
+	
+	# jet-level variables:
+	n_jets = len(jet_level_output)
+        tree_branch_values["jets"] = ROOT.std.vector(TLorentzVector)(n_jets)
+        
+	for branch in vector_int_branches_jets:
+            tree_branch_values[branch] = ROOT.std.vector(int)(n_jets)
+        for branch in vector_float_branches_jets:
+            tree_branch_values[branch] = ROOT.std.vector(double)(n_jets)
+        
+	# register jet-level branches:
+        for label in tree_branch_values:
+            if "jets" in label:
+                tout.SetBranchAddress(label, tree_branch_values[label])
+        
+	# save jet-level properties:
+        for i, jet_output_dict in enumerate(jet_level_output):
+            for label in jet_output_dict:
+                tree_branch_values[label][i] = jet_output_dict[label]
 	
 	tout.Fill()
      
