@@ -151,17 +151,22 @@ if __name__ == "__main__":
 
     base_cuts = "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_jets>0 && n_leptons==0"
 
+    search_region = "passesUniversalSelection==1 && MHT>250 && MinDeltaPhiMhtJets>0.3 && n_goodjets>0 && n_goodelectrons==0 "
+    good_track = " && tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 "
+    loose6_SR_short = search_region + good_track + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.65/0.01) - 0.25)"
+    loose6_SR_long = search_region + good_track + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.05)"
+
     extra_text = "signal region"
     suffix = ""
     
     # do stacked background plots (stacked by background type):
     categories = {
-                   "tight_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt>0.1 ",
-                   "tight_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt>0.25 ",
+                   #"tight_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt>0.1 ",
+                   #"tight_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt>0.25 ",
                    #"loose_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01 ",
                    #"loose_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 && tracks_dxyVtx<=0.01 ",
-                   "loose_short": " && tracks_is_pixel_track==1 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 ",
-                   "loose_long": " && tracks_is_pixel_track==0 && tracks_is_reco_lepton==0 && tracks_mva_bdt_loose>0 ",
+                   "loose6_SR_short": loose6_SR_short,
+                   "loose6_SR_long": loose6_SR_long,
                  }
 
 
@@ -169,6 +174,7 @@ if __name__ == "__main__":
     for label in categories:
         #stack_gendisapptrks("MHT", 50, 0, 1000, xlabel="missing H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
         #stack_gendisapptrks("HT", 50, 0, 1000, xlabel="H_{T} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
-        stack_gendisapptrks("tracks_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label), suffix=suffix + "_" + label)
+        #stack_gendisapptrks("tracks_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = base_cuts + categories[label], extra_text= "%s, %s tracks" % (extra_text, label.replace("loose6_SR_", "")), suffix=suffix + "_" + label)
+        stack_gendisapptrks("tracks_pt", 50, 0, 500, xlabel="p_{T}^{DT} (GeV)", path=path, selected_sample=selected_sample, base_cuts = categories[label], extra_text= "%s, %s tracks" % (extra_text, label.replace("loose6_SR_", "")), suffix=suffix + "_" + label)
 
 

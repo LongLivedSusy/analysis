@@ -9,7 +9,7 @@ gROOT.SetBatch(1)
 
 # ////////////////configure////////////////////////
 combine_path =   "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
-signals_path =   "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Signal/"
+signals_path =   "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Signal/T1qqqqLL/"
 prompt_bg_file = "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Background/prompt-bg-results.root"
 variable =       "BinNumberMethod"
 out_path =       "histograms-combined"
@@ -64,10 +64,13 @@ def get_integral(histo):
 
 def merge_histograms(variable, signals_path, prompt_bg_file):
 
-    os.system("mdkir -p %s" % out_path)
+    os.system("mkdir -p %s" % out_path)
     os.system("rm %s/*root" % out_path)
 
-    for signal_point in glob.glob(signals_path + "/*root"):
+    for i_signal_point, signal_point in enumerate(glob.glob(signals_path + "/*root")):
+
+        if i_signal_point>50:
+            continue
 
         try:
             gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1ne")[0] )
@@ -93,7 +96,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_signal_down.SetName("Signalg%s_chi%s_SysDown" % (gluino_mass, lsp_mass) )
 
         fin = TFile(prompt_bg_file, "read")
-        h_electronbg = fin.Get("hElBaseline_%s" % variable)
+        h_electronbg = fin.Get("hElBaselineZone3p1To5p0_%s" % variable)
         h_electronbg.SetDirectory(0)
         h_electronbg.SetName("Electron")
         fin.Close()
@@ -106,7 +109,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_electronbg_down.SetName("Electron_SysDown")
         
         fin = TFile(prompt_bg_file, "read")
-        h_muonbg = fin.Get("hMuBaseline_%s" % variable)
+        h_muonbg = fin.Get("hMuBaselineZone3p1To5p0_%s" % variable)
         h_muonbg.SetDirectory(0)
         h_muonbg.SetName("Muon")
         fin.Close()
@@ -119,7 +122,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_muonbg_down.SetName("Muon_SysDown")
 
         fin = TFile(prompt_bg_file, "read")
-        h_pionbg = fin.Get("hPiBaseline_%s" % variable)
+        h_pionbg = fin.Get("hPiBaselineZone3p1To5p0_%s" % variable)
         h_pionbg.SetDirectory(0)
         h_pionbg.SetName("Pion")
         fin.Close()
@@ -181,12 +184,16 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         shell_script = shell_script.replace("$COMBINEDIR", combine_path)
         shell_script = shell_script.replace("$DATACARD", datacard_file.split("/")[-1])
         shell_script = shell_script.replace("$LABEL", "Signalg%s_chi%s" % (gluino_mass, lsp_mass))
-        with open("../histograms/combined/run_combine.sh", "w") as shell_fout:
+        with open("%s/run_combine.sh" % out_path, "w") as shell_fout:
             shell_fout.write(shell_script)
 
-        os.system("cd ../histograms/combined/; chmod +x run_combine.sh; ./run_combine.sh")
+        try:
+            os.system("cd %s; chmod +x run_combine.sh; ./run_combine.sh" % out_path)
+        except:
+            pass
 
-        break
+        print "Point ok"
+
 
 merge_histograms(variable, signals_path, prompt_bg_file)
 
