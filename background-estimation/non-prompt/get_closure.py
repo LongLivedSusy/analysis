@@ -9,86 +9,59 @@ import array
 
 def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_text = "", xlabel = False, lumi = 36000, autoscaling = True, xmax = False, ymax = False, ymin = False, fr_regions = [], fr_maps = [], output_root_file = False, pdf_output = True, outpath = "plots"):
 
-    #if variable == "region":
-    #    canvas_label = canvas_label.replace("_short", "").replace("_long", "")
-
     if "Run201" in output_root_file:
         is_data = True
     else:
         is_data = False
-
-    if variable == "n_jets":
-        xmin = 0; xmax = 30
        
     histos = collections.OrderedDict()
 
     print "opening", root_file
     tfile = TFile(root_file, "open")
 
-    # get histograms -- special handling for regions histogram:
-    if False:
-        #if variable == "region":
-    
-        # create empty region hists
-        histos["mc_CR"] = TH1F("mc_CR", "mc_CR", 88, 1, 89)
-        histos["mc_nonprompt"] = TH1F("mc_nonprompt", "mc_nonprompt", 88, 1, 89)
-        histos["mc_prompt"] = TH1F("mc_prompt", "mc_prompt", 88, 1, 89)
-        histos["mc_prediction"] = TH1F("mc_prediction", "mc_prediction", 88, 1, 89)
-    
-        # get histograms:
-        for icategory in ["short", "long", "multi"]:
-               
-            htmp = {}           
-            htmp["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, icategory, cr) )
-            htmp["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, icategory, cr) )
-            htmp["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, icategory, cr) )
-            htmp["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, icategory, cr) )               
-               
-            histos["mc_CR"].Add(htmp["mc_CR"])
-            histos["mc_nonprompt"].Add(htmp["mc_nonprompt"])
-            histos["mc_prompt"].Add(htmp["mc_prompt"])
-            histos["mc_prediction"].Add(htmp["mc_prediction"])
-    
+    if category == "combined":
+        
+        # combine single short, single long and multiple tagged tracks: 
+        
+        histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, "short", cr) )
+        histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, "short", cr) )
+        histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, "short", cr) )
+        histos["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, "short", cr) )
+
+        histos["mc_CR"].Add(tfile.Get("%s_control_%s_%s" % (variable, "long", cr) ))
+        histos["mc_nonprompt"].Add(tfile.Get("%s_signalfake_%s_%s" % (variable, "long", cr) ))
+        histos["mc_prompt"].Add(tfile.Get("%s_signalprompt_%s_%s" % (variable, "long", cr) ))
+        histos["mc_prediction"].Add(tfile.Get("%s_prediction_%s_%s" % (variable, "long", cr) ))
+
+        histos["mc_CR"].Add(tfile.Get("%s_control_%s_%s" % (variable, "multi", cr) ))
+        histos["mc_nonprompt"].Add(tfile.Get("%s_signalfake_%s_%s" % (variable, "multi", cr) ))
+        histos["mc_prompt"].Add(tfile.Get("%s_signalprompt_%s_%s" % (variable, "multi", cr) ))
+        histos["mc_prediction"].Add(tfile.Get("%s_prediction_%s_%s" % (variable, "multi", cr) ))
+
+        canvas_label = canvas_label.replace("_short", "").replace("_long", "")
+
     else:
-        if category == "combined":
-            histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, "short", cr) )
-            histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, "short", cr) )
-            histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, "short", cr) )
-            histos["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, "short", cr) )
-
-            histos["mc_CR"].Add(tfile.Get("%s_control_%s_%s" % (variable, "long", cr) ))
-            histos["mc_nonprompt"].Add(tfile.Get("%s_signalfake_%s_%s" % (variable, "long", cr) ))
-            histos["mc_prompt"].Add(tfile.Get("%s_signalprompt_%s_%s" % (variable, "long", cr) ))
-            histos["mc_prediction"].Add(tfile.Get("%s_prediction_%s_%s" % (variable, "long", cr) ))
-
-            histos["mc_CR"].Add(tfile.Get("%s_control_%s_%s" % (variable, "multi", cr) ))
-            histos["mc_nonprompt"].Add(tfile.Get("%s_signalfake_%s_%s" % (variable, "multi", cr) ))
-            histos["mc_prompt"].Add(tfile.Get("%s_signalprompt_%s_%s" % (variable, "multi", cr) ))
-            histos["mc_prediction"].Add(tfile.Get("%s_prediction_%s_%s" % (variable, "multi", cr) ))
-
-            canvas_label = canvas_label.replace("_short", "").replace("_long", "")
-
-        else:
-            histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, category, cr) )
-            histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, category, cr) )
-            histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, category, cr) )
-            histos["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, category, cr) )
+        
+        histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, category, cr) )
+        histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, category, cr) )
+        histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, category, cr) )
+        histos["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, category, cr) )
     
     # rebin histograms:
-    #for label in histos:
-    #  if "HT" in variable:
-    #      redoBinning = [0, 100, 200, 300, 400, 500, 1000]
-    #  elif variable == "MinDeltaPhiMhtJets":
-    #      redoBinning = [0.3,0.5,0.7,0.9]
-    #  elif variable == "n_btags":
-    #      redoBinning = [0,1,2,5]
-    #  else:
-    #      redoBinning = False
-    #      
-    #  if redoBinning:
-    #      nbins = len(redoBinning)-1
-    #      newxs = array.array('d', redoBinning)
-    #      histos[label] = histos[label].Rebin(nbins, label, newxs)
+    for label in histos:
+      if "HT" in variable:
+          redoBinning = [0, 100, 200, 300, 400, 500, 1000]
+      elif variable == "MinDeltaPhiMhtJets":
+          redoBinning = [0.3, 0.5, 0.7, 0.9]
+      elif variable == "n_btags":
+          redoBinning = [0, 1, 2, 5]
+      else:
+          redoBinning = False
+          
+      if redoBinning:
+          nbins = len(redoBinning)-1
+          newxs = array.array('d', redoBinning)
+          histos[label] = histos[label].Rebin(nbins, label, newxs)
   
     colors = [kTeal, kBlue, kRed, kBlue, kRed, kOrange, kMagenta, kAzure, kTeal+2, kBlue+2, kRed+2, kBlue+2, kRed+2, kOrange+2, kMagenta+2, kAzure+2]
 
@@ -105,7 +78,7 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
             histos[label].SetMarkerColor(color)
             histos[label].SetMarkerSize(1.5)
 
-    # Sam's labels:
+    # rename labels:
     canvas_label = canvas_label.replace("_MET", "_Met")
     canvas_label = canvas_label.replace("_MHT", "_Mht")
     canvas_label = canvas_label.replace("_n_jets", "_NJets")
@@ -160,8 +133,9 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     histos["mc_CR"].GetXaxis().SetLabelSize(0)   
     histos["mc_CR"].SetTitle(";;events")
    
-    if not is_data: histos["mc_prompt"].Draw("same hist e")
-    if not is_data: histos["mc_nonprompt"].Draw("same hist e")
+    if not is_data:
+        histos["mc_prompt"].Draw("same hist e")
+        histos["mc_nonprompt"].Draw("same hist e")
 
     histos["mc_prediction"].Draw("same hist p")
 
@@ -195,8 +169,6 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     ratios = collections.OrderedDict()
     for i, label in enumerate(histos):
         if "prediction" in label:
-            #ratios[label] = histos[label].Clone()
-            #ratios[label].Divide(histos["mc_nonprompt"])
             if is_data:
                 ratios[label] = histos["mc_prediction"].Clone()
             else:
@@ -242,9 +214,8 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
             histos["mc_prediction"].SetName("%sTruth" % (canvas_label))
         histos["mc_prediction"].SetTitle(";%s;Events" % xlabel)
         histos["mc_prediction"].GetXaxis().SetLabelSize(0.03)   
+        histos["mc_prediction"].Scale(3.859)
         histos["mc_prediction"].Write()
-        #histos["mc_CR"].SetName("%s_control" % (canvas_label))
-        #histos["mc_CR"].Write()
         fout.Close()
         
 
@@ -253,37 +224,25 @@ if __name__ == "__main__":
     parser = OptionParser()
     (options, args) = parser.parse_args()
 
-    prediction_folder = "prediction7"
+    prediction_folder = "prediction23"
 
-    #for data_period in ["Summer16-all", "Summer16-WJets+TT", "Summer16-QCD+ZJets", "Run2016_MET", "Run2016_SingleMuon", "Run2016_SingleMuonMET"]:
-    #for data_period in ["Run2016_MET", "Run2016_SingleMuonMET"]:
-    for data_period in ["Summer16-QCD+ZJets", "Run2016_MET", "Run2016_SingleMuonMET"]:
+    os.system("rm closure_*.root")
+
+    for tag in ["loose8"]:
+
+        #for data_period in ["Summer16-all", "Summer16-QCD+ZJets", "Run2016"]:
+        for data_period in ["Run2016"]:
     
-        os.system("rm closure_%s.root" % data_period)
+            root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
 
-        root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
-
-        #for variable in ["region", "n_tags", "DeDxAverage", "Log10DedxMass", "Track1MassFromDedx", "n_btags", "MinDeltaPhiMhtJets", "n_goodmuons", "n_goodelectrons", "n_goodjets", "MET", "MHT", "HT"]:
-        for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
-            #for variable in ["region"]:
-            #for variable in ["region"]:
-            for tag in ["loose8"]:
-                for category in ["short", "long", "combined"]:
-                #for category in ["combined"]:
+            #for variable in ["region", "n_tags", "DeDxAverage", "Log10DedxMass", "Track1MassFromDedx", "n_btags", "MinDeltaPhiMhtJets", "n_goodmuons", "n_goodelectrons", "n_goodjets", "MET", "MHT", "HT"]:
+            for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
+            
+                for category in ["combined"]:
                     
-                    #if variable == "region" and category == "long": continue
-                    #if variable == "region" and data_period != "Run2016_SingleMuonMET": continue
-                    #if data_period == "Run2016_SingleMuonMET" and variable != "region": continue         
-
-                    #for cr in ["cr50", "cr50muveto", "cr50mu"]:
-                    for cr in ["baseline", "baseline_muveto", "baseline_mu", "baseline_MHT50_noveto", "baseline_MHT50_muveto", "baseline_MHT50_mu"]:
-
-                        if "mht50muons" == cr and "SingleMuon" not in data_period: continue
-                        if "mht50muveto" == cr and "MET" not in data_period: continue
-
-                        if "short" in variable and category != "short": continue
-                        if "long" in variable and category != "long": continue
-                        canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
+                    #for cr in ["baseline", "baseline_muveto", "baseline_mu", "baseline_MHT50_noveto", "baseline_MHT50_muveto", "baseline_MHT50_mu"]:
+                    #for cr in ["baseline", "baseline_muveto", "baseline_mu"]:
+                    for cr in ["baseline", "baseline_zmassveto"]:
                         
                         if "baseline_muveto" == cr:
                             canvas_label = "hFkBaselineMuVeto_%s" % variable
@@ -293,6 +252,10 @@ if __name__ == "__main__":
                             canvas_label = "hFkBaselineNoVeto_%s" % variable
                         elif "baseline" == cr:
                             canvas_label = "hFkBaseline_%s" % variable
+                        elif "baseline_zmassveto" == cr:
+                            canvas_label = "hFkBaselineZVeto_%s" % variable
+                        else:
+                            canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
 
                         print root_file, variable, tag, category, cr
 

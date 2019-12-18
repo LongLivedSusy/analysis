@@ -7,6 +7,7 @@ from GridEngineTools import runParallel
 import collections
 from array import array
 import tools.tags as tags
+import shared_utils
 
 def getBinContent_with_overflow(histo, xval, yval = False):
     
@@ -37,104 +38,11 @@ def getBinContent_with_overflow(histo, xval, yval = False):
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename, sideband = False):
   
     is_tracker_track = not is_pixel_track
-    inf = 9999
     binnumbers = collections.OrderedDict()
 
-    dedxcutLow = 3.1
-    dedxcutMid = 5.0
-    binnumbers = {}
-    listagain = ['Ht',   'Mht',    'NJets',  'BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-    binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
-    binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
-    binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 3
-    binnumbers[((0,inf),    (150,300),(1,1),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 4
-    binnumbers[((0,inf),    (150,300),(2,4),    (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 5
-    binnumbers[((0,inf),    (150,300),(2,4),    (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 6
-    binnumbers[((0,inf),    (150,300),(2,4),    (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 7
-    binnumbers[((0,inf),    (150,300),(2,4),    (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 8
-    binnumbers[((0,inf),    (150,300),(2,4),    (1,5),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 9
-    binnumbers[((0,inf),    (150,300),(2,4),    (1,5),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 10
-    binnumbers[((0,inf),    (150,300),(2,4),    (1,5),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 11
-    binnumbers[((0,inf),    (150,300),(2,4),    (1,5),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 12
-    binnumbers[((0,inf),    (150,300),(5,inf),  (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 13
-    binnumbers[((0,inf),    (150,300),(5,inf),  (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 14
-    binnumbers[((0,inf),    (150,300),(5,inf),  (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 15
-    binnumbers[((0,inf),    (150,300),(5,inf),  (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 16
-    binnumbers[((0,inf),    (150,300),(5,inf),  (1,inf),(1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 17
-    binnumbers[((0,inf),    (150,300),(5,inf),  (1,inf),(1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 18
-    binnumbers[((0,inf),    (150,300),(5,inf),  (1,inf),(1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 19
-    binnumbers[((0,inf),    (150,300),(5,inf),  (1,inf),(1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 20
-    binnumbers[((0,inf),    (300,inf),(1,1),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 21
-    binnumbers[((0,inf),    (300,inf),(1,1),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 22
-    binnumbers[((0,inf),    (300,inf),(1,1),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 23
-    binnumbers[((0,inf),    (300,inf),(1,1),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 24
-    binnumbers[((0,inf),    (300,inf),(2,4),    (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 25
-    binnumbers[((0,inf),    (300,inf),(2,4),    (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 26
-    binnumbers[((0,inf),    (300,inf),(2,4),    (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 27
-    binnumbers[((0,inf),    (300,inf),(2,4),    (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 28
-    binnumbers[((0,inf),    (300,inf),(2,4),    (1,5),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 29
-    binnumbers[((0,inf),    (300,inf),(2,4),    (1,5),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 30
-    binnumbers[((0,inf),    (300,inf),(2,4),    (1,5),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 31
-    binnumbers[((0,inf),    (300,inf),(2,4),    (1,5),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 32
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 33
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 34
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 35
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 36
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (1,inf),(1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 37
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (1,inf),(1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 38
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (1,inf),(1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 39
-    binnumbers[((0,1000),   (300,inf),(5,inf),  (1,inf),(1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 40
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 41
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (0,0),  (1,1),  (0,0),(1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 42
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (0,0),  (1,1),  (1,1),(0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 43
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (0,0),  (1,1), (1,1), (0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 44
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (1,inf),(1,1), (0,0), (1,1),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 45
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (1,inf),(1,1), (0,0), (1,1),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 46
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (1,inf),(1,1), (1,1), (0,0),      (0.3,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 47
-    binnumbers[((1000,inf), (300,inf),(5,inf),  (1,inf),(1,1), (1,1), (0,0),      (0.3,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 48
-    #listagain =  ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 49
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 50
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 51
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 52
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 53
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 54
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 55
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 56
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 57
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 58
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 59
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 60
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 61
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 62
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 63
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 64
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 65
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 66
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 67
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 68
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 69
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 70
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 71
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 72
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 73
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 74
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 75
-    binnumbers[((0,inf),   (0,150),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 76
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 77
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 78
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 79
-    binnumbers[((0,inf),   (150,inf), (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 80
-    #listagain =  ['Ht',  'Mht',    'NJets','BTags','NTags','NPix','NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-    binnumbers[((0,inf),   (150,300), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))]   = 81
-    binnumbers[((0,inf),   (150,300), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))]   = 82
-    binnumbers[((0,inf),   (300,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))]   = 83
-    binnumbers[((0,inf),   (300,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))]   = 84
-    binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 85
-    binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 86 
-    binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 87
-    binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 88
-    #listagain = ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+    dedxcutLow = shared_utils.dedxcutLow
+    dedxcutMid = shared_utils.dedxcutMid
+    binnumbers = shared_utils.binnumbers
 
     region = 0
     for binkey in binnumbers:
@@ -233,8 +141,6 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
                 "Log10DedxMass": TH1F("Log10DedxMass", "Log10DedxMass", 10, 0, 5),
                 "DeDxAverage": TH1F("DeDxAverage", "DeDxAverage", 20, 0, 10),
                 "n_tags": TH1F("n_tags", "n_tags", 3, 0, 3),
-                #"region": TH1F("region", "region", 67, 1, 68),
-                #"sidebandregion": TH1F("sidebandregion", "sidebandregion", 67, 1, 68),
                 "region": TH1F("region", "region", 88, 1, 89),
                 "sidebandregion": TH1F("sidebandregion", "sidebandregion", 88, 1, 89),
              }
@@ -242,13 +148,14 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
     tagged = "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0"
 
     event_selection = {
-                "baseline":                tagged,
-                "baseline_muveto":         tagged + " and event.n_goodmuons==0",
-                "baseline_mu":             tagged + " and event.n_goodmuons>0",
-                "baseline_MHT50_noveto":   tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
-                "baseline_MHT50_muveto":   tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==0",
-                "baseline_MHT50_mu":       tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons>0",
-                "baseline_MHT50_singlemu": tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==1",
+                "baseline":                 tagged,
+                "baseline_zmassveto":       tagged +  " and event.tracks_zmassveto!=1 ",
+                #"baseline_muveto":         tagged + " and event.n_goodmuons==0",
+                #"baseline_mu":             tagged + " and event.n_goodmuons>0",
+                "baseline_MHT50_noveto":    tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
+                #"baseline_MHT50_muveto":   tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==0",
+                #"baseline_MHT50_mu":       tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons>0",
+                #"baseline_MHT50_singlemu": tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==1",
                       }
 
     output_variables = histos.keys()
@@ -304,6 +211,7 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
         
         for tag in tags.tags:
 
+            # with z mass veto:
             good_track = tags.convert_cut_string(tags.good_track)
 
             for cr in pass_cr:
@@ -510,17 +418,17 @@ if __name__ == "__main__":
     TH1D.SetDefaultSumw2()
 
     if options.hadd:
-        #os.system("hadd -f %s/prediction_Summer16-all.root %s/Summer16*.root" % (options.prediction_folder, options.prediction_folder))
+        #os.system("hadd -f %s/prediction_Summer16.root %s/Summer16*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Summer16-DY.root %s/Summer16.DY*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Summer16-WJets.root %s/Summer16.WJets*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Summer16-TT.root %s/Summer16.TT*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Summer16-QCD.root %s/Summer16.QCD*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Summer16-ZJets.root %s/Summer16.ZJets*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Summer16-WJets+TT.root %s/Summer16.WJets*.root %s/Summer16.TT*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
-        os.system("hadd -f %s/prediction_Summer16-QCD+ZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
-        os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root" % (options.prediction_folder, options.prediction_folder))
+        #os.system("hadd -f %s/prediction_Summer16-QCD+ZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
+        #os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Run2016_SingleMuon.root %s/Run2016*SingleMuon*.root" % (options.prediction_folder, options.prediction_folder))
-        os.system("hadd -f %s/prediction_Run2016_SingleMuonMET.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s/prediction_Run2016.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
         quit()
 
     # run parallel if input is a folder:
@@ -545,6 +453,7 @@ if __name__ == "__main__":
             if "Summer16.TT_Tune" in input_file: use_file = True
             if "Run2016" in input_file and "MET" in input_file: use_file = True
             if "Run2016" in input_file and "SingleMuon" in input_file: use_file = True
+            if "Run2016" in input_file and "SingleElectron" in input_file: use_file = True
             if not use_file: continue
             
             # get nev:
