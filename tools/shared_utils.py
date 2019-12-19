@@ -82,7 +82,7 @@ binningAnalysis['Met']=[45,0,1200]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [88,1,89]
 binningAnalysis['DeDxAverage'] = [0,3.4,4.7,6.0,10.0]
-binningAnalysis['InvMass'] = [20,0,200]
+#binningAnalysis['InvMass'] = [20,0,200]
 binningAnalysis['LepMT'] = [20,0,200]
 
 '''
@@ -446,7 +446,7 @@ def calcMiniIso(trk, tracks):
 		if dR<R: ptsum+=track.pt()
 	return ptsum/trk.pt()
 
-def isMatched(obj, col, dR=0.02, verbose = False):
+def isMatched2(obj, col, dR=0.02, verbose = False):
 	matchedIdx = -1
 	bigDR = inf
 	for ic, thing in enumerate(col):
@@ -1032,7 +1032,7 @@ susybypdg[1000024] = 'Chi1pm'
 triggerIndeces = {}
 triggerIndeces['MhtMet6pack'] = [124,109,110,111,112,114,115,116]#123
 triggerIndeces['SingleMuon'] = [49,50,65]
-triggerIndeces['SingleElectron'] = [36,39,40]
+triggerIndeces['SingleElectron'] = [36,37,39,40]
 def PassTrig(c,trigname):
 	for trigidx in triggerIndeces[trigname]: 
 		if c.TriggerPass[trigidx]==1: return True
