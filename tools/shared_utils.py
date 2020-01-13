@@ -82,7 +82,7 @@ binningAnalysis['Met']=[45,0,1200]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [88,1,89]
 binningAnalysis['DeDxAverage'] = [0,3.4,4.7,6.0,10.0]
-#binningAnalysis['InvMass'] = [20,0,200]
+binningAnalysis['InvMass'] = [10,0,200]
 binningAnalysis['LepMT'] = [20,0,200]
 
 '''
@@ -1039,6 +1039,7 @@ def PassTrig(c,trigname):
 		#print "Passing trigger %s, index:%s"%(c.TriggerNames[trigidx],trigidx)
 	return False
 
+datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9061080624374195, 'Run2016E': 0.9080677535191167, 'Run2016F': 0.9722403102882298, 'Run2016G': 0.980409154652915, 'Run2016B': 0.8985872543754646, 'Run2016C': 0.8993061999613786}
 
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
