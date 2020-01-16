@@ -9,10 +9,11 @@ gROOT.SetBatch(1)
 
 # ////////////////configure////////////////////////
 combine_path =   "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
-signals_path =   "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Signal/T1qqqqLL/"
-prompt_bg_file = "/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Piano/Background/prompt-bg-results.root"
+signals_path =   "../histograms/Piano/v2/Signal/T1qqqqLL/"
+prompt_bg_file = "../histograms/Piano/v2/Background/prompt-bg-results.root"
+fake_bg_file =   "../histograms/Piano/v2/Background/fake-bg-results.root"
 variable =       "BinNumberMethod"
-out_path =       "histograms-combined"
+out_path =       "datacards_output"
 # ////////////////configure////////////////////////
 
 
@@ -30,17 +31,18 @@ shapes * * $ROOTFILE $PROCESS $PROCESS_$SYSTEMATIC
 bin            ak
 Observation    $OBS
 ---------------------------------------------------------------------------
-bin                               ak     ak     ak     ak      
-process                          $LABEL   Electron     Muon     Pion
-process                            0             1          2        3
+bin                               ak     ak     ak     ak     ak
+process                          $LABEL   Electron     Muon     Pion     Fake
+process                            0             1          2        3        4
 ---------------------------------------------------------------------------
-rate                             $RATE0           $RATE1       $RATE2       $RATE3
+rate                             $RATE0           $RATE1       $RATE2       $RATE3       $RATE4
 ---------------------------------------------------------------------------
-lumi_13TeV               lnN    1.027           1.027       1.027   1.027    Luminosity Error
-Sys                     shapeN2   1		        -	         -        -       Systematic error 
-Sys                     shapeN2   -             1            -        -       Systematic error
-Sys                     shapeN2   -             -            1        -       Systematic error
-Sys                     shapeN2   -             -            -        1       Systematic error
+lumi_13TeV               lnN    1.027           1.027       1.027    1.027    1.027    Luminosity Error
+Sys                     shapeN2   1		        -	         -         -         -       Systematic error 
+Sys                     shapeN2   -             1            -         -         -       Systematic error
+Sys                     shapeN2   -             -            1         -         -       Systematic error
+Sys                     shapeN2   -             -            -         1         -       Systematic error
+Sys                     shapeN2   -             -            -         -         1       Systematic error
 * autoMCStats 0 1
 """
 
@@ -54,12 +56,7 @@ combine -M AsymptoticLimits $DATACARD --name $LABEL --noFitAsimov
 
 def get_integral(histo):
 
-    integral = 0
-    for iBin in range(histo.GetNbinsX()):
-        value = histo.GetBinContent(iBin)
-        width = histo.GetBinWidth(iBin)
-        integral += value * width
-    return integral
+    return histo.Integral()
 
 
 def merge_histograms(variable, signals_path, prompt_bg_file):
@@ -69,8 +66,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
 
     for i_signal_point, signal_point in enumerate(glob.glob(signals_path + "/*root")):
 
-        if i_signal_point>50:
-            continue
+        #if i_signal_point>0: break
 
         try:
             gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1ne")[0] )
@@ -96,7 +92,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_signal_down.SetName("Signalg%s_chi%s_SysDown" % (gluino_mass, lsp_mass) )
 
         fin = TFile(prompt_bg_file, "read")
-        h_electronbg = fin.Get("hElBaselineZone3p1To5p0_%s" % variable)
+        h_electronbg = fin.Get("hElBaseline_%s" % variable)
         h_electronbg.SetDirectory(0)
         h_electronbg.SetName("Electron")
         fin.Close()
@@ -109,7 +105,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_electronbg_down.SetName("Electron_SysDown")
         
         fin = TFile(prompt_bg_file, "read")
-        h_muonbg = fin.Get("hMuBaselineZone3p1To5p0_%s" % variable)
+        h_muonbg = fin.Get("hMuBaseline_%s" % variable)
         h_muonbg.SetDirectory(0)
         h_muonbg.SetName("Muon")
         fin.Close()
@@ -122,7 +118,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_muonbg_down.SetName("Muon_SysDown")
 
         fin = TFile(prompt_bg_file, "read")
-        h_pionbg = fin.Get("hPiBaselineZone3p1To5p0_%s" % variable)
+        h_pionbg = fin.Get("hPiBaseline_%s" % variable)
         h_pionbg.SetDirectory(0)
         h_pionbg.SetName("Pion")
         fin.Close()
@@ -133,6 +129,19 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_pionbg_down = h_signal.Clone()
         h_pionbg_down.SetDirectory(0)
         h_pionbg_down.SetName("Pion_SysDown")
+
+        fin = TFile(fake_bg_file, "read")
+        h_fakebg = fin.Get("hFkBaseline_%s" % variable)
+        h_fakebg.SetDirectory(0)
+        h_fakebg.SetName("Fake")
+        fin.Close()
+
+        h_fakebg_up = h_signal.Clone()
+        h_fakebg_up.SetDirectory(0)
+        h_fakebg_up.SetName("Fake_SysUp")
+        h_fakebg_down = h_signal.Clone()
+        h_fakebg_down.SetDirectory(0)
+        h_fakebg_down.SetName("Fake_SysDown")
 
         # write some bogus data:
         h_obs = h_signal.Clone()
@@ -159,6 +168,9 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         h_pionbg.Write()
         h_pionbg_up.Write()
         h_pionbg_down.Write()
+        h_fakebg.Write()
+        h_fakebg_up.Write()
+        h_fakebg_down.Write()
         h_obs.Write()
         h_obs_up.Write()
         h_obs_down.Write
@@ -171,6 +183,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         datacard = datacard.replace("$RATE1", str(get_integral(h_electronbg)) )
         datacard = datacard.replace("$RATE2", str(get_integral(h_muonbg)) )
         datacard = datacard.replace("$RATE3", str(get_integral(h_pionbg)) )
+        datacard = datacard.replace("$RATE4", str(get_integral(h_fakebg)) )
         datacard = datacard.replace("$LABEL", "Signalg%s_chi%s" % (gluino_mass, lsp_mass) )
         datacard = datacard.replace("$ROOTFILE", output_file_name )
 
@@ -180,15 +193,17 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
 
         print "Computing limit..."
 
+        script_name = output_file_name.replace(".root", ".sh")
+
         shell_script = run_combine
         shell_script = shell_script.replace("$COMBINEDIR", combine_path)
         shell_script = shell_script.replace("$DATACARD", datacard_file.split("/")[-1])
         shell_script = shell_script.replace("$LABEL", "Signalg%s_chi%s" % (gluino_mass, lsp_mass))
-        with open("%s/run_combine.sh" % out_path, "w") as shell_fout:
+        with open("%s/%s" % (out_path, script_name), "w") as shell_fout:
             shell_fout.write(shell_script)
 
         try:
-            os.system("cd %s; chmod +x run_combine.sh; ./run_combine.sh" % out_path)
+            os.system("cd %s; chmod +x %s; ./%s&" % (out_path, script_name, script_name))
         except:
             pass
 
