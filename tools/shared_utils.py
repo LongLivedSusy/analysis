@@ -2,8 +2,10 @@ from ROOT import *
 from array import array
 
 
-dedxcutLow = 3.4
-dedxcutMid = 6.0
+0.744690871542444
+
+dedxcutLow = 2.5
+dedxcutMid = 4
 
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
 PtBinEdges = [0,20,24,27,30,31,32,34,36,38,40,45,50,60,90,120,180,250]#best
@@ -1039,7 +1041,8 @@ def PassTrig(c,trigname):
 		#print "Passing trigger %s, index:%s"%(c.TriggerNames[trigidx],trigidx)
 	return False
 
-datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9061080624374195, 'Run2016E': 0.9080677535191167, 'Run2016F': 0.9722403102882298, 'Run2016G': 0.980409154652915, 'Run2016B': 0.8985872543754646, 'Run2016C': 0.8993061999613786}
+
+datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9110228586038934, 'Run2016E': 0.9172251497168261, 'Run2016F': 0.9866513309729763, 'Run2016G': 1.0051360517782837, 'Run2016B': 0.9089157247376515, 'Run2016C': 0.9037296677386634, 'Summer16': 0.744690871542444}
 
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
