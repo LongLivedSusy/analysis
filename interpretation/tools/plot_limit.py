@@ -28,6 +28,8 @@ def GetContours(g, color, style):
 
 def GetContoursSmooth(g, color, style, n_smooth  = 4):
     
+    return GetContours(g, color, style)
+
     if(n_smooth>0):
         g2 = g.Clone()
         histo2d = g2.GetHistogram();
@@ -272,7 +274,13 @@ def produce_limit_plot(pattern = "T1qqqqLL_allbins"):
 
 if __name__ == "__main__":
 
-    patterns = ["T1qqqqLL_allbins", "T1qqqqLL_noleptons", "T1qqqqLL_onlyleptons"]
+    gROOT.SetBatch(1)
+
+    patterns = [
+                "T1qqqqLL_allbins",
+                #"T1qqqqLL_noleptons",
+                #"T1qqqqLL_onlyleptons",
+               ]
 
     for pattern in patterns:
         produce_limit_plot(pattern)

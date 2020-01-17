@@ -3,7 +3,6 @@ from ROOT import *
 import os
 import glob
 from GridEngineTools import runParallel
-gROOT.SetBatch(1)
 
 # comments to viktor.kutzner@desy.de
 # prepare histograms and datacards for combine tool. Histograms contain the prompt and fake background prediction as well as signal and data
@@ -40,7 +39,9 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
     ---------------------------------------------------------------------------
     rate                             $RATE0           $RATE1       $RATE2       $RATE3       $RATE4
     ---------------------------------------------------------------------------
-    lumi_13TeV               lnN    1.027           1.027       1.027    1.027    1.027    Luminosity Error
+    Lumi                     lnN    1.025           1.025     1.025     1.025     1.025    Luminosity Error
+    jes                      lnN    0.98/1.03       -         -         -         -
+    btag                     lnN    1.02            -         -         -         -
     Sys                     shapeN2   1		        -	         -         -         -       Systematic error 
     Sys                     shapeN2   -             1            -         -         -       Systematic error
     Sys                     shapeN2   -             -            1         -         -       Systematic error
@@ -63,12 +64,22 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
 
         #if i_signal_point>0: break
 
-        try:
-            gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1ne")[0] )
+        if "T1qqqqLL" in signals_path:
+
+            try:
+                gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1ne")[0] )
+                lsp_mass = int( signal_point.split("_Chi1ne")[-1].split("_Chi")[0].replace(".root", "") )
+            except:
+                gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1pm")[0] )
+                lsp_mass = int( signal_point.split("_Chi1pm")[-1].split("_Chi")[0].replace(".root", "") )
+
+        elif "T2tbLL" in signals_path:
+            gluino_mass = int( signal_point.split("Stop")[-1].split("_Chi")[0] )
             lsp_mass = int( signal_point.split("_Chi1ne")[-1].split("_Chi")[0].replace(".root", "") )
-        except:
-            gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1pm")[0] )
-            lsp_mass = int( signal_point.split("_Chi1pm")[-1].split("_Chi")[0].replace(".root", "") )
+
+        else:
+            print "Unrecognized signal"
+            quit()
 
         print "Merging histograms..."
         print "Processing", signal_point, gluino_mass, lsp_mass
@@ -220,23 +231,26 @@ def run_limit_calculation(out_path):
 
 if __name__ == "__main__":
 
+    gROOT.SetBatch(1)
+
     combine_cmssw_path = "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
-    signals_path =       "../histograms/Piano/v2/Signal/T1qqqqLL"
+    #signals_path =       "../histograms/Piano/v2/Signal/T1qqqqLL"
+    signals_path =       "../histograms/Piano/v2/Signal/T2tbLL"
     prompt_bg_file =     "../histograms/Piano/v2/Background/prompt-bg-results.root"
     fake_bg_file =       "../histograms/Piano/v2/Background/fake-bg-results.root"
     variable =           "BinNumberMethod"
 
     out_paths = {
-                     "allbins": [],
-                     "noleptons": range(49, 80+1) + range(85, 88+1),
-                     "onlyleptons": range(0, 48+1) + range(81, 84+1),
+                  "allbins": [],
+                  "noleptons": range(49, 80+1) + range(85, 88+1),
+                  "onlyleptons": range(0, 48+1) + range(81, 84+1),
                 }
 
     for out_path in out_paths:
 
         signal = signals_path.split("/")[-1]
 
-        prepare_datacards(variable, combine_cmssw_path, signals_path, prompt_bg_file, fake_bg_file, signal + "_" + out_path, ignoreBins = out_paths[out_path])
+        prepare_datacards(variable, combine_cmssw_path, signals_path, prompt_bg_file, fake_bg_file, "../" + signal + "_" + out_path, ignoreBins = out_paths[out_path])
         print "Running combine for all points..."
         run_limit_calculation(signal + "_" + out_path)
 
