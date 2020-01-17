@@ -66,7 +66,7 @@ def babysit_jobs(condorDir):
     return 0
 
 
-def runCommands(mycommands, condorDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, confirm=True):
+def runCommands(mycommands, condorDir="bird", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, confirm=True, babysit=True):
 
     jobscript = '''#!/bin/bash
     echo "$QUEUE $JOB $HOST"
@@ -159,7 +159,7 @@ def runCommands(mycommands, condorDir="bird", cmsbase=False, qsubOptions=False, 
     os.system("condor_submit runjobs.submit > cluster_info")
     os.chdir("..")
  
-    status = babysit_jobs(condorDir)
-
-    return status
+    if babysit:
+        status = babysit_jobs(condorDir)
+        return status
 

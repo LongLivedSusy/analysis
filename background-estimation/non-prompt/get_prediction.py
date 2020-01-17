@@ -6,7 +6,7 @@ import math, os, glob
 from GridEngineTools import runParallel
 import collections
 from array import array
-import tools.tags as tags
+import tags
 import shared_utils
 
 def getBinContent_with_overflow(histo, xval, yval = False):
@@ -148,11 +148,13 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
     tagged = "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0"
 
     event_selection = {
-                "baseline":                 tagged,
-                "baseline_zmassveto":       tagged +  " and event.tracks_zmassveto!=1 ",
+                #"baseline":                 tagged,
+                "baseline_region":           tagged + " and event.region_loose8>0",
+                "baseline_region_MHT50":     tagged + " and event.region_loose8>0 and event.MHT>50",
+                #"baseline_zmassveto":       tagged +  " and event.tracks_zmassveto!=1 ",
                 #"baseline_muveto":         tagged + " and event.n_goodmuons==0",
                 #"baseline_mu":             tagged + " and event.n_goodmuons>0",
-                "baseline_MHT50_noveto":    tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
+                #"baseline_MHT50_noveto":    tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
                 #"baseline_MHT50_muveto":   tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==0",
                 #"baseline_MHT50_mu":       tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons>0",
                 #"baseline_MHT50_singlemu": tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==1",
@@ -429,6 +431,10 @@ if __name__ == "__main__":
         #os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root" % (options.prediction_folder, options.prediction_folder))
         #os.system("hadd -f %s/prediction_Run2016_SingleMuon.root %s/Run2016*SingleMuon*.root" % (options.prediction_folder, options.prediction_folder))
         os.system("hadd -f %s/prediction_Run2016.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
+        
+        for period in ["B", "C", "D", "E", "F", "G", "H"]:
+            os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
+                    
         quit()
 
     # run parallel if input is a folder:

@@ -2,64 +2,59 @@
 from ROOT import *
 import os
 import glob
+from GridEngineTools import runParallel
 gROOT.SetBatch(1)
 
 # comments to viktor.kutzner@desy.de
-# prepare histograms for combine which contain the prompt and fake background prediction as well as signal and data
-
-# ////////////////configure////////////////////////
-combine_path =   "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
-signals_path =   "../histograms/Piano/v2/Signal/T1qqqqLL/"
-prompt_bg_file = "../histograms/Piano/v2/Background/prompt-bg-results.root"
-fake_bg_file =   "../histograms/Piano/v2/Background/fake-bg-results.root"
-variable =       "BinNumberMethod"
-out_path =       "datacards_output"
-# ////////////////configure////////////////////////
+# prepare histograms and datacards for combine tool. Histograms contain the prompt and fake background prediction as well as signal and data
 
 
-datacard_template = """
-Date: 2019-08-31 
-Description: Disappearing Tracks
----------------------------------------------------------------------------
-imax   1  number of channels
-jmax   *  number of backgrounds
-kmax   *  number of nuisance parameters
----------------------------------------------------------------------------
-shapes * * $ROOTFILE $PROCESS $PROCESS_$SYSTEMATIC
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-bin            ak
-Observation    $OBS
----------------------------------------------------------------------------
-bin                               ak     ak     ak     ak     ak
-process                          $LABEL   Electron     Muon     Pion     Fake
-process                            0             1          2        3        4
----------------------------------------------------------------------------
-rate                             $RATE0           $RATE1       $RATE2       $RATE3       $RATE4
----------------------------------------------------------------------------
-lumi_13TeV               lnN    1.027           1.027       1.027    1.027    1.027    Luminosity Error
-Sys                     shapeN2   1		        -	         -         -         -       Systematic error 
-Sys                     shapeN2   -             1            -         -         -       Systematic error
-Sys                     shapeN2   -             -            1         -         -       Systematic error
-Sys                     shapeN2   -             -            -         1         -       Systematic error
-Sys                     shapeN2   -             -            -         -         1       Systematic error
-* autoMCStats 0 1
-"""
+def zero_out_certain_bins(histo, ignoreBins):
+      
+    for iBin in range(histo.GetNbinsX()+1):
+        if iBin in ignoreBins:
+            histo.SetBinContent(iBin, 0)
+            histo.SetBinError(iBin, 0)
+    return histo
+    
 
-run_combine = """#!/bin/bash
-cd $COMBINEDIR
-eval `scramv1 runtime -sh`
-cd -
-combine -M AsymptoticLimits $DATACARD --name $LABEL --noFitAsimov
-"""
+def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake_bg_file, out_path, ignoreBins = []):
 
+    datacard_template = """
+    Date: 2019-08-31 
+    Description: Disappearing Tracks
+    ---------------------------------------------------------------------------
+    imax   1  number of channels
+    jmax   *  number of backgrounds
+    kmax   *  number of nuisance parameters
+    ---------------------------------------------------------------------------
+    shapes * * $ROOTFILE $PROCESS $PROCESS_$SYSTEMATIC
+    ---------------------------------------------------------------------------
+    ---------------------------------------------------------------------------
+    bin            ak
+    Observation    $OBS
+    ---------------------------------------------------------------------------
+    bin                               ak     ak     ak     ak     ak
+    process                          $LABEL   Electron     Muon     Pion     Fake
+    process                            0             1          2        3        4
+    ---------------------------------------------------------------------------
+    rate                             $RATE0           $RATE1       $RATE2       $RATE3       $RATE4
+    ---------------------------------------------------------------------------
+    lumi_13TeV               lnN    1.027           1.027       1.027    1.027    1.027    Luminosity Error
+    Sys                     shapeN2   1		        -	         -         -         -       Systematic error 
+    Sys                     shapeN2   -             1            -         -         -       Systematic error
+    Sys                     shapeN2   -             -            1         -         -       Systematic error
+    Sys                     shapeN2   -             -            -         1         -       Systematic error
+    Sys                     shapeN2   -             -            -         -         1       Systematic error
+    * autoMCStats 0 1
+    """
 
-def get_integral(histo):
-
-    return histo.Integral()
-
-
-def merge_histograms(variable, signals_path, prompt_bg_file):
+    run_combine = """#!/bin/bash
+    cd $COMBINEDIR
+    eval `scramv1 runtime -sh`
+    cd -
+    combine -M AsymptoticLimits $DATACARD --name $LABEL --noFitAsimov
+    """
 
     os.system("mkdir -p %s" % out_path)
     os.system("rm %s/*root" % out_path)
@@ -81,6 +76,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         fin = TFile(signal_point, "read")
         h_signal = fin.Get("hBaseline_%s" % variable.replace("Method", "Truth"))
         h_signal.SetDirectory(0)
+        h_signal = zero_out_certain_bins(h_signal, ignoreBins)
         h_signal.SetName("Signalg%s_chi%s" % (gluino_mass, lsp_mass) )
         fin.Close()
 
@@ -94,6 +90,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         fin = TFile(prompt_bg_file, "read")
         h_electronbg = fin.Get("hElBaseline_%s" % variable)
         h_electronbg.SetDirectory(0)
+        h_electronbg = zero_out_certain_bins(h_electronbg, ignoreBins)
         h_electronbg.SetName("Electron")
         fin.Close()
 
@@ -107,6 +104,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         fin = TFile(prompt_bg_file, "read")
         h_muonbg = fin.Get("hMuBaseline_%s" % variable)
         h_muonbg.SetDirectory(0)
+        h_muonbg = zero_out_certain_bins(h_muonbg, ignoreBins)
         h_muonbg.SetName("Muon")
         fin.Close()
 
@@ -120,6 +118,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         fin = TFile(prompt_bg_file, "read")
         h_pionbg = fin.Get("hPiBaseline_%s" % variable)
         h_pionbg.SetDirectory(0)
+        h_pionbg = zero_out_certain_bins(h_pionbg, ignoreBins)
         h_pionbg.SetName("Pion")
         fin.Close()
 
@@ -133,6 +132,7 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         fin = TFile(fake_bg_file, "read")
         h_fakebg = fin.Get("hFkBaseline_%s" % variable)
         h_fakebg.SetDirectory(0)
+        h_fakebg = zero_out_certain_bins(h_fakebg, ignoreBins)
         h_fakebg.SetName("Fake")
         fin.Close()
 
@@ -178,12 +178,12 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
 
         print "Writing datacard..."
         datacard = datacard_template
-        datacard = datacard.replace("$OBS", str(get_integral(h_obs)) )
-        datacard = datacard.replace("$RATE0", str(get_integral(h_signal)) )
-        datacard = datacard.replace("$RATE1", str(get_integral(h_electronbg)) )
-        datacard = datacard.replace("$RATE2", str(get_integral(h_muonbg)) )
-        datacard = datacard.replace("$RATE3", str(get_integral(h_pionbg)) )
-        datacard = datacard.replace("$RATE4", str(get_integral(h_fakebg)) )
+        datacard = datacard.replace("$OBS", str(h_obs.Integral()) )
+        datacard = datacard.replace("$RATE0", str(h_signal.Integral()) )
+        datacard = datacard.replace("$RATE1", str(h_electronbg.Integral()) )
+        datacard = datacard.replace("$RATE2", str(h_muonbg.Integral()) )
+        datacard = datacard.replace("$RATE3", str(h_pionbg.Integral()) )
+        datacard = datacard.replace("$RATE4", str(h_fakebg.Integral()) )
         datacard = datacard.replace("$LABEL", "Signalg%s_chi%s" % (gluino_mass, lsp_mass) )
         datacard = datacard.replace("$ROOTFILE", output_file_name )
 
@@ -202,15 +202,42 @@ def merge_histograms(variable, signals_path, prompt_bg_file):
         with open("%s/%s" % (out_path, script_name), "w") as shell_fout:
             shell_fout.write(shell_script)
 
-        try:
-            os.system("cd %s; chmod +x %s; ./%s&" % (out_path, script_name, script_name))
-        except:
-            pass
-
         print "Point ok"
 
 
-merge_histograms(variable, signals_path, prompt_bg_file)
+def run_limit_calculation(out_path):
+    
+    files = glob.glob(out_path + "/*.sh")
+    commands = []
+    
+    for i_script_name, script_name in enumerate(files):
+        script_name = script_name.split("/")[-1]
+        cmd = "cd %s; chmod +x %s; ./%s" % (out_path, script_name, script_name)
+        commands.append(cmd)
+                    
+    runParallel(commands, "grid", condorDir=out_path, confirm=False, babysit=False)
+        
 
+if __name__ == "__main__":
+
+    combine_cmssw_path = "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
+    signals_path =       "../histograms/Piano/v2/Signal/T1qqqqLL"
+    prompt_bg_file =     "../histograms/Piano/v2/Background/prompt-bg-results.root"
+    fake_bg_file =       "../histograms/Piano/v2/Background/fake-bg-results.root"
+    variable =           "BinNumberMethod"
+
+    out_paths = {
+                     "allbins": [],
+                     "noleptons": range(49, 80+1) + range(85, 88+1),
+                     "onlyleptons": range(0, 48+1) + range(81, 84+1),
+                }
+
+    for out_path in out_paths:
+
+        signal = signals_path.split("/")[-1]
+
+        prepare_datacards(variable, combine_cmssw_path, signals_path, prompt_bg_file, fake_bg_file, signal + "_" + out_path, ignoreBins = out_paths[out_path])
+        print "Running combine for all points..."
+        run_limit_calculation(signal + "_" + out_path)
 
 
