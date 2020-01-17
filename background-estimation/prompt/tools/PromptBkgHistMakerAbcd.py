@@ -58,10 +58,10 @@ else: kappasmearlevellabel = 'SmearLeps4ZedFalse'
 verbose = False
 
 
-isdata = 'Run20' in inputFileNames
+isdata = 'Run201' in inputFileNames
 if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames or 'aksingh' in inputFileNames: 
 	is2016, is2017, is2018 = True, False, False
-elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames or 'somethingelse' in inputFileNames: 
+elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames or 'Run2017' in inputFileNames: 
 	is2016, is2017, is2018 = False, True, False
 elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or other' in inputFileNames: 
 	is2016, is2017, is2018 = False, True, True
@@ -91,11 +91,12 @@ if isdata: ClosureMode = False
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
 
-datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9061080624374195, 'Run2016E': 0.9080677535191167, 'Run2016F': 0.9722403102882298, 'Run2016G': 0.980409154652915, 'Run2016B': 0.8985872543754646, 'Run2016C': 0.8993061999613786}
 
-if 'Run2016' in identifier: dedxcalib = datacalibdict[identifier.split('-')[0]]
+if 'Run201' in identifier: dedxcalib = datacalibdict[identifier.split('-')[0]]
+elif 'Summer16' in identifier: dedxcalib = datacalibdict['Summer16']
 else: dedxcalib = 1.0
 
+#dedxcalib = 1.0
 
 newfname = codeproduct+'_'+identifier+'.root'
 moreargs = ' '.join(sys.argv)
@@ -121,13 +122,13 @@ inf = 999999
 
 regionCuts = {}
 varlist_                             = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons',   'NMuons', 'InvMass', 'LepMT', 'NPions',   'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber', 'Met']
-regionCuts['Baseline']               = [(0,inf), (0,inf),    (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),     (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
+regionCuts['NoCuts']               = [(0,inf), (0,inf),    (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),     (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
 regionCuts['HadBaseline']            = [(150,inf), (150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (0,0),    (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
 #regionCuts['HighMetBaseline']       = [(0,inf), (250,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf ),    (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),  (-inf,inf),  (-inf,inf)]
 regionCuts['SMuBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
 regionCuts['SMuZLL']                 = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
 regionCuts['SElBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
-regionCuts['SElZLL']                  = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElZLL']                 = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
 
 
 
@@ -147,7 +148,7 @@ histoStructDict = {}
 hEtaVsPhiDT = {}
 for region in regionCuts:
   histname = 'Track'+region+'_'+'EtaVsPhiDT'
-  hEtaVsPhiDT[histname] = TH2F(histname,histname,160,-3.2,3.2,250,-2.5,2.5)# need to try this
+  hEtaVsPhiDT[region] = TH2F(histname,histname,160,-3.2,3.2,250,-2.5,2.5)# need to try this
   for izone in range(len(zonebinning)-1):
 	dedx_zone = str(zonebinning[izone]).replace('.','p')+'To'+str(zonebinning[izone+1]).replace('.','p')
 	zoneOfDedx[izone] = dedx_zone
@@ -299,6 +300,11 @@ if isdata:
 		fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips_'+kappasmearlevellabel+'.root'
 	else:
 		fileKappaPixOnly = 'usefulthings/KappaRun2016_PixOnly_'+kappasmearlevellabel+'.root'
+
+
+		fileKappaPixAndStrips = 'usefulthings/KappaRun2016_PixAndStrips_'+kappasmearlevellabel+'.root' 
+		fileKappaPixOnlyGen = 'usefulthings/KappaSummer16.WJets_PixOnly_'+kappasmearlevellabel+'.root'
+		fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips_'+kappasmearlevellabel+'.root'
 		#fileKappaPixAndStrips = 'usefulthings/KappaRun2016_PixAndStrips'+kappasmearlevellabel+'.root' 
 		#fileKappaPixOnlyGen = 'usefulthings/KappaSummer16.WJets_PixOnly'+kappasmearlevellabel+'.root'
 		#fileKappaPixAndStripsGen = 'usefulthings/KappaSummer16.WJets_PixAndStrips'+kappasmearlevellabel+'.root'		
@@ -481,8 +487,10 @@ for ientry in range(nentries):
 
 	#if not c.JetID: continue
 
-	#if not passesUniversalSelection(c): continue
-
+	if isdata: 
+		if not passesUniversalDataSelection(c): continue
+	else:
+		if not passesUniversalSelection(c): continue
 	#print 'here we are after stuff'
 	#print 'c.MHT-c.MET', c.MHT, c.MET
 	#if not abs(c.MHT-c.MET)<70: continue
@@ -1048,7 +1056,7 @@ for ientry in range(nentries):
 		else: 
 			pt = dt.Pt()
 			eta = abs(dt.Eta()) 
-			phi = dt.phi()
+			phi = dt.Phi()
 							
 		log10dedxmass = TMath.Log10(TMath.Sqrt((dedxPixel-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
 		if log10dedxmass!=log10dedxmass: log10dedxmass = -10	
@@ -1072,7 +1080,7 @@ for ientry in range(nentries):
 		fv.extend([c.MET])		
 		for regionkey in regionCuts:
 		
-			if selectionFeatureVector(fv,regionkey,''): fillth2(hEtaVsPhiDT[regionkey], phi, eta)
+			if selectionFeatureVector(fv,regionkey,'Mht'): fillth2(hEtaVsPhiDT[regionkey], phi, eta)
 			for ivar, varname in enumerate(varlist_):
 				for izone in range(len(zonebinning)-1):
 					if not (dedxPixel>zonebinning[izone] and dedxPixel<zonebinning[izone+1]): continue
@@ -1104,7 +1112,7 @@ for ientry in range(nentries):
 
 fnew.cd()
 writeHistoStruct(histoStructDict)
-for keys in hEtaVsPhiDT: hEtaVsPhiDT[key].Write()
+for key_ in hEtaVsPhiDT: hEtaVsPhiDT[key_].Write()
 hHt.Write()
 hHtWeighted.Write()
 hMtPionMatched.Write()
