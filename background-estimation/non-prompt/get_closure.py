@@ -231,7 +231,7 @@ if __name__ == "__main__":
     for tag in ["loose8"]:
 
         #for data_period in ["Summer16-all", "Summer16-QCD+ZJets", "Run2016"]:
-        for data_period in ["Run2016"]:
+        for data_period in ["Run2016", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]:
     
             root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
 
@@ -241,8 +241,8 @@ if __name__ == "__main__":
                 for category in ["combined"]:
                     
                     #for cr in ["baseline", "baseline_muveto", "baseline_mu", "baseline_MHT50_noveto", "baseline_MHT50_muveto", "baseline_MHT50_mu"]:
-                    #for cr in ["baseline", "baseline_muveto", "baseline_mu"]:
-                    for cr in ["baseline", "baseline_zmassveto"]:
+                    for cr in ["baseline"]:
+                    #for cr in ["baseline_region", "baseline_region_MHT50"]:
                         
                         if "baseline_muveto" == cr:
                             canvas_label = "hFkBaselineMuVeto_%s" % variable
@@ -251,6 +251,8 @@ if __name__ == "__main__":
                         elif "baseline_noveto" == cr:
                             canvas_label = "hFkBaselineNoVeto_%s" % variable
                         elif "baseline" == cr:
+                            canvas_label = "hFkBaseline_%s" % variable
+                        elif "baseline_region" == cr:
                             canvas_label = "hFkBaseline_%s" % variable
                         elif "baseline_zmassveto" == cr:
                             canvas_label = "hFkBaselineZVeto_%s" % variable
