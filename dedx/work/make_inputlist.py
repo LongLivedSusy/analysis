@@ -50,17 +50,67 @@ def split_inputlist(nfpj=100):
 if __name__ == "__main__" : 
    
     # Sample name for globbing
-    mc_summer16 = [
-    "Summer16.DYJetsToLL",
-    "Summer16.QCD",
-    "Summer16.WJetsToLNu_HT",
-    "Summer16.ZJetsToNuNu",
-    "Summer16.WW_TuneCUETP8M1",
-    "Summer16.WZ_TuneCUETP8M1",
-    "Summer16.ZZ_TuneCUETP8M1",
+
+    ## Bkg samples
+    Summer16_DYJetsToLL = [
+    #"Summer16.DYJetsToLL_M-50_TuneCUETP8M1",
+    "Summer16.DYJetsToLL_M-50_HT-100to200",
+    "Summer16.DYJetsToLL_M-50_HT-200to400",
+    "Summer16.DYJetsToLL_M-50_HT-400to600",
+    "Summer16.DYJetsToLL_M-50_HT-600to800",
+    "Summer16.DYJetsToLL_M-50_HT-800to1200",
+    "Summer16.DYJetsToLL_M-50_HT-1200to2500",
+    "Summer16.DYJetsToLL_M-50_HT-2500toInf",
+    ]
+
+    Summer16_QCD = [
+    "Summer16.QCD_HT200to300",
+    "Summer16.QCD_HT300to500",
+    "Summer16.QCD_HT500to700",
+    "Summer16.QCD_HT700to1000",
+    "Summer16.QCD_HT1000to1500",
+    "Summer16.QCD_HT1500to2000",
+    "Summer16.QCD_HT2000toInf",
+    ]
+    
+    Summer16_TTJets = [
     "Summer16.TTJets_TuneCUETP8M1_13TeV",
     ]
 
+    Summer16_WJetsToLNu = [
+    #"Summer16.WJetsToLNu_TuneCUETP8M1",
+    "Summer16.WJetsToLNu_HT-100To200",
+    "Summer16.WJetsToLNu_HT-200To400",
+    "Summer16.WJetsToLNu_HT-400To600",
+    "Summer16.WJetsToLNu_HT-600To800",
+    "Summer16.WJetsToLNu_HT-800To1200",
+    "Summer16.WJetsToLNu_HT-1200To2500",
+    "Summer16.WJetsToLNu_HT-2500ToInf",
+    ]
+    
+    Summer16_ZJetsToNuNu = [
+    "Summer16.ZJetsToNuNu_HT-100To200",
+    "Summer16.ZJetsToNuNu_HT-200To400",
+    "Summer16.ZJetsToNuNu_HT-400To600",
+    "Summer16.ZJetsToNuNu_HT-600To800",
+    "Summer16.ZJetsToNuNu_HT-800To1200",
+    "Summer16.ZJetsToNuNu_HT-1200To2500",
+    "Summer16.ZJetsToNuNu_HT-2500ToInf",
+    ]
+    
+    Summer16_WW = [
+    "Summer16.WW_TuneCUETP8M1",
+    ]
+
+    Summer16_WZ = [
+    "Summer16.WZ_TuneCUETP8M1",
+    ]
+    
+    Summer16_ZZ = [
+    "Summer16.ZZ_TuneCUETP8M1",
+    ]
+
+    ## Data samples
     Run2016_MET = [
     "Run2016B*MET",
     "Run2016C*MET",
@@ -90,14 +140,22 @@ if __name__ == "__main__" :
     "Run2016G*SingleElectron",
     "Run2016H*SingleElectron",
     ]
-    
-    mc_signal = [
-    "RunIISummer16MiniAODv3.SMS-T1qqqq",
-    "RunIISummer16MiniAODv3.SMS-T2bt",
-    ]
+   
+    ## Signal samples
+    #mc_signal = [
+    #"RunIISummer16MiniAODv3.SMS-T1qqqq",
+    #"RunIISummer16MiniAODv3.SMS-T2bt",
+    #]
 
     samples=[]
-    samples.extend(mc_summer16)
+    samples.extend(Summer16_DYJetsToLL)
+    samples.extend(Summer16_QCD)
+    samples.extend(Summer16_TTJets)
+    samples.extend(Summer16_WJetsToLNu)
+    samples.extend(Summer16_ZJetsToNuNu)
+    samples.extend(Summer16_WW)
+    samples.extend(Summer16_WZ)
+    samples.extend(Summer16_ZZ)
     samples.extend(Run2016_MET)
     samples.extend(Run2016_SingleMuon)
     samples.extend(Run2016_SingleElectron)

@@ -4,6 +4,22 @@ import json
 from ROOT import *
 from shared_utils import *
 
+TH1.SetDefaultSumw2()
+
+def FillHisto(h, valx, weight=1.0):
+    nbinsx = h.GetNbinsX()
+    minvalx=h.GetXaxis().GetBinCenter(1)
+    maxvalx=h.GetXaxis().GetBinCenter(nbinsx)
+
+    newvalx=valx
+    if valx<minvalx : newvalx=minvalx
+    elif valx>maxvalx : newvalx=maxvalx
+
+    h.Fill(newvalx,weight)
+    return h
+
+
+
 def prepareReader(xmlfilename, vars_training, vars_spectator, tmva_variables):
 
     # general set up training/spectator variables for TMVA
@@ -239,7 +255,7 @@ def myround(x, base=5):
     return int(base * round(float(x)/base))
 
 
-def main(inputfiles,output_folder):
+def main(inputfiles,output_folder,nev):
     
     # Adding Trees
     c = TChain("TreeMaker2/PreSelection")
@@ -250,6 +266,7 @@ def main(inputfiles,output_folder):
     	   c.Add(line.rstrip('\n'))
     
     nentries = c.GetEntries()
+    if nev != -1: nentries = nev
     print "Total Entries : ",nentries 
     #c.Show(0)
     
@@ -279,7 +296,18 @@ def main(inputfiles,output_folder):
         quit(1)
 
     # load BDTs and fetch list of DT tag labels
-    readers = load_tmva_readers(phase)
+    #readers = load_tmva_readers(phase)
+    if phase==0:
+    	pixelXml = '../../disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+    	pixelstripsXml = '../../disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+    else:
+    	pixelXml = '../../disappearing-track-tag/2017-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+    	pixelstripsXml = '../../disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
+
+    readerPixelOnly = TMVA.Reader()
+    readerPixelStrips = TMVA.Reader()
+    prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
+    prepareReaderPixel_loose(readerPixelOnly, pixelXml)
     
     # load and configure data mask:
     if phase == 0:
@@ -287,7 +315,8 @@ def main(inputfiles,output_folder):
         if is_data : 
             hMask = mask_file.Get("hEtaVsPhiDT_maskData-2016Data-2016")
         else :
-            hMask = mask_file.Get("hEtaVsPhiDT_maskMC-2016MC-2016")
+            #hMask = mask_file.Get("hEtaVsPhiDT_maskMC-2016MC-2016")
+            hMask = ''
         print "Loaded mask:", hMask
     else:
         hMask = '' 
@@ -305,13 +334,23 @@ def main(inputfiles,output_folder):
 
     # Histograms
     hHT_unweighted = TH1F('hHT_unweighted','hHT_unweighted',200,0,10000)
-    hHT = TH1F('hHT','hHT',200,0,10000)
-
+    hMET = TH1F('hMET','hMET',100,0,1000)
+    hMHT = TH1F('hMHT','hMHT',100,0,1000)
+    hHT = TH1F('hHT','hHT',100,0,1000)
+    hTrkPt = TH1F('hTrkPt','hTrkPt',100,0,1000)
+    hTrkPt_mumatch = TH1F('hTrkPt_mumatch','hTrkPt_mumatch',100,0,1000)
+    hTrkDedx_lepmatch = TH1F('hTrkDedx_lepmatch','hTrkDedx_lepmatch',100,0,10)
+    hTrkDedx_mumatch = TH1F('hTrkDedx_mumatch','hTrkDedx_mumatch',100,0,10)
+    hMuPt = TH1F('hMuPt','hMuPt',100,0,1000)
+    hMuEta = TH1F('hMuEta','hMuEta',100,-3,3)
+    hMuPhi = TH1F('hMuPhi','hMuPhi',100,-3.14,3.14)
+    hElePt = TH1F('hElePt','hElePt',100,0,1000)
+    hEleEta = TH1F('hEleEta','hEleEta',100,-3,3)
+    hElePhi = TH1F('hElePhi','hElePhi',100,-3.14,3.14)
 
     # Event loop
     updateevery = 10000
-    #for ientry in range(nentries):
-    for ientry in range(100):
+    for ientry in range(nentries):
 	
 	if ientry%updateevery==0:
     	    print 'now processing event number', ientry, 'of', nentries
@@ -319,8 +358,14 @@ def main(inputfiles,output_folder):
 	c.GetEntry(ientry)
 	
 	# Counting histogram
-	hHT_unweighted.Fill(c.HT)
-    
+	FillHisto(hHT_unweighted,c.HT)
+
+	# Weight
+	if is_data:
+	    weight = 1.0
+	else : 
+	    weight = c.CrossSection * c.puWeight
+
 	# madHT check
 	current_file_name = c.GetFile().GetName()
         if c.GetBranch("madHT"):
@@ -328,38 +373,96 @@ def main(inputfiles,output_folder):
             if not pass_background_stitching(current_file_name, madHT, phase): continue
         else:
             madHT = -10
-    
+	
+	#if is_data and not PassTrig(c,'MhtMet6pack') : continue
+	#if is_data and not PassTrig(c,'SingleMuon') : continue
 	if not passesUniversalSelection(c): continue
+	#print 'is_data:%s, passTrig:%s, passUniversalSelection:%s'%(is_data,PassTrig(c,'SingleMuon'),passesUniversalSelection(c))
 
+	if not c.MET>280 : continue
+
+	FillHisto(hMET,c.MET,weight)
+	FillHisto(hMHT,c.MHT,weight)
+	FillHisto(hHT,c.HT,weight)
+   
+	# Track
 	basicTracks = []
+	lepmatchedTracks = []
 	disappearingTracks = []
 	nShort, nLong = 0, 0
-	for itrack, track in enumerate(c.trakcs):
-	    if not track.Pt()>30 : continue
+	for itrack, track in enumerate(c.tracks):
+	    if not track.Pt()>20 : continue
 	    if not abs(track.Eta()) < 2.4 : continue
 	    if not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue
 	    if not isBaselineTrack(track, itrack, c, hMask): continue
-	    basicTracks.append([track,itrack])
+	    FillHisto(hTrkPt,track.Pt(),weight)
 
+	    drlep = 99
+	    lepmatch = False
+	    for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)):
+                drlep = min(drlep, lep.DeltaR(track))
+                if drlep<0.1: 
+                    lepmatch = True
+		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    lepmatchedTracks.append([track,dedx,itrack])
 
+	    drmu = 99
+	    mumatch = False
+	    for imu, mu in enumerate(list(c.Muons)):
+		if not mu.Pt()>30:continue
+                drmu = min(drmu, mu.DeltaR(track))
+                if drmu<0.01: 
+                    mumatch = True
+		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    FillHisto(hTrkPt_mumatch,track.Pt(),weight)
+		    FillHisto(hTrkDedx_mumatch,dedx,weight)
+
+	    dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
+	    #if not dtstatus>0: continue
+            #drlep = 99
+            #passeslep = True
+            #for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
+            #        drlep = min(drlep, lep.DeltaR(track))
+            #        if drlep<0.1: 
+            #                passeslep = False
+            #                break    
+            #if not passeslep: continue
+            #isjet = False
+            #for jet in c.Jets:
+            #        if jet.DeltaR(track)<0.4: 
+            #                isjet = True
+            #                break
+            #if isjet:  continue    
+            #dedx = -1
+            #if dtstatus==1: 
+            #        nShort+=1
+            #        dedx = c.tracks_deDxHarmonic2pixel[itrack]
+            #if dtstatus==2: 
+            #        nLong+=1    
+            #        dedx = c.tracks_deDxHarmonic2pixel[itrack]
+            #disappearingTracks.append([track,dtstatus,dedx, itrack])
 
 	RecoElectrons = []
 	for iele, ele in enumerate(c.Electrons):
 	    if not (ele.Pt()>30): continue
 	    if not abs(ele.Eta())<2.4: continue
-	    if not (abs(ele.Eta()) > 1.566 and abs(ele.Eta()) < 1.4442): continue
+	    if not (abs(ele.Eta()) > 1.566 or abs(ele.Eta()) < 1.4442): continue
 	    if not c.Electrons_passIso[iele]: continue
 	    if not c.Electrons_tightID[iele]: continue
-	    RecoElectrons.append([ele, iele])
+	    FillHisto(hElePt,ele.Pt(),weight)
+	    FillHisto(hEleEta,ele.Eta(),weight)
+	    FillHisto(hElePhi,ele.Phi(),weight)
 
 	RecoMuons = []
 	for imu, mu in enumerate(c.Muons):
 	    if not (mu.Pt()>30): continue
 	    if not abs(mu.Eta())<2.4: continue
-	    if not (abs(mu.Eta()) > 1.566 and abs(mu.Eta()) < 1.4442): continue
+	    if not (abs(mu.Eta()) > 1.566 or abs(mu.Eta()) < 1.4442): continue
 	    if not c.Muons_passIso[imu]: continue
 	    if not c.Muons_tightID[imu]: continue
-	    RecoMuons.append([mu,imu])
+	    FillHisto(hMuPt,mu.Pt(),weight)
+	    FillHisto(hMuEta,mu.Eta(),weight)
+	    FillHisto(hMuPhi,mu.Phi(),weight)
 
 	RecoJets = []
 	for ijet, jet in enumerate(c.Jets):
@@ -369,237 +472,20 @@ def main(inputfiles,output_folder):
 	    RecoJets.append([jet,ijet])
 
     fout.Write()
+    fout.Close()
+    print("DONE")
 
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--input",dest="inputfiles")
     parser.add_argument("--output_folder",default="outputs_smallchunks",dest="output_folder")
+    parser.add_argument("--nev",default=-1,dest="nev")
 
     args = parser.parse_args()
     inputfiles = args.inputfiles
     output_folder = args.output_folder
+    nev = int(args.nev)
 
-    main(inputfiles,output_folder)
+    main(inputfiles,output_folder,nev)
 
-    
-    
-    
-    '''	
-    orderedmasses = []
-    newfname = ''
-    print nentries, 'events to be analyzed'
-    for ientry in range(nentries):
-    	if ientry%updateevery==0:
-    		print 'now processing event number', ientry, 'of', nentries
-    		if ientry==0: 
-    			for itrig, trigname in enumerate(c.TriggerNames):
-    				print itrig, trigname, c.TriggerPass[itrig], c.TriggerPrescales[itrig]
-    
-    	if verbose: print 'getting entry', ientry
-    	c.GetEntry(ientry) 
-    	if newfileEachsignal:
-    		susymasses = []
-    		susies = []
-    		for igp, gp in enumerate(c.GenParticles):		
-    			if not abs(c.GenParticles_PdgId[igp])>1000000: continue
-    			#if c.GenParticles_Status[igp]==23: continue
-    			pid = abs(c.GenParticles_PdgId[igp])
-    			if not pid in susies:				
-    				susies.append(pid)
-    				susymasses.append([pid,round(gp.M(),2)])
-    						
-    		orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
-    		orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
-    		
-    		if not orderedmasses==orderedmasses_:
-    			print 'failed comparison between', orderedmasses, 'and', orderedmasses_
-    			orderedmasses = orderedmasses_
-    			if not newfname=='':
-    				fnew_.cd()
-    				hHt.Write()
-    				hHtWeighted.Write()
-    				writeHistoStruct(histoStructDict, 'truth')
-    				print 'just created', fnew_.GetName()
-    				fnew_.Close()
-    			print 'creating new file based on', orderedmasses
-    			newfname = 'Hists'
-    			for ip, susypid in enumerate(orderedmasses):
-    				print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
-    				newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
-    			newfname+='_time'+str(round(time.time(),4)).replace('.','p')+'.root'
-    			fnew_ = TFile(newfname,'recreate')
-    			print 'creating file', fnew_.GetName()				
-    			hHt = TH1F('hHt','hHt',200,0,10000)
-    			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',200,0,10000)
-    			indexVar = {}
-    			for ivar, var in enumerate(varlist_): indexVar[var] = ivar
-    			histoStructDict = {}
-    			for region in regionCuts:
-    				for var in varlist_:
-    					histname = region+'_'+var
-    					histoStructDict[histname] = mkHistoStruct(histname, thebinning)
-    					
-    			if 'Higgsino' in inputFileNames: 
-    				mothermass = float(inputFileNames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
-    				xsecpb = CrossSectionsPb[model]['graph'].Eval(mothermass)
-    				print 'xsec was', xsecpb
-    				exit(0)			
-    			elif 'T1' in model:
-    				mothermass = orderedmasses[0][1]#inputFileNames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
-    				xsecpb = CrossSectionsPb[model][str(int(mothermass))]
-    				print 'got xsec', xsecpb, 'for mothermass', mothermass					
-    			else:
-    				xsecpb = 1
-    			signalweight = xsecpb
-    						
-    	hHt.Fill(c.HT)		
-    				
-    	basicTracks = []
-    	disappearingTracks = []    
-    	nShort, nLong = 0, 0
-    	for itrack, track in enumerate(c.tracks):
-    		if not track.Pt() > 10 : continue
-    		if not abs(track.Eta()) < 2.4: continue
-    		if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue
-    		if not isBaselineTrack(track, itrack, c, hMask): continue
-    		basicTracks.append([track,c.tracks_charge[itrack], itrack])		
-    		if not (track.Pt() > candPtCut and track.Pt()<candPtUpperCut): continue     
-    		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
-    		
-    		if not dtstatus>0: continue
-    		drlep = 99
-    		passeslep = True
-    		for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
-    			drlep = min(drlep, lep.DeltaR(track))
-    			if drlep<0.1: 
-    				passeslep = False
-    				break            
-    		if not passeslep: continue
-    		isjet = False
-    		for jet in c.Jets:
-    			if jet.DeltaR(track)<0.4: 
-    				isjet = True
-    				break
-    		if isjet:  continue		
-    		dedx = -1
-    		if dtstatus==1: 
-    			nShort+=1
-    			dedx = c.tracks_deDxHarmonic2pixel[itrack]
-    		if dtstatus==2: 
-    			nLong+=1			
-    			dedx = c.tracks_deDxHarmonic2pixel[itrack]
-    		disappearingTracks.append([track,dtstatus,dedx, itrack])
-    
-    	RecoElectrons = []
-    	for iel, ele in enumerate(c.Electrons):
-    		if debugmode: print ientry, iel,'ele with Pt' , ele.Pt()
-    		if (abs(ele.Eta()) < 1.566 and abs(ele.Eta()) > 1.4442): continue
-    		if not abs(ele.Eta())<2.4: continue
-    		if debugmode: print 'passed eta and Pt'
-    		if not c.Electrons_passIso[iel]: continue
-    		if not c.Electrons_tightID[iel]: continue
-    		if ele.Pt()>candPtCut: RecoElectrons.append([ele, iel])
-    
-    
-    	RecoMuons = []
-    	for ilep, lep in enumerate(c.Muons):
-    		if verbose: print ientry, ilep,'mu with Pt' , lep.Pt()
-    		if (abs(lep.Eta()) < 1.566 and abs(lep.Eta()) > 1.4442): continue
-    		if not abs(lep.Eta())<2.4: continue
-    		if verbose: print 'passed eta and Pt'
-    		if not c.Muons_passIso[ilep]: continue
-    		if not c.Muons_tightID[ilep]: continue
-    		if lep.Pt()>candPtCut: RecoMuons.append([lep,ilep])    
-    
-    
-    	#print 'len(RecoMuons)', len(RecoMuons)
-    	SmearedPions = []
-    	for ipi, pi in enumerate(c.TAPPionTracks):
-    		if (abs(pi.Eta()) < 1.566 and abs(pi.Eta()) > 1.4442): continue
-    		if not abs(pi.Eta())<2.4: continue
-    		if not c.TAPPionTracks_trkiso[ipi]<0.2: continue  	   		
-    		if pi.Pt()>candPtCut: SmearedPions.append([pi,ipi])    
-    		
-    	#print 'len(disappearingTracks)', len(disappearingTracks)
-    	presentDisTrkEvent = len(disappearingTracks) >=1
-    
-    	if not presentDisTrkEvent: continue
-    
-    	metvec = TLorentzVector()
-    	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
-    				  
-    	if len(disappearingTracks)>0: 
-    		dt = disappearingTracks[0][0]
-    		pt = dt.Pt()
-    		eta = abs(dt.Eta()) 
-    		dedx = disappearingTracks[0][2] 
-    		Log10DedxMass = TMath.Log10(TMath.Sqrt((dedx-3.01)*pow(c.tracks[disappearingTracks[0][3]].P(),2)/1.74))
-    	else: 
-    		print 'should never see this'
-    		dt = TLorentzVector()
-    		pt = -1
-    		eta = -1
-    		dedx = -1
-    		Log10DedxMass = 0.01
-    		
-    	adjustedBTags = 0        
-    	adjustedJets = []
-    	adjustedHt = 0
-    	adjustedMht = TLorentzVector()
-    	adjustedMht.SetPxPyPzE(0,0,0,0)
-    	for ijet, jet in enumerate(c.Jets):
-    		if not jet.Pt()>30: continue			
-    		if not abs(jet.Eta())<5.0: continue###update to 2.4
-    		someoverlap = False
-    		for dt_ in disappearingTracks: 
-    			if jet.DeltaR(dt_[0])<0.4: 
-    				someoverlap = True
-    				break
-    		if someoverlap: continue
-    		adjustedMht-=jet		
-    		if not abs(jet.Eta())<2.4: continue###update to 2.4            
-    		adjustedJets.append(jet)			
-    		if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
-    		adjustedHt+=jet.Pt()
-    	adjustedNJets = len(adjustedJets)
-    	mindphi = 4
-    	for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht))) 
-    	
-    	if len(RecoElectrons)>0: 
-    		mT = c.Electrons_MTW[RecoElectrons[0][1]]
-    		if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoElectrons[0][0]+dt).M()
-    		else: invmass = 999			
-    	elif len(RecoMuons)>0: 
-    		mT = c.Muons_MTW[RecoMuons[0][1]]
-    		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoMuons[0][0]+dt).M()
-    		else: invmass = 999			
-    	else: 
-    		mT = 999
-    		invmass = 999	
-    	
-    	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedx, len(RecoElectrons), len(RecoMuons), invmass, mT, len(SmearedPions), pt, eta, Log10DedxMass]
-    	fv.append(getBinNumber(fv))
-    	
-    	if isdata: weight = 1
-    	elif len(RecoElectrons)+len(RecoMuons)>0: 
-    		weight = signalweight*c.puWeight
-    	else: 
-    		weight = signalweight*c.puWeight*gtrig.Eval(c.MHT)
-    		#weight = 1.0
-    	hHtWeighted.Fill(c.HT,signalweight)
-    		
-    	#print fv
-    	#for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]	
-    	for regionkey in regionCuts:
-    		for ivar, varname in enumerate(varlist_):
-    			if selectionFeatureVector(fv,regionkey,varname):
-    				fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], weight)
-    fnew_.cd()
-    hHt.Write()
-    hHtWeighted.Write()
-    writeHistoStruct(histoStructDict, 'truth')
-    print 'just created', fnew_.GetName()
-    fnew_.Close()	
-    fMask.Close()
-    '''		
