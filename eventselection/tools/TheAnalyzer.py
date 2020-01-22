@@ -61,7 +61,7 @@ btag_cut = BTAG_deepCSV
 from CrossSectionDictionary import *
 if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames or 'T1' in inputFileNames: model = 'T1'
 elif 'Higgsino' in inputFileNames:  model = 'Higgsino'
-elif 'T2tb' in inputFileNames: model = 'T2tt'
+elif 'T2bt' in inputFileNames: model = 'T2tt'
 else: model = 'Other'
 print 'were considering model', model
 loadCrossSections(model)
@@ -88,6 +88,16 @@ inf = 999999
 regionCuts = {}
 varlist_                         = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 regionCuts['Baseline']           = [(0,inf), (0,inf),   (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),     (0.0,inf),        (-inf,inf),         (0,inf),  (0,inf), (110,inf), (90,inf),(0,0), (candPtCut,inf), (0,2.4),      (-inf,inf),  (-inf,inf)]
+regionCuts['HadBaseline']            = [(150,inf), (150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ), (0,0),    (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
+regionCuts['SMuBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ), (1,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuValidationMuZLL']     = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ), (1,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),(0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElPromptValidationZLL'] = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),(0,inf),  (65,110), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuZLL']                 = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),  (1,inf),  (65,110), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuZLL']                 = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),  (1,inf),  (65,110), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationMT']        = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),(0,inf),  (0,inf),  (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuValidationMT']        = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0),   (1,inf),  (0,inf), (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+
 
 ncuts = 13
 def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
@@ -181,7 +191,7 @@ for ientry in range(nentries):
 		orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
 		
 		if not orderedmasses==orderedmasses_:
-			print 'failed comparison between', orderedmasses, 'and', orderedmasses_
+			print 'looks like a model transition from', orderedmasses, 'to', orderedmasses_
 			orderedmasses = orderedmasses_
 			if not newfname=='':
 				fnew_.cd()
@@ -213,7 +223,7 @@ for ientry in range(nentries):
 				xsecpb = CrossSectionsPb[model]['graph'].Eval(mothermass)
 				print 'xsec was', xsecpb
 				exit(0)			
-			elif 'T1' in model:
+			elif 'T1' in model or 'T2tt' in model:
 				mothermass = orderedmasses[0][1]#inputFileNames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
 				xsecpb = CrossSectionsPb[model][str(int(mothermass))]
 				print 'got xsec', xsecpb, 'for mothermass', mothermass					
