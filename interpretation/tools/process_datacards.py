@@ -55,6 +55,7 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
     eval `scramv1 runtime -sh`
     cd -
     combine -M AsymptoticLimits $DATACARD --name $LABEL --noFitAsimov
+    #combine -M AsymptoticLimits $DATACARD --name $LABEL
     """
 
     os.system("mkdir -p %s" % out_path)
@@ -65,7 +66,6 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
         #if i_signal_point>0: break
 
         if "T1qqqqLL" in signals_path:
-
             try:
                 gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1ne")[0] )
                 lsp_mass = int( signal_point.split("_Chi1ne")[-1].split("_Chi")[0].replace(".root", "") )
@@ -73,7 +73,7 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
                 gluino_mass = int( signal_point.split("Glu")[-1].split("_Chi1pm")[0] )
                 lsp_mass = int( signal_point.split("_Chi1pm")[-1].split("_Chi")[0].replace(".root", "") )
 
-        elif "T2tbLL" in signals_path:
+        elif "T2tbLL" in signals_path or "T2btLL" in signals_path:
             gluino_mass = int( signal_point.split("Stop")[-1].split("_Chi")[0] )
             lsp_mass = int( signal_point.split("_Chi1ne")[-1].split("_Chi")[0].replace(".root", "") )
 
@@ -156,6 +156,10 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
 
         # write some bogus data:
         h_obs = h_signal.Clone()
+        
+        # empty histogram:
+        h_obs = zero_out_certain_bins(h_obs, range(0,100))
+        
         h_obs.SetDirectory(0)
         h_obs.SetName("data_obs")
         h_obs_up = h_signal.Clone()
@@ -189,7 +193,8 @@ def prepare_datacards(variable, combine_path, signals_path, prompt_bg_file, fake
 
         print "Writing datacard..."
         datacard = datacard_template
-        datacard = datacard.replace("$OBS", str(h_obs.Integral()) )
+        #datacard = datacard.replace("$OBS", str(int(h_obs.Integral())) )
+        datacard = datacard.replace("$OBS", "0")
         datacard = datacard.replace("$RATE0", str(h_signal.Integral()) )
         datacard = datacard.replace("$RATE1", str(h_electronbg.Integral()) )
         datacard = datacard.replace("$RATE2", str(h_muonbg.Integral()) )
@@ -226,7 +231,7 @@ def run_limit_calculation(out_path):
         cmd = "cd %s; chmod +x %s; ./%s" % (out_path, script_name, script_name)
         commands.append(cmd)
                     
-    runParallel(commands, "grid", condorDir=out_path, confirm=False, babysit=False)
+    runParallel(commands, "grid", condorDir=out_path, confirm=True, babysit=False)
         
 
 if __name__ == "__main__":
@@ -235,14 +240,14 @@ if __name__ == "__main__":
 
     combine_cmssw_path = "/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_13/src/HiggsAnalysis"
     #signals_path =       "../histograms/Piano/v2/Signal/T1qqqqLL"
-    signals_path =       "../histograms/Piano/v2/Signal/T2tbLL"
+    signals_path =       "../histograms/Piano/v2/Signal/T2btLL/"
     prompt_bg_file =     "../histograms/Piano/v2/Background/prompt-bg-results.root"
     fake_bg_file =       "../histograms/Piano/v2/Background/fake-bg-results.root"
     variable =           "BinNumberMethod"
 
     out_paths = {
-                  "allbins": [],
-                  "noleptons": range(49, 80+1) + range(85, 88+1),
+                  #"allbins": [],
+                  #"noleptons": range(49, 80+1) + range(85, 88+1),
                   "onlyleptons": range(0, 48+1) + range(81, 84+1),
                 }
 
@@ -252,6 +257,6 @@ if __name__ == "__main__":
 
         prepare_datacards(variable, combine_cmssw_path, signals_path, prompt_bg_file, fake_bg_file, "../" + signal + "_" + out_path, ignoreBins = out_paths[out_path])
         print "Running combine for all points..."
-        run_limit_calculation(signal + "_" + out_path)
+        run_limit_calculation("../" + signal + "_" + out_path)
 
 

@@ -20,9 +20,7 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     tfile = TFile(root_file, "open")
 
     if category == "combined":
-        
-        # combine single short, single long and multiple tagged tracks: 
-        
+                
         histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, "short", cr) )
         histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, "short", cr) )
         histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, "short", cr) )
@@ -49,19 +47,19 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     
     # rebin histograms:
     for label in histos:
-      if "HT" in variable:
-          redoBinning = [0, 100, 200, 300, 400, 500, 1000]
-      elif variable == "MinDeltaPhiMhtJets":
-          redoBinning = [0.3, 0.5, 0.7, 0.9]
-      elif variable == "n_btags":
-          redoBinning = [0, 1, 2, 5]
-      else:
-          redoBinning = False
-          
-      if redoBinning:
-          nbins = len(redoBinning)-1
-          newxs = array.array('d', redoBinning)
-          histos[label] = histos[label].Rebin(nbins, label, newxs)
+        if "HT" in variable:
+            redoBinning = [0, 100, 200, 300, 400, 500, 1000]
+        elif variable == "MinDeltaPhiMhtJets":
+            redoBinning = [0.3, 0.5, 0.7, 0.9]
+        elif variable == "n_btags":
+            redoBinning = [0, 1, 2, 5]
+        else:
+            redoBinning = False
+            
+        if redoBinning:
+            nbins = len(redoBinning)-1
+            newxs = array.array('d', redoBinning)
+            histos[label] = histos[label].Rebin(nbins, label, newxs)
   
     colors = [kTeal, kBlue, kRed, kBlue, kRed, kOrange, kMagenta, kAzure, kTeal+2, kBlue+2, kRed+2, kBlue+2, kRed+2, kOrange+2, kMagenta+2, kAzure+2]
 
@@ -207,7 +205,6 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
 
     if output_root_file:
         fout = TFile(output_root_file, "update")
-        #canvas.Write()
         if is_data:
             histos["mc_prediction"].SetName("%sMethod" % (canvas_label))
         else:
@@ -216,33 +213,38 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
         histos["mc_prediction"].GetXaxis().SetLabelSize(0.03)   
         histos["mc_prediction"].Scale(3.859)
         histos["mc_prediction"].Write()
+
+        if is_data:
+            histos["mc_CR"].SetName("%sMethod_CR" % (canvas_label))
+        else:
+            histos["mc_CR"].SetName("%sTruth_CR" % (canvas_label))
+        histos["mc_CR"].SetTitle(";%s;Events" % xlabel)
+        histos["mc_CR"].GetXaxis().SetLabelSize(0.03)   
+        histos["mc_CR"].Scale(3.859)
+        histos["mc_CR"].Write()
+
         fout.Close()
         
 
 if __name__ == "__main__":
 
     parser = OptionParser()
+    parser.add_option("--folder", dest = "prediction_folder", default = "prediction27")
     (options, args) = parser.parse_args()
 
-    prediction_folder = "prediction23"
-
-    os.system("rm closure_*.root")
+    prediction_folder = options.prediction_folder
 
     for tag in ["loose8"]:
+        for data_period in ["Run2016B_MET", "Run2016C_MET", "Run2016D_MET", "Run2016E_MET", "Run2016F_MET", "Run2016G_MET", "Run2016H_MET"]:
 
-        #for data_period in ["Summer16-all", "Summer16-QCD+ZJets", "Run2016"]:
-        for data_period in ["Run2016", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]:
+            os.system("rm %s/closure_%s.root" % (prediction_folder, data_period))
     
             root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
-
-            #for variable in ["region", "n_tags", "DeDxAverage", "Log10DedxMass", "Track1MassFromDedx", "n_btags", "MinDeltaPhiMhtJets", "n_goodmuons", "n_goodelectrons", "n_goodjets", "MET", "MHT", "HT"]:
+                
             for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
             
                 for category in ["combined"]:
-                    
-                    #for cr in ["baseline", "baseline_muveto", "baseline_mu", "baseline_MHT50_noveto", "baseline_MHT50_muveto", "baseline_MHT50_mu"]:
                     for cr in ["baseline"]:
-                    #for cr in ["baseline_region", "baseline_region_MHT50"]:
                         
                         if "baseline_muveto" == cr:
                             canvas_label = "hFkBaselineMuVeto_%s" % variable
@@ -262,6 +264,5 @@ if __name__ == "__main__":
                         print root_file, variable, tag, category, cr
 
                         extra_text = "%s, %s tracks" % (data_period.replace("Summer16", "2016 MC").replace("Fall17", "2017 MC"), category)
-                        closure_plot(root_file, variable, tag, category, cr, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = "closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (prediction_folder, data_period, cr))
+                        closure_plot(root_file, variable, tag, category, cr, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (prediction_folder, data_period, cr))
             
-

@@ -13,7 +13,7 @@ def ShellExec(command):
     os.system(command)
 
 
-def runParallel(mycommands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, confirm=True):
+def runParallel(mycommands, runmode, condorDir="bird", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, confirm=True, babysit = True):
 
     if runmode == "multiprocessing" or runmode == "multi" or runmode == "single":
 
@@ -37,7 +37,7 @@ def runParallel(mycommands, runmode, condorDir="bird", cmsbase=False, qsubOption
 
         print "Using CMSSW base", cmsbase
 
-        return runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, confirm=confirm)
+        return runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, confirm=confirm, babysit=babysit)
 
 
 def babysit_jobs(condorDir):

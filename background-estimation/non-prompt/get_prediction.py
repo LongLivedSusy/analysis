@@ -77,8 +77,9 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
 def fill_histogram(histogram, variable, value, weight):
 
     if variable == "sidebandregion":
-        histogram.Fill(value, weight)
-        histogram.Fill(value+1, weight)
+        if value>0 and value%2!=0:
+            histogram.Fill(value, weight)
+            histogram.Fill(value+1, weight)
     else:
         histogram.Fill(value, weight)
 
@@ -139,7 +140,7 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
                 "n_btags": TH1F("n_btags", "n_btags", 4, 0, 4),
                 "Track1MassFromDedx": TH1F("Track1MassFromDedx", "Track1MassFromDedx", 25, 0, 1000),
                 "Log10DedxMass": TH1F("Log10DedxMass", "Log10DedxMass", 10, 0, 5),
-                "DeDxAverage": TH1F("DeDxAverage", "DeDxAverage", 20, 0, 10),
+                "DeDxAverage": TH1F("DeDxAverage", "DeDxAverage", 100, 0, 10),
                 "n_tags": TH1F("n_tags", "n_tags", 3, 0, 3),
                 "region": TH1F("region", "region", 88, 1, 89),
                 "sidebandregion": TH1F("sidebandregion", "sidebandregion", 88, 1, 89),
@@ -148,13 +149,13 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
     tagged = "(event.n_loose8_SR_short + event.n_loose8_CR_short + event.n_loose8_SR_long + event.n_loose8_CR_long)>0"
 
     event_selection = {
-                #"baseline":                 tagged,
-                "baseline_region":           tagged + " and event.region_loose8>0",
-                "baseline_region_MHT50":     tagged + " and event.region_loose8>0 and event.MHT>50",
-                #"baseline_zmassveto":       tagged +  " and event.tracks_zmassveto!=1 ",
+                "baseline":                 tagged,
+                #"baseline_region":          tagged + " and event.region_loose8>0",
+                #"baseline_region_MHT50":    tagged + " and event.region_loose8>0 and event.MHT>50",
+                #"baseline_zmassveto":      tagged +  " and event.tracks_zmassveto!=1 ",
                 #"baseline_muveto":         tagged + " and event.n_goodmuons==0",
                 #"baseline_mu":             tagged + " and event.n_goodmuons>0",
-                #"baseline_MHT50_noveto":    tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
+                #"baseline_MHT50_noveto":   tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0",
                 #"baseline_MHT50_muveto":   tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==0",
                 #"baseline_MHT50_mu":       tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons>0",
                 #"baseline_MHT50_singlemu": tagged + " and event.MHT>50 and event.MinDeltaPhiMhtJets>0.3 and event.n_goodjets>0 and event.n_goodelectrons==0 and event.n_goodmuons==1",
@@ -433,7 +434,8 @@ if __name__ == "__main__":
         os.system("hadd -f %s/prediction_Run2016.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
         
         for period in ["B", "C", "D", "E", "F", "G", "H"]:
-            os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
+            #os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
+            os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))
                     
         quit()
 

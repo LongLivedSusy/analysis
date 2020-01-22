@@ -1484,7 +1484,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tout = TTree("Events", "tout")
 
     # prepare variables for output tree   
-    float_branches = ["weight", "MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec"]
+    float_branches = ["weight", "MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec", "chargino_parent_mass"]
     integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "dilepton_CR", "qcd_CR", "qcd_sideband_CR", "qcd_CR_CR", "dilepton_leptontype", "passesUniversalSelection", "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus", "signal_gluino_mass", "signal_lsp_mass", "triggered_met", "triggered_singleelectron", "triggered_singlemuon"]
 
     for tag in tags.tags:
@@ -1635,26 +1635,34 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
         # get T2bt and T1qqqq xsections
         current_file_name = tree.GetFile().GetName()
-        if "T2bt" in current_file_name:
-            for i_genParticle, genParticle in enumerate(event.GenParticles):
-                if abs(event.GenParticles_PdgId[i_genParticle]) == 1000024:
-                    parent_id = event.GenParticles_ParentIdx[i_genParticle]
-                    parent_pdgid = event.GenParticles_PdgId[parent_id]
-                    if abs(parent_pdgid) == 1000005 or abs(parent_pdgid) == 1000006:
-                        parent_mass = event.GenParticles[parent_id].M()
-                        xsection = get_sbottom_antisbottom_cross_section(parent_mass)
-                        event.CrossSection = xsection
-        elif "g1800_chi1400_27_200970" in current_file_name:
-            event.CrossSection = 0.00276133 #pb
-        elif "T1qqqq" in current_file_name:
-            for i_genParticle, genParticle in enumerate(event.GenParticles):
-                if abs(event.GenParticles_PdgId[i_genParticle]) == 1000024:
-                    parent_id = event.GenParticles_ParentIdx[i_genParticle]
-                    parent_pdgid = event.GenParticles_PdgId[parent_id]
-                    if abs(parent_pdgid) == 1000021:
-                        parent_mass = event.GenParticles[parent_id].M()
-                        xsection = get_T1_xsection(parent_mass)
-                        event.CrossSection = xsection
+
+        if is_signal:
+            xsection = -1.0
+            parent_mass = -1.0
+            if "T2bt" in current_file_name:
+                for i_genParticle, genParticle in enumerate(event.GenParticles):
+                    if abs(event.GenParticles_PdgId[i_genParticle]) == 1000024:
+                        parent_id = event.GenParticles_ParentIdx[i_genParticle]
+                        parent_pdgid = event.GenParticles_PdgId[parent_id]
+                        if abs(parent_pdgid) == 1000005 or abs(parent_pdgid) == 1000006:
+                            parent_mass = event.GenParticles[parent_id].M()
+                            xsection = get_sbottom_antisbottom_cross_section(parent_mass)
+                            event.CrossSection = xsection
+                            tree_branch_values["chargino_parent_mass"][0] = parent_mass
+                            break
+            elif "g1800_chi1400_27_200970" in current_file_name:
+                event.CrossSection = 0.00276133 #pb
+            elif "T1qqqq" in current_file_name:
+                for i_genParticle, genParticle in enumerate(event.GenParticles):
+                    if abs(event.GenParticles_PdgId[i_genParticle]) == 1000024:
+                        parent_id = event.GenParticles_ParentIdx[i_genParticle]
+                        parent_pdgid = event.GenParticles_PdgId[parent_id]
+                        if abs(parent_pdgid) == 1000021:
+                            parent_mass = event.GenParticles[parent_id].M()
+                            xsection = get_T1_xsection(parent_mass)
+                            event.CrossSection = xsection
+                            tree_branch_values["chargino_parent_mass"][0] = parent_mass
+                            break
 
         if tree.GetBranch("madHT"):
             madHT = event.madHT
