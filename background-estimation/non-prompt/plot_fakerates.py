@@ -173,6 +173,30 @@ def do_2D_plot(root_file, hist_name, extra_text, outfile = False, ratio = False)
     canvas.SetRightMargin(0.16)
     canvas.SetLeftMargin(0.14)
 
+    fake_rate.Rebin2D([], [], "hello")
+    
+
+    ################
+    ## rebin histograms:
+    #for label in histos:
+    #    if "HT" in variable:
+    #        redoBinning = [0, 100, 200, 300, 400, 500, 1000]
+    #    elif variable == "MinDeltaPhiMhtJets":
+    #        redoBinning = [0.3, 0.5, 0.7, 0.9]
+    #    elif variable == "n_btags":
+    #        redoBinning = [0, 1, 2, 5]
+    #    else:
+    #        redoBinning = False
+    #        
+    #    if redoBinning:
+    #        nbins = len(redoBinning)-1
+    #        newxs = array.array('d', redoBinning)
+    #        histos[label] = histos[label].Rebin(nbins, label, newxs)
+    #################
+
+
+
+
     if ratio:
         if "Run2016G" in hist_name:
             fake_rate_mc = fin.Get(hist_name.replace("Run2016G", "Summer16"))
@@ -229,41 +253,43 @@ if __name__ == "__main__":
     out_file = False
 
     # 1D plots
-    for data_type in ["Summer16", "Fall17"]:
-        # do 1D fakerate comparison plots:
-        #for category in ["combined", "short", "long"]:
-        for category in ["combined"]:
-            for variable in ["n_allvertices", "HT", "MHT", "n_btags", "n_goodjets", "tracks_pt"]:
-                for tag in ["loose6"]:
-
-                    if "Summer16" in data_type:
-                        data_periods = [data_type, "Run2016C", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
-                    elif "Fall17" in data_type:
-                        data_periods = [data_type, "Run2017"]
-
-                    print data_type, category, variable, tag
-                    do_1D_plot(root_file, category, variable, tag, regions = ["qcd_lowMHT"], data_periods = data_periods, outfile = out_file)
+    if False:
+        for data_type in ["Summer16", "Fall17"]:
+            # do 1D fakerate comparison plots:
+            for category in ["short", "long"]:
+            #for category in ["combined"]:
+                for variable in ["n_allvertices", "HT", "MHT", "n_btags", "n_goodjets", "tracks_pt"]:
+                    for tag in ["loose8"]:
+        
+                        if "Summer16" in data_type:
+                            data_periods = [data_type, "Run2016C", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
+                        elif "Fall17" in data_type:
+                            data_periods = [data_type, "Run2017"]
+        
+                        print data_type, category, variable, tag
+                        do_1D_plot(root_file, category, variable, tag, regions = ["qcd_lowMHT"], data_periods = data_periods, outfile = out_file)
 
     # 2D plots
     # redo the 2D plots in a slightly nicer way:
-    for variable in ["HT_n_allvertices", "tracks_eta_tracks_phi"]:
-        for region in ["qcd_lowMHT"]:
-            for data_type in ["Summer16", "Run2016", "Run2016G", "Fall17", "Run2017", "Run2018"]:
-                for category in ["short", "long"]:
-                    for tag in ["loose6"]:
-                        if "interpolated" in variable and region == "dilepton":
-                            variable = variable.replace("HT", "HT_cleaned")
-                        else:
-                            variable = variable.replace("_cleaned", "")
-                        
-                        hist_name = region + "_" + tag + "_" + category + "/" + data_type + "/fakerate_" + variable
-
-                        if "201" in data_type:
-                            extra_text = "Run%s (%s region, %s tracks)" % (data_type, region, category)
-                        else:
-                            extra_text = "%s MC (%s region, %s tracks)" % (data_type, region, category)
-
-                        do_2D_plot(root_file, hist_name, extra_text, outfile = out_file)
-                        if "2016G" in data_type or "2017" in data_type:
-                            do_2D_plot(root_file, hist_name, extra_text, outfile = out_file, ratio = True)
+    if True:
+        for variable in ["HT_n_allvertices", "tracks_eta_tracks_phi"]:
+            for region in ["qcd_lowMHT"]:
+                for data_type in ["Summer16", "Run2016", "Run2016G", "Fall17", "Run2017", "Run2018"]:
+                    for category in ["short", "long"]:
+                        for tag in ["loose8"]:
+                            if "interpolated" in variable and region == "dilepton":
+                                variable = variable.replace("HT", "HT_cleaned")
+                            else:
+                                variable = variable.replace("_cleaned", "")
+                            
+                            hist_name = region + "_" + tag + "_" + category + "/" + data_type + "/fakerate_" + variable
+        
+                            if "201" in data_type:
+                                extra_text = "Run%s (%s region, %s tracks)" % (data_type, region, category)
+                            else:
+                                extra_text = "%s MC (%s region, %s tracks)" % (data_type, region, category)
+        
+                            do_2D_plot(root_file, hist_name, extra_text, outfile = out_file)
+                            if "2016G" in data_type or "2017" in data_type:
+                                do_2D_plot(root_file, hist_name, extra_text, outfile = out_file, ratio = True)
 

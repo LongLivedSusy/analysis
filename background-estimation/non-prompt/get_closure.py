@@ -229,7 +229,7 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--folder", dest = "prediction_folder", default = "prediction27")
+    parser.add_option("--folder", dest = "prediction_folder", default = "prediction28")
     (options, args) = parser.parse_args()
 
     prediction_folder = options.prediction_folder
@@ -244,7 +244,7 @@ if __name__ == "__main__":
             for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
             
                 for category in ["combined"]:
-                    for cr in ["baseline"]:
+                    for cr in ["baseline", "baseline_region_MHT50", "SElPromptValidationZLL", "SElValidationMT", "SMuValidationMT"]:
                         
                         if "baseline_muveto" == cr:
                             canvas_label = "hFkBaselineMuVeto_%s" % variable
@@ -259,7 +259,8 @@ if __name__ == "__main__":
                         elif "baseline_zmassveto" == cr:
                             canvas_label = "hFkBaselineZVeto_%s" % variable
                         else:
-                            canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
+                            #canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
+                            canvas_label = "%s_%s" % (cr, variable)
 
                         print root_file, variable, tag, category, cr
 

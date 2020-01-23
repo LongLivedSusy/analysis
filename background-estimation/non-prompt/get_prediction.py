@@ -84,7 +84,17 @@ def fill_histogram(histogram, variable, value, weight):
         histogram.Fill(value, weight)
 
 
-def main(input_filenames, output_file, nevents = -1, treename = "Events", event_start = 0, fakerate_file = "fakerate.root", unweighted = False, vetocuts = ""):
+def correct_dedx_intercalibration(dedx, filename):
+    
+    correction_values = shared_utils.datacalibdict
+    correction_value = 0
+    for label in correction_values:
+        if label in filename:
+            correction_value = correction_values[label]    
+    return dedx - correction_value
+        
+
+def main(input_filenames, output_file, nevents = -1, treename = "Events", event_start = 0, fakerate_file = "fakerate.root",  vetocuts = ""):
 
     # check if data:
     phase = 0
@@ -130,6 +140,7 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
    
     # output histograms
     histos = {
+                "leptonMT": TH1F("leptonMT", "leptonMT", 8, 0, 80),
                 "HT": TH1F("HT", "HT", 10, 0, 2000),
                 "MET": TH1F("MET", "MET", 15, 0, 1200),
                 "MHT": TH1F("MHT", "MHT", 15, 0, 1200),
@@ -150,8 +161,11 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
 
     event_selection = {
                 "baseline":                 tagged,
+                "baseline_region_MHT50":    tagged + " and event.MHT>50",
+                "SElPromptValidationZLL":   tagged + " and event.HT>150 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
+                "SElValidationMT":          tagged + " and event.HT>150 and event.n_goodjets==1 and event.leptons_id==11 and event.leptons_mtw<70",
+                "SMuValidationMT":          tagged + " and event.HT>150 and event.n_goodjets==1 and event.leptons_id==13 and event.leptons_mtw<70",
                 #"baseline_region":          tagged + " and event.region_loose8>0",
-                #"baseline_region_MHT50":    tagged + " and event.region_loose8>0 and event.MHT>50",
                 #"baseline_zmassveto":      tagged +  " and event.tracks_zmassveto!=1 ",
                 #"baseline_muveto":         tagged + " and event.n_goodmuons==0",
                 #"baseline_mu":             tagged + " and event.n_goodmuons>0",
@@ -249,6 +263,9 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
 
                     log10dedxmass = TMath.Log10(TMath.Sqrt((event.tracks_deDxHarmonic2pixel[i]-3.01) * pow(event.tracks_pt[i] * TMath.CosH(event.tracks_eta[i]),2)/1.74))
                     dedx = event.tracks_deDxHarmonic2pixel[i]
+                    
+                    # correct dE/dx value with intercalibrated values:
+                    dedx = correct_dedx_intercalibration(dedx, input_filenames[0])
 
                     # short:
                     if eval(tags.convert_cut_string(tags.tags[tag]["SR_short"])) and eval(good_track):
@@ -309,6 +326,8 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
                 # fill histograms:    
                 for variable in output_variables:
 
+                    if variable == "leptonMT" and "MT" not in cr: continue
+
                     # fill signal region histograms:
                     if variable == "region":
                         value = region_signal
@@ -322,6 +341,8 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
                         value = dedx_signal
                     elif variable == "n_tags":
                         value = is_short_signal + is_long_signal
+                    elif variable == "leptonMT":
+                        value = event.leptons_mtw[0]
                     else:
                         value = eval("event.%s" % variable)
 
@@ -368,6 +389,8 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
                         value = dedx_control
                     elif variable == "n_tags":
                         value = is_short_control + is_long_control
+                    elif variable == "leptonMT":
+                        value = event.leptons_mtw[0]
 
                     if n_DT_control == 1:
                         if is_short_control == 1:
@@ -434,8 +457,8 @@ if __name__ == "__main__":
         os.system("hadd -f %s/prediction_Run2016.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
         
         for period in ["B", "C", "D", "E", "F", "G", "H"]:
-            #os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
-            os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))
+            os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
+            #os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))
                     
         quit()
 
@@ -488,5 +511,4 @@ if __name__ == "__main__":
              nevents = int(options.nev),
              fakerate_file = options.fakerate_file,
              event_start = int(options.event_start),
-             unweighted = options.unweighted,
             )
