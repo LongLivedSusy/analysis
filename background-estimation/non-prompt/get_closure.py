@@ -244,7 +244,8 @@ if __name__ == "__main__":
             for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
             
                 for category in ["combined"]:
-                    for cr in ["baseline", "baseline_region_MHT50", "SElPromptValidationZLL", "SElValidationMT", "SMuValidationMT"]:
+                    #for cr in ["baseline", "baseline_region_MHT50", "SElPromptValidationZLL", "SElValidationMT", "SMuValidationMT"]:
+                    for cr in ["baseline"]:
                         
                         if "baseline_muveto" == cr:
                             canvas_label = "hFkBaselineMuVeto_%s" % variable

@@ -87,11 +87,11 @@ def fill_histogram(histogram, variable, value, weight):
 def correct_dedx_intercalibration(dedx, filename):
     
     correction_values = shared_utils.datacalibdict
-    correction_value = 0
+    correction_value = 1.0
     for label in correction_values:
         if label in filename:
             correction_value = correction_values[label]    
-    return dedx - correction_value
+    return correction_value * dedx
         
 
 def main(input_filenames, output_file, nevents = -1, treename = "Events", event_start = 0, fakerate_file = "fakerate.root",  vetocuts = ""):
@@ -458,7 +458,7 @@ if __name__ == "__main__":
         
         for period in ["B", "C", "D", "E", "F", "G", "H"]:
             os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
-            #os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))
+            os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))
                     
         quit()
 

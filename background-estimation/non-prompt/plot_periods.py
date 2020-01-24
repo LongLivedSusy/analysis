@@ -6,7 +6,7 @@ from plotting import *
 import collections
 import shared_utils
 
-def plot_run_periods(variable, prediction_folder):
+def plot_run_periods(variable, prediction_folder, header):
     
     histos = collections.OrderedDict()
     
@@ -23,7 +23,7 @@ def plot_run_periods(variable, prediction_folder):
     canvas.SetLogy(True)
     
     legend = TLegend(0.6, 0.6, 0.88, 0.88)
-    legend.SetHeader("non-prompt bg. prediction")
+    legend.SetHeader(header)
     legend.SetTextSize(0.025)
     legend.SetBorderSize(0)    
     
@@ -54,5 +54,5 @@ def plot_run_periods(variable, prediction_folder):
     canvas.SaveAs("fake-bg-prediction-periods-%s.pdf" % variable)
     
 
-plot_run_periods("hFkBaseline_DeDxAverageMethod", "prediction27")
-plot_run_periods("hFkBaseline_DeDxAverageMethod_CR", "prediction27")
+plot_run_periods("hFkBaseline_DeDxAverageMethod", "prediction31", "non-prompt prediction")
+plot_run_periods("hFkBaseline_DeDxAverageMethod_CR", "prediction31", "non-prompt control region")

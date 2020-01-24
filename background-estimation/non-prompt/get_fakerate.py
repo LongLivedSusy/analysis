@@ -7,7 +7,9 @@ import plotting
 import uuid
 import GridEngineTools
 import collections
-from tools.tags import tags
+import tags
+import shared_utils
+import array
 
 def get_interpolated_histogram(histo):
 
@@ -40,27 +42,36 @@ def get_interpolated_histogram(histo):
     return interpolated_histo
 
 
-def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, denominator_cuts, selected_sample, extra_text, binning, threads, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False):
+def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts, denominator_cuts, selected_sample, extra_text, binning, threads, nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, xlabel=False, ylabel=False, do_interpolation = False):
 
-    print "## Getting fake rate for", variable, selected_sample, extra_text
+    print "Getting fake rate for", variable, selected_sample, extra_text
 
-    plot2D = False
     if ":" in variable:
         plot2D = True
+    else:
+        plot2D = False
                  
     if not plot2D:
-        nBinsX = binning[variable.replace("_cleaned", "")][0]
-        xmin = binning[variable.replace("_cleaned", "")][1]
-        xmax = binning[variable.replace("_cleaned", "")][2]
+        if binning[0] == "variable":
+            nbins = len(binning[1]) - 1
+            histos[label] = histos[label].Rebin(nbins, label, array.array('d', binning[1]))
+        else:
+            nBinsX = binning[0]
+            xmin = binning[1]
+            xmax = binning[2]
     else:
-        variable1 = variable.split(":")[1]
-        variable2 = variable.split(":")[0]
-        nBinsX = binning[variable1.replace("_cleaned", "")][0]
-        xmin = binning[variable1.replace("_cleaned", "")][1]
-        xmax = binning[variable1.replace("_cleaned", "")][2]
-        nBinsY = binning[variable2.replace("_cleaned", "")][0]
-        ymin = binning[variable2.replace("_cleaned", "")][1]
-        ymax = binning[variable2.replace("_cleaned", "")][2]
+        if binning[0] == "variable":
+            nbinsX = len(binning[1]) - 1
+            nbinsY = len(binning[2]) - 1
+            histos[label] = histos[label].RebinX(nbinsX, label, array.array('d', binning[1]))
+            histos[label] = histos[label].RebinY(nbinsY, label, array.array('d', binning[2]))
+        else:
+            nBinsX = binning[0]
+            xmin = binning[1]
+            xmax = binning[2]
+            nBinsY = binning[3]
+            ymin = binning[4]
+            ymax = binning[5]
         
     if plot2D:
         fakes_numerator = plotting.get_histogram(variable, base_cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample, threads=threads)
@@ -100,12 +111,14 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
     else:
         fake_rate.SetTitle(";%s; fake rate" % xlabel)
     
+    shared_utils.histoStyler(fake_rate)
+    shared_utils.stamp()
     fake_rate.SetName("fakerate_%s" % (variable.replace(":", "_").replace("_cleaned", "")))
     fake_rate.SetDirectory(gDirectory)
     fake_rate.Write()
     
     # also save interpolated histogram:
-    if plot2D:
+    if plot2D and do_interpolation:
         fake_rate_interpolated = get_interpolated_histogram(fake_rate)
         fake_rate_interpolated.SetName("fakerate_%s_interpolated" % (variable.replace(":", "_")))
         fake_rate_interpolated.SetDirectory(gDirectory)
@@ -116,20 +129,22 @@ def get_fakerate(path, variable, rootfile, foldername, base_cuts, numerator_cuts
 
 def get_configurations(threads):
 
-    path = "../skims/current/"
+    path = "../../skims/current/"
     rootfile = "/fakerate.root"
 
-    binning = collections.OrderedDict()    
-
-    binning["tracks_pt"] = [20, 0, 1000]
-    binning["HT"] = [10, 0, 1000]
-    binning["MHT"] = [10, 0, 1000]
-    binning["n_allvertices"] = [20, 0, 100]
-    binning["n_goodjets"] = [50, 0, 50]
-    binning["n_btags"] = [10, 0, 10]
-    binning["MinDeltaPhiMhtJets"] = [100, 0, 5]
-    binning["tracks_eta"] = [60, -2.5, 2.5]
-    binning["tracks_phi"] = [60, -3.2, 3.2]
+    binning = {
+               "tracks_pt": [20, 0, 1000],
+               "HT": [10, 0, 1000],
+               "MHT": [10, 0, 1000],
+               "n_allvertices": [20, 0, 100],
+               "n_goodjets": [20, 0, 20],
+               "n_btags": [10, 0, 10],
+               "MinDeltaPhiMhtJets": [100, 0, 5],
+               "tracks_eta": [12, -3, 3],
+               "tracks_phi": [16, -4, 4],
+               #"HT:n_allvertices": ["variable", [0,20,40,1000], [0,200,400,1000]],
+               "HT:n_allvertices": [3, 0, 50, 3, 0, 500],
+              }
 
     selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
 
@@ -147,48 +162,52 @@ def get_configurations(threads):
     
     regions = collections.OrderedDict()
     regions["qcd_lowMHT"] = " && MHT<200"
-    #regions["qcd_sideband"] = " && MHT>100 && MHT<200"
     
     configurations = []
 
     for label in tags.tags:
 
-        numerator_cuts = tags.tags[label]["SR"]
-        denominator_cuts = tags.tags[label]["CR"]
-        base_cuts = tags.tags[label]["base_cuts"]
+        for category in ["_short", "_long"]:
 
-        for selected_dataset in selected_datasets:
-            for variable in variables:          
-                for region in regions:
-                
-                    cuts = base_cuts + regions[region]
+            numerator_cuts = tags.tags[label]["SR" + category]
+            denominator_cuts = tags.tags[label]["CR" + category]
+            base_cuts = tags.base_cuts
 
-                    current_selected_dataset = selected_dataset
-                    if "Run201" in selected_dataset:
-                        # running on data:
-                        if "qcd" in region and "JetHT" not in current_selected_dataset:
-                            current_selected_dataset += "*JetHT"
-                        elif "dilepton" in region and "Single" not in current_selected_dataset:
-                            current_selected_dataset += "*Single"
+            if base_cuts[:3] == " &&":
+                base_cuts = base_cuts[3:]
+
+            for selected_dataset in selected_datasets:
+                for variable in variables:          
+                    for region in regions:
+                    
+                        cuts = base_cuts + regions[region]
+
+                        current_selected_dataset = selected_dataset
+                        if "Run201" in selected_dataset:
+                            # running on data:
+                            if "qcd" in region and "JetHT" not in current_selected_dataset:
+                                current_selected_dataset += "*JetHT"
+                            elif "dilepton" in region and "Single" not in current_selected_dataset:
+                                current_selected_dataset += "*Single"
+                            else:
+                                print "Something wrong"
+                                quit()
                         else:
-                            print "Something wrong"
-                            quit()
-                    else:
-                        # running on MC
-                        if "qcd" in region and "QCD" not in current_selected_dataset:
-                            current_selected_dataset += "*QCD"
-                        elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
-                            current_selected_dataset += "*DYJetsToLL"
-                        else:
-                            print "Something wrong"
-                            quit()
+                            # running on MC
+                            if "qcd" in region and "QCD" not in current_selected_dataset:
+                                current_selected_dataset += "*QCD"
+                            elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
+                                current_selected_dataset += "*DYJetsToLL"
+                            else:
+                                print "Something wrong"
+                                quit()
 
-                    current_variable = variable
-                    if "dilepton" in region:
-                        current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
-                    folder = selected_dataset.split(".")[0]
-                     
-                    configurations.append([path, current_variable, rootfile, "%s_%s/%s" % (region, label, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning, threads])   
+                        current_variable = variable
+                        if "dilepton" in region:
+                            current_variable = variable.replace("HT", "HT_cleaned").replace("n_jets", "n_jets_cleaned").replace("n_btags", "n_btags_cleaned").replace("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets_cleaned")                    
+                        folder = selected_dataset.split(".")[0]
+                         
+                        configurations.append([path, current_variable, rootfile, "%s_%s/%s" % (region, label + category, folder), cuts, numerator_cuts, denominator_cuts, current_selected_dataset, "MC, pixel-only tracks", binning[current_variable.replace("_cleaned", "")], threads])   
 
     return configurations
 
