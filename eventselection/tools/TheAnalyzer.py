@@ -55,8 +55,11 @@ candPtCut = 30
 candPtUpperCut = 6499
 if is2016: BTAG_deepCSV = 0.6324
 if is2017: BTAG_deepCSV = 0.4941
-if is2018: BTAG_deepCSV = 2.55
+if is2018: BTAG_deepCSV = 0.4184
 btag_cut = BTAG_deepCSV
+
+
+
 
 from CrossSectionDictionary import *
 if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames or 'T1' in inputFileNames: model = 'T1'
@@ -345,7 +348,7 @@ for ientry in range(nentries):
 		adjustedMht-=jet		
 		if not abs(jet.Eta())<2.4: continue###update to 2.4            
 		adjustedJets.append(jet)			
-		if c.Jets_bDiscriminatorCSV[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
+		if c.Jets_bJetTagDeepCSVBvsAll[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
 		adjustedHt+=jet.Pt()
 	adjustedNJets = len(adjustedJets)
 	mindphi = 4
