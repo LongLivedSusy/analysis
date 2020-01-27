@@ -230,41 +230,42 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("--folder", dest = "prediction_folder", default = "prediction28")
+    parser.add_option("--selection", dest = "selection", default = "baseline")    
+    parser.add_option("--category", dest = "category", default = "combined")    
+    parser.add_option("--tag", dest = "tag", default = "loose8")    
     (options, args) = parser.parse_args()
 
-    prediction_folder = options.prediction_folder
-
-    for tag in ["loose8"]:
-        for data_period in ["Run2016B_MET", "Run2016C_MET", "Run2016D_MET", "Run2016E_MET", "Run2016F_MET", "Run2016G_MET", "Run2016H_MET"]:
-
-            os.system("rm %s/closure_%s.root" % (prediction_folder, data_period))
+    event_selection = options.selection
     
-            root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
-                
-            for variable in ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]:
-            
-                for category in ["combined"]:
-                    #for cr in ["baseline", "baseline_region_MHT50", "SElPromptValidationZLL", "SElValidationMT", "SMuValidationMT"]:
-                    for cr in ["baseline"]:
-                        
-                        if "baseline_muveto" == cr:
-                            canvas_label = "hFkBaselineMuVeto_%s" % variable
-                        elif "baseline_mu" == cr:
-                            canvas_label = "hFkBaselineMu_%s" % variable
-                        elif "baseline_noveto" == cr:
-                            canvas_label = "hFkBaselineNoVeto_%s" % variable
-                        elif "baseline" == cr:
-                            canvas_label = "hFkBaseline_%s" % variable
-                        elif "baseline_region" == cr:
-                            canvas_label = "hFkBaseline_%s" % variable
-                        elif "baseline_zmassveto" == cr:
-                            canvas_label = "hFkBaselineZVeto_%s" % variable
-                        else:
-                            #canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
-                            canvas_label = "%s_%s" % (cr, variable)
+    variables = ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]
+    data_periods = ["Run2016B_MET", "Run2016C_MET", "Run2016D_MET", "Run2016E_MET", "Run2016F_MET", "Run2016G_MET", "Run2016H_MET"]
 
-                        print root_file, variable, tag, category, cr
+    for data_period in data_periods:
 
-                        extra_text = "%s, %s tracks" % (data_period.replace("Summer16", "2016 MC").replace("Fall17", "2017 MC"), category)
-                        closure_plot(root_file, variable, tag, category, cr, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (prediction_folder, data_period, cr))
+        os.system("rm %s/closure_%s.root" % (options.prediction_folder, data_period))
+    
+        root_file = "%s/prediction_%s.root" % (options.prediction_folder, data_period)
             
+        for variable in variables:
+                                                    
+            if "baseline_muveto" == event_selection:
+                canvas_label = "hFkBaselineMuVeto_%s" % variable
+            elif "baseline_mu" == event_selection:
+                canvas_label = "hFkBaselineMu_%s" % variable
+            elif "baseline_noveto" == event_selection:
+                canvas_label = "hFkBaselineNoVeto_%s" % variable
+            elif "baseline" == event_selection:
+                canvas_label = "hFkBaseline_%s" % variable
+            elif "baseline_region" == event_selection:
+                canvas_label = "hFkBaseline_%s" % variable
+            elif "baseline_zmassveto" == event_selection:
+                canvas_label = "hFkBaselineZVeto_%s" % variable
+            else:
+                #canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
+                canvas_label = "%s_%s" % (event_selection, variable)
+
+            print root_file, variable, options.tag, options.category, event_selection
+
+            extra_text = "%s, %s tracks" % (data_period.replace("Summer16", "2016 MC").replace("Fall17", "2017 MC"), options.category)
+            closure_plot(root_file, variable, options.tag, options.category, event_selection, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = options.prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (options.prediction_folder, data_period, event_selection))
+        

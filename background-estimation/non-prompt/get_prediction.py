@@ -162,9 +162,10 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
     event_selection = {
                 "baseline":                 tagged,
                 "baseline_region_MHT50":    tagged + " and event.MHT>50",
-                "SElPromptValidationZLL":   tagged + " and event.HT>150 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
-                "SElValidationMT":          tagged + " and event.HT>150 and event.n_goodjets==1 and event.leptons_id==11 and event.leptons_mtw<70",
-                "SMuValidationMT":          tagged + " and event.HT>150 and event.n_goodjets==1 and event.leptons_id==13 and event.leptons_mtw<70",
+                "SElValidationZLL":         tagged + " and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
+                "SMuValidationZLL":         tagged + " and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
+                "SElValidationMT":          tagged + " and event.n_goodjets==1 and event.n_goodelectrons==1 and event.n_goodmuons==0 and event.leptons_mtw<70",
+                "SMuValidationMT":          tagged + " and event.n_goodjets==1 and event.n_goodmuons==1 and event.n_goodelectrons==0 and event.leptons_mtw<70",
                 #"baseline_region":          tagged + " and event.region_loose8>0",
                 #"baseline_zmassveto":      tagged +  " and event.tracks_zmassveto!=1 ",
                 #"baseline_muveto":         tagged + " and event.n_goodmuons==0",
@@ -229,7 +230,8 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
         for tag in tags.tags:
 
             # with z mass veto:
-            good_track = tags.convert_cut_string(tags.good_track)
+            #good_track = tags.convert_cut_string(tags.good_track)
+            good_track = tags.convert_cut_string(tags.good_track) + " and event.tracks_nValidPixelHits[i]>=3"
 
             for cr in pass_cr:
                 
@@ -302,7 +304,7 @@ def main(input_filenames, output_file, nevents = -1, treename = "Events", event_
                 n_DT_signal = is_short_signal + is_long_signal
                 n_DT_control = is_short_control + is_long_control
                     
-                # get region bin:
+                # get region bin:n_DT_signal
                 if n_DT_signal > 0:
                     region_signal = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT_signal, is_pixel_track_signal, dedx_signal, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
                     sidebandregion_signal = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT_signal, is_pixel_track_signal, dedx_signal, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)

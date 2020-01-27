@@ -67,12 +67,13 @@ def stack_histograms(histos, samples, variable, xlabel, ylabel, folder, signal_s
     
     if not lumi and plot_has_data:
         lumi = total_lumi
+    else:
+        lumi = 1.0
 
     # plot backgrounds:
     for label in sorted(histos):
 
         if samples[label]["type"] == "bg" or samples[label]["type"] == "sg":
-            lumi = 1.0
             histos[label].Scale(lumi * 1000.0)
 
         if histos[label].GetMinimum(0) < global_minimum:

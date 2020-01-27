@@ -1416,7 +1416,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     print "iEv_start: %s" % iEv_start
 
     # store runs for JSON output:
-    runs = {}
+    runs_beforecuts = {}
+    runs_aftercuts = {}
 
     # check if data:
     phase = 0
@@ -1555,10 +1556,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if is_data:
             runnum = event.RunNum
             lumisec = event.LumiBlockNum
-            if runnum not in runs:
-                runs[runnum] = []
-            if lumisec not in runs[runnum]:
-                runs[runnum].append(lumisec)
+            if runnum not in runs_beforecuts:
+                runs_beforecuts[runnum] = []
+            if lumisec not in runs_beforecuts[runnum]:
+                runs_beforecuts[runnum].append(lumisec)
             weight = event.PrescaleWeightHT
         else:
             weight = 1.0 * event.puWeight * event.CrossSection
@@ -1586,6 +1587,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         # basic event selection:
         passed_UniversalSelection = passesUniversalSelection(event)
         if not passed_UniversalSelection: continue
+
+        if is_data:
+            runnum = event.RunNum
+            lumisec = event.LumiBlockNum
+            if runnum not in runs_aftercuts:
+                runs_aftercuts[runnum] = []
+            if lumisec not in runs_aftercuts[runnum]:
+                runs_aftercuts[runnum].append(lumisec)
 
         # check trigger:
         triggered_met = shared_utils.PassTrig(event, 'MhtMet6pack')
@@ -2109,20 +2118,27 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     fout.Close()
    
     # write JSON containing lumisections:
-    if len(runs) > 0:
-        runs_compacted = {}
-        for run in runs:
-            if run not in runs_compacted:
-                runs_compacted[run] = []
-            for lumisec in runs[run]:
-                if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
-                    runs_compacted[run][-1][-1] = lumisec
-                else:
-                    runs_compacted[run].append([lumisec, lumisec])
+    for i_runs, runs in enumerate([runs_beforecuts, runs_aftercuts]):
 
-        json_content = json.dumps(runs_compacted)
-        with open(track_tree_output.replace(".root", ".json"), "w") as fo:
-            fo.write(json_content)
+        if i_runs == 0:
+            json_filename = track_tree_output.replace(".root", "_beforecuts.json")
+        else:
+            json_filename = track_tree_output.replace(".root", ".json")
+
+        if len(runs) > 0:
+            runs_compacted = {}
+            for run in runs:
+                if run not in runs_compacted:
+                    runs_compacted[run] = []
+                for lumisec in runs[run]:
+                    if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
+                        runs_compacted[run][-1][-1] = lumisec
+                    else:
+                        runs_compacted[run].append([lumisec, lumisec])
+
+            json_content = json.dumps(runs_compacted)
+            with open(json_filename, "w") as fo:
+                fo.write(json_content)
 
 
 if __name__ == "__main__":
@@ -2144,4 +2160,4 @@ if __name__ == "__main__":
          options.outputfiles,
          nevents = int(options.nev),
          iEv_start = int(options.iEv_start),
-         only_tagged_tracks = False)
+         only_tagged_tracks = True)
