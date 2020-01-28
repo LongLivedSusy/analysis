@@ -1519,7 +1519,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if "tracks_" in label:
             track_variables.append(label)
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_passpionveto', 'tracks_passmask', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_zmassveto']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_trackQualityHighPurity', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_passpionveto', 'tracks_passmask', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_zmassveto']
 
     for dt_tag_label in disappearing_track_tags:
         vector_int_branches += ["tracks_tagged_%s" % dt_tag_label]
@@ -1873,6 +1873,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             is_prompt_electron = False
             is_prompt_muon = False
             is_prompt_tau = False
+            is_prompt_tau_hadronic = False
             is_prompt_tau_leadtrk = False
             is_prompt_tau_widecone = False
 
@@ -1880,7 +1881,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 for k in range(len(event.GenParticles)):
                     deltaR = track.DeltaR(event.GenParticles[k])
                     gen_track_cone_pdgid = abs(event.GenParticles_PdgId[k])
-
                     if deltaR < 0.02:
                         if gen_track_cone_pdgid == 11:
                             is_prompt_electron = True
@@ -1888,13 +1888,22 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                             is_prompt_muon = True
                         if gen_track_cone_pdgid == 15:
                             is_prompt_tau = True
-                            # if genTau, check if the track matches with a GenTaus_LeadTrk track:
-                            for l in range(len(event.GenTaus_LeadTrk)):
-                                deltaR = track.DeltaR(event.GenTaus_LeadTrk[l])
-                                if deltaR < 0.04:
-                                    is_prompt_tau_leadtrk = True
-                                if deltaR < 0.4:
-                                    is_prompt_tau_widecone = True
+                
+                for k in range(len(event.GenTaus)):
+                    deltaR = track.DeltaR(event.GenTaus[k])
+                    is_hadronic = bool(event.GenTaus_had[k])
+                    if deltaR < 0.04 and is_hadronic:
+                        is_prompt_tau_hadronic = True
+
+                # for hadronic taus, check GenTaus_LeadTrk tracks:
+                for l in range(len(event.GenTaus_LeadTrk)):
+                    deltaR = track.DeltaR(event.GenTaus_LeadTrk[l])
+                    is_hadronic = bool(event.GenTaus_had[l])
+                    if is_hadronic:
+                        if deltaR < 0.04:
+                            is_prompt_tau_leadtrk = True
+                        if deltaR < 0.4:
+                            is_prompt_tau_widecone = True
 
             is_fake_track = not (is_prompt_electron or is_prompt_muon or is_prompt_tau or is_prompt_tau_leadtrk)
 
@@ -1927,6 +1936,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_prompt_electron": is_prompt_electron,
                                      "tracks_prompt_muon": is_prompt_muon,
                                      "tracks_prompt_tau": is_prompt_tau,
+                                     "tracks_prompt_tau_hadronic": is_prompt_tau_hadronic,
                                      "tracks_prompt_tau_leadtrk": is_prompt_tau_leadtrk,
                                      "tracks_prompt_tau_widecone": is_prompt_tau_widecone,
                                      "tracks_passpionveto": True,
@@ -2160,4 +2170,4 @@ if __name__ == "__main__":
          options.outputfiles,
          nevents = int(options.nev),
          iEv_start = int(options.iEv_start),
-         only_tagged_tracks = True)
+         only_tagged_tracks = False)
