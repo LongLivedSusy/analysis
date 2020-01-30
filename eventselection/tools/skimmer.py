@@ -1531,7 +1531,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDxWeightedByValidHits', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_LabXYcm', 'tracks_mt', 'leptons_pt', 'leptons_eta', 'leptons_phi', 'leptons_mtw', 'tracks_invmass1', 'tracks_invmass2', 'tracks_invmass3', 'tracks_invmass4', 'tracks_invmass5', 'tracks_leptondr1', 'tracks_leptondr2', 'tracks_leptondr3', 'tracks_leptondr4', 'tracks_leptondr5']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_massfromdeDxWeightedByValidHits', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_chiCandGenMatchingDRStatus1', 'tracks_LabXYcm', 'tracks_mt', 'leptons_pt', 'leptons_eta', 'leptons_phi', 'leptons_mtw', 'tracks_invmass1', 'tracks_invmass2', 'tracks_invmass3', 'tracks_invmass4', 'tracks_invmass5', 'tracks_leptondr1', 'tracks_leptondr2', 'tracks_leptondr3', 'tracks_leptondr4', 'tracks_leptondr5']
     for dt_tag_label in disappearing_track_tags:
         vector_float_branches += ["tracks_mva_%s" % dt_tag_label]
     for branch in vector_float_branches:
@@ -2004,13 +2004,25 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         
             # if signal, do chargino matching:
             if tree.GetBranch("GenParticles") and ("g1800" in event_tree_filenames[0] or "SMS-" in event_tree_filenames[0]):
-                deltaR = 0
+                min_deltaR = 100
+                for k in range(len(event.GenParticles)):
+                    if abs(event.GenParticles_PdgId[k]) == 1000024:
+                        deltaR = track.DeltaR(event.GenParticles[k])
+                        #if deltaR < 0.01:
+                        if deltaR < min_deltaR:
+                            track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
+
+                min_deltaR = 100
                 for k in range(len(event.GenParticles)):
                     if abs(event.GenParticles_PdgId[k]) == 1000024 and event.GenParticles_Status[k] == 1:
                         deltaR = track.DeltaR(event.GenParticles[k])
-                        if deltaR < 0.01:
-                            track_level_output[-1]["tracks_chiCandGenMatchingDR"] = deltaR
-                            break
+                        #if deltaR < 0.01:
+                        if deltaR < min_deltaR:
+                            track_level_output[-1]["tracks_chiCandGenMatchingDRStatus1"] = deltaR
+
+            else:
+                track_level_output[-1]["tracks_chiCandGenMatchingDR"] = 0
+                track_level_output[-1]["tracks_chiCandGenMatchingDRStatus1"] = 0
 
         if only_tagged_tracks and not event_contains_tagged_tracks:
             continue

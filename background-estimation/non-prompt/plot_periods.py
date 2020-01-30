@@ -52,21 +52,38 @@ def plot_run_periods(variable, prediction_folder, header):
             histos[label].Scale(1.0/histos[label].Integral())
         histos[label].SetTitle(";%s;Events" % xlabel)
         histos[label].GetXaxis().SetRangeUser(0,7.5)
-        histos[label].GetYaxis().SetRangeUser(1e-5,1e-1)
+        histos[label].GetYaxis().SetRangeUser(5e-4,1e-1)
         
-        legend.AddEntry(histos[label], label)
-        
+        # fit histograms:
+
+        if "DeDx_" in variable:
+            if "Summer16" in label:
+                fit_x = TF1("fit_x", "gaus", 2.5, 3.5)
+            else:
+                fit_x = TF1("fit_x", "gaus", 1.6, 2.8)
+            fit_x.SetLineColor(kRed)
+            fit_x.SetLineWidth(2)
+            histos[label].Fit("fit_x", "r")
+
+            legend.AddEntry(histos[label], label + ", (#mu=%1.2f)" % fit_x.GetParameter(1))
+
+        else:
+
+            legend.AddEntry(histos[label], label)
+
+
     legend.Draw()
     shared_utils.stamp()
     canvas.SaveAs("fakebg_%s.pdf" % variable)
-    
+              
+
 
 folder = "prediction38"
 for variable in ["DeDx", "DeDxCorrected"]:
     for region in ["control", "prediction"]:
         for category in ["short", "long"]:
             for event_selection in ["baseline", "baseline_simplecuts"]:
-                header = region + ", " + category + " tracks"
+                header = "non-prompt " + region + " reg., " + category + " tr."
                 plot_run_periods("%s_%s_%s_%s" % (variable, region, category, event_selection), folder, header)
 
 

@@ -128,7 +128,8 @@ if __name__ == "__main__":
     mc_summer16 = "Summer16.DYJetsToLL*,Summer16.QCD*,Summer16.WJetsToLNu*,Summer16.ZJetsToNuNu*,Summer16.WW_TuneCUETP8M1*,Summer16.WZ_TuneCUETP8M1*,Summer16.ZZ_TuneCUETP8M1*,Summer16.TT*"
     mc_fall17 = "RunIIFall17MiniAODv2.DYJetsToLL*,RunIIFall17MiniAODv2.QCD*,RunIIFall17MiniAODv2.WJetsToLNu*,RunIIFall17MiniAODv2.ZJetsToNuNu*,RunIIFall17MiniAODv2.WW*,RunIIFall17MiniAODv2.WZ*,RunIIFall17MiniAODv2.ZZ*,RunIIFall17MiniAODv2.TT*,RunIIFall17MiniAODv2.TTJets_HT*,RunIIFall17MiniAODv2.GJets_HT*"
     data_phase0 = "Run2016*"
-    data_phase1 = "Run2017*,Run2018*"
+    #data_phase1 = "Run2017*,Run2018*"
+    data_phase1 = "Run2017*"
     mc_sms = "RunIISummer16MiniAODv3.SMS*"
 
     ######## defaults ########
@@ -136,11 +137,12 @@ if __name__ == "__main__":
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
         options.add_signals = True
-        options.dataset = mc_summer16 + "," + data_phase0 + "," + mc_sms
+        #options.dataset = mc_summer16 + "," + data_phase0 + "," + mc_sms
         #options.dataset = mc_fall17 + "," + data_phase1
         #options.dataset = data_phase0
+        options.dataset = ""
     if not options.output_folder:
-        options.output_folder = "skim_59"
+        options.output_folder = "skim_59_signals"
     ######## defaults ########
 
     commands = []
