@@ -37,7 +37,7 @@ def passesUniversalSelection(t):
     return True
 
 
-def main(input_filenames, output_file, nevents = -1, event_start = 0, treename = "TreeMaker2/PreSelection"):
+def main(input_filenames, output_file, eta_low = 0, eta_high = 2.4, nevents = -1, event_start = 0, treename = "TreeMaker2/PreSelection"):
 
     tree = TChain(treename)
     for tree_file in input_filenames:
@@ -46,7 +46,7 @@ def main(input_filenames, output_file, nevents = -1, event_start = 0, treename =
     ###################################################################################################
     # output histograms
 
-    pt_binning = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 750, 1000]
+    pt_binning = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 250, 300]
 
     histos = {
         "pt_singleelectron_mettrigger": TH1F("pt_singleelectron_mettrigger", "pt_singleelectron_mettrigger", len(pt_binning)-1, array.array('d', pt_binning)),
@@ -75,7 +75,7 @@ def main(input_filenames, output_file, nevents = -1, event_start = 0, treename =
         ###################################################################################################
 
         # basic event selection:
-        passed_UniversalSelection = passesUniversalSelection(event)
+        passed_UniversalSelection = passesUniversalSelection(event) and event.MET>280
         if not passed_UniversalSelection: continue
 
         # check trigger:
@@ -86,24 +86,24 @@ def main(input_filenames, output_file, nevents = -1, event_start = 0, treename =
         goodleptons = {"electrons": [], "muons": []}
 
         for i, electron in enumerate(event.Electrons):
-            if abs(electron.Eta()) < 2.4 and bool(event.Electrons_mediumID[i]):
+            if abs(electron.Eta()) >= eta_low and abs(electron.Eta()) < eta_high and bool(event.Electrons_tightID[i]) and bool(event.Electrons_passIso[i]):
                 goodleptons["electrons"].append(electron)
         for i, muon in enumerate(event.Muons):
-            if abs(muon.Eta()) < 2.4 and bool(event.Muons_tightID[i]):
+            if abs(muon.Eta()) >= eta_low and abs(muon.Eta()) < eta_high and bool(event.Muons_tightID[i]) and bool(event.Muons_passIso[i]):
                 goodleptons["muons"].append(muon)
 
         if len(goodleptons["electrons"]) == 1:
             pt_lepton = goodleptons["electrons"][0].Pt()
-            if triggered_singleelectron == 1 and triggered_met == 1:
+            if triggered_met == 1:
                 histos["pt_singleelectron_mettrigger"].Fill(pt_lepton, weight)
-            if triggered_singleelectron == 1:
+            if triggered_singleelectron == 1 and triggered_met == 1:
                 histos["pt_singleelectron_eltrigger"].Fill(pt_lepton, weight)
 
         if len(goodleptons["muons"]) == 1:
             pt_lepton = goodleptons["muons"][0].Pt()
-            if triggered_singlemuon == 1 and triggered_met == 1:
+            if triggered_met == 1:
                 histos["pt_singlemuon_mettrigger"].Fill(pt_lepton, weight)
-            if triggered_singlemuon == 1:
+            if triggered_singlemuon == 1 and triggered_met == 1:
                 histos["pt_singlemuon_mutrigger"].Fill(pt_lepton, weight)
 
         ###################################################################################################
@@ -118,7 +118,7 @@ def main(input_filenames, output_file, nevents = -1, event_start = 0, treename =
     fout.Close()
 
 
-def get_and_plot_ratio(hadded_file):
+def get_and_plot_ratio(hadded_file, header, pdffile):
 
     fin = TFile(hadded_file, "open")
 
@@ -136,29 +136,40 @@ def get_and_plot_ratio(hadded_file):
 
     pt_electron_trigger_efficiency = pt_singleelectron_eltrigger.Clone()
     pt_electron_trigger_efficiency.Divide(pt_singleelectron_mettrigger)
-
     pt_singlemuon_trigger_efficiency = pt_singlemuon_mutrigger.Clone()
     pt_singlemuon_trigger_efficiency.Divide(pt_singlemuon_mettrigger)
 
+    legend = TLegend(0.6, 0.2, 0.88, 0.4)
+    legend.SetHeader(header)
+    legend.SetTextSize(0.025)
+    legend.SetBorderSize(0)
+    legend.SetFillStyle(0)    
+
     # Draw:
-
-    shared_utils.histoStyler(pt_singleelectron_mettrigger)
-    shared_utils.histoStyler(pt_singleelectron_eltrigger)
-    shared_utils.histoStyler(pt_singlemuon_mettrigger)
-    shared_utils.histoStyler(pt_singlemuon_mutrigger)
-
+    shared_utils.histoStyler(pt_electron_trigger_efficiency)
+    shared_utils.histoStyler(pt_singlemuon_trigger_efficiency)
+    pt_electron_trigger_efficiency.SetTitle(";lepton p_{T} (GeV); trigger efficiency #epsilon")
+    legend.AddEntry(pt_electron_trigger_efficiency, "SingleElectron (2016)")    
+    pt_singlemuon_trigger_efficiency.SetTitle(";lepton p_{T} (GeV); trigger efficiency #epsilon")
+    legend.AddEntry(pt_singlemuon_trigger_efficiency, "SingleMuon (2016)")
+    pt_electron_trigger_efficiency.SetLineWidth(2)
+    pt_electron_trigger_efficiency.SetLineColor(kBlack)
+    pt_electron_trigger_efficiency.GetYaxis().SetRangeUser(0,1.1)
+    pt_singlemuon_trigger_efficiency.SetLineWidth(2)
+    pt_singlemuon_trigger_efficiency.SetLineColor(kRed)
+    pt_singlemuon_trigger_efficiency.GetYaxis().SetRangeUser(0,1.1)
+    
     fout = TFile("disapptrks_trigger_efficiency.root", "recreate")
 
     c1 = shared_utils.mkcanvas("c1")
-    leg = shared_utils.mklegend(x1=.7, y1=.6, x2=.92, y2=.8, color=kWhite)
-
-    for lepton in ["electron", "muon"]:
-        c1.Clear()
-        if lepton == "electron":
-            pt_electron_trigger_efficiency.Draw()
-        elif lepton == "muon":
-            pt_singlemuon_trigger_efficiency.Draw()
-        #pt_singleelectron_mettrigger.Scale(pt_singleelectron_mettrigger.GetIntegral())
+    pt_electron_trigger_efficiency.Draw()
+    pt_singlemuon_trigger_efficiency.Draw("same")
+    legend.Draw()
+    
+    shared_utils.stamp()
+    c1.SetGrid(True)
+    
+    c1.SaveAs(pdffile)
     
     fout.Close()
 
@@ -168,15 +179,8 @@ if __name__ == "__main__":
     parser.add_option("--input", dest = "inputfiles", default = "../skims/current/")
     parser.add_option("--output", dest = "outputfile", default = "output.root")
     parser.add_option("--folder", dest = "folder", default="output")
-    parser.add_option("--pattern", dest = "pattern", default="Run2016*MET.root")
     parser.add_option("--hadd", dest="hadd", action="store_true")
-    parser.add_option("--nev", dest = "nev", default = -1)
-    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 50)
-    parser.add_option("--event_start", dest = "event_start", default = 0)
-    parser.add_option("--runmode", dest="runmode", default="grid")
-    parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--plot", dest="plot", action="store_true")
-    parser.add_option("--submit", dest="submit", action="store_true")
     (options, args) = parser.parse_args()
     
     gStyle.SetOptStat(0)
@@ -185,17 +189,17 @@ if __name__ == "__main__":
     print "Get single lepton trigger efficiency from skim"
 
     if options.hadd:
-        os.system("hadd -f output.root %s/*.root" % (options.folder))
-        quit()
+        os.system("hadd -f output_barrel.root %s/*_barrel.root" % (options.folder))
+        os.system("hadd -f output_endcap.root %s/*_endcap.root" % (options.folder))
+        options.plot = True
 
     if options.plot:
-        get_and_plot_ratio(options.outputfile)
+        get_and_plot_ratio("output_barrel.root", "barrel region (0#leq#eta<1.5)", "singlelepton_trigger_barrel.pdf")
+        get_and_plot_ratio("output_endcap.root", "endcap region (1.5#leq#eta<2.4)", "singlelepton_trigger_endcap.pdf")
         quit()
 
     # otherwise run locally:
     else:
         options.inputfiles = options.inputfiles.split(",")
-
-        main(options.inputfiles,
-             options.outputfile,
-            )
+        main(options.inputfiles, options.outputfile.replace(".root", "_barrel.root"), eta_low = 0, eta_high = 1.5)
+        main(options.inputfiles, options.outputfile.replace(".root", "_endcap.root"), eta_low = 1.5, eta_high = 2.4)

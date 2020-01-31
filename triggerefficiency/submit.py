@@ -160,6 +160,6 @@ if __name__ == "__main__":
     
     do_submission(commands, options.output_folder, condorDir=options.output_folder, executable=options.command.split()[0], confirm=not options.start)
 
-    print "Merging..."
-    os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
+    #print "Merging..."
+    #os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
 
