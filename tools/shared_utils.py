@@ -489,7 +489,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
 	hComponents.reverse()        
 	if abs(hComponents[0].Integral(-1,999)-1)<0.001:
 		hComponents[0].GetYaxis().SetTitle('Normalized')
-	else: hComponents[0].GetYaxis().SetTitle('#Events')
+	else: hComponents[0].GetYaxis().SetTitle('Events/bin')
 	cGold.Update()
 	hTruth.GetYaxis().SetTitle('Normalized')
 	hTruth.GetYaxis().SetTitleOffset(1.15)
@@ -585,7 +585,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	hComponents.reverse()        
 	if abs(hComponents[0].Integral(-1,999)-1)<0.001:
 		hComponents[0].GetYaxis().SetTitle('Normalized')
-	else: hComponents[0].GetYaxis().SetTitle('#Events')
+	else: hComponents[0].GetYaxis().SetTitle('Events/bin')
 	cGold.Update()
 	hTruth.GetYaxis().SetTitle('Normalized')
 	hTruth.GetYaxis().SetTitleOffset(1.15)
@@ -841,7 +841,6 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 #just changed a couple of lines above to loosen the tag
 			
 def isBaselineTrack(track, itrack, c, hMask):
-	return True ##heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
 	if not abs(track.Eta())< 2.4: return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
 	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
