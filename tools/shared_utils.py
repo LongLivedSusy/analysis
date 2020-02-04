@@ -7,6 +7,9 @@ from array import array
 dedxcutLow = 2.5
 dedxcutMid = 4
 
+#dedxcutLow = 3.4
+#dedxcutMid = 6
+
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
 PtBinEdges = [0,20,24,27,30,31,32,34,36,38,40,45,50,60,90,120,180,250]#best
 #PtBinEdges = [32,250]#for inv. mass plots
@@ -68,7 +71,6 @@ binning['NPixStrips']=binning['NTags']
 binning['BTags']=[4,0,4]
 binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
-binning['DeDxAverage'] = [20,0,10]
 binning['InvMass'] = [100,0,200]
 binning['LepMT'] = [100,0,500]
 binning['Track1MassFromDedx'] = [25,0,1000]
@@ -80,12 +82,12 @@ binning['DeDxZones'] = [0.0,dedxcutLow,dedxcutMid,99]
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
 
-binningAnalysis['Met']=[45,0,1200]
+binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [88,1,89]
-binningAnalysis['DeDxAverage'] = [0,3.4,4.7,6.0,10.0]
-binningAnalysis['InvMass'] = [10,0,200]
-binningAnalysis['LepMT'] = [20,0,200]
+binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
+binningAnalysis['InvMass'] = [50,0,200]
+binningAnalysis['LepMT'] = [16,0,160]
 
 '''
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
@@ -487,7 +489,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
 	hComponents.reverse()        
 	if abs(hComponents[0].Integral(-1,999)-1)<0.001:
 		hComponents[0].GetYaxis().SetTitle('Normalized')
-	else: hComponents[0].GetYaxis().SetTitle('#Events')
+	else: hComponents[0].GetYaxis().SetTitle('Events/bin')
 	cGold.Update()
 	hTruth.GetYaxis().SetTitle('Normalized')
 	hTruth.GetYaxis().SetTitleOffset(1.15)
@@ -583,7 +585,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	hComponents.reverse()        
 	if abs(hComponents[0].Integral(-1,999)-1)<0.001:
 		hComponents[0].GetYaxis().SetTitle('Normalized')
-	else: hComponents[0].GetYaxis().SetTitle('#Events')
+	else: hComponents[0].GetYaxis().SetTitle('Events/bin')
 	cGold.Update()
 	hTruth.GetYaxis().SetTitle('Normalized')
 	hTruth.GetYaxis().SetTitleOffset(1.15)
@@ -1042,7 +1044,7 @@ def PassTrig(c,trigname):
 	return False
 
 
-datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9110228586038934, 'Run2016E': 0.9172251497168261, 'Run2016F': 0.9866513309729763, 'Run2016G': 1.0051360517782837, 'Run2016B': 0.9089157247376515, 'Run2016C': 0.9037296677386634, 'Summer16': 0.744690871542444}
+datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9110228586038934, 'Run2016E': 0.9172251497168261, 'Run2016F': 0.9866513309729763, 'Run2016G': 1.0051360517782837, 'Run2016B': 0.9089157247376515, 'Run2016C': 0.9037296677386634, 'Summer16': 0.744690871542444, 'Run2017F': 0.8834783199828424, 'Run2018D': 0.9343114197729864, 'Run2017D': 0.8871578228655626, 'Run2017C': 0.8824631824088149, 'Run2017B': 0.7753458186951745, 'Run2018A': 0.8748729581145911, 'Run2018C': 0.9106488664283063, 'Run2017E': 0.8455468376019104}
 
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15

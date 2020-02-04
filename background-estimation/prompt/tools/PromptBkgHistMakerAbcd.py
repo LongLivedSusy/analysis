@@ -9,11 +9,13 @@ import math
 gROOT.SetStyle('Plain')
 #gROOT.SetBatch(1)
 
+
+#a next thing to try would be removing the track matching criteria on the electrons - but let's wait until after the singleMuon stuff runs. Funny i would have thought the electron stuff was ok, based on the results from before. Do I have something funny with the luminosity?
+
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False
 
-specialTauPiValidation = False
-simplifyControlRegion = False
+simplifyControlRegion = True
 
 codeproduct = sys.argv[0].split('/')[-1].split('With')[0].split('Maker')[0]
 
@@ -46,7 +48,7 @@ RelaxGenKin = True
 ClosureMode = True #false means run as if real data
 SmearLeps = False
 UseFits = False
-UseDeep = False
+UseJets_bJetTagDeepCSVBvsAll = False
 sayalot = False
 candPtCut = 30
 candPtUpperCut = 6499
@@ -69,17 +71,11 @@ elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or 
 if is2016: phase = 0
 else: phase = 1
 
+if is2016: BTAG_deepCSV = 0.6324
+if is2017: BTAG_deepCSV = 0.4941
+if is2018: BTAG_deepCSV = 0.4184
+btag_cut = BTAG_deepCSV
 
-
-if phase==0: 
-	BTAG_CSVv2 = 0.8484
-	BTAG_deepCSV = 0.6324
-if phase==1: 
-	BTAG_CSVv2 = 0.8838
-	BTAG_deepCSV = 0.4941
-
-if UseDeep: btag_cut = BTAG_deepCSV
-else: btag_cut = BTAG_CSVv2
 
 if phase==0: mvathreshes=[.1,.25]
 else: mvathreshes=[0.15,0.0]
@@ -122,13 +118,15 @@ inf = 999999
 
 regionCuts = {}
 varlist_                             = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons',   'NMuons', 'InvMass', 'LepMT', 'NPions',   'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber', 'Met']
-regionCuts['NoCuts']               = [(0,inf), (0,inf),    (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),     (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
+regionCuts['NoCuts']               = [(0,inf), (0,inf),    (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),     (0,inf),     (0,inf), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
 regionCuts['HadBaseline']            = [(150,inf), (150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (0,0),    (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),     (-inf,inf),  (-inf,inf)]
-#regionCuts['HighMetBaseline']       = [(0,inf), (250,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf ),    (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),  (-inf,inf),  (-inf,inf)]
+
 regionCuts['SMuBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
-regionCuts['SMuZLL']                 = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
-regionCuts['SElBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
-regionCuts['SElZLL']                 = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuValidationZLL']       = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (65,110), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElBaseline']            = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),     (0,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationZLL']       = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,0),  (65,110), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationMT']        = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,1 ),      (0,0),  (0,inf),  (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuValidationMT']        = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0),       (1,1),  (0,inf), (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),   (-inf,inf),  (-inf,inf)]
 
 
 
@@ -156,11 +154,11 @@ for region in regionCuts:
 		histname = 'El'+region+'Zone'+dedx_zone+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname)
 		histname = 'Mu'+region+'Zone'+dedx_zone+'_'+var
-		histoStructDict[histname] = mkHistoStruct(histname)        
+		histoStructDict[histname] = mkHistoStruct(histname)
 		histname = 'Pi'+region+'Zone'+dedx_zone+'_'+var
-		histoStructDict[histname] = mkHistoStruct(histname)        		
+		histoStructDict[histname] = mkHistoStruct(histname)
 		histname = 'Fake'+region+'Zone'+dedx_zone+'_'+var
-		histoStructDict[histname] = mkHistoStruct(histname)  
+		histoStructDict[histname] = mkHistoStruct(histname)
 
 
 
@@ -192,6 +190,8 @@ nentries = c.GetEntries()
 #nentries = 100
 
 c.Show(0)
+c.GetEntry(0)
+thisfile = ''
 #nentries = 5
 
 ncuts = 13
@@ -213,8 +213,22 @@ elif 'WJetsToLNu_TuneCUET' in inputFileNames: madranges = [(0, 100)]
 elif 'WJetsToLNu_HT' in inputFileNames: madranges = [(100, inf)]
 else: madranges = [(0, inf)]
 
-trigkey = 'SingleMuon'
-trigkey = 'MhtMet6pack'
+
+if 'MET' in inputFileNames: 
+	trigkey = 'MhtMet6pack'
+	ismu = False
+	isel = False
+	ismet= True	
+elif 'SingleMu' in inputFileNames: 
+	trigkey = 'SingleMuon'
+	ismu = True
+	isel = False
+	ismet= False	
+elif 'SingleEl' in inputFileNames or 'SingleEG' in inputFileNames: 
+	trigkey = 'SingleElectron'
+	ismu = False
+	isel = True
+	ismet= False	
 
 fMask = TFile('usefulthings/Masks.root')
 if 'Run2016' in inputFileNames: 
@@ -241,7 +255,6 @@ dResponseHist_mu_long = {}
 for iPtBinEdge, PtBinEdge in enumerate(PtBinEdgesForSmearing[:-1]):
 	for iEtaBinEdge, EtaBinEdge_ in enumerate(EtaBinEdgesForSmearing[:-1]):
 	   newHistKey = ((EtaBinEdge_,EtaBinEdgesForSmearing[iEtaBinEdge + 1]),(PtBinEdge,PtBinEdgesForSmearing[iPtBinEdge + 1]))
-	   print 'attempting to get', "htrkresp"+str(newHistKey)
 	   if '(1.4442,' in str(newHistKey): continue
 	   dResponseHist_el_short[newHistKey] = fsmear_short.Get("htrkresp"+str(newHistKey)+'El')
 	   dResponseHist_mu_short[newHistKey] = fsmear_short.Get("htrkresp"+str(newHistKey)+'Mu')
@@ -249,7 +262,7 @@ for iPtBinEdge, PtBinEdge in enumerate(PtBinEdgesForSmearing[:-1]):
 	   dResponseHist_mu_long[newHistKey] = fsmear_long.Get("htrkresp"+str(newHistKey)+'Mu')       	   
 
 def getSmearFactor(Eta, Pt, dResponseHist):
-	if SmearLeps4Zed_: return 1
+	if not SmearLeps4Zed_: return 1
 	for histkey in  dResponseHist:
 	   if abs(Eta) > histkey[0][0] and abs(Eta) < histkey[0][1] and Pt > histkey[1][0] and Pt < histkey[1][1]:
 		   SF_trk = 10**(dResponseHist[histkey].GetRandom())
@@ -285,11 +298,20 @@ else:
 	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
 	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
 readerPixelOnly = TMVA.Reader()
+print 'test a'
 readerPixelStrips = TMVA.Reader()
+print 'test b'
 prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
+print 'test c'
+stufflist = glob(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-loose/weights/*')
+print 'would be nominally looking in ', os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-loose/weights/', 'for', 'TMVAClassification_BDT.weights.xml....'
+print stufflist
 prepareReaderPixel_loose(readerPixelOnly, pixelXml)
+print 'test d'
 #prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
 #prepareReaderPixel(readerPixelOnly, pixelXml)
+
+
 
 
 if isdata: 
@@ -320,6 +342,7 @@ else:
 		fileKappaPixOnlyGen = 'usefulthings/KappaFall17.WJets_PixOnly_'+kappasmearlevellabel+'.root'
 		fileKappaPixAndStripsGen = 'usefulthings/KappaFall17.WJets_PixAndStrips_'+kappasmearlevellabel+'.root' 
 
+print 'test e'
 
 fKappaPixOnly  = TFile(fileKappaPixOnly)
 fKappaPixAndStrips  = TFile(fileKappaPixAndStrips)
@@ -433,8 +456,8 @@ matchedpinum = 0.0001
 unmatchedpinum = 0.0001
 print nentries, 'events to be analyzed'
 for ientry in range(nentries):
-	if verbose:
-		if not ientry in [432005,446869,768376]: continue
+	if debugmode:
+		if not ientry in [12]: continue
 	if ientry%verbosity==0:
 		print 'now processing event number', ientry, 'of', nentries
 		if ientry==0: 
@@ -443,15 +466,22 @@ for ientry in range(nentries):
 			print 'going to process', nentries, 'events'
 	if verbose: print 'getting entry', ientry
 	c.GetEntry(ientry) 
-	hHt.Fill(c.HT)
+	
+	if ientry%1000==0:
+		if not (thisfile==c.GetFile().GetName()):
+			thisfile = c.GetFile().GetName()
+			print 'starting new file', thisfile
+	
 	
 		
 		
 	if isdata:
+		hHt.Fill(c.HTOnline)
 		#if not PassTrig(c, 'MhtMet6pack'): continue
 		if not PassTrig(c, trigkey): continue
 		#print ientry, c.MHT, PassTrig(c, 'MhtMet6pack')		
 	else:	
+	  hHt.Fill(c.madHT)
 	  isValidHtRange = False
 	  for madrange in madranges:
 		if (c.madHT>=madrange[0] and c.madHT<madrange[1]):
@@ -481,9 +511,6 @@ for ientry in range(nentries):
 			#print 'isoPionTracks', c.isoPionTracks
 			genpis.append(gp)
 
-	if specialTauPiValidation:
-		if not len(genpis)<2: continue
-		#if not len(genpis)>0: continue
 
 	#if not c.JetID: continue
 
@@ -504,7 +531,7 @@ for ientry in range(nentries):
 		if verbose: print itrack, 'no selection at all', track.Pt(), 'eta', track.Eta()        
 		if not track.Pt() > 10 : continue
 		if not abs(track.Eta()) < 2.4: continue
-		if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue
+		if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue    #I kind of want to drop this eventually
 		if verbose: print itrack, 'before baseline pt', track.Pt(), 'eta', track.Eta()        
 		if not isBaselineTrack(track, itrack, c, hMask): continue
 				
@@ -567,6 +594,7 @@ for ientry in range(nentries):
 		matchedTrk = TLorentzVector()
 		if lep.Pt()>candPtCut: RecoElectrons.append([lep, ilep])
 		for trk in basicTracks:
+			if debugmode: print 'examining this lil trackypoo', trk
 			drTrk = trk[0].DeltaR(lep)
 			if drTrk<drmin:
 				if not simplifyControlRegion:
@@ -604,7 +632,7 @@ for ientry in range(nentries):
 	RecoMuons = []
 	for ilep, lep in enumerate(c.Muons):
 		if verbose: print ientry, ilep,'mu with Pt' , lep.Pt()
-		if (abs(lep.Eta()) < 1.566 and abs(lep.Eta()) > 1.4442): continue
+		if (abs(lep.Eta()) > 1.4442 and abs(lep.Eta()) < 1.566): continue
 		if not abs(lep.Eta())<2.4: continue
 		if not c.Muons_passIso[ilep]: continue
 		if not c.Muons_tightID[ilep]: continue
@@ -635,6 +663,7 @@ for ientry in range(nentries):
 		SmearedMuons.append([smearedMu,ilep,dedxcalib*c.tracks_deDxHarmonic2pixel[matchedTrk[2]],dedxcalib*c.tracks_deDxHarmonic2pixel[matchedTrk[2]]])
 
 
+		
 	SmearedPions = []
 	for ipi, pi in enumerate(c.TAPPionTracks):
 		#if not c.isoPionTracks==1: continue
@@ -686,13 +715,24 @@ for ientry in range(nentries):
 
 	metvec = TLorentzVector()
 	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
-	
-	if isdata: weight = 1                    ###this needs some help
+		
+	if isdata: 
+		weight = 1                    ###this needs some help
+		if ismet: 
+			if not (len(RecoElectrons)+len(RecoMuons)==0): continue
+		if ismu: 
+			if not (len(RecoMuons)>0 and len(RecoElectrons)==0): continue			
+		if isel: 
+			if not (len(RecoElectrons)>0): continue
+						
 	elif len(RecoElectrons)+len(RecoMuons)>0: 
 		weight = c.CrossSection*c.puWeight
 	else: 
 		weight = c.CrossSection*c.puWeight*gtrig.Eval(c.MHT)
-	hHtWeighted.Fill(c.HT,weight)	
+
+	if isdata: hHtWeighted.Fill(c.HTOnline,weight)
+	else: hHtWeighted.Fill(c.madHT,weight)	
+
 
 	for elething in SmearedElectrons:
 		dtproxy, elidx, dedxPixel, dedxPixel = elething
@@ -767,11 +807,11 @@ for ientry in range(nentries):
 					hname = 'El'+regionkey+'Zone'+zoneOfDedx[izone]+'_'+varname
 					if selectionFeatureVector(fv,regionkey,varname):
 						fillth1(histoStructDict[hname].Control,fv[ivar], weight)
-						fillth1(histoStructDict[hname].Method,fv[ivar], kPixOnly*weight*trigcor)					
+						if debugmode:
+							if 'NoCuts' in regionkey and 'Mht' in varname: print ientry, 'filling this mht hist while HT=', fv[0], 'pt=', pt
 						if izone==0 and ivar==srindex:
 							#print 'izone', izone, 'trying to fill this thing with', fv[ivar], fv[ivar]-1, fv
 							fillth1(histoStructDict[hname].Control,fv[ivar]-1, weight)
-							fillth1(histoStructDict[hname].Method,fv[ivar]-1, kPixOnly*weight*trigcor)
 							
 
 		#long        
@@ -794,15 +834,12 @@ for ientry in range(nentries):
 					
 					if izone==0: 
 						fv[srindex] = 2*math.ceil(1.0*getBinNumber(fv,binnumbers,dedxidx)/2)
-					else: fv[srindex] = getBinNumber(fv)	
-										
+					else: fv[srindex] = getBinNumber(fv)											
 					hname = 'El'+regionkey+'Zone'+zoneOfDedx[izone]+'_'+varname			
 					if selectionFeatureVector(fv,regionkey,varname):
 						if 'Pix' in regionkey or 'Bin' in varname: fillth1(histoStructDict[hname].Control,fv[ivar], weight)# skip double counting 1-lep region
-						fillth1(histoStructDict[hname].Method,fv[ivar], kPixAndStrips*weight*trigcor)					
 						if izone==0 and ivar==srindex:					
 							if 'Pix' in regionkey or 'Bin' in varname: fillth1(histoStructDict[hname].Control,fv[ivar]-1, weight)# skip double counting 1-lep region
-							fillth1(histoStructDict[hname].Method,fv[ivar]-1, kPixAndStrips*weight*trigcor)
 
 
 	for muonthing in SmearedMuons:
