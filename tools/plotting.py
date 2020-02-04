@@ -43,7 +43,7 @@ def stamp_plot():
     tl.SetTextSize(1.0/0.81*tl.GetTextSize())
 
 
-def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1):
+def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, add_overflow = False):
 
     hName = str(uuid.uuid1()).replace("-", "")
 
@@ -60,30 +60,31 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
         tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions)
 
     # add overflow bin(s) for 1D and 2D histograms:
-    if not nBinsY:
-        bin = histo.GetNbinsX()+1
-        overflow = histo.GetBinContent(bin)
-        histo.AddBinContent((bin-1), overflow)
-    else:
-        binX = histo.GetNbinsX()+1
-        binY = histo.GetNbinsX()+1
-
-        # read and set overflow x values:
-        for x in range(0, binX-1):
-            overflow_up = histo.GetBinContent(x, binY)
-            bin = histo.GetBin(x, binY-1)
-            histo.SetBinContent(bin, overflow_up)
-
-        # read and set overflow y values:
-        for y in range(0, binY-1):
-            overflow_right = histo.GetBinContent(binX, y)
-            bin = histo.GetBin(binX-1, y)
-            histo.SetBinContent(bin, overflow_right)
-
-        # read and set overflow diagonal values:
-        overflow_diag = histo.GetBinContent(binX, binY)
-        bin = histo.GetBin(binX-1, binY-1)
-        histo.SetBinContent(bin, overflow_diag)
+    if add_overflow:
+        if not nBinsY:
+            bin = histo.GetNbinsX()+1
+            overflow = histo.GetBinContent(bin)
+            histo.AddBinContent((bin-1), overflow)
+        else:
+            binX = histo.GetNbinsX()+1
+            binY = histo.GetNbinsX()+1
+        
+            # read and set overflow x values:
+            for x in range(0, binX-1):
+                overflow_up = histo.GetBinContent(x, binY)
+                bin = histo.GetBin(x, binY-1)
+                histo.SetBinContent(bin, overflow_up)
+        
+            # read and set overflow y values:
+            for y in range(0, binY-1):
+                overflow_right = histo.GetBinContent(binX, y)
+                bin = histo.GetBin(binX-1, y)
+                histo.SetBinContent(bin, overflow_right)
+        
+            # read and set overflow diagonal values:
+            overflow_diag = histo.GetBinContent(binX, binY)
+            bin = histo.GetBin(binX-1, binY-1)
+            histo.SetBinContent(bin, overflow_diag)
    
     histo.SetDirectory(0)
     return histo

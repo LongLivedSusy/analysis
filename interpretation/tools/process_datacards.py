@@ -230,7 +230,7 @@ def run_limit_calculation(out_path):
         script_name = script_name.split("/")[-1]
         cmd = "cd %s; chmod +x %s; ./%s" % (out_path, script_name, script_name)
         commands.append(cmd)
-                    
+
     runParallel(commands, "grid", condorDir=out_path, confirm=True, babysit=False)
         
 
@@ -246,8 +246,8 @@ if __name__ == "__main__":
     variable =           "BinNumberMethod"
 
     out_paths = {
-                  #"allbins": [],
-                  #"noleptons": range(49, 80+1) + range(85, 88+1),
+                  "allbins": [],
+                  "noleptons": range(49, 80+1) + range(85, 88+1),
                   "onlyleptons": range(0, 48+1) + range(81, 84+1),
                 }
 

@@ -24,7 +24,7 @@ def plot_run_periods(variable, prediction_folder, header):
     canvas = shared_utils.mkcanvas()
     canvas.SetLogy(True)
     
-    legend = TLegend(0.6, 0.6, 0.88, 0.88)
+    legend = TLegend(0.55, 0.6, 0.88, 0.88)
     legend.SetHeader(header)
     legend.SetTextSize(0.025)
     legend.SetBorderSize(0)    
@@ -51,14 +51,14 @@ def plot_run_periods(variable, prediction_folder, header):
         if histos[label].Integral()>0:
             histos[label].Scale(1.0/histos[label].Integral())
         histos[label].SetTitle(";%s;Events" % xlabel)
-        histos[label].GetXaxis().SetRangeUser(0,7.5)
+        histos[label].GetXaxis().SetRangeUser(1.5,7.5)
         histos[label].GetYaxis().SetRangeUser(5e-4,1e-1)
         
         # fit histograms:
 
         if "DeDx_" in variable:
             if "Summer16" in label:
-                fit_x = TF1("fit_x", "gaus", 2.5, 3.5)
+                fit_x = TF1("fit_x", "gaus", 2.5, 3.6)
             else:
                 fit_x = TF1("fit_x", "gaus", 1.6, 2.8)
             fit_x.SetLineColor(kRed)
@@ -78,12 +78,12 @@ def plot_run_periods(variable, prediction_folder, header):
               
 
 
-folder = "prediction38"
+folder = "prediction39"
 for variable in ["DeDx", "DeDxCorrected"]:
-    for region in ["control", "prediction"]:
+    for region in ["control"]:
         for category in ["short", "long"]:
-            for event_selection in ["baseline", "baseline_simplecuts"]:
-                header = "non-prompt " + region + " reg., " + category + " tr."
+            for event_selection in ["baseline"]:
+                header = "non-prompt " + region + " reg., " + category + " tracks"
                 plot_run_periods("%s_%s_%s_%s" % (variable, region, category, event_selection), folder, header)
 
 

@@ -733,7 +733,7 @@ def GetContoursSmooth(g, color, style, n_smooth  = 4):
     return outSM
 
 
-def TryToGetContours(g, color, style, smoothing = True, n_smooth  = 4):
+def TryToGetContours(g, color, style, smoothing = False, n_smooth  = 4):
 
     try:
         if smoothing:
@@ -758,7 +758,7 @@ def getxsecGlu():
     return xsecGlu
 
 
-def produce_limit_plot(pattern = "T1qqqqLL_allbins", draw_xsecs=True, smoothing = True):
+def produce_limit_plot(pattern = "T1qqqqLL_allbins", draw_xsecs=True, smoothing = False):
 
     xsecGlu = getxsecGlu()
 

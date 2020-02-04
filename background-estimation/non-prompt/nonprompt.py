@@ -9,7 +9,7 @@ from array import array
 import tags
 import shared_utils
 import array
-
+    
 # loose8 tag
 base_cuts = "tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_nValidPixelHits>=3"
 SR_short = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.65/0.01) - 0.25) && tracks_trkRelIso<0.01")
@@ -143,13 +143,15 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             tree.Add(tree_file)
 
     event_selections = {
-                "baseline":                 "True",
-                "baseline_simplecuts":      "event.MHT>150 and event.n_goodjets>=1",
-                "baseline_region_MHT50":    "event.MHT>50",
-                "SElValidationZLL":         "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
-                "SMuValidationZLL":         "event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
-                "SElValidationMT":          "event.n_goodjets==1 and event.n_goodelectrons==1 and event.n_goodmuons==0 and event.leptons_mtw<70",
-                "SMuValidationMT":          "event.n_goodjets==1 and event.n_goodmuons==1 and event.n_goodelectrons==0 and event.leptons_mtw<70",
+                "baseline":         "True",
+                "baseline_MHT50":   "event.MHT>50",
+                "baseline_MHT150":  "event.MHT>150",
+                #"SElValidationZLL": "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
+                #"SMuValidationZLL": "event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.dilepton_invmass>=65 and event.dilepton_invmass<=110",
+                #"SElValidationZLL": "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0",
+                #"SMuValidationZLL": "event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0",
+                "SElValidationMT":  "event.n_goodjets>=1 and event.n_goodelectrons==1 and event.n_goodmuons==0 and event.leptons_mtw<70",
+                "SMuValidationMT":  "event.n_goodjets>=1 and event.n_goodmuons==1 and event.n_goodelectrons==0 and event.leptons_mtw<70",
                       }
 
     # load fakerate maps...
@@ -162,19 +164,20 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
     # output histograms
     histos = {
-        "leptonMT": TH1F("leptonMT", "leptonMT", 8, 0, 80),
-        "HT": TH1F("HT", "HT", 10, 0, 2000),
-        "MET": TH1F("MET", "MET", 15, 0, 1200),
-        "MHT": TH1F("MHT", "MHT", 20, 0, 1000),
-        "n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
-        "n_goodelectrons": TH1F("n_goodelectrons", "n_goodelectrons", 5, 0, 5),
-        "n_goodmuons": TH1F("n_goodmuons", "n_goodmuons", 5, 0, 5),
-        "MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
-        "n_btags": TH1F("n_btags", "n_btags", 4, 0, 4),
+        "leptonMT": TH1F("leptonMT", "leptonMT", 16, 0, 160),
+        #"InvMass": TH1F("InvMass", "InvMass", 50, 0, 200),
+        #"HT": TH1F("HT", "HT", 10, 0, 2000),
+        #"MET": TH1F("MET", "MET", 15, 0, 1200),
+        #"MHT": TH1F("MHT", "MHT", 20, 0, 1000),
+        #"n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
+        #"n_goodelectrons": TH1F("n_goodelectrons", "n_goodelectrons", 5, 0, 5),
+        #"n_goodmuons": TH1F("n_goodmuons", "n_goodmuons", 5, 0, 5),
+        #"MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
+        #"n_btags": TH1F("n_btags", "n_btags", 4, 0, 4),
         #"Track1MassFromDedx": TH1F("Track1MassFromDedx", "Track1MassFromDedx", 25, 0, 1000),
         #"Log10DedxMass": TH1F("Log10DedxMass", "Log10DedxMass", 10, 0, 5),
-        "DeDx": TH1F("DeDx", "DeDx", 100, 0, 10),
-        "DeDxCorrected": TH1F("DeDxCorrected", "DeDxCorrected", 100, 0, 10),
+        #"DeDx": TH1F("DeDx", "DeDx", 100, 0, 10),
+        #"DeDxCorrected": TH1F("DeDxCorrected", "DeDxCorrected", 100, 0, 10),
         #"n_tags": TH1F("n_tags", "n_tags", 3, 0, 3),
         "region": TH1F("region", "region", 88, 1, 89),
         "sidebandregion": TH1F("sidebandregion", "sidebandregion", 88, 1, 89),
@@ -212,6 +215,16 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
             if not eval(event_selections[event_selection]): continue
 
+            # check MT cut for events containing good leptons:
+            if event_selection == "baseline":
+                passed_leton_mt_cut = True
+                for i_lepton in range(len(event.leptons_mtw)):
+                    if event.leptons_mtw[i_lepton]<90:
+                        passed_leton_mt_cut = False
+                        break
+                if not passed_leton_mt_cut:
+                    continue
+
             tagged_tracks = {}
             tagged_tracks["SR_short"] = []
             tagged_tracks["CR_short"] = []
@@ -236,6 +249,11 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                     log10dedxmass = TMath.Log10(TMath.Sqrt((dedx-3.01) * pow(event.tracks_pt[i] * TMath.CosH(event.tracks_eta[i]),2)/1.74))
                     log10dedxmass_corrected = TMath.Log10(TMath.Sqrt((dedx_corrected-3.01) * pow(event.tracks_pt[i] * TMath.CosH(event.tracks_eta[i]),2)/1.74))
                     
+                    #if event_selection == "SElValidationMT":
+                    #    InvMass = 
+                    #else:
+                    #    InvMass = -1
+                    
                     track_info = {
                                    "is_pixel_track": event.tracks_is_pixel_track[i],
                                    "is_prompt_track": is_prompt_track,
@@ -244,6 +262,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                                    "dedx_corrected": dedx_corrected,
                                    "log10dedxmass": log10dedxmass,
                                    "log10dedxmass_corrected": log10dedxmass_corrected,
+                                   #"InvMass": InvMass,
                                  }
                     
                     if eval(SR_short):
@@ -286,7 +305,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 xvalue = eval("event.%s" % fakerate_variable)
                 fakerate_short = getBinContent_with_overflow(h_fakerates["short"], xvalue)
                 fakerate_long = getBinContent_with_overflow(h_fakerates["long"], xvalue)
-            
+                        
             # fill histograms:    
             for variable in output_variables:
 
@@ -315,6 +334,8 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                                     value = tagged_tracks[current_region_short + "_" + category][0]["dedx_corrected"]
                                 elif variable == "leptonMT":
                                     value = event.leptons_mtw[0]
+                                #elif variable == "InvMass":
+                                #    value = 
                                 else:
                                     value = eval("event.%s" % variable)
                                                                 
@@ -323,6 +344,11 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                                     fill_histogram(histos[variable + "_" + current_region + "fake_" + category + "_" + event_selection], variable, value, weight)
                                 if tagged_tracks[current_region_short + "_" + category][0]["is_prompt_track"] == 1:
                                     fill_histogram(histos[variable + "_" + current_region + "prompt_" + category + "_" + event_selection], variable, value, weight)
+                                    
+                                if current_region == "control" and category == "short":
+                                    fill_histogram(histos[variable + "_prediction_" + category + "_" + event_selection], variable, value, weight * fakerate_short)
+                                elif current_region == "control" and category == "long":
+                                    fill_histogram(histos[variable + "_prediction_" + category + "_" + event_selection], variable, value, weight * fakerate_long)
 
                     elif n_DT[current_region] >= 2:
                         
@@ -344,17 +370,32 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                         # check if all tagged tracks are fake or prompt tracks:
                         all_tracks_are_fake = True
                         all_tracks_are_prompt = True
+                        all_tracks_are_short = True
+                        all_tracks_are_long = True
                         
                         for track in list(tagged_tracks[current_region_short + "_short"] + tagged_tracks[current_region_short + "_long"]):
                             if track["is_prompt_track"] != 1:
                                 all_tracks_are_prompt = False
                             if track["is_fake_track"] != 1:
                                 all_tracks_are_fake = False
+                            if track["is_pixel_track"] != 1:
+                                all_tracks_are_short = False
+                            if track["is_pixel_track"] != 0:
+                                all_tracks_are_long = False
                                 
                         if all_tracks_are_prompt:
                             fill_histogram(histos[variable + "_" + current_region + "prompt_multi_" + event_selection], variable, value, weight)
                         if all_tracks_are_fake:
                             fill_histogram(histos[variable + "_" + current_region + "fake_multi_" + event_selection], variable, value, weight)
+                            
+                        if current_region == "control" and all_tracks_are_short:
+                            fill_histogram(histos[variable + "_prediction_multi_" + event_selection], variable, value, weight * fakerate_short * fakerate_short)
+                        elif current_region == "control" and all_tracks_are_long:
+                            fill_histogram(histos[variable + "_prediction_multi_" + event_selection], variable, value, weight * fakerate_long * fakerate_long)
+                        elif current_region == "control":
+                            fill_histogram(histos[variable + "_prediction_multi_" + event_selection], variable, value, weight * fakerate_short * fakerate_long)
+                        
+
                             
                          
     if event_start>0:
@@ -392,7 +433,7 @@ if __name__ == "__main__":
         os.system("hadd -f %s/prediction_Summer16.root %s/Summer16*.root" % (options.prediction_folder, options.prediction_folder))
         os.system("hadd -f %s/prediction_Run2016.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
         
-        for period in ["B", "C", "D", "E", "F", "G", "H"]:
+        for period in ["", "B", "C", "D", "E", "F", "G", "H"]:
             os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
             os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))                    
         quit()

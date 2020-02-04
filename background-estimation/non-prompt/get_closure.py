@@ -230,15 +230,17 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("--folder", dest = "prediction_folder", default = "prediction28")
-    parser.add_option("--selection", dest = "selection", default = "baseline")    
+    parser.add_option("--selection", dest = "selection", default = "baseline,SElValidationMT,SMuValidationMT")    
     parser.add_option("--category", dest = "category", default = "combined")    
     parser.add_option("--tag", dest = "tag", default = "loose8")    
     (options, args) = parser.parse_args()
 
     event_selection = options.selection
     
-    variables = ["region", "sidebandregion", "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]
-    data_periods = ["Run2016B_MET", "Run2016C_MET", "Run2016D_MET", "Run2016E_MET", "Run2016F_MET", "Run2016G_MET", "Run2016H_MET"]
+    variables = ["region", "sidebandregion", "leptonMT"] #, "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]
+    #data_periods = ["Run2016B_MET", "Run2016C_MET", "Run2016D_MET", "Run2016E_MET", "Run2016F_MET", "Run2016G_MET", "Run2016H_MET"]
+    #data_periods = ["Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
+    data_periods = ["Run2016"]
 
     for data_period in data_periods:
 
@@ -247,25 +249,20 @@ if __name__ == "__main__":
         root_file = "%s/prediction_%s.root" % (options.prediction_folder, data_period)
             
         for variable in variables:
-                                                    
-            if "baseline_muveto" == event_selection:
-                canvas_label = "hFkBaselineMuVeto_%s" % variable
-            elif "baseline_mu" == event_selection:
-                canvas_label = "hFkBaselineMu_%s" % variable
-            elif "baseline_noveto" == event_selection:
-                canvas_label = "hFkBaselineNoVeto_%s" % variable
-            elif "baseline" == event_selection:
-                canvas_label = "hFkBaseline_%s" % variable
-            elif "baseline_region" == event_selection:
-                canvas_label = "hFkBaseline_%s" % variable
-            elif "baseline_zmassveto" == event_selection:
-                canvas_label = "hFkBaselineZVeto_%s" % variable
-            else:
-                #canvas_label = "prediction_%s_%s_%s_%s_%s" % (data_period, variable, tag, category, cr)
-                canvas_label = "%s_%s" % (event_selection, variable)
-
-            print root_file, variable, options.tag, options.category, event_selection
-
-            extra_text = "%s, %s tracks" % (data_period.replace("Summer16", "2016 MC").replace("Fall17", "2017 MC"), options.category)
-            closure_plot(root_file, variable, options.tag, options.category, event_selection, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = options.prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (options.prediction_folder, data_period, event_selection))
+            
+            for event_selection in options.selection.split(","):
+                                    
+                if event_selection == "baseline":
+                    canvas_label = "hFkBaseline_%s" % variable
+                elif event_selection == "SElValidationMT":
+                    canvas_label = "hFkSElValidationMT_%s" % variable
+                elif event_selection == "SMuValidationMT":
+                    canvas_label = "hFkSMuValidationMT_%s" % variable
+                else:
+                    canvas_label = "%s_%s" % (event_selection, variable)
+                
+                print root_file, variable, options.tag, options.category, event_selection
+                
+                extra_text = "%s, %s tracks" % (data_period.replace("Summer16", "2016 MC").replace("Fall17", "2017 MC"), options.category)
+                closure_plot(root_file, variable, options.tag, options.category, event_selection, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = options.prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (options.prediction_folder, data_period, event_selection))
         

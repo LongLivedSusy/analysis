@@ -240,7 +240,7 @@ if __name__ == "__main__":
             commands.append("./get_fakerate.py --index %s" % i)
         GridEngineTools.runParallel(commands, options.runmode, condorDir = "get_fakerate.condor", confirm=not options.start)
 
-        if "multi" in options.runmode:
-            print "Finished, writing fake rate histograms to single fakerate.root..."
-            os.system("hadd -f fakerate.root fakerate_pt*root && rm fakerate_pt*root")
+        #if "multi" in options.runmode:
+        #    print "Finished, writing fake rate histograms to single fakerate.root..."
+        #    os.system("hadd -f fakerate.root fakerate_pt*root && rm fakerate_pt*root")
 
