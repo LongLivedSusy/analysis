@@ -6,7 +6,7 @@ from ROOT import *
 from glob import glob
 
 # Folder for histograms and plots
-suffix=""
+suffix="_mu"
 #histodir = "output_mediumchunks/"
 histodir = sys.argv[1]
 plotdir = "plots"+suffix
@@ -65,20 +65,21 @@ if __name__=="__main__":
     
     # Samples
     samples = {
-	"MET"	    :	{"select": "Run2016B_MET|Run2016C_MET|Run2016D_MET|Run2016E_MET|Run2016F_MET|Run2016G_MET|Run2016H_MET", "type": "data", "color": kBlack, "lumi": 35729.573401},
-	#"SingleMuon":	{"select": "SingleMuon", "type": "data", "color": kBlack, "lumi": 32189.463371},
-	#"SingleElectron":	{"select": "SingleElectron", "type": "data", "color": kBlack, "lumi": 30668.889085999997},
-        "WJetsToLNu":	{"select": "WJetsToLNu_HT", "type": "bg", "color": 85},
-        "DYJetsToLL":	{"select": "DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
+	#"MET"	    :	{"select": "Run2016B_MET|Run2016C_MET|Run2016D_MET|Run2016E_MET|Run2016F_MET|Run2016G_MET|Run2016H_MET", "type": "data", "color": kBlack, "lumi": 35729.573401},
+	"SingleMuon":	{"select": "Run2016B_SingleMuon|Run2016C_SingleMuon|Run2016D_SingleMuon|Run2016E_SingleMuon|Run2016F_SingleMuon|Run2016G_SingleMuon|Run2016H_SingleMuon", "type": "data", "color": kBlack, "lumi": 32189.463371},
+	#"SingleElectron":	{"select": "Run2016B_SingleElectron|Run2016C_SingleElectron|Run2016D_SingleElectron|Run2016E_SingleElectron|Run2016F_SingleElectron|Run2016G_SingleElectron|Run2016H_SingleElectron", "type": "data", "color": kBlack, "lumi": 30668.889085999997},
+        "WJetsToLNu":	{"select": "WJetsToLNu_Tune|WJetsToLNu_HT", "type": "bg", "color": 85},
+        "DYJetsToLL":	{"select": "DYJetsToLL_M-50_Tune|DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
         "TT":		{"select": "TTJets", "type": "bg", "color": 8}, 
         "QCD":		{"select": "QCD_HT", "type": "bg", "color": 97},
         "ZJetsToNuNu":	{"select": "ZJetsToNuNu_HT", "type": "bg", "color": 67},
         "Diboson":	{"select": "WW|WZ|ZZ", "type": "bg", "color": 51},
         #"rare":		{"select": "Summer16.ST|Summer16.GJets|RunIIFall17MiniAODv2.ST", "type": "bg", "color": 15},
-	#"SMS-T2bt-mLSP150": {"select": "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8", "type": "sg", "color": kBlue},
-	#"SMS-T2bt-mLSP400": {"select": "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8", "type": "sg", "color": kMagenta},
-	#"SMS-T2bt-mLSP1000": {"select": "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8", "type": "sg", "color": kGreen},
-	#"SMS-T2bt-mLSP2000": {"select": "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8", "type": "sg", "color": kRed},
+	#"SMS-T2bt-mLSP1": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-1_", "type": "sg", "color": kYellow},
+	#"SMS-T2bt-mLSP150": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-150_", "type": "sg", "color": kBlue},
+	#"SMS-T2bt-mLSP400": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-400_", "type": "sg", "color": kMagenta},
+	#"SMS-T2bt-mLSP1000": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-1000_", "type": "sg", "color": kGreen},
+	#"SMS-T2bt-mLSP2000": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-2000_", "type": "sg", "color": kRed},
               }
     
     # Variables to draw
@@ -91,17 +92,24 @@ if __name__=="__main__":
 	    "hMuPt",
 	    "hMuEta",
 	    "hMuPhi",
+	    "hGamma_mu",
 	    
-	    "hTrkPt",
+	    "hElePt",
+	    "hEleEta",
+	    "hElePhi",
+	    "hGamma_ele",
+	    
 	    "hTrkPt_mumatch",
-	    "hTrkDedx_mumatch",
+	    "hTrkPt_tightmumatch",
+	    "hTrkPt_tightmumatch_highPt",
+	    "hTrkPt_tightelematch",
 	    
-	    #"electronPt",
-	    #"electronEta",
-	    #"electronPhi",
-	    #"electronPt_noMu",
+	    "hTrkDedx_mumatch",
+	    "hTrkDedx_tightmumatch",
+	    "hTrkDedx_tightmumatch_highPt",
+	    "hTrkDedx_tightelematch",
 	    
 	    ]
 
     # Draw plots
-    makePlots(histodir, plotdir, samples, variables, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
+    makePlots(histodir, plotdir, samples, variables, logx=False, logy=True, suffix="", outformat="pdf", save_shape=False)

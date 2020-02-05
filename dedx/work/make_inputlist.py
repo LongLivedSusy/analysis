@@ -53,7 +53,7 @@ if __name__ == "__main__" :
 
     ## Bkg samples
     Summer16_DYJetsToLL = [
-    #"Summer16.DYJetsToLL_M-50_TuneCUETP8M1",
+    "Summer16.DYJetsToLL_M-50_TuneCUETP8M1",
     "Summer16.DYJetsToLL_M-50_HT-100to200",
     "Summer16.DYJetsToLL_M-50_HT-200to400",
     "Summer16.DYJetsToLL_M-50_HT-400to600",
@@ -78,7 +78,7 @@ if __name__ == "__main__" :
     ]
 
     Summer16_WJetsToLNu = [
-    #"Summer16.WJetsToLNu_TuneCUETP8M1",
+    "Summer16.WJetsToLNu_TuneCUETP8M1",
     "Summer16.WJetsToLNu_HT-100To200",
     "Summer16.WJetsToLNu_HT-200To400",
     "Summer16.WJetsToLNu_HT-400To600",
@@ -141,11 +141,30 @@ if __name__ == "__main__" :
     "Run2016H*SingleElectron",
     ]
    
-    ## Signal samples
-    #mc_signal = [
+    # Signal samples
+    mc_signal = [
     #"RunIISummer16MiniAODv3.SMS-T1qqqq",
-    #"RunIISummer16MiniAODv3.SMS-T2bt",
-    #]
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-100_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1300_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1700_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1800_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_",
+    ]
 
     samples=[]
     samples.extend(Summer16_DYJetsToLL)
@@ -156,10 +175,10 @@ if __name__ == "__main__" :
     samples.extend(Summer16_WW)
     samples.extend(Summer16_WZ)
     samples.extend(Summer16_ZZ)
-    samples.extend(Run2016_MET)
+    #samples.extend(Run2016_MET)
     samples.extend(Run2016_SingleMuon)
     samples.extend(Run2016_SingleElectron)
-    #samples.extend(mc_signal)
+    samples.extend(mc_signal)
 
     #Input list for each process
     make_inputlist(samples)

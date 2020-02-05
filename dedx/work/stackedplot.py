@@ -3,6 +3,7 @@ from __future__ import division
 import glob
 from ROOT import *
 import plotting
+from natsort import natsorted,ns
 import uuid
 import os
 #from fitter import *
@@ -38,10 +39,10 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     canvas.SetRightMargin(0.7*r)
    
     legend_bkg = TLegend(0.30, 0.70, 0.55, 0.90)
-    legend_bkg.SetNColumns(2)
+    #legend_bkg.SetNColumns(2)
     legend_bkg.SetTextSize(0.03)
     legend_sig = TLegend(0.60, 0.70, 0.94, 0.90)
-    legend_sig.SetNColumns(2)
+    #legend_sig.SetNColumns(2)
     legend_sig.SetTextSize(0.03)
     minimum_y_value = 1e6
 
@@ -91,7 +92,7 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     for label in Sort(samples_for_sorting, 1):
         mcstack.Add(histos[label[0]])
         legend_bkg.AddEntry(histos[label[0]], label[0])
-        legend_bkg.AddEntry(histos[label[0]], '(%0.2f)'%(histos[label[0]].Integral()),"")
+        #legend_bkg.AddEntry(histos[label[0]], '(%0.2f)'%(histos[label[0]].Integral()),"")
                                 
     mcstack.Draw("hist")
     mcstack.GetXaxis().SetLabelSize(0)   
@@ -100,14 +101,14 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     mcstack.GetXaxis().SetTitleOffset(1.3)
 
     # plot signal:
-    for label in sorted(histos):
+    for label in natsorted(histos):
         if samples[label]["type"] == "sg":
             histos[label].SetLineColor(samples[label]["color"])
             histos[label].SetMarkerColor(samples[label]["color"])
             histos[label].SetLineWidth(3)
             histos[label].Draw("same hist")
             legend_sig.AddEntry(histos[label], label)
-            legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
+            #legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
 
     print "Combining"
     combined_mc_background = 0
@@ -149,7 +150,7 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
             #histos[label].SetLineWidth(0)
 	    histos[label].Draw("same e1")
 	    legend_sig.AddEntry(histos[label], label)
-	    legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
+	    #legend_sig.AddEntry(histos[label], '(%0.2f)'%(histos[label].Integral()),"")
     
     # set minimum/maximum ranges   
     if global_minimum != 0:
