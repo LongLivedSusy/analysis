@@ -268,7 +268,14 @@ def main(inputfiles,output_folder,nev):
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
     InputFileName = inputfiles.split('/')[-1]
+    Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H','Summer16']
+    FileName = c.GetFile().GetName().split('/')[-1].split('.')[0]
+    for identifier in Identifiers:
+	if identifier in FileName :
+	    Identifier = identifier 
+
     print "InputFileName : ",InputFileName
+    print "Indentifier : ",Identifier
     print "Total Entries : ",nentries 
     #c.Show(0)
     
@@ -349,6 +356,8 @@ def main(inputfiles,output_folder,nev):
     hTrkP_tightgenmumatch_barrel = TH1F('hTrkP_tightgenmumatch_barrel','hTrkP_tightgenmumatch_barrel',100,0,10000)
     hTrkP_tightgenmumatch_endcap = TH1F('hTrkP_tightgenmumatch_endcap','hTrkP_tightgenmumatch_endcap',100,0,10000)
     hTrkP_tightelematch = TH1F('hTrkP_tightelematch','hTrkP_tightelematch',100,0,10000)
+    hTrkP_tightelematch_barrel = TH1F('hTrkP_tightelematch_barrel','hTrkP_tightelematch_barrel',100,0,10000)
+    hTrkP_tightelematch_endcap = TH1F('hTrkP_tightelematch_endcap','hTrkP_tightelematch_endcap',100,0,10000)
     hTrkP_tightgenelematch = TH1F('hTrkP_tightgenelematch','hTrkP_tightgenelematch',100,0,10000)
     hTrkP_tightgenelematch_barrel = TH1F('hTrkP_tightgenelematch_barrel','hTrkP_tightgenelematch_barrel',100,0,10000)
     hTrkP_tightgenelematch_endcap = TH1F('hTrkP_tightgenelematch_endcap','hTrkP_tightgenelematch_endcap',100,0,10000)
@@ -361,7 +370,6 @@ def main(inputfiles,output_folder,nev):
     hTrkPt_tightgenmumatch = TH1F('hTrkPt_tightgenmumatch','hTrkPt_tightgenmumatch',100,0,1000)
     hTrkPt_tightgenmumatch_barrel = TH1F('hTrkPt_tightgenmumatch_barrel','hTrkPt_tightgenmumatch_barrel',100,0,1000)
     hTrkPt_tightgenmumatch_endcap = TH1F('hTrkPt_tightgenmumatch_endcap','hTrkPt_tightgenmumatch_endcap',100,0,1000)
-    hTrkPt_tightmumatch_highPt = TH1F('hTrkPt_tightmumatch_highPt','hTrkPt_tightmumatch_highPt',100,0,1000)
     
     hTrkEta_tightmumatch = TH1F('hTrkEta_tightmumatch','hTrkEta_tightmumatch',100,0,1000)
     hTrkEta_tightmumatch_barrel = TH1F('hTrkEta_tightmumatch_barrel','hTrkEta_tightmumatch_barrel',100,0,1000)
@@ -369,13 +377,18 @@ def main(inputfiles,output_folder,nev):
     hTrkEta_tightgenmumatch = TH1F('hTrkEta_tightgenmumatch','hTrkEta_tightgenmumatch',100,0,1000)
     hTrkEta_tightgenmumatch_barrel = TH1F('hTrkEta_tightgenmumatch_barrel','hTrkEta_tightgenmumatch_barrel',100,0,1000)
     hTrkEta_tightgenmumatch_endcap = TH1F('hTrkEta_tightgenmumatch_endcap','hTrkEta_tightgenmumatch_endcap',100,0,1000)
-    hTrkEta_tightmumatch_highEta = TH1F('hTrkEta_tightmumatch_highEta','hTrkEta_tightmumatch_highEta',100,0,1000)
     
     hTrkPt_elematch = TH1F('hTrkPt_elematch','hTrkPt_elematch',100,0,1000)
     hTrkPt_tightelematch = TH1F('hTrkPt_tightelematch','hTrkPt_tightelematch',100,0,1000)
+    hTrkPt_tightelematch_barrel = TH1F('hTrkPt_tightelematch_barrel','hTrkPt_tightelematch_barrel',100,0,1000)
+    hTrkPt_tightelematch_endcap = TH1F('hTrkPt_tightelematch_endcap','hTrkPt_tightelematch_endcap',100,0,1000)
     hTrkPt_tightgenelematch = TH1F('hTrkPt_tightgenelematch','hTrkPt_tightgenelematch',100,0,1000)
     hTrkPt_tightgenelematch_barrel = TH1F('hTrkPt_tightgenelematch_barrel','hTrkPt_tightgenelematch_barrel',100,0,1000)
     hTrkPt_tightgenelematch_endcap = TH1F('hTrkPt_tightgenelematch_endcap','hTrkPt_tightgenelematch_endcap',100,0,1000)
+    hTrkEta_tightelematch = TH1F('hTrkEta_tightelematch','hTrkEta_tightelematch',100,0,1000)
+    hTrkEta_tightelematch_barrel = TH1F('hTrkEta_tightelematch_barrel','hTrkEta_tightelematch_barrel',100,0,1000)
+    hTrkEta_tightelematch_endcap = TH1F('hTrkEta_tightelematch_endcap','hTrkEta_tightelematch_endcap',100,0,1000)
+    hTrkEta_tightgenelematch = TH1F('hTrkEta_tightgenelematch','hTrkEta_tightgenelematch',100,0,1000)
     hTrkEta_tightgenelematch_barrel = TH1F('hTrkEta_tightgenelematch_barrel','hTrkEta_tightgenelematch_barrel',100,0,1000)
     hTrkEta_tightgenelematch_endcap = TH1F('hTrkEta_tightgenelematch_endcap','hTrkEta_tightgenelematch_endcap',100,0,1000)
     
@@ -386,17 +399,23 @@ def main(inputfiles,output_folder,nev):
     hTrkDedx_tightgenmumatch = TH1F('hTrkDedx_tightgenmumatch','hTrkDedx_tightgenmumatch',100,0,10)
     hTrkDedx_tightgenmumatch_barrel = TH1F('hTrkDedx_tightgenmumatch_barrel','hTrkDedx_tightgenmumatch_barrel',100,0,10)
     hTrkDedx_tightgenmumatch_endcap = TH1F('hTrkDedx_tightgenmumatch_endcap','hTrkDedx_tightgenmumatch_endcap',100,0,10)
-    hTrkDedx_tightmumatch_highPt = TH1F('hTrkDedx_tightmumatch_highPt','hTrkDedx_tightmumatch_highPt',100,0,10)
+    hTrkDedxCalib_tightmumatch = TH1F('hTrkDedxCalib_tightmumatch','hTrkDedxCalib_tightmumatch',100,0,10)
+    hTrkDedxCalib_tightmumatch_barrel = TH1F('hTrkDedxCalib_tightmumatch_barrel','hTrkDedxCalib_tightmumatch_barrel',100,0,10)
+    hTrkDedxCalib_tightmumatch_endcap = TH1F('hTrkDedxCalib_tightmumatch_endcap','hTrkDedxCalib_tightmumatch_endcap',100,0,10)
     
     hTrkDedx_elematch = TH1F('hTrkDedx_elematch','hTrkDedx_elematch',100,0,10)
     hTrkDedx_tightelematch = TH1F('hTrkDedx_tightelematch','hTrkDedx_tightelematch',100,0,10)
+    hTrkDedx_tightelematch_barrel = TH1F('hTrkDedx_tightelematch_barrel','hTrkDedx_tightelematch_barrel',100,0,10)
+    hTrkDedx_tightelematch_endcap = TH1F('hTrkDedx_tightelematch_endcap','hTrkDedx_tightelematch_endcap',100,0,10)
     hTrkDedx_tightgenelematch = TH1F('hTrkDedx_tightgenelematch','hTrkDedx_tightgenelematch',100,0,10)
     hTrkDedx_tightgenelematch_barrel = TH1F('hTrkDedx_tightgenelematch_barrel','hTrkDedx_tightgenelematch_barrel',100,0,10)
     hTrkDedx_tightgenelematch_endcap = TH1F('hTrkDedx_tightgenelematch_endcap','hTrkDedx_tightgenelematch_endcap',100,0,10)
+    hTrkDedxCalib_tightelematch = TH1F('hTrkDedxCalib_tightelematch','hTrkDedxCalib_tightelematch',100,0,10)
+    hTrkDedxCalib_tightelematch_barrel = TH1F('hTrkDedxCalib_tightelematch_barrel','hTrkDedxCalib_tightelematch_barrel',100,0,10)
+    hTrkDedxCalib_tightelematch_endcap = TH1F('hTrkDedxCalib_tightelematch_endcap','hTrkDedxCalib_tightelematch_endcap',100,0,10)
     
     hMuP = TH1F('hMuP','hMuP',100,0,10000)
     hMuPt = TH1F('hMuPt','hMuPt',100,0,1000)
-    hMuPt_highPt = TH1F('hMuPt_highPt','hMuPt_highPt',100,0,1000)
     hMuPt_genmatch = TH1F('hMuPt_genmatch','hMuPt_genmatch',100,0,1000)
     hMuEta = TH1F('hMuEta','hMuEta',100,-3,3)
     hMuPhi = TH1F('hMuPhi','hMuPhi',100,-3.14,3.14)
@@ -408,6 +427,9 @@ def main(inputfiles,output_folder,nev):
     hEleEta = TH1F('hEleEta','hEleEta',100,-3,3)
     hElePhi = TH1F('hElePhi','hElePhi',100,-3.14,3.14)
     hGamma_ele = TH1F('hGamma_ele','hGamma_ele',100,0,200000)
+
+    h2_TrkMu_Dedx_P = TH2F('h2_TrkMu_Dedx_P','Muon track Dedx vs P', 100,0,10000,100,0,10)
+    h2_TrkEle_Dedx_P = TH2F('h2_TrkEle_Dedx_P','Electron track Dedx vs P', 100,0,10000,100,0,10)
 
     # Event loop
     updateevery = 10000
@@ -501,7 +523,6 @@ def main(inputfiles,output_folder,nev):
 	    FillHisto(hMuEta,mu.Eta(),weight)
 	    FillHisto(hMuPhi,mu.Phi(),weight)
 	    FillHisto(hGamma_mu,gamma_mu,weight)
-	    if (mu.Pt()>50) : FillHisto(hMuPt_highPt,mu.Pt(),weight) 
 	    
 	    # Gen-muon matching
 	    if not is_data:
@@ -550,24 +571,27 @@ def main(inputfiles,output_folder,nev):
 		    FillHisto(hTrkP_tightmumatch,track.P(),weight)
 		    FillHisto(hTrkPt_tightmumatch,track.Pt(),weight)
 		    FillHisto(hTrkDedx_tightmumatch,dedx,weight)
+		    h2_TrkMu_Dedx_P.Fill(track.P(),dedx,weight)
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(mu matching)'
+			SF_dedx = datacalibdict_SingleMuon_barrel[Identifier]
 			FillHisto(hTrkP_tightmumatch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_barrel,track.Eta(),weight)
 		    	FillHisto(hTrkDedx_tightmumatch_barrel,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightmumatch_barrel,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightmumatch,dedx*SF_dedx,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(mu matching)'
+			SF_dedx = datacalibdict_SingleMuon_endcap[Identifier]
 			FillHisto(hTrkP_tightmumatch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_endcap,track.Eta(),weight)
 		    	FillHisto(hTrkDedx_tightmumatch_endcap,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightmumatch_endcap,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightmumatch,dedx*SF_dedx,weight)
 		    else : print 'should not see this'
-		    
-		    if (mu.Pt()>50) : 
-			FillHisto(hTrkPt_tightmumatch_highPt,track.Pt(),weight)
-		    	FillHisto(hTrkDedx_tightmumatch_highPt,dedx,weight)
-		    
+	
 		    break
 
 	    # Gen-matched Muon matching
@@ -601,21 +625,37 @@ def main(inputfiles,output_folder,nev):
 	    
 	    # Electron-track matching
 	    drele = 99
-	    elematch = False
-	    for iele, ele in enumerate(list(c.Electrons)):
-		if not ele.Pt()>30:continue
+	    for iele, ele in enumerate(tightelectrons):
                 drele = min(drele, ele.DeltaR(track))
 		pTdiff_rel = abs(ele.Pt()-track.Pt())/ele.Pt()
                 if drele<0.01 and pTdiff_rel<0.1: 
-                    elematch = True
 		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
-		    FillHisto(hTrkPt_elematch,track.Pt(),weight)
-		    FillHisto(hTrkDedx_elematch,dedx,weight)
-		    if not c.Electrons_passIso[iele]: continue
-	    	    if not c.Electrons_tightID[iele]: continue
+		    #FillHisto(hTrkPt_elematch,track.Pt(),weight)
+		    #FillHisto(hTrkDedx_elematch,dedx,weight)
 		    FillHisto(hTrkP_tightelematch,track.P(),weight)
 		    FillHisto(hTrkPt_tightelematch,track.Pt(),weight)
 		    FillHisto(hTrkDedx_tightelematch,dedx,weight)
+		    h2_TrkEle_Dedx_P.Fill(track.P(),dedx,weight)
+		    
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(ele matching)'
+			SF_dedx = datacalibdict_SingleElectron_barrel[Identifier]
+			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_barrel,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightelematch_barrel,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightelematch,dedx*SF_dedx,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(ele matching)'
+			SF_dedx = datacalibdict_SingleElectron_endcap[Identifier]
+			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_endcap,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightelematch_endcap,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightelematch,dedx*SF_dedx,weight)
+		    else : print 'should not see this'
 	    
 	    # Gen-matched Electron matching
 	    dr = 99
@@ -630,17 +670,17 @@ def main(inputfiles,output_folder,nev):
 		    FillHisto(hTrkDedx_tightgenelematch,dedx,weight)
 		    
 		    if abs(track.Eta())<=1.5 : 
-			#print 'barrel region(gen-ele matching)'
-			FillHisto(hTrkP_tightgenelematch_barrel,track.P(),weight)
-			FillHisto(hTrkPt_tightgenelematch_barrel,track.Pt(),weight)
-			FillHisto(hTrkEta_tightgenelematch_barrel,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightgenelematch_barrel,dedx,weight)
+			#print 'barrel region(ele matching)'
+			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_barrel,dedx,weight)
 		    elif abs(track.Eta())>1.5 : 
-			#print 'endcap region(gen-ele matching)'
-			FillHisto(hTrkP_tightgenelematch_endcap,track.P(),weight)
-			FillHisto(hTrkPt_tightgenelematch_endcap,track.Pt(),weight)
-			FillHisto(hTrkEta_tightgenelematch_endcap,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightgenelematch_endcap,dedx,weight)
+			#print 'endcap region(ele matching)'
+			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_endcap,dedx,weight)
 		    else : print 'should not see this'
 		    
 		    break
