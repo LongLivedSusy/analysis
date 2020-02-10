@@ -4,7 +4,7 @@ from array import array
 
 0.744690871542444
 
-dedxcutLow = 2.5
+dedxcutLow = 2.1
 dedxcutMid = 4
 
 #dedxcutLow = 3.4
