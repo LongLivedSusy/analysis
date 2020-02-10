@@ -7,6 +7,7 @@ import argparse
 def do_submission(commands, output_folder, condorDir = "condor", executable = "analyzer.py", runmode = "grid", dontCheckOnJobs=True, confirm=True):
 
     print "Submitting \033[1m%s jobs\033[0m, output folder will be \033[1m%s\033[0m." % (len(commands), output_folder)
+    os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
     return runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm)
 
@@ -24,20 +25,23 @@ if __name__ == "__main__":
     #Inputfile txt path
     path = "./inputs/split/"
     samples = ["*"]
+    #samples = ["SingleMuon","SingleElectron"]
+    #samples = ["SingleMuon"]
+    #samples = ["RunIISummer16MiniAODv3.SMS-T2bt*"]
     
-    os.system("mkdir -p %s" % output_folder)
 
     commands=[]
     for sample in samples:
-	inputfiles = glob(path+'/'+sample)
+	inputfiles = glob(path+'/*'+sample+'*')
 	for inputfile in sorted(inputfiles):
-	    INPUT = inputfile
-	    command = "python analyzer.py --input %s --output_folder %s;"%(INPUT,output_folder)
+	    command = "python analyzer.py --input %s --output_folder %s;"%(inputfile,output_folder)
 	    commands.append(command)
 
     if test : 
 	os.system("mkdir -p output_smallchunks_test")
-	print('python analyzer.py --input ./inputs/split/Summer16.ZJetsToNuNu_HT-100To200_001 --output_folder output_smallchunks_test --nev 10000;')
+	print('python analyzer.py --input ./inputs/split/Summer16.DYJetsToLL_M-50_TuneCUETP8M1_000 --output_folder output_smallchunks_test --nev 10000;')
+	print('python analyzer.py --input ./inputs/split/Summer16.WJetsToLNu_TuneCUETP8M1_000 --output_folder output_smallchunks_test --nev 10000;')
+	print('python analyzer.py --input ./inputs/split/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_001 --output_folder output_smallchunks_test --nev 10000;')
 	print('python analyzer.py --input ./inputs/split/Run2016B_SingleMuon_001 --output_folder output_smallchunks_test --nev 10000;')
     else :
 	do_submission(commands, output_folder)
