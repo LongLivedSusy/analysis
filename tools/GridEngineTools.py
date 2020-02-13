@@ -149,31 +149,74 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
             use_more_time = 86400
         additional_parameters += "+RequestRuntime = %s\n" % use_more_time
 
-    submission_file_content = """
-        universe = vanilla
-        should_transfer_files = IF_NEEDED
-        log = $(Process).log
-        executable = /bin/bash
-        arguments = runjobs.sh $(Process)
-        initialdir = %s
-        error = $(Process).sh.e
-        output = $(Process).sh.o
-        notification = Never
-        %s
-        max_materialize = 1500
-        priority = 0
-        Queue %s
-    """ % (cwd + "/" + condorDir, additional_parameters, len(mycommands))
+    def write_submission_file(queue_start_index, queue_length, file_name):
 
-    with open("runjobs.submit", 'w') as outfile:
-        outfile.write(submission_file_content)
+        submission_file_content = """
+            ModifiedProcess = %s + $(Process)
+            universe = vanilla
+            should_transfer_files = IF_NEEDED
+            log = $INT(ModifiedProcess).log
+            executable = /bin/bash
+            arguments = runjobs.sh $INT(ModifiedProcess)
+            initialdir = %s
+            error = $INT(ModifiedProcess).sh.e
+            output = $INT(ModifiedProcess).sh.o
+            notification = Never
+            %s
+            max_materialize = 1500
+            priority = 0
+            Queue %s
+        """ % (queue_start_index, cwd + "/" + condorDir, additional_parameters, queue_length)
 
-    if confirm:
-        raw_input("About to start %s jobs!" % len(mycommands))
+        with open(file_name, 'w') as outfile:
+            outfile.write(submission_file_content)
 
-    print "Starting submission..."
-    os.system("rm %s/*.sh.*" % condorDir)
-    os.system("condor_submit runjobs.submit > cluster_info")
+    #limit n_jobs for debugging
+    #mycommands = mycommands[:200]
+
+    MAX_JOBS_PER_USER = 5000
+    MAX_JOBS_PER_CLUSTER = 1000
+    MAX_IDLE_JOBS = 2000
+
+    n_jobs = len(mycommands)
+
+    if n_jobs > MAX_JOBS_PER_USER:
+
+        # DAG submission when n_jobs > MAX_JOBS_PER_USER
+
+        n_batches = n_jobs/MAX_JOBS_PER_CLUSTER
+        n_remainder = n_jobs % MAX_JOBS_PER_CLUSTER
+
+        batches = n_batches * [MAX_JOBS_PER_CLUSTER]
+        if n_remainder>0:
+            batches += [n_remainder]
+
+        dagfile = ""
+        for i_batch, batch in enumerate(batches):
+            file_name = "runjobs%s.submit" % i_batch
+            write_submission_file(i_batch * MAX_JOBS_PER_CLUSTER, batch, file_name)
+            dagfile += "JOB JOB%s %s\n" % (i_batch, file_name)
+
+        with open("runjobs.dag", 'w') as outfile:
+            outfile.write(dagfile)
+
+        print "Starting submission..."
+        if confirm:
+            raw_input("About to start %s jobs!" % n_jobs)
+        os.system("rm %s/*.sh.*" % condorDir)
+        os.system("condor_submit_dag -maxjobs %s -maxidle %s runjobs.dag > cluster_info" % (MAX_JOBS_PER_USER/MAX_JOBS_PER_CLUSTER, MAX_IDLE_JOBS))
+
+    else:
+
+        # standard submission when n_jobs <= MAX_JOBS_PER_USER
+
+        write_submission_file(0, n_jobs, "runjobs.submit")
+        print "Starting submission..."
+        if confirm:
+            raw_input("About to start %s jobs!" % n_jobs)
+        os.system("rm %s/*.sh.*" % condorDir)
+        os.system("condor_submit runjobs.submit > cluster_info")
+
     os.chdir("..")
  
     if babysit:
