@@ -68,8 +68,8 @@ def get_tmva_info(path):
 
 def pass_background_stitching(current_file_name, madHT, phase):
     if (madHT>0) and \
-       ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
-       ("WJetsToLNu_TuneCUETP8M1_13TeV" in current_file_name and madHT>100) or \
+       ("DYJetsToLL_M-50_TuneCUETP8M1" in current_file_name and madHT>100) or \
+       ("WJetsToLNu_TuneCUETP8M1" in current_file_name and madHT>100) or \
        (phase == 1 and "TTJets_Tune" in current_file_name and madHT>600) or \
        ("HT-100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
        ("HT-200to300_" in current_file_name and (madHT<200 or madHT>300)) or \
@@ -267,6 +267,15 @@ def main(inputfiles,output_folder,nev):
     
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
+    InputFileName = inputfiles.split('/')[-1]
+    Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H','Summer16']
+    FileName = c.GetFile().GetName().split('/')[-1].split('.')[0]
+    for identifier in Identifiers:
+	if identifier in FileName :
+	    Identifier = identifier 
+
+    print "InputFileName : ",InputFileName
+    print "Indentifier : ",Identifier
     print "Total Entries : ",nentries 
     #c.Show(0)
     
@@ -337,16 +346,90 @@ def main(inputfiles,output_folder,nev):
     hMET = TH1F('hMET','hMET',100,0,1000)
     hMHT = TH1F('hMHT','hMHT',100,0,1000)
     hHT = TH1F('hHT','hHT',100,0,1000)
+    hNlepton = TH1F('Nlepton','Nlepton',10,0,10)
+    
+    hTrkP = TH1F('hTrkP','hTrkP',100,0,10000)
+    hTrkP_tightmumatch = TH1F('hTrkP_tightmumatch','hTrkP_tightmumatch',100,0,10000)
+    hTrkP_tightmumatch_barrel = TH1F('hTrkP_tightmumatch_barrel','hTrkP_tightmumatch_barrel',100,0,10000)
+    hTrkP_tightmumatch_endcap = TH1F('hTrkP_tightmumatch_endcap','hTrkP_tightmumatch_endcap',100,0,10000)
+    hTrkP_tightgenmumatch = TH1F('hTrkP_tightgenmumatch','hTrkP_tightgenmumatch',100,0,10000)
+    hTrkP_tightgenmumatch_barrel = TH1F('hTrkP_tightgenmumatch_barrel','hTrkP_tightgenmumatch_barrel',100,0,10000)
+    hTrkP_tightgenmumatch_endcap = TH1F('hTrkP_tightgenmumatch_endcap','hTrkP_tightgenmumatch_endcap',100,0,10000)
+    hTrkP_tightelematch = TH1F('hTrkP_tightelematch','hTrkP_tightelematch',100,0,10000)
+    hTrkP_tightelematch_barrel = TH1F('hTrkP_tightelematch_barrel','hTrkP_tightelematch_barrel',100,0,10000)
+    hTrkP_tightelematch_endcap = TH1F('hTrkP_tightelematch_endcap','hTrkP_tightelematch_endcap',100,0,10000)
+    hTrkP_tightgenelematch = TH1F('hTrkP_tightgenelematch','hTrkP_tightgenelematch',100,0,10000)
+    hTrkP_tightgenelematch_barrel = TH1F('hTrkP_tightgenelematch_barrel','hTrkP_tightgenelematch_barrel',100,0,10000)
+    hTrkP_tightgenelematch_endcap = TH1F('hTrkP_tightgenelematch_endcap','hTrkP_tightgenelematch_endcap',100,0,10000)
+    
     hTrkPt = TH1F('hTrkPt','hTrkPt',100,0,1000)
     hTrkPt_mumatch = TH1F('hTrkPt_mumatch','hTrkPt_mumatch',100,0,1000)
-    hTrkDedx_lepmatch = TH1F('hTrkDedx_lepmatch','hTrkDedx_lepmatch',100,0,10)
+    hTrkPt_tightmumatch = TH1F('hTrkPt_tightmumatch','hTrkPt_tightmumatch',100,0,1000)
+    hTrkPt_tightmumatch_barrel = TH1F('hTrkPt_tightmumatch_barrel','hTrkPt_tightmumatch_barrel',100,0,1000)
+    hTrkPt_tightmumatch_endcap = TH1F('hTrkPt_tightmumatch_endcap','hTrkPt_tightmumatch_endcap',100,0,1000)
+    hTrkPt_tightgenmumatch = TH1F('hTrkPt_tightgenmumatch','hTrkPt_tightgenmumatch',100,0,1000)
+    hTrkPt_tightgenmumatch_barrel = TH1F('hTrkPt_tightgenmumatch_barrel','hTrkPt_tightgenmumatch_barrel',100,0,1000)
+    hTrkPt_tightgenmumatch_endcap = TH1F('hTrkPt_tightgenmumatch_endcap','hTrkPt_tightgenmumatch_endcap',100,0,1000)
+    
+    hTrkEta_tightmumatch = TH1F('hTrkEta_tightmumatch','hTrkEta_tightmumatch',100,0,1000)
+    hTrkEta_tightmumatch_barrel = TH1F('hTrkEta_tightmumatch_barrel','hTrkEta_tightmumatch_barrel',100,0,1000)
+    hTrkEta_tightmumatch_endcap = TH1F('hTrkEta_tightmumatch_endcap','hTrkEta_tightmumatch_endcap',100,0,1000)
+    hTrkEta_tightgenmumatch = TH1F('hTrkEta_tightgenmumatch','hTrkEta_tightgenmumatch',100,0,1000)
+    hTrkEta_tightgenmumatch_barrel = TH1F('hTrkEta_tightgenmumatch_barrel','hTrkEta_tightgenmumatch_barrel',100,0,1000)
+    hTrkEta_tightgenmumatch_endcap = TH1F('hTrkEta_tightgenmumatch_endcap','hTrkEta_tightgenmumatch_endcap',100,0,1000)
+    
+    hTrkPt_elematch = TH1F('hTrkPt_elematch','hTrkPt_elematch',100,0,1000)
+    hTrkPt_tightelematch = TH1F('hTrkPt_tightelematch','hTrkPt_tightelematch',100,0,1000)
+    hTrkPt_tightelematch_barrel = TH1F('hTrkPt_tightelematch_barrel','hTrkPt_tightelematch_barrel',100,0,1000)
+    hTrkPt_tightelematch_endcap = TH1F('hTrkPt_tightelematch_endcap','hTrkPt_tightelematch_endcap',100,0,1000)
+    hTrkPt_tightgenelematch = TH1F('hTrkPt_tightgenelematch','hTrkPt_tightgenelematch',100,0,1000)
+    hTrkPt_tightgenelematch_barrel = TH1F('hTrkPt_tightgenelematch_barrel','hTrkPt_tightgenelematch_barrel',100,0,1000)
+    hTrkPt_tightgenelematch_endcap = TH1F('hTrkPt_tightgenelematch_endcap','hTrkPt_tightgenelematch_endcap',100,0,1000)
+    hTrkEta_tightelematch = TH1F('hTrkEta_tightelematch','hTrkEta_tightelematch',100,0,1000)
+    hTrkEta_tightelematch_barrel = TH1F('hTrkEta_tightelematch_barrel','hTrkEta_tightelematch_barrel',100,0,1000)
+    hTrkEta_tightelematch_endcap = TH1F('hTrkEta_tightelematch_endcap','hTrkEta_tightelematch_endcap',100,0,1000)
+    hTrkEta_tightgenelematch = TH1F('hTrkEta_tightgenelematch','hTrkEta_tightgenelematch',100,0,1000)
+    hTrkEta_tightgenelematch_barrel = TH1F('hTrkEta_tightgenelematch_barrel','hTrkEta_tightgenelematch_barrel',100,0,1000)
+    hTrkEta_tightgenelematch_endcap = TH1F('hTrkEta_tightgenelematch_endcap','hTrkEta_tightgenelematch_endcap',100,0,1000)
+    
     hTrkDedx_mumatch = TH1F('hTrkDedx_mumatch','hTrkDedx_mumatch',100,0,10)
+    hTrkDedx_tightmumatch = TH1F('hTrkDedx_tightmumatch','hTrkDedx_tightmumatch',100,0,10)
+    hTrkDedx_tightmumatch_barrel = TH1F('hTrkDedx_tightmumatch_barrel','hTrkDedx_tightmumatch_barrel',100,0,10)
+    hTrkDedx_tightmumatch_endcap = TH1F('hTrkDedx_tightmumatch_endcap','hTrkDedx_tightmumatch_endcap',100,0,10)
+    hTrkDedx_tightgenmumatch = TH1F('hTrkDedx_tightgenmumatch','hTrkDedx_tightgenmumatch',100,0,10)
+    hTrkDedx_tightgenmumatch_barrel = TH1F('hTrkDedx_tightgenmumatch_barrel','hTrkDedx_tightgenmumatch_barrel',100,0,10)
+    hTrkDedx_tightgenmumatch_endcap = TH1F('hTrkDedx_tightgenmumatch_endcap','hTrkDedx_tightgenmumatch_endcap',100,0,10)
+    hTrkDedxCalib_tightmumatch = TH1F('hTrkDedxCalib_tightmumatch','hTrkDedxCalib_tightmumatch',100,0,10)
+    hTrkDedxCalib_tightmumatch_barrel = TH1F('hTrkDedxCalib_tightmumatch_barrel','hTrkDedxCalib_tightmumatch_barrel',100,0,10)
+    hTrkDedxCalib_tightmumatch_endcap = TH1F('hTrkDedxCalib_tightmumatch_endcap','hTrkDedxCalib_tightmumatch_endcap',100,0,10)
+    
+    hTrkDedx_elematch = TH1F('hTrkDedx_elematch','hTrkDedx_elematch',100,0,10)
+    hTrkDedx_tightelematch = TH1F('hTrkDedx_tightelematch','hTrkDedx_tightelematch',100,0,10)
+    hTrkDedx_tightelematch_barrel = TH1F('hTrkDedx_tightelematch_barrel','hTrkDedx_tightelematch_barrel',100,0,10)
+    hTrkDedx_tightelematch_endcap = TH1F('hTrkDedx_tightelematch_endcap','hTrkDedx_tightelematch_endcap',100,0,10)
+    hTrkDedx_tightgenelematch = TH1F('hTrkDedx_tightgenelematch','hTrkDedx_tightgenelematch',100,0,10)
+    hTrkDedx_tightgenelematch_barrel = TH1F('hTrkDedx_tightgenelematch_barrel','hTrkDedx_tightgenelematch_barrel',100,0,10)
+    hTrkDedx_tightgenelematch_endcap = TH1F('hTrkDedx_tightgenelematch_endcap','hTrkDedx_tightgenelematch_endcap',100,0,10)
+    hTrkDedxCalib_tightelematch = TH1F('hTrkDedxCalib_tightelematch','hTrkDedxCalib_tightelematch',100,0,10)
+    hTrkDedxCalib_tightelematch_barrel = TH1F('hTrkDedxCalib_tightelematch_barrel','hTrkDedxCalib_tightelematch_barrel',100,0,10)
+    hTrkDedxCalib_tightelematch_endcap = TH1F('hTrkDedxCalib_tightelematch_endcap','hTrkDedxCalib_tightelematch_endcap',100,0,10)
+    
+    hMuP = TH1F('hMuP','hMuP',100,0,10000)
     hMuPt = TH1F('hMuPt','hMuPt',100,0,1000)
+    hMuPt_genmatch = TH1F('hMuPt_genmatch','hMuPt_genmatch',100,0,1000)
     hMuEta = TH1F('hMuEta','hMuEta',100,-3,3)
     hMuPhi = TH1F('hMuPhi','hMuPhi',100,-3.14,3.14)
+    hGamma_mu = TH1F('hGamma_mu','hGamma_mu',100,0,10000)
+    
+    hEleP = TH1F('hEleP','hEleP',100,0,10000)
     hElePt = TH1F('hElePt','hElePt',100,0,1000)
+    hElePt_genmatch = TH1F('hElePt_genmatch','hElePt_genmatch',100,0,1000)
     hEleEta = TH1F('hEleEta','hEleEta',100,-3,3)
     hElePhi = TH1F('hElePhi','hElePhi',100,-3.14,3.14)
+    hGamma_ele = TH1F('hGamma_ele','hGamma_ele',100,0,200000)
+
+    h2_TrkMu_Dedx_P = TH2F('h2_TrkMu_Dedx_P','Muon track Dedx vs P', 100,0,10000,100,0,10)
+    h2_TrkEle_Dedx_P = TH2F('h2_TrkEle_Dedx_P','Electron track Dedx vs P', 100,0,10000,100,0,10)
 
     # Event loop
     updateevery = 10000
@@ -366,29 +449,108 @@ def main(inputfiles,output_folder,nev):
 	else : 
 	    weight = c.CrossSection * c.puWeight
 
-	# madHT check
-	current_file_name = c.GetFile().GetName()
-        if c.GetBranch("madHT"):
-            madHT = c.madHT
-            if not pass_background_stitching(current_file_name, madHT, phase): continue
-        else:
-            madHT = -10
-	
-	#if is_data and not PassTrig(c,'MhtMet6pack') : continue
-	#if is_data and not PassTrig(c,'SingleMuon') : continue
+	# data trigger and mc madHT check
+	if is_data and "MET" in InputFileName :
+	    if not PassTrig(c,'MhtMet6pack') : continue
+	elif is_data and "SingleMuon" in InputFileName :
+	    if not PassTrig(c,'SingleMuon') : continue
+	elif is_data and "SingleElectron" in InputFileName :
+	    if not PassTrig(c,'SingleElectron') : continue
+	else :
+	    # madHT check
+	    if c.GetBranch("madHT"):
+		madHT = c.madHT
+	    	if not pass_background_stitching(InputFileName, madHT, phase): continue
+	    
+	# MET filters, etc
 	if not passesUniversalSelection(c): continue
-	#print 'is_data:%s, passTrig:%s, passUniversalSelection:%s'%(is_data,PassTrig(c,'SingleMuon'),passesUniversalSelection(c))
 
-	if not c.MET>280 : continue
+	# some preselection on event
+	if not c.MET>50 : continue
 
 	FillHisto(hMET,c.MET,weight)
 	FillHisto(hMHT,c.MHT,weight)
 	FillHisto(hHT,c.HT,weight)
-   
+  
+	# Electrons
+	n_tightelectron =0
+	tightelectrons=[]
+	tightelectrons_genmatch=[]
+	for iele, ele in enumerate(c.Electrons):
+	    if not (ele.Pt()>30): continue
+	    if not abs(ele.Eta())<2.4: continue
+	    if not (abs(ele.Eta()) > 1.566 or abs(ele.Eta()) < 1.4442): continue
+	    if not c.Electrons_passIso[iele]: continue
+	    if not c.Electrons_tightID[iele]: continue
+	    n_tightelectron+=1
+	    tightelectrons.append(ele)
+	    #gamma_ele = ele.Pt()*TMath.CosH(ele.Eta())/0.000511
+	    gamma_ele = ele.P()/0.000511
+	    FillHisto(hEleP,ele.P(),weight)
+	    FillHisto(hElePt,ele.Pt(),weight)
+	    FillHisto(hEleEta,ele.Eta(),weight)
+	    FillHisto(hElePhi,ele.Phi(),weight)
+	    FillHisto(hGamma_ele,gamma_ele,weight)
+	    
+	    # Gen-electron matching
+	    if not is_data:
+		drele_gen=99
+		for igp,gp in enumerate(c.GenParticles):
+		    if not abs(c.GenParticles_PdgId[igp])==11 : continue
+		    drele_gen = min(drele_gen, ele.DeltaR(gp))
+		    if drele_gen<0.01 : 
+			#print 'Electron matched with GenElectron : elePt:%s genelePt:%s'%(ele.Pt(),gp.Pt())
+			FillHisto(hElePt_genmatch,ele.Pt(),weight)
+			tightelectrons_genmatch.append(ele)
+			break
+
+	# Muons
+	n_tightmuon = 0
+	tightmuons=[]
+	tightmuons_genmatch=[]
+	for imu, mu in enumerate(c.Muons):
+	    if not (mu.Pt()>30): continue
+	    if not abs(mu.Eta())<2.4: continue
+	    if not (abs(mu.Eta()) > 1.566 or abs(mu.Eta()) < 1.4442): continue
+	    if not c.Muons_passIso[imu]: continue
+	    if not c.Muons_tightID[imu]: continue
+	    n_tightmuon+=1
+	    tightmuons.append(mu)
+	    #gamma_mu = mu.Pt()*TMath.CosH(mu.Eta())/0.105
+	    gamma_mu = mu.P()/0.105
+	    FillHisto(hMuPt,mu.P(),weight)
+	    FillHisto(hMuPt,mu.Pt(),weight)
+	    FillHisto(hMuEta,mu.Eta(),weight)
+	    FillHisto(hMuPhi,mu.Phi(),weight)
+	    FillHisto(hGamma_mu,gamma_mu,weight)
+	    
+	    # Gen-muon matching
+	    if not is_data:
+		drmu_gen=99
+		for igp,gp in enumerate(c.GenParticles):
+		    if not abs(c.GenParticles_PdgId[igp])==13 : continue
+		    drmu_gen = min(drmu_gen, mu.DeltaR(gp))
+		    if drmu_gen<0.01 : 
+			#print 'Muon matched with GenMuon : muPt:%s genmuPt:%s'%(mu.Pt(),gp.Pt())
+			FillHisto(hMuPt_genmatch,mu.Pt(),weight)
+			tightmuons_genmatch.append(mu)
+			break
+
+
+
+	# JETS
+	n_recojets=0
+	for ijet, jet in enumerate(c.Jets):
+	    if not abs(jet.Eta())<2.4: continue
+	    if not (jet.Pt()>30): continue
+	    if not c.Jets_ID[ijet]: continue
+	    n_recojets+=1
+
+	n_lepton = n_tightmuon + n_tightelectron
+
+	FillHisto(hNlepton,n_lepton,weight)
+
 	# Track
-	basicTracks = []
-	lepmatchedTracks = []
-	disappearingTracks = []
 	nShort, nLong = 0, 0
 	for itrack, track in enumerate(c.tracks):
 	    if not track.Pt()>20 : continue
@@ -397,25 +559,133 @@ def main(inputfiles,output_folder,nev):
 	    if not isBaselineTrack(track, itrack, c, hMask): continue
 	    FillHisto(hTrkPt,track.Pt(),weight)
 
-	    drlep = 99
-	    lepmatch = False
-	    for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)):
-                drlep = min(drlep, lep.DeltaR(track))
-                if drlep<0.1: 
-                    lepmatch = True
-		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
-		    lepmatchedTracks.append([track,dedx,itrack])
-
+	    # Muon-track matching
 	    drmu = 99
-	    mumatch = False
-	    for imu, mu in enumerate(list(c.Muons)):
-		if not mu.Pt()>30:continue
+	    for imu, mu in enumerate(tightmuons):
                 drmu = min(drmu, mu.DeltaR(track))
-                if drmu<0.01: 
-                    mumatch = True
+		pTdiff_rel = abs(mu.Pt()-track.Pt())/mu.Pt()
+                if drmu<0.01 and pTdiff_rel<0.1: 
 		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
-		    FillHisto(hTrkPt_mumatch,track.Pt(),weight)
-		    FillHisto(hTrkDedx_mumatch,dedx,weight)
+		    #FillHisto(hTrkPt_mumatch,track.Pt(),weight)
+		    #FillHisto(hTrkDedx_mumatch,dedx,weight)
+		    FillHisto(hTrkP_tightmumatch,track.P(),weight)
+		    FillHisto(hTrkPt_tightmumatch,track.Pt(),weight)
+		    FillHisto(hTrkDedx_tightmumatch,dedx,weight)
+		    h2_TrkMu_Dedx_P.Fill(track.P(),dedx,weight)
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(mu matching)'
+			SF_dedx = datacalibdict_SingleMuon_barrel[Identifier]
+			FillHisto(hTrkP_tightmumatch_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightmumatch_barrel,track.Pt(),weight)
+			FillHisto(hTrkEta_tightmumatch_barrel,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightmumatch_barrel,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightmumatch_barrel,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightmumatch,dedx*SF_dedx,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(mu matching)'
+			SF_dedx = datacalibdict_SingleMuon_endcap[Identifier]
+			FillHisto(hTrkP_tightmumatch_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightmumatch_endcap,track.Pt(),weight)
+			FillHisto(hTrkEta_tightmumatch_endcap,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightmumatch_endcap,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightmumatch_endcap,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightmumatch,dedx*SF_dedx,weight)
+		    else : print 'should not see this'
+	
+		    break
+
+	    # Gen-matched Muon matching
+	    dr = 99
+	    for imu, mu in enumerate(tightmuons_genmatch):
+                dr = min(dr, mu.DeltaR(track))
+		pTdiff_rel = abs(mu.Pt()-track.Pt())/mu.Pt()
+                if dr<0.01 and pTdiff_rel<0.1: 
+		    #print 'track - genmatched muon matching'
+		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    FillHisto(hTrkP_tightgenmumatch,track.P(),weight)
+		    FillHisto(hTrkPt_tightgenmumatch,track.Pt(),weight)
+		    FillHisto(hTrkDedx_tightgenmumatch,dedx,weight)
+		    
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(gen-mu matching)'
+			FillHisto(hTrkP_tightgenmumatch_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightgenmumatch_barrel,track.Pt(),weight)
+			FillHisto(hTrkEta_tightgenmumatch_barrel,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightgenmumatch_barrel,dedx,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(gen-mu matching)'
+			FillHisto(hTrkP_tightgenmumatch_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightgenmumatch_endcap,track.Pt(),weight)
+			FillHisto(hTrkEta_tightgenmumatch_endcap,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightgenmumatch_endcap,dedx,weight)
+		    else : print 'should not see this'
+		    
+		    break
+	
+	    
+	    # Electron-track matching
+	    drele = 99
+	    for iele, ele in enumerate(tightelectrons):
+                drele = min(drele, ele.DeltaR(track))
+		pTdiff_rel = abs(ele.Pt()-track.Pt())/ele.Pt()
+                if drele<0.01 and pTdiff_rel<0.1: 
+		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    #FillHisto(hTrkPt_elematch,track.Pt(),weight)
+		    #FillHisto(hTrkDedx_elematch,dedx,weight)
+		    FillHisto(hTrkP_tightelematch,track.P(),weight)
+		    FillHisto(hTrkPt_tightelematch,track.Pt(),weight)
+		    FillHisto(hTrkDedx_tightelematch,dedx,weight)
+		    h2_TrkEle_Dedx_P.Fill(track.P(),dedx,weight)
+		    
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(ele matching)'
+			SF_dedx = datacalibdict_SingleElectron_barrel[Identifier]
+			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_barrel,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightelematch_barrel,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightelematch,dedx*SF_dedx,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(ele matching)'
+			SF_dedx = datacalibdict_SingleElectron_endcap[Identifier]
+			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_endcap,dedx,weight)
+		    	FillHisto(hTrkDedxCalib_tightelematch_endcap,dedx*SF_dedx,weight)
+			FillHisto(hTrkDedxCalib_tightelematch,dedx*SF_dedx,weight)
+		    else : print 'should not see this'
+	    
+	    # Gen-matched Electron matching
+	    dr = 99
+	    for iele, ele in enumerate(tightelectrons_genmatch):
+                dr = min(dr, ele.DeltaR(track))
+		pTdiff_rel = abs(ele.Pt()-track.Pt())/ele.Pt()
+                if dr<0.01 and pTdiff_rel<0.1: 
+		    #print 'track - genmatched electron matching'
+		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    FillHisto(hTrkP_tightgenelematch,track.P(),weight)
+		    FillHisto(hTrkPt_tightgenelematch,track.Pt(),weight)
+		    FillHisto(hTrkDedx_tightgenelematch,dedx,weight)
+		    
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(ele matching)'
+			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_barrel,dedx,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(ele matching)'
+			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
+			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
+		    	FillHisto(hTrkDedx_tightelematch_endcap,dedx,weight)
+		    else : print 'should not see this'
+		    
+		    break
+	
+
 
 	    dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
 	    #if not dtstatus>0: continue
@@ -442,34 +712,6 @@ def main(inputfiles,output_folder,nev):
             #        dedx = c.tracks_deDxHarmonic2pixel[itrack]
             #disappearingTracks.append([track,dtstatus,dedx, itrack])
 
-	RecoElectrons = []
-	for iele, ele in enumerate(c.Electrons):
-	    if not (ele.Pt()>30): continue
-	    if not abs(ele.Eta())<2.4: continue
-	    if not (abs(ele.Eta()) > 1.566 or abs(ele.Eta()) < 1.4442): continue
-	    if not c.Electrons_passIso[iele]: continue
-	    if not c.Electrons_tightID[iele]: continue
-	    FillHisto(hElePt,ele.Pt(),weight)
-	    FillHisto(hEleEta,ele.Eta(),weight)
-	    FillHisto(hElePhi,ele.Phi(),weight)
-
-	RecoMuons = []
-	for imu, mu in enumerate(c.Muons):
-	    if not (mu.Pt()>30): continue
-	    if not abs(mu.Eta())<2.4: continue
-	    if not (abs(mu.Eta()) > 1.566 or abs(mu.Eta()) < 1.4442): continue
-	    if not c.Muons_passIso[imu]: continue
-	    if not c.Muons_tightID[imu]: continue
-	    FillHisto(hMuPt,mu.Pt(),weight)
-	    FillHisto(hMuEta,mu.Eta(),weight)
-	    FillHisto(hMuPhi,mu.Phi(),weight)
-
-	RecoJets = []
-	for ijet, jet in enumerate(c.Jets):
-	    if not abs(jet.Eta())<2.4: continue
-	    if not (jet.Pt()>30): continue
-	    if not c.Jets_ID[ijet]: continue
-	    RecoJets.append([jet,ijet])
 
     fout.Write()
     fout.Close()
