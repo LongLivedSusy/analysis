@@ -2,15 +2,15 @@
 import os, sys
 from glob import glob
 from time import sleep
-import datetime
-import subprocess
 import multiprocessing
 from optparse import OptionParser
 import time
 import commands
 
-# condor grid submission tool
+# grid submission tool for condor, with DAG support
 # comments: viktor.kutzner@desy.de
+#
+# Tutorial:
 #
 # ===============mysubmit.py================
 # import os
@@ -170,9 +170,6 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
 
         with open(file_name, 'w') as outfile:
             outfile.write(submission_file_content)
-
-    #limit n_jobs for debugging
-    #mycommands = mycommands[:200]
 
     MAX_JOBS_PER_USER = 5000
     MAX_JOBS_PER_CLUSTER = 1000

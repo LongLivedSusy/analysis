@@ -136,31 +136,34 @@ def get_configurations(threads):
                "tracks_pt": [20, 0, 1000],
                "HT": [10, 0, 1000],
                "MHT": [10, 0, 1000],
-               "n_allvertices": [20, 0, 100],
+               "n_allvertices": [25, 0, 50],
                "n_goodjets": [20, 0, 20],
                "n_btags": [10, 0, 10],
                "MinDeltaPhiMhtJets": [100, 0, 5],
-               "tracks_eta": [12, -3, 3],
-               "tracks_phi": [16, -4, 4],
+               #"tracks_eta": [12, -3, 3],
+               #"tracks_phi": [16, -4, 4],
                #"HT:n_allvertices": ["variable", [0,20,40,1000], [0,200,400,1000]],
                "HT:n_allvertices": [3, 0, 50, 3, 0, 500],
+               "tracks_eta:tracks_phi": [12, -3, 3, 16, -4, -4],
               }
 
     selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
 
     variables = [
-                 #"tracks_pt",
-                 #"HT",
-                 #"MHT",
-                 #"n_goodjets",
-                 #"n_allvertices",
-                 #"n_btags",
-                 #"MinDeltaPhiMhtJets",
+                 "tracks_pt",
+                 "HT",
+                 "MHT",
+                 "n_goodjets",
+                 "n_allvertices",
+                 "n_btags",
+                 "MinDeltaPhiMhtJets",
                  "HT:n_allvertices",
-                 #"tracks_eta:tracks_phi",
+                 "tracks_eta:tracks_phi",
                 ]
     
     regions = collections.OrderedDict()
+    regions["qcd_lowlowlowMHT"] = " && MHT<50"
+    regions["qcd_lowlowMHT"] = " && MHT<100"
     regions["qcd_lowMHT"] = " && MHT<200"
     
     configurations = []
@@ -232,15 +235,11 @@ if __name__ == "__main__":
             get_fakerate(*configurations[int(options.index)])
         
     elif options.hadd:
-        os.system("hadd -f fakerate.root fakerate_pt*root && rm fakerate_pt*root")
+        os.system("hadd fakerate.root fakerate_pt*root && rm fakerate_pt*root")
 
     else:
         commands = []
         for i in range(len(configurations)):
             commands.append("./get_fakerate.py --index %s" % i)
         GridEngineTools.runParallel(commands, options.runmode, condorDir = "get_fakerate.condor", confirm=not options.start)
-
-        #if "multi" in options.runmode:
-        #    print "Finished, writing fake rate histograms to single fakerate.root..."
-        #    os.system("hadd -f fakerate.root fakerate_pt*root && rm fakerate_pt*root")
 

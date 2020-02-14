@@ -11,95 +11,11 @@ import shared_utils
 import array
     
 # loose8 tag
-base_cuts = "tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_nValidPixelHits>=3"
-SR_short = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.65/0.01) - 0.25) && tracks_trkRelIso<0.01")
-CR_short = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_dxyVtx>0.02")
-SR_long = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.05) && tracks_trkRelIso<0.01")
-CR_long = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) - 0.5) && tracks_dxyVtx>0.02")
-
-def correct_dedx_intercalibration(dedx, filename):
-    
-    correction_values = shared_utils.datacalibdict
-    correction_value = 1.0
-    for label in correction_values:
-        if label in filename:
-            correction_value = correction_values[label]    
-    return correction_value * dedx
-
-
-def getBinContent_with_overflow(histo, xval, yval = False):
-    
-    if not yval:
-        # overflow for TH1Fs:
-        if xval >= histo.GetXaxis().GetXmax():
-            value = histo.GetBinContent(histo.GetXaxis().GetNbins())
-        else:
-            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval))
-        return value
-    else:
-        # overflow for TH2Fs:
-        if xval >= histo.GetXaxis().GetXmax() and yval < histo.GetYaxis().GetXmax():
-            xbins = histo.GetXaxis().GetNbins()
-            value = histo.GetBinContent(xbins, histo.GetYaxis().FindBin(yval))
-        elif xval < histo.GetXaxis().GetXmax() and yval >= histo.GetYaxis().GetXmax():
-            ybins = histo.GetYaxis().GetNbins()
-            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), ybins)
-        elif xval >= histo.GetXaxis().GetXmax() or yval >= histo.GetYaxis().GetXmax():
-            xbins = histo.GetXaxis().GetNbins()
-            ybins = histo.GetYaxis().GetNbins()
-            value = histo.GetBinContent(xbins, ybins)
-        else:
-            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
-        return value
-        
-
-def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename, sideband = False):
-  
-    is_tracker_track = not is_pixel_track
-    binnumbers = collections.OrderedDict()
-
-    dedxcutLow = shared_utils.dedxcutLow
-    dedxcutMid = shared_utils.dedxcutMid
-    binnumbers = shared_utils.binnumbers
-
-    region = 0
-    for binkey in binnumbers:
-        if HT >= binkey[0][0] and HT <= binkey[0][1] and \
-           MHT >= binkey[1][0] and MHT <= binkey[1][1] and \
-           NJets >= binkey[2][0] and NJets <= binkey[2][1] and \
-           n_btags >= binkey[3][0] and n_btags <= binkey[3][1] and \
-           n_DT >= binkey[4][0] and n_DT <= binkey[4][1] and \
-           is_pixel_track >= binkey[5][0] and is_pixel_track <= binkey[5][1] and \
-           is_tracker_track >= binkey[6][0] and is_tracker_track <= binkey[6][1] and \
-           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1] and \
-           ( (not sideband and DeDxAverage >= binkey[8][0] and DeDxAverage <= binkey[8][1]) or (sideband and DeDxAverage < dedxcutLow) ) and \
-           n_goodelectrons >= binkey[9][0] and n_goodelectrons <= binkey[9][1] and \
-           n_goodmuons >= binkey[10][0] and n_goodmuons <= binkey[10][1]:
-              region = binnumbers[binkey]
-              break
-    
-    if "Run201" in filename:
-        # running on data, need to check datastream:
-        if "MET" in filename and (n_goodelectrons + n_goodmuons) != 0:
-            return 0
-        elif "SingleMuon" in filename and (n_goodmuons==0 or n_goodelectrons>0):
-            return 0
-        elif "SingleElectron" in filename and (n_goodmuons>0 or n_goodelectrons==0):
-            return 0
-        else:
-            return region
-    else:
-        return region
-
-
-def fill_histogram(histogram, variable, value, weight):
-    
-    if variable == "sidebandregion" and value>0 and value%2!=0:
-        histogram.Fill(value, weight)
-        histogram.Fill(value + 1, weight)
-    else:
-        histogram.Fill(value, weight)
-
+#base_cuts = "tracks_is_reco_lepton==0 && tracks_passPFCandVeto==1 && tracks_nValidPixelHits>=3"
+#SR_short = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.65/0.01) - 0.25) && tracks_trkRelIso<0.01")
+#CR_short = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==1 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_dxyVtx>0.02")
+#SR_long = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose>(tracks_dxyVtx*(0.7/0.01) + 0.05) && tracks_trkRelIso<0.01")
+#CR_long = tags.convert_cut_string(base_cuts + " && tracks_is_pixel_track==0 && tracks_mva_bdt_loose<(tracks_dxyVtx*(0.7/0.01) - 0.5) && tracks_dxyVtx>0.02")
 
 def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_file="fakerate.root"):
 
@@ -245,15 +161,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                     is_prompt_track = event.tracks_prompt_electron[i]==1 or event.tracks_prompt_muon[i]==1 or event.tracks_prompt_tau[i]==1 or event.tracks_prompt_tau_leadtrk[i]==1
                     is_fake_track = event.tracks_fake[i]==1
                     dedx = event.tracks_deDxHarmonic2pixel[i]
-                    dedx_corrected = correct_dedx_intercalibration(dedx, input_filenames[0])
+                    dedx_corrected = analyzer_utils.correct_dedx_intercalibration(dedx, input_filenames[0])
                     log10dedxmass = TMath.Log10(TMath.Sqrt((dedx-3.01) * pow(event.tracks_pt[i] * TMath.CosH(event.tracks_eta[i]),2)/1.74))
                     log10dedxmass_corrected = TMath.Log10(TMath.Sqrt((dedx_corrected-3.01) * pow(event.tracks_pt[i] * TMath.CosH(event.tracks_eta[i]),2)/1.74))
-                    
-                    #if event_selection == "SElValidationMT":
-                    #    InvMass = 
-                    #else:
-                    #    InvMass = -1
-                    
+                                        
                     track_info = {
                                    "is_pixel_track": event.tracks_is_pixel_track[i],
                                    "is_prompt_track": is_prompt_track,
@@ -285,13 +196,13 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             if n_DT["signal"]>0:
                 is_pixel_track = list(tagged_tracks["SR_short"] + tagged_tracks["SR_long"])[0]["is_pixel_track"]
                 dedx = list(tagged_tracks["SR_short"] + tagged_tracks["SR_long"])[0]["dedx"]
-                regions["region_signal"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["signal"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
-                regions["sidebandregion_signal"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["signal"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)
+                regions["region_signal"] = analyzer_utils.get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["signal"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
+                regions["sidebandregion_signal"] = analyzer_utils.get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["signal"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)
             if n_DT["control"]>0:
                 is_pixel_track = list(tagged_tracks["CR_short"] + tagged_tracks["CR_long"])[0]["is_pixel_track"]
                 dedx = list(tagged_tracks["CR_short"] + tagged_tracks["CR_long"])[0]["dedx"]
-                regions["region_control"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["control"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
-                regions["sidebandregion_control"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["control"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)
+                regions["region_control"] = analyzer_utils.get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["control"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
+                regions["sidebandregion_control"] = analyzer_utils.get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["control"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)
                         
             # get fake rate for event:
             fakerate_short = -1
@@ -299,12 +210,12 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             if ":" in fakerate_variable:
                 xvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[1])
                 yvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").split(":")[0])                
-                fakerate_short = getBinContent_with_overflow(h_fakerates["short"], xvalue, yval = yvalue)
-                fakerate_long = getBinContent_with_overflow(h_fakerates["long"], xvalue, yval = yvalue)
+                fakerate_short = analyzer_utils.getBinContent_with_overflow(h_fakerates["short"], xvalue, yval = yvalue)
+                fakerate_long = analyzer_utils.getBinContent_with_overflow(h_fakerates["long"], xvalue, yval = yvalue)
             else:                
                 xvalue = eval("event.%s" % fakerate_variable)
-                fakerate_short = getBinContent_with_overflow(h_fakerates["short"], xvalue)
-                fakerate_long = getBinContent_with_overflow(h_fakerates["long"], xvalue)
+                fakerate_short = analyzer_utils.getBinContent_with_overflow(h_fakerates["short"], xvalue)
+                fakerate_long = analyzer_utils.getBinContent_with_overflow(h_fakerates["long"], xvalue)
                         
             # fill histograms:    
             for variable in output_variables:

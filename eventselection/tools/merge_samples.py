@@ -7,7 +7,7 @@ import sys
 from GridEngineTools import runParallel
 import json
 
-def hadd_histograms(folder, runmode, delete_input_files = True, start = False, use_custom_hadd = True):
+def hadd_histograms(folder, runmode, delete_input_files = False, start = False, use_custom_hadd = True):
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -58,7 +58,7 @@ def hadd_histograms(folder, runmode, delete_input_files = True, start = False, u
                 quit()
         cmds.append(command)
 
-    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=False, confirm=(not start), use_more_time=False)
+    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=True, confirm=(not start), use_more_time=False)
     os.system("cp %s/*py %s_merged/" % (folder, folder))
 
 
@@ -77,7 +77,8 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
             print "Doing datastream Run%s_%s" % (year, datastream)
         
             combined_json = {}
-            filelist = sorted(glob.glob("%s/*Run%s*%s*json" % (folder, year, datastream)))
+            #filelist = sorted(glob.glob("%s/*Run%s*%s*json" % (folder, year, datastream)))
+            filelist = sorted(glob.glob("%s/*Run%s*%s*.json" % (folder, year, datastream)))
             
             for i_ifile, ifile in enumerate(filelist):
                 
@@ -150,7 +151,7 @@ def get_lumis(folder, cern_username):
     os.system("mkdir -p %s_merged" % folder)
 
     lumis = {}
-    for json_file in glob.glob("%s_merged/*json" % folder):
+    for json_file in glob.glob("%s_merged/*.json" % folder):
 
         try:
             lumi = get_lumi_from_bril(json_file, cern_username)
@@ -159,7 +160,9 @@ def get_lumis(folder, cern_username):
             print "Couldn't get lumi for %s. Empty JSON?" % json_file
         
     with open("%s_merged/luminosity.py" % folder, "w+") as fout:
-        fout.write(json.dumps(lumis))
+        output = json.dumps(lumis)
+        print output
+        fout.write(output)
 
     print "Closing SSH tunnel..."
     os.system("pkill -f itrac5117")
@@ -202,7 +205,7 @@ if __name__ == "__main__":
     if options.hadd:
         hadd_histograms(folder, options.runmode, start = options.start)
     if options.json:
-        merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        merge_json_files(folder, years = ["2016", "2017", "2018", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
     if options.bril:
         get_lumis(folder, options.cern_username)
     

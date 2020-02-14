@@ -116,7 +116,7 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default=46)
+    parser.add_option("--nfiles", dest="files_per_job", default=45)
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
@@ -128,8 +128,7 @@ if __name__ == "__main__":
     mc_summer16 = "Summer16.DYJetsToLL*,Summer16.QCD*,Summer16.WJetsToLNu*,Summer16.ZJetsToNuNu*,Summer16.WW_TuneCUETP8M1*,Summer16.WZ_TuneCUETP8M1*,Summer16.ZZ_TuneCUETP8M1*,Summer16.TT*"
     mc_fall17 = "RunIIFall17MiniAODv2.DYJetsToLL*,RunIIFall17MiniAODv2.QCD*,RunIIFall17MiniAODv2.WJetsToLNu*,RunIIFall17MiniAODv2.ZJetsToNuNu*,RunIIFall17MiniAODv2.WW*,RunIIFall17MiniAODv2.WZ*,RunIIFall17MiniAODv2.ZZ*,RunIIFall17MiniAODv2.TT*,RunIIFall17MiniAODv2.TTJets_HT*,RunIIFall17MiniAODv2.GJets_HT*"
     data_phase0 = "Run2016*"
-    #data_phase1 = "Run2017*,Run2018*"
-    data_phase1 = "Run2017*"
+    data_phase1 = "Run2017*,Run2018*"
     mc_sms = "RunIISummer16MiniAODv3.SMS*"
 
     ######## defaults ########
@@ -137,12 +136,11 @@ if __name__ == "__main__":
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
         options.add_signals = True
-        #options.dataset = mc_summer16 + "," + data_phase0 + "," + mc_sms
+        options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
         #options.dataset = mc_fall17 + "," + data_phase1
         #options.dataset = data_phase0
-        options.dataset = ""
     if not options.output_folder:
-        options.output_folder = "skim_59_signals"
+        options.output_folder = "skim_64"
     ######## defaults ########
 
     commands = []
@@ -163,8 +161,11 @@ if __name__ == "__main__":
     
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=int(options.files_per_job), nowildcard=nowildcard)
     
+    #if len(commands)>5000:
+    #    print "Too many jobs..."
+
     do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
 
-    print "Merging..."
-    os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
+    #print "Merging..."
+    #os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
 
