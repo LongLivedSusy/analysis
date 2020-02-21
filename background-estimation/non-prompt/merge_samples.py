@@ -65,7 +65,7 @@ def hadd_histograms(folder, runmode, delete_input_files = True, start = False, u
 
 def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
 
-    os.system("mkdir -p %s_merged" % folder)
+    #os.system("mkdir -p %s_merged" % folder)
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -73,7 +73,8 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
     for year in years:
         for datastream in datastreams:
         
-            filename = "%s_merged/Run%s_%s.json" % (folder, year, datastream)
+            #filename = "%s_merged/Run%s_%s.json" % (folder, year, datastream)
+            filename = "%s/Run%s_%s_merged.json" % (folder, year, datastream)
 
             #if os.path.exists(filename):
             #    continue
@@ -129,13 +130,7 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
 
 def get_lumi_from_bril(json_file_name, cern_username, retry=False):
     
-    status, out = commands.getstatusoutput('ps axu | grep "itrac5117-v.cern.ch:1012" | grep -v grep')
-    if status != 0:
-        print "Opening SSH tunnel for brilcalc..."
-        os.system("ssh -f -N -L 10121:itrac5117-v.cern.ch:10121 %s@lxplus.cern.ch" % cern_username)
-    else:
-        print "Existing tunnel for brilcalc found"
-        
+       
     print "Getting lumi for %s..." % json_file_name
     
     #status, out = commands.getstatusoutput("export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH; brilcalc lumi -u /fb -c offsite -i %s --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_PHYSICS.json; grep '|' %s.briloutput | tail -n1" % (json_file_name, json_file_name, json_file_name))
@@ -160,10 +155,11 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
 
 def get_lumis(folder, cern_username):
 
-    os.system("mkdir -p %s_merged" % folder)
+    #os.system("mkdir -p %s_merged" % folder)
 
     lumis = {}
-    for json_file in glob.glob("%s_merged/*json" % folder):
+    #for json_file in glob.glob("%s_merged/*json" % folder):
+    for json_file in glob.glob("%s/*_merged.json" % folder):
 
         try:
             lumi = get_lumi_from_bril(json_file, cern_username)
@@ -171,7 +167,8 @@ def get_lumis(folder, cern_username):
         except:
             print "Couldn't get lumi for %s. Empty JSON?" % json_file
         
-    with open("%s_merged/luminosity.py" % folder, "w+") as fout:
+    #with open("%s_merged/luminosity.py" % folder, "w+") as fout:
+    with open("%s/luminosity.py" % folder, "w+") as fout:
         fout.write(json.dumps(lumis))
 
     print "Closing SSH tunnel..."
@@ -196,11 +193,18 @@ if __name__ == "__main__":
         print "Set your CERN username with --cern_username"
         quit()
 
+    status, out = commands.getstatusoutput('ps axu | grep "itrac5117-v.cern.ch:1012" | grep -v grep')
+    if status != 0:
+        print "Opening SSH tunnel for brilcalc..."
+        os.system("ssh -f -N -L 10121:itrac5117-v.cern.ch:10121 %s@lxplus.cern.ch" % cern_username)
+    else:
+        print "Existing tunnel for brilcalc found"
+
     if options.hadd:
         hadd_histograms(folder, options.runmode, start = options.start)
     if options.json:
-        merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-        #merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        #merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
     if options.bril:
         get_lumis(folder, options.cern_username)
     

@@ -196,6 +196,8 @@ if __name__ == "__main__":
     if options.plot:
         get_and_plot_ratio("output_barrel.root", "barrel region (0#leq#eta<1.5)", "singlelepton_trigger_barrel.pdf")
         get_and_plot_ratio("output_endcap.root", "endcap region (1.5#leq#eta<2.4)", "singlelepton_trigger_endcap.pdf")
+        get_and_plot_ratio("output_barrel.root", "barrel region (0#leq#eta<1.5)", "singlelepton_trigger_barrel.root")
+        get_and_plot_ratio("output_endcap.root", "endcap region (1.5#leq#eta<2.4)", "singlelepton_trigger_endcap.root")
         quit()
 
     # otherwise run locally:

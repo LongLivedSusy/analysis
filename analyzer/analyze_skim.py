@@ -5,8 +5,9 @@ from optparse import OptionParser
 import math, os, glob
 from GridEngineTools import runParallel
 import collections
-import shared_utils
 import re
+import shared_utils
+
     
 def correct_dedx_intercalibration(dedx, filename):
     
@@ -172,7 +173,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
     # add zones:
     for event_selection in event_selections.keys():
-        for zone in ["ZoneDeDx0p0to2p1", "ZoneDeDx4p0toInf"]:
+        for zone in ["ZoneDeDx1p6to2p1", "ZoneDeDx0p0to2p1", "ZoneDeDx2p1to4p0", "ZoneDeDx4p0toInf"]:
             lower_cut = zone.split("DeDx")[-1].split("to")[0].replace("p", ".")
             higher_cut = zone.split("to")[-1].replace("p", ".")
             if higher_cut == "Inf":
@@ -213,7 +214,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     for variable in histos.keys():
         for category in ["combined", "short", "long", "multi"]:
             for event_selection in event_selections:
-                    for itype in ["signalfake", "signalprompt", "control", "controlfake", "controlprompt", "signal", "prediction"]:
+                    for itype in ["signal", "signalfake", "signalprompt", "nonpromptcontrol", "nonpromptcontrolfake", "nonpromptcontrolprompt", "nonpromptprediction", ]:
                         h_name = "%s_%s_%s_%s" % (variable, itype, category, event_selection)
                         histos[h_name] = histos[variable].Clone()
                         histos[h_name].SetName(h_name)
@@ -256,7 +257,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
             regions = {}
             regions["region_signal"] = 0
-            regions["region_control"] = 0
+            regions["region_nonpromptcontrol"] = 0
 
             # loop over all tracks and tag all disappearing tracks:
             for i, track in enumerate(event.tracks_pt):
@@ -311,9 +312,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
             n_DT = {}
             n_DT["signal"] = len(tagged_tracks["SR_short"]) + len(tagged_tracks["SR_long"])
-            n_DT["control"] = len(tagged_tracks["CR_short"]) + len(tagged_tracks["CR_long"])
+            n_DT["nonpromptcontrol"] = len(tagged_tracks["CR_short"]) + len(tagged_tracks["CR_long"])
             
-            if n_DT["signal"] + n_DT["control"] == 0:
+            if n_DT["signal"] + n_DT["nonpromptcontrol"] == 0:
                 continue 
             
             # get signal region bin:
@@ -326,14 +327,14 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 else:
                     regions["region_signal"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["signal"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
 
-            if n_DT["control"]>0:
+            if n_DT["nonpromptcontrol"]>0:
                 is_pixel_track = list(tagged_tracks["CR_short"] + tagged_tracks["CR_long"])[0]["is_pixel_track"]
                 dedx = list(tagged_tracks["CR_short"] + tagged_tracks["CR_long"])[0]["dedx"]
 
                 if "ZoneDeDx" in event_selection:
-                    regions["region_control"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["control"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)
+                    regions["region_nonpromptcontrol"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["nonpromptcontrol"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0], sideband = True)
                 else:
-                    regions["region_control"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["control"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
+                    regions["region_nonpromptcontrol"] = get_signal_region(event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, n_DT["nonpromptcontrol"], is_pixel_track, dedx, event.n_goodelectrons, event.n_goodmuons, input_filenames[0])
                         
             # get fake rate for event:
             fakerate_short = -1
@@ -354,9 +355,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 if variable == "leptonMT" and len(event.leptons_mt) == 0:
                     continue
 
-                for current_region in ["signal", "control"]:
+                for current_region in ["signal", "nonpromptcontrol"]:
                     
-                    current_region_short = current_region.replace("signal", "SR").replace("control", "CR")
+                    current_region_short = current_region.replace("signal", "SR").replace("nonpromptcontrol", "CR")
                 
                     if n_DT[current_region] == 1:
                         for category in ["short", "long"]:
@@ -380,10 +381,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                                 if tagged_tracks[current_region_short + "_" + category][0]["is_prompt_track"] == 1:
                                     fill_histogram(histos, variable + "_" + current_region + "prompt_" + category + "_" + event_selection, variable, value, weight)
                                     
-                                if current_region == "control" and category == "short":
-                                    fill_histogram(histos, variable + "_prediction_" + category + "_" + event_selection, variable, value, weight * fakerate_short)
-                                elif current_region == "control" and category == "long":
-                                    fill_histogram(histos, variable + "_prediction_" + category + "_" + event_selection, variable, value, weight * fakerate_long)
+                                if current_region == "nonpromptcontrol" and category == "short":
+                                    fill_histogram(histos, variable + "_nonpromptprediction_" + category + "_" + event_selection, variable, value, weight * fakerate_short)
+                                elif current_region == "nonpromptcontrol" and category == "long":
+                                    fill_histogram(histos, variable + "_nonpromptprediction_" + category + "_" + event_selection, variable, value, weight * fakerate_long)
 
                     elif n_DT[current_region] >= 2:
                         
@@ -423,12 +424,12 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                         if all_tracks_are_fake:
                             fill_histogram(histos, variable + "_" + current_region + "fake_multi_" + event_selection, variable, value, weight)
                             
-                        if current_region == "control" and all_tracks_are_short:
-                            fill_histogram(histos, variable + "_prediction_multi_" + event_selection, variable, value, weight * fakerate_short * fakerate_short)
-                        elif current_region == "control" and all_tracks_are_long:
-                            fill_histogram(histos, variable + "_prediction_multi_" + event_selection, variable, value, weight * fakerate_long * fakerate_long)
-                        elif current_region == "control":
-                            fill_histogram(histos, variable + "_prediction_multi_" + event_selection, variable, value, weight * fakerate_short * fakerate_long)
+                        if current_region == "nonpromptcontrol" and all_tracks_are_short:
+                            fill_histogram(histos, variable + "_nonpromptprediction_multi_" + event_selection, variable, value, weight * fakerate_short * fakerate_short)
+                        elif current_region == "nonpromptcontrol" and all_tracks_are_long:
+                            fill_histogram(histos, variable + "_nonpromptprediction_multi_" + event_selection, variable, value, weight * fakerate_long * fakerate_long)
+                        elif current_region == "nonpromptcontrol":
+                            fill_histogram(histos, variable + "_nonpromptprediction_multi_" + event_selection, variable, value, weight * fakerate_short * fakerate_long)
                         
 
                             
@@ -468,7 +469,7 @@ if __name__ == "__main__":
     parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 3)
     parser.add_option("--njobs", dest = "njobs", default = 2000)
     parser.add_option("--event_start", dest = "event_start", default = 0)
-    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate.root")
+    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "../background-estimation/non-prompt/fakerate.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
     (options, args) = parser.parse_args()

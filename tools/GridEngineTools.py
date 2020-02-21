@@ -241,6 +241,60 @@ def get_info(condor_dir, showfailed = False):
     return {"success": n_succeeded_jobs, "njobs": n_all, "fail": n_failed_jobs, "percent_done": float(n_succeeded_jobs)/n_all}
 
 
+def get_list_of_missing_output_files(condor_dir):
+
+    # this function is specific for the DT skim
+
+    import ROOT
+    with open("%s/args" % condor_dir, "r") as fin:
+        args_file = fin.read()
+    args_file = args_file.split("\n")
+
+    ok_files = {}
+    missing_files = {}
+
+    count = 0
+    count_missing = 0
+    count_okay = 0
+
+    for i_arg, arg in enumerate(args_file):
+        filename = arg.split("--output")[-1].replace(";", "").replace(" ", "")
+
+        status, out = commands.getstatusoutput("grep %s %s/args" % (filename, condor_dir))
+        out = out.split("\n")
+        if len(out)>1 and "MET" in out:
+            print len(out)
+            print out[0]
+            print out[1]
+            quit()
+        continue
+
+
+        # check if tree is present:
+        if os.path.exists(filename):
+
+            count_okay += 1
+
+            try:
+                fin = ROOT.TFile(filename, 'read')
+                tree = fin.Get('Events')
+                tree.GetBranch('MHT')
+                fin.Close()
+                ok_files[filename] = i_arg
+            except:
+                missing_files[filename] = i_arg
+        else:
+            missing_files[filename] = i_arg
+
+            count_missing += 1
+
+        count += 1
+
+    print count_okay, count_missing, count
+
+    return missing_files
+
+
 def resubmit(condor_dir):
 
     if condor_dir[-1] == "/":

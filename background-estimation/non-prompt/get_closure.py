@@ -7,7 +7,7 @@ import collections
 from optparse import OptionParser
 import array
 
-def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_text = "", xlabel = False, lumi = 36000, autoscaling = True, xmax = False, ymax = False, ymin = False, fr_regions = [], fr_maps = [], output_root_file = False, pdf_output = True, outpath = "plots"):
+def closure_plot(root_file, variable, category, cr, canvas_label, root_file_data = False, extra_text = "", xlabel = False, lumi = 36000, autoscaling = True, xmax = False, ymax = False, ymin = False, fr_regions = [], fr_maps = [], output_root_file = False, pdf_output = True, outpath = "plots"):
 
     if "Run201" in output_root_file:
         is_data = True
@@ -19,7 +19,7 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
     print "opening", root_file
     tfile = TFile(root_file, "open")
 
-    if category == "combined":
+    if False:
                 
         histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, "short", cr) )
         histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, "short", cr) )
@@ -229,18 +229,15 @@ def closure_plot(root_file, variable, tag, category, cr, canvas_label, extra_tex
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--folder", dest = "prediction_folder", default = "prediction28")
-    parser.add_option("--selection", dest = "selection", default = "baseline,SElValidationMT,SMuValidationMT")    
-    parser.add_option("--category", dest = "category", default = "combined")    
-    parser.add_option("--tag", dest = "tag", default = "loose8")    
+    parser.add_option("--folder", dest = "prediction_folder", default = "prediction")
+    parser.add_option("--selection", dest = "selection", default = "Baseline")
+    parser.add_option("--category", dest = "category", default = "combined")
     (options, args) = parser.parse_args()
+   
+    variables = ["MHT", "region", "leptonMT", "InvMass", "DeDxCorrected", "HT"]
+    data_periods = ["Summer16", "Run2016_all", "Run2016_MET"]
 
-    event_selection = options.selection
-    
-    variables = ["region", "sidebandregion", "leptonMT"] #, "DeDxAverage", "n_goodjets", "Log10DedxMass", "MHT", "HT"]
-    #data_periods = ["Run2016B_MET", "Run2016C_MET", "Run2016D_MET", "Run2016E_MET", "Run2016F_MET", "Run2016G_MET", "Run2016H_MET"]
-    #data_periods = ["Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H"]
-    data_periods = ["Run2016"]
+    options.selection = "SElValidationZLL,Baseline,SMuBaselineZoneDeDx4p0toInf,SElValidationMTZoneDeDx0p0to2p1,SMuValidationMTZoneDeDx0p0to2p1,SMuBaseline,HadBaseline,SMuValidationMT,SElBaseline,SMuValidationZLLZoneDeDx4p0toInf,HadBaselineZoneDeDx0p0to2p1,SElValidationZLLZoneDeDx4p0toInf,SElBaselineZoneDeDx4p0toInf,SMuBaselineZoneDeDx0p0to2p1,SElValidationZLLZoneDeDx0p0to2p1,SElValidationMT,BaselineZoneDeDx0p0to2p1,HadBaselineZoneDeDx4p0toInf,SMuValidationZLLZoneDeDx0p0to2p1,BaselineZoneDeDx4p0toInf,SMuValidationZLL,SElBaselineZoneDeDx0p0to2p1,SElValidationMTZoneDeDx4p0toInf,SMuValidationMTZoneDeDx4p0toInf"
 
     for data_period in data_periods:
 
@@ -261,8 +258,8 @@ if __name__ == "__main__":
                 else:
                     canvas_label = "%s_%s" % (event_selection, variable)
                 
-                print root_file, variable, options.tag, options.category, event_selection
+                print root_file, variable, options.category, event_selection
                 
                 extra_text = "%s, %s tracks" % (data_period.replace("Summer16", "2016 MC").replace("Fall17", "2017 MC"), options.category)
-                closure_plot(root_file, variable, options.tag, options.category, event_selection, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = options.prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (options.prediction_folder, data_period, event_selection))
-        
+                closure_plot(root_file, variable, options.category, event_selection, canvas_label, fr_regions = ["qcd_lowMHT"], fr_maps = ["HT_n_allvertices"], output_root_file = options.prediction_folder + "/closure_%s.root" % (data_period), extra_text = extra_text, outpath = "%s/plots_%s_%s" % (options.prediction_folder, data_period, event_selection))
+

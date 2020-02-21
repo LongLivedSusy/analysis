@@ -551,6 +551,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         current_file_name = tree.GetFile().GetName()
 
         if is_signal:
+            chargino_parent_mass = -1.0
             parent_mass = -1.0
             if "T2bt" in current_file_name:
                 for i_genParticle, genParticle in enumerate(event.GenParticles):
