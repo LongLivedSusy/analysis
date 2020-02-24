@@ -91,7 +91,7 @@ def fill_histogram(histos, histogram_name, variable, value, weight):
 
         # and value>0 and value%2!=0
 
-        if "region" in histogram_name and "ZoneDeDx" in histogram_name and value>0:
+        if "BinNumber" in histogram_name and "ZoneDeDx" in histogram_name and value>0:
             histogram.Fill(value, weight)
             histogram.Fill(value + 1, weight)
         else:
@@ -161,14 +161,26 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             tree.Add(tree_file)
 
     event_selections = {
-                "Baseline":          "(n_goodleptons==0 || tracks_invmass>110)",
-                "HadBaseline":       "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || tracks_invmass>110)",
-                "SMuBaseline":       "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leptons_mt>90",
-                "SMuValidationZLL":  "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
-                "SElBaseline":       "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leptons_mt>90",
-                "SElValidationZLL":  "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
-                "SElValidationMT":   "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leptons_mt<70",
-                "SMuValidationMT":   "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leptons_mt<70",
+                #"FkClosure1":            "n_goodleptons==0 && n_goodjets>=1 && MHT>50 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure2":            "n_goodleptons==0 && n_goodjets>=1 && MHT>100 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure3":            "n_goodleptons==0 && n_goodjets>=1 && MHT>150 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure4":            "n_goodelectrons==1 && n_goodjets>=1 && MHT>50 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure5":            "n_goodelectrons==1 && n_goodjets>=1 && MHT>100 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure6":            "n_goodelectrons==1 && n_goodjets>=1 && MHT>150 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure7":            "n_goodmuons==1 && n_goodjets>=1 && MHT>50 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure8":            "n_goodmuons==1 && n_goodjets>=1 && MHT>100 && MinDeltaPhiMhtJets>0.3",
+                #"FkClosure9":            "n_goodmuons==1 && n_goodjets>=1 && MHT>150 && MinDeltaPhiMhtJets>0.3",
+                "Baseline":               "(n_goodleptons==0 || tracks_invmass>110)",
+                "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0",
+                "BaselineNoLeptons":      "n_goodleptons==0",
+                "PromptDetermination":    "n_goodelectrons==1",
+                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || tracks_invmass>110)",
+                "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leptons_mt>90",
+                "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
+                "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leptons_mt>90",
+                "SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
+                "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leptons_mt<70",
+                "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leptons_mt<70",
                       }
 
     # add zones:
@@ -179,7 +191,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             if higher_cut == "Inf":
                 higher_cut = 9999
             event_selections[event_selection + zone] = event_selections[event_selection] + " && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (lower_cut, higher_cut)
-                      
+              
+    #print ",".join(event_selections)
+    #quit()
+        
     # load fakerate maps...
     h_fakerates = {}   
     fakerate_variable = "HT:n_allvertices"
@@ -190,31 +205,34 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
     # output histograms
     histos = {
-        "leptonMT": TH1F("leptonMT", "leptonMT", 16, 0, 160),
+        "LepMT": TH1F("LepMT", "LepMT", 16, 0, 160),
         "InvMass": TH1F("InvMass", "InvMass", 50, 0, 200),
-        "HT": TH1F("HT", "HT", 35 , 0, 700),
-        "MET": TH1F("MET", "MET", 35 , 0, 700),
-        "MHT": TH1F("MHT", "MHT", 35 , 0, 700),
-        "DeDx": TH1F("DeDx", "DeDx", 60, 0, 6),
-        "DeDxCorrected": TH1F("DeDxCorrected", "DeDxCorrected", 60, 0, 6),
-        "region": TH1F("region", "region", 88, 1, 89),
+        "Ht": TH1F("Ht", "Ht", 35 , 0, 700),
+        "Met": TH1F("Met", "Met", 35 , 0, 700),
+        "Mht": TH1F("Mht", "Mht", 35 , 0, 700),
+        "DeDxAverage": TH1F("DeDxAverage", "DeDxAverage", 60, 0, 6),
+        "DeDxAverageCorrected": TH1F("DeDxAverageCorrected", "DeDxAverageCorrected", 60, 0, 6),
+        "BinNumber": TH1F("BinNumber", "BinNumber", 88, 1, 89),
         #"n_tags": TH1F("n_tags", "n_tags", 3, 0, 3),
         #"n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
         #"n_goodelectrons": TH1F("n_goodelectrons", "n_goodelectrons", 5, 0, 5),
         #"n_goodmuons": TH1F("n_goodmuons", "n_goodmuons", 5, 0, 5),
         #"MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
-        #"n_btags": TH1F("n_btags", "n_btags", 4, 0, 4),
+        "BTags": TH1F("BTags", "BTags", 4, 0, 4),
         #"Track1MassFromDedx": TH1F("Track1MassFromDedx", "Track1MassFromDedx", 25, 0, 1000),
         #"Log10DedxMass": TH1F("Log10DedxMass", "Log10DedxMass", 10, 0, 5),
              }
 
     output_variables = histos.keys()
 
+    #print str(output_variables)
+    #quit()
+
     # add histograms for the regions
     for variable in histos.keys():
         for category in ["combined", "short", "long", "multi"]:
             for event_selection in event_selections:
-                    for itype in ["signal", "signalfake", "signalprompt", "nonpromptcontrol", "nonpromptcontrolfake", "nonpromptcontrolprompt", "nonpromptprediction", ]:
+                    for itype in ["signal", "signalfake", "signalprompt", "nonpromptcontrol", "nonpromptcontrolfake", "nonpromptcontrolprompt", "nonpromptprediction", "promptelectrons"]:
                         h_name = "%s_%s_%s_%s" % (variable, itype, category, event_selection)
                         histos[h_name] = histos[variable].Clone()
                         histos[h_name].SetName(h_name)
@@ -266,13 +284,24 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 if "n_goodleptons==0" in event_selections[event_selection] and event.n_goodleptons==0:
                     pass
                 else:
+
+                    # Todo: write general function for this stuff:
+
                     if "tracks_invmass<" in event_selections[event_selection]:
                         cutval = event_selections[event_selection].split("tracks_invmass<")[-1].split()[0].replace("(", "").replace(")", "")
-                        if not eval("event.tracks_invmass<%s" % cutval):
+                        if not eval("event.tracks_invmass[i]<%s" % cutval):
                             continue
                     if "tracks_invmass>" in event_selections[event_selection]:
                         cutval = event_selections[event_selection].split("tracks_invmass>")[-1].split()[0].replace("(", "").replace(")", "")
-                        if not eval("event.tracks_invmass>%s" % cutval):
+                        if not eval("event.tracks_invmass[i]>%s" % cutval):
+                            continue
+                    if "tracks_deDxHarmonic2pixel<" in event_selections[event_selection]:
+                        cutval = event_selections[event_selection].split("tracks_deDxHarmonic2pixel<")[-1].split()[0].replace("(", "").replace(")", "")
+                        if not eval("event.tracks_deDxHarmonic2pixel[i]<%s" % cutval):
+                            continue
+                    if "tracks_deDxHarmonic2pixel>" in event_selections[event_selection]:
+                        cutval = event_selections[event_selection].split("tracks_deDxHarmonic2pixel>")[-1].split()[0].replace("(", "").replace(")", "")
+                        if not eval("event.tracks_deDxHarmonic2pixel[i]>%s" % cutval):
                             continue
 
                 SR_short = event.tracks_SR_short[i]==1
@@ -352,7 +381,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             # fill histograms:    
             for variable in output_variables:
 
-                if variable == "leptonMT" and len(event.leptons_mt) == 0:
+                if variable == "LepMT" and len(event.leptons_mt) == 0:
                     continue
 
                 for current_region in ["signal", "nonpromptcontrol"]:
@@ -362,16 +391,24 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                     if n_DT[current_region] == 1:
                         for category in ["short", "long"]:
                             if len(tagged_tracks[current_region_short + "_" + category]) == 1:                                
-                                if variable == "region":
+                                if variable == "BinNumber":
                                     value = regions["region_%s" % current_region]
-                                elif variable == "DeDx":
+                                elif variable == "DeDxAverage":
                                     value = tagged_tracks[current_region_short + "_" + category][0]["dedx"]
-                                elif variable == "DeDxCorrected":
+                                elif variable == "DeDxAverageCorrected":
                                     value = tagged_tracks[current_region_short + "_" + category][0]["dedx_corrected"]
-                                elif variable == "leptonMT":
+                                elif variable == "LepMT":
                                     value = event.leptons_mt[0]
                                 elif variable == "InvMass":
                                     value = tagged_tracks[current_region_short + "_" + category][0]["InvMass"]
+                                elif variable == "Ht":
+                                    value = event.HT
+                                elif variable == "Mht":
+                                    value = event.MHT
+                                elif variable == "Met":
+                                    value = event.MET
+                                elif variable == "BTags":
+                                    value = event.n_btags
                                 else:
                                     value = eval("event.%s" % variable)
                                                                 
@@ -388,16 +425,24 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
                     elif n_DT[current_region] >= 2:
                         
-                        if variable == "region":
+                        if variable == "BinNumber":
                             value = regions["region_%s" % current_region]
-                        elif variable == "DeDx":
+                        elif variable == "DeDxAverage":
                             value = list(tagged_tracks[current_region_short + "_short"] + tagged_tracks[current_region_short + "_long"])[0]["dedx"]
-                        elif variable == "DeDxCorrected":
+                        elif variable == "DeDxAverageCorrected":
                             value = list(tagged_tracks[current_region_short + "_short"] + tagged_tracks[current_region_short + "_long"])[0]["dedx_corrected"]
-                        elif variable == "leptonMT":
+                        elif variable == "LepMT":
                             value = event.leptons_mt[0]
                         elif variable == "InvMass":
                             value = list(tagged_tracks[current_region_short + "_short"] + tagged_tracks[current_region_short + "_long"])[0]["InvMass"]
+                        elif variable == "Ht":
+                            value = event.HT
+                        elif variable == "Mht":
+                            value = event.MHT
+                        elif variable == "Met":
+                            value = event.MET
+                        elif variable == "BTags":
+                            value = event.n_btags
                         else:
                             value = eval("event.%s" % variable)
 
@@ -446,10 +491,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
 def hadd_everything(options):
 
-    #os.system("hadd -f %s/prediction_Summer16_all.root %s/Summer16*.root &" % (options.prediction_folder, options.prediction_folder))
-    #os.system("hadd -f %s/prediction_Summer16_QCDZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root &" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
-    #os.system("hadd -f %s/prediction_Run2016_all.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root &" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
-    #os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root &" % (options.prediction_folder, options.prediction_folder))
+    os.system("hadd -f %s/prediction_Summer16_all.root %s/Summer16*.root &" % (options.prediction_folder, options.prediction_folder))
+    os.system("hadd -f %s/prediction_Summer16_QCDZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root &" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
+    os.system("hadd -f %s/prediction_Run2016_all.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root &" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
+    os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root &" % (options.prediction_folder, options.prediction_folder))
     os.system("hadd -f %s/prediction_Run2016_SingleElectron.root %s/Run2016*SingleElectron*.root &" % (options.prediction_folder, options.prediction_folder))
     os.system("hadd -f %s/prediction_Run2016_SingleMuon.root %s/Run2016*SingleMuon*.root &" % (options.prediction_folder, options.prediction_folder))
     #for period in ["", "B", "C", "D", "E", "F", "G", "H"]:
@@ -511,7 +556,7 @@ if __name__ == "__main__":
             for file_segment in file_segments:
                 command = ""
                 for input_file in file_segment:
-                    command += "./nonprompt.py --input %s --output %s/%s --fakerate_file %s; " % (input_file, options.prediction_folder, file_segment[0].split("/")[-1], options.fakerate_file)
+                    command += "./analyze_skim.py --input %s --output %s/%s --fakerate_file %s; " % (input_file, options.prediction_folder, file_segment[0].split("/")[-1], options.fakerate_file)
                 commands.append(command)
 
         if False:
@@ -526,9 +571,9 @@ if __name__ == "__main__":
                  
                 for i in range(int(options.jobs_per_file)):
                     event_start = i * nev_per_interval
-                    commands.append("./nonprompt.py --input %s --output %s/%s --nev %s --fakerate_file %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, options.fakerate_file, event_start))
+                    commands.append("./analyze_skim.py --input %s --output %s/%s --nev %s --fakerate_file %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, options.fakerate_file, event_start))
            
-        runParallel(commands, options.runmode, condorDir = "nonprompt.condor", use_more_mem=False, use_more_time=False, confirm=not options.start)
+        runParallel(commands, options.runmode, condorDir = "%s.condor" % options.prediction_folder, use_more_mem=False, use_more_time=False, confirm=not options.start)
 
         hadd_everything(options)
 

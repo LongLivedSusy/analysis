@@ -205,7 +205,8 @@ if __name__ == "__main__":
     if options.hadd:
         hadd_histograms(folder, options.runmode, start = options.start)
     if options.json:
-        merge_json_files(folder, years = ["2016", "2017", "2018", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        #merge_json_files(folder, years = ["2016", "2017", "2018", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        merge_json_files(folder, years = ["2016", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
     if options.bril:
         get_lumis(folder, options.cern_username)
     

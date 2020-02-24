@@ -21,29 +21,29 @@ def closure_plot(root_file, variable, category, cr, canvas_label, root_file_data
 
     if False:
                 
-        histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, "short", cr) )
+        histos["mc_CR"] = tfile.Get("%s_nonpromptcontrol_%s_%s" % (variable, "short", cr) )
         histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, "short", cr) )
         histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, "short", cr) )
-        histos["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, "short", cr) )
+        histos["mc_prediction"] = tfile.Get("%s_nonpromptprediction_%s_%s" % (variable, "short", cr) )
 
-        histos["mc_CR"].Add(tfile.Get("%s_control_%s_%s" % (variable, "long", cr) ))
+        histos["mc_CR"].Add(tfile.Get("%s_nonpromptcontrol_%s_%s" % (variable, "long", cr) ))
         histos["mc_nonprompt"].Add(tfile.Get("%s_signalfake_%s_%s" % (variable, "long", cr) ))
         histos["mc_prompt"].Add(tfile.Get("%s_signalprompt_%s_%s" % (variable, "long", cr) ))
-        histos["mc_prediction"].Add(tfile.Get("%s_prediction_%s_%s" % (variable, "long", cr) ))
+        histos["mc_prediction"].Add(tfile.Get("%s_nonpromptprediction_%s_%s" % (variable, "long", cr) ))
 
-        histos["mc_CR"].Add(tfile.Get("%s_control_%s_%s" % (variable, "multi", cr) ))
+        histos["mc_CR"].Add(tfile.Get("%s_nonpromptcontrol_%s_%s" % (variable, "multi", cr) ))
         histos["mc_nonprompt"].Add(tfile.Get("%s_signalfake_%s_%s" % (variable, "multi", cr) ))
         histos["mc_prompt"].Add(tfile.Get("%s_signalprompt_%s_%s" % (variable, "multi", cr) ))
-        histos["mc_prediction"].Add(tfile.Get("%s_prediction_%s_%s" % (variable, "multi", cr) ))
+        histos["mc_prediction"].Add(tfile.Get("%s_nonpromptprediction_%s_%s" % (variable, "multi", cr) ))
 
         canvas_label = canvas_label.replace("_short", "").replace("_long", "")
 
     else:
         
-        histos["mc_CR"] = tfile.Get("%s_control_%s_%s" % (variable, category, cr) )
+        histos["mc_CR"] = tfile.Get("%s_nonpromptcontrol_%s_%s" % (variable, category, cr) )
         histos["mc_nonprompt"] = tfile.Get("%s_signalfake_%s_%s" % (variable, category, cr) )
         histos["mc_prompt"] = tfile.Get("%s_signalprompt_%s_%s" % (variable, category, cr) )
-        histos["mc_prediction"] = tfile.Get("%s_prediction_%s_%s" % (variable, category, cr) )
+        histos["mc_prediction"] = tfile.Get("%s_nonpromptprediction_%s_%s" % (variable, category, cr) )
     
     # rebin histograms:
     for label in histos:
@@ -234,10 +234,10 @@ if __name__ == "__main__":
     parser.add_option("--category", dest = "category", default = "combined")
     (options, args) = parser.parse_args()
    
-    variables = ["MHT", "region", "leptonMT", "InvMass", "DeDxCorrected", "HT"]
-    data_periods = ["Summer16", "Run2016_all", "Run2016_MET"]
+    variables = ['BTags', 'Met', 'Mht', 'BinNumber', 'InvMass', 'DeDxAverageCorrected', 'LepMT', 'Ht', 'DeDxAverage']
+    data_periods = ["Summer16_all", "Run2016_all", "Run2016_SingleElectron", "Run2016_SingleMuon", "Run2016_MET"]
 
-    options.selection = "SElValidationZLL,Baseline,SMuBaselineZoneDeDx4p0toInf,SElValidationMTZoneDeDx0p0to2p1,SMuValidationMTZoneDeDx0p0to2p1,SMuBaseline,HadBaseline,SMuValidationMT,SElBaseline,SMuValidationZLLZoneDeDx4p0toInf,HadBaselineZoneDeDx0p0to2p1,SElValidationZLLZoneDeDx4p0toInf,SElBaselineZoneDeDx4p0toInf,SMuBaselineZoneDeDx0p0to2p1,SElValidationZLLZoneDeDx0p0to2p1,SElValidationMT,BaselineZoneDeDx0p0to2p1,HadBaselineZoneDeDx4p0toInf,SMuValidationZLLZoneDeDx0p0to2p1,BaselineZoneDeDx4p0toInf,SMuValidationZLL,SElBaselineZoneDeDx0p0to2p1,SElValidationMTZoneDeDx4p0toInf,SMuValidationMTZoneDeDx4p0toInf"
+    options.selection = "SElValidationZLL,Baseline,SMuValidationZLLZoneDeDx4p0toInf,SMuValidationMTZoneDeDx4p0toInf,SElValidationMTZoneDeDx0p0to2p1,SMuValidationMTZoneDeDx0p0to2p1,SMuValidationZLLZoneDeDx2p1to4p0,BaselineZoneDeDx2p1to4p0,SMuBaseline,SMuBaselineZoneDeDx2p1to4p0,SMuValidationMTZoneDeDx1p6to2p1,SElValidationZLLZoneDeDx2p1to4p0,HadBaseline,SMuValidationMT,SElValidationZLLZoneDeDx1p6to2p1,SMuBaselineZoneDeDx1p6to2p1,SElBaseline,BaselineZoneDeDx1p6to2p1,SMuValidationZLLZoneDeDx1p6to2p1,SElValidationMTZoneDeDx1p6to2p1,SElValidationZLLZoneDeDx4p0toInf,HadBaselineZoneDeDx0p0to2p1,SElBaselineZoneDeDx4p0toInf,SMuBaselineZoneDeDx0p0to2p1,SElValidationZLLZoneDeDx0p0to2p1,SElValidationMT,BaselineZoneDeDx0p0to2p1,HadBaselineZoneDeDx2p1to4p0,HadBaselineZoneDeDx4p0toInf,SMuBaselineZoneDeDx4p0toInf,SElValidationMTZoneDeDx2p1to4p0,SMuValidationZLLZoneDeDx0p0to2p1,BaselineZoneDeDx4p0toInf,SMuValidationZLL,SElBaselineZoneDeDx0p0to2p1,SElValidationMTZoneDeDx4p0toInf,SMuValidationMTZoneDeDx2p1to4p0,SElBaselineZoneDeDx1p6to2p1,HadBaselineZoneDeDx1p6to2p1,SElBaselineZoneDeDx2p1to4p0"
 
     for data_period in data_periods:
 

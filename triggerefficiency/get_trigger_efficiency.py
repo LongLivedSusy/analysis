@@ -185,19 +185,26 @@ if __name__ == "__main__":
     
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
+    gROOT.SetBatch(True) 
 
     print "Get single lepton trigger efficiency from skim"
 
     if options.hadd:
         os.system("hadd -f output_barrel.root %s/*_barrel.root" % (options.folder))
         os.system("hadd -f output_endcap.root %s/*_endcap.root" % (options.folder))
+
+        for period in ["2016", "2016A", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
+            for region in ["barrel", "endcap"]:
+                os.system("hadd -f output_%s_%s.root %s/*%s*_%s.root" % (period, region, options.folder, period, region))
+
         options.plot = True
+        quit()
 
     if options.plot:
-        get_and_plot_ratio("output_barrel.root", "barrel region (0#leq#eta<1.5)", "singlelepton_trigger_barrel.pdf")
-        get_and_plot_ratio("output_endcap.root", "endcap region (1.5#leq#eta<2.4)", "singlelepton_trigger_endcap.pdf")
-        get_and_plot_ratio("output_barrel.root", "barrel region (0#leq#eta<1.5)", "singlelepton_trigger_barrel.root")
-        get_and_plot_ratio("output_endcap.root", "endcap region (1.5#leq#eta<2.4)", "singlelepton_trigger_endcap.root")
+        for period in ["2016", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
+            for region in ["barrel", "endcap"]:
+                get_and_plot_ratio("output_%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.pdf" % (region, period))
+                get_and_plot_ratio("output_%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.png" % (region, period))
         quit()
 
     # otherwise run locally:
