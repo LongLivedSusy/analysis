@@ -74,10 +74,10 @@ def plot_run_periods(variable, prediction_folder, header, pdffile, lumi = 1.0, c
     hratio.GetYaxis().SetTitle('Events/bin')
     hratio.GetXaxis().SetTitle(variable)
 
-    histos["mc_signalprompt"].SetLineColor(kBlack)
-    histos["mc_signalprompt"].Draw("same")
-    histos["mc_signalfake"].SetLineColor(kOrange)
-    histos["mc_signalfake"].Draw("same")
+    #histos["mc_signalprompt"].SetLineColor(kBlack)
+    #histos["mc_signalprompt"].Draw("same")
+    #histos["mc_signalfake"].SetLineColor(kOrange)
+    #histos["mc_signalfake"].Draw("same")
     histos["mc_CR"].SetLineColor(kTeal)
     histos["mc_CR"].Draw("same")
     legend.AddEntry(histos["mc_CR"], "nonprompt fake CR")
@@ -95,14 +95,15 @@ with open(folder + "/luminosity.py") as fin:
 
 for variable in ["LepMT", "Mht", "InvMass"]:
     for dataset in ["SingleElectron", "SingleMuon"]:
-
-        if "Electron" in dataset:
-            cr = "SElValidationMT"
-        if "SingleMuon" in dataset:
-            cr = "SMuValidationZLL"
-
         lumi = lumis["Run2016_%s" % dataset] * 1e3
 
-        plot_run_periods(variable, "prediction", "%s region" % cr, "validation_%s_%s.pdf" % (variable, cr), cr = cr, dataset = dataset, lumi = lumi)
+        if "Electron" in dataset:
+            crs = ["SElValidationMT", "SElValidationZLL"]
+        if "SingleMuon" in dataset:
+            crs = ["SMuValidationMT", "SMuValidationZLL"]
+
+        for cr in crs:
+            plot_run_periods(variable, "prediction", "%s region" % cr, "validation_%s_%s.pdf" % (variable, cr), cr = cr, dataset = dataset, lumi = lumi)
+
 
 

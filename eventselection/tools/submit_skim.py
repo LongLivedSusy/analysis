@@ -142,7 +142,7 @@ if __name__ == "__main__":
         #options.dataset = mc_fall17 + "," + data_phase1
         #options.dataset = data_phase0
     if not options.output_folder:
-        options.output_folder = "skim_65"
+        options.output_folder = "skim_68"
     ######## defaults ########
 
     commands = []

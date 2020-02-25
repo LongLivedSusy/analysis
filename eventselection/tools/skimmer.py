@@ -311,7 +311,7 @@ def getBinContent_with_overflow(histo, xval, yval = False):
         return value
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", only_tagged_tracks = True, save_cleaned_variables = False, only_json = False, mask_file_name = "../../tools/usefulthings/Masks.root", fakerate_filename = "../../background-estimation/non-prompt/fakerate.root"):
+def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", only_tagged_events = True, save_cleaned_variables = False, only_json = False, mask_file_name = "../../tools/usefulthings/Masks.root", fakerate_filename = "../../background-estimation/non-prompt/fakerate.root"):
 
     print "Input:  %s" % event_tree_filenames
     print "Output: %s" % track_tree_output
@@ -378,9 +378,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     # load tree
     tree = TChain(treename)
     for iFile in event_tree_filenames:
-        if "root.mimes" in iFile:
-            continue
-        tree.Add(iFile)
+        if not "root.mimes" in iFile:
+            tree.Add(iFile)
    
     if not only_json:
         fout = TFile(track_tree_output, "recreate")
@@ -455,7 +454,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_mt', 'tracks_invmass', 'tracks_mva_tight', 'tracks_mva_loose', 'leptons_pt', 'leptons_mt', 'leptons_eta', 'leptons_phi']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_mt', 'tracks_invmass', 'tracks_mva_tight', 'tracks_mva_loose', 'leptons_pt', 'leptons_mt', 'leptons_eta', 'leptons_phi', 'leptons_dedx']
 
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
@@ -523,10 +522,17 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
                 goodleptons.append(electron)
                 n_goodelectrons += 1
+                
+                matched_dedx = -1.0
+                for iCand, track in enumerate(event.tracks):
+                    if track.DeltaR(electron) < 0.02:
+                        matched_dedx = event.tracks_deDxHarmonic2pixel[iCand]
+                                
                 lepton_level_output.append({"leptons_pt": electron.Pt(),
                                              "leptons_eta": electron.Eta(),
                                              "leptons_mt": electron.Mt(),
                                              "leptons_phi": electron.Phi(),
+                                             "leptons_dedx": matched_dedx,
                                              "leptons_id": 11,
                                              })
         for i, muon in enumerate(event.Muons):
@@ -538,10 +544,17 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
                 goodleptons.append(muon)
                 n_goodmuons += 1
+                
+                matched_dedx = -1.0
+                for iCand, track in enumerate(event.tracks):
+                    if track.DeltaR(muon) < 0.02:
+                        matched_dedx = event.tracks_deDxHarmonic2pixel[iCand]
+                
                 lepton_level_output.append({"leptons_pt": muon.Pt(),
                                              "leptons_eta": muon.Eta(),
                                              "leptons_mt": muon.Mt(),
                                              "leptons_phi": muon.Phi(),
+                                             "leptons_dedx": matched_dedx,
                                              "leptons_id": 13,
                                              })
 
@@ -807,7 +820,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             for tag in tags:
                 tagged_tracks[-1]["tracks_%s" % tag] = tags[tag]
   
-        if only_tagged_tracks and len(tagged_tracks)==0:
+        if only_tagged_events and len(tagged_tracks)==0 and n_goodleptons==0:
             continue
 
         # get fake rate for event:
