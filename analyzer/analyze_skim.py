@@ -7,7 +7,6 @@ from GridEngineTools import runParallel
 import collections
 import re
 import shared_utils
-
     
 def correct_dedx_intercalibration(dedx, filename):
     
@@ -89,8 +88,6 @@ def fill_histogram(histos, histogram_name, variable, value, weight):
     for histogram_name in histogram_names:
         histogram = histos[histogram_name]
 
-        # and value>0 and value%2!=0
-
         if "BinNumber" in histogram_name and "ZoneDeDx" in histogram_name and value>0:
             histogram.Fill(value, weight)
             histogram.Fill(value + 1, weight)
@@ -98,7 +95,31 @@ def fill_histogram(histos, histogram_name, variable, value, weight):
             histogram.Fill(value, weight)
 
 
-def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_file="fakerate.root"):
+def parse_root_cutstring(cut, tracks_increment_variable = "i"):
+
+    # this function converts ROOT cutstrings into python eval statements.
+
+    output = cut
+    variables = re.findall(r'\w+', cut)
+
+    for variable in list(set(variables)):
+        try:
+            float(variable)
+        except:
+            if "tracks_" in variable:
+                output = re.sub(r"\b%s\b" % variable, "event." + variable + "[" + tracks_increment_variable + "]", output)
+            else:
+                output = re.sub(r"\b%s\b" % variable, "event." + variable, output)
+
+    output = output.replace("&&", "and").replace("||", "or")
+
+    if output.split()[0] == "and":
+        output = " ".join(output.split()[1:])
+
+    return output
+
+
+def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_file="fakerate.root", input_is_unmerged = True):
 
     # check if data:
     phase = 0
@@ -117,9 +138,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     nev = 0
     ignore_files = []
 
-    if "_skim.root" in input_filenames[0]:
+    if input_is_unmerged:
 
-        # use identifier to get n_ev, useful when input hasn't been merged yet:
+        print "Input is unmerged..."
         file_name = input_filenames[0].split("/")[-1]
         identifier = "_".join(file_name.split("_")[:-2]).replace("_ext1", "*").replace("_ext2", "*").replace("_ext3", "*").replace("ext4", "*")
         if "/" in input_filenames[0]:
@@ -135,8 +156,8 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
     else:
 
-        # only use input filenames for n_ev calculation
         loop_over_files = input_filenames
+
 
     for tree_file in loop_over_files:
         print "Reading %s for n_ev calculation..." % tree_file 
@@ -161,19 +182,13 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             tree.Add(tree_file)
 
     event_selections = {
-                #"FkClosure1":            "n_goodleptons==0 && n_goodjets>=1 && MHT>50 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure2":            "n_goodleptons==0 && n_goodjets>=1 && MHT>100 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure3":            "n_goodleptons==0 && n_goodjets>=1 && MHT>150 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure4":            "n_goodelectrons==1 && n_goodjets>=1 && MHT>50 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure5":            "n_goodelectrons==1 && n_goodjets>=1 && MHT>100 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure6":            "n_goodelectrons==1 && n_goodjets>=1 && MHT>150 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure7":            "n_goodmuons==1 && n_goodjets>=1 && MHT>50 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure8":            "n_goodmuons==1 && n_goodjets>=1 && MHT>100 && MinDeltaPhiMhtJets>0.3",
-                #"FkClosure9":            "n_goodmuons==1 && n_goodjets>=1 && MHT>150 && MinDeltaPhiMhtJets>0.3",
-                "Baseline":               "(n_goodleptons==0 || tracks_invmass>110)",
+                "Baseline":               "n_goodleptons==0 || tracks_invmass>110",
                 "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0",
                 "BaselineNoLeptons":      "n_goodleptons==0",
-                "PromptDetermination":    "n_goodelectrons==1",
+                "BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110",
+                "BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110",
+                "PromptDeterminationEl":  "n_goodelectrons==1 && n_goodmuons==0",
+                "PromptDeterminationMu":  "n_goodelectrons==0 && n_goodmuons==1",
                 "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || tracks_invmass>110)",
                 "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leptons_mt>90",
                 "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
@@ -191,10 +206,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             if higher_cut == "Inf":
                 higher_cut = 9999
             event_selections[event_selection + zone] = event_selections[event_selection] + " && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (lower_cut, higher_cut)
-              
-    #print ",".join(event_selections)
-    #quit()
-        
+           
     # load fakerate maps...
     h_fakerates = {}   
     fakerate_variable = "HT:n_allvertices"
@@ -217,16 +229,13 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         #"n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
         #"n_goodelectrons": TH1F("n_goodelectrons", "n_goodelectrons", 5, 0, 5),
         #"n_goodmuons": TH1F("n_goodmuons", "n_goodmuons", 5, 0, 5),
-        #"MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
+        "MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
         "BTags": TH1F("BTags", "BTags", 4, 0, 4),
         #"Track1MassFromDedx": TH1F("Track1MassFromDedx", "Track1MassFromDedx", 25, 0, 1000),
         #"Log10DedxMass": TH1F("Log10DedxMass", "Log10DedxMass", 10, 0, 5),
              }
 
     output_variables = histos.keys()
-
-    #print str(output_variables)
-    #quit()
 
     # add histograms for the regions
     for variable in histos.keys():
@@ -256,7 +265,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         # loop over all event selections:
         for event_selection in event_selections:
 
-            # check event level:
+            # check cutstring on event level:
             if event_selections[event_selection] != "" and not tree.Query("", event_selections[event_selection], "", 1, iEv).GetRowCount(): continue
 
             # check for  leptons_mt>90 cut:
@@ -280,29 +289,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             # loop over all tracks and tag all disappearing tracks:
             for i, track in enumerate(event.tracks_pt):
 
-                # need to recheck track level cuts here:
-                if "n_goodleptons==0" in event_selections[event_selection] and event.n_goodleptons==0:
-                    pass
-                else:
-
-                    # Todo: write general function for this stuff:
-
-                    if "tracks_invmass<" in event_selections[event_selection]:
-                        cutval = event_selections[event_selection].split("tracks_invmass<")[-1].split()[0].replace("(", "").replace(")", "")
-                        if not eval("event.tracks_invmass[i]<%s" % cutval):
-                            continue
-                    if "tracks_invmass>" in event_selections[event_selection]:
-                        cutval = event_selections[event_selection].split("tracks_invmass>")[-1].split()[0].replace("(", "").replace(")", "")
-                        if not eval("event.tracks_invmass[i]>%s" % cutval):
-                            continue
-                    if "tracks_deDxHarmonic2pixel<" in event_selections[event_selection]:
-                        cutval = event_selections[event_selection].split("tracks_deDxHarmonic2pixel<")[-1].split()[0].replace("(", "").replace(")", "")
-                        if not eval("event.tracks_deDxHarmonic2pixel[i]<%s" % cutval):
-                            continue
-                    if "tracks_deDxHarmonic2pixel>" in event_selections[event_selection]:
-                        cutval = event_selections[event_selection].split("tracks_deDxHarmonic2pixel>")[-1].split()[0].replace("(", "").replace(")", "")
-                        if not eval("event.tracks_deDxHarmonic2pixel[i]>%s" % cutval):
-                            continue
+                # check cutstring on track level:
+                if not eval(parse_root_cutstring(event_selections[event_selection], tracks_increment_variable = "i")):
+                    continue
 
                 SR_short = event.tracks_SR_short[i]==1
                 SR_long = event.tracks_SR_long[i]==1
@@ -475,10 +464,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                             fill_histogram(histos, variable + "_nonpromptprediction_multi_" + event_selection, variable, value, weight * fakerate_long * fakerate_long)
                         elif current_region == "nonpromptcontrol":
                             fill_histogram(histos, variable + "_nonpromptprediction_multi_" + event_selection, variable, value, weight * fakerate_short * fakerate_long)
-                        
-
-                            
-                         
+                                                  
     if event_start>0:
         output_file = output_file.replace(".root", "_%s.root" % event_start)
 
@@ -489,17 +475,14 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     fout.Close()
 
 
-def hadd_everything(options):
+def hadd_everything(output_folder):
 
-    os.system("hadd -f %s/prediction_Summer16_all.root %s/Summer16*.root &" % (options.prediction_folder, options.prediction_folder))
-    os.system("hadd -f %s/prediction_Summer16_QCDZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root &" % (options.prediction_folder, options.prediction_folder, options.prediction_folder))
-    os.system("hadd -f %s/prediction_Run2016_all.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root &" % (options.prediction_folder, options.prediction_folder, options.prediction_folder, options.prediction_folder))
-    os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root &" % (options.prediction_folder, options.prediction_folder))
-    os.system("hadd -f %s/prediction_Run2016_SingleElectron.root %s/Run2016*SingleElectron*.root &" % (options.prediction_folder, options.prediction_folder))
-    os.system("hadd -f %s/prediction_Run2016_SingleMuon.root %s/Run2016*SingleMuon*.root &" % (options.prediction_folder, options.prediction_folder))
-    #for period in ["", "B", "C", "D", "E", "F", "G", "H"]:
-    #    os.system("hadd -f %s/prediction_Run2016%s.root %s/Run2016%s*MET*.root %s/Run2016%s*SingleMuon*.root %s/Run2016%s*SingleElectron*.root" % (options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period, options.prediction_folder, period))
-    #    os.system("hadd -f %s/prediction_Run2016%s_MET.root %s/Run2016%s*MET*.root" % (options.prediction_folder, period, options.prediction_folder, period))   
+    os.system("hadd -f %s/prediction_Summer16_all.root %s/Summer16*.root &" % (output_folder, output_folder))
+    os.system("hadd -f %s/prediction_Summer16_QCDZJets.root %s/Summer16.QCD*.root %s/Summer16.ZJets*.root &" % (output_folder, output_folder, output_folder))
+    os.system("hadd -f %s/prediction_Run2016_all.root %s/Run2016*MET*.root %s/Run2016*SingleMuon*.root %s/Run2016*SingleElectron*.root &" % (output_folder, output_folder, output_folder, output_folder))
+    os.system("hadd -f %s/prediction_Run2016_MET.root %s/Run2016*MET*.root &" % (output_folder, output_folder))
+    os.system("hadd -f %s/prediction_Run2016_SingleElectron.root %s/Run2016*SingleElectron*.root &" % (output_folder, output_folder))
+    os.system("hadd -f %s/prediction_Run2016_SingleMuon.root %s/Run2016*SingleMuon*.root &" % (output_folder, output_folder))
                  
 
 if __name__ == "__main__":
@@ -511,19 +494,20 @@ if __name__ == "__main__":
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--unweighted", dest="unweighted", action="store_true")
     parser.add_option("--nev", dest = "nev", default = -1)
-    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 3)
+    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 60)
     parser.add_option("--njobs", dest = "njobs", default = 2000)
     parser.add_option("--event_start", dest = "event_start", default = 0)
     parser.add_option("--fakerate_file", dest = "fakerate_file", default = "../background-estimation/non-prompt/fakerate.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
+    parser.add_option("--unmerged", dest="unmerged", action="store_true")
     (options, args) = parser.parse_args()
     
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
 
     if options.hadd:
-        hadd_everything(options)
+        hadd_everything(options.prediction_folder)
         quit()
 
     # run parallel if input is a folder:
@@ -547,7 +531,7 @@ if __name__ == "__main__":
         os.system("mkdir -p %s" % options.prediction_folder)
         commands = []
  
-        if True:
+        if options.unmerged:
 
             if options.njobs > len(input_files):
                 options.njobs = len(input_files)
@@ -556,14 +540,12 @@ if __name__ == "__main__":
             for file_segment in file_segments:
                 command = ""
                 for input_file in file_segment:
-                    command += "./analyze_skim.py --input %s --output %s/%s --fakerate_file %s; " % (input_file, options.prediction_folder, file_segment[0].split("/")[-1], options.fakerate_file)
+                    command += "./analyze_skim.py --input %s --output %s/%s --fakerate_file %s --unmerged; " % (input_file, options.prediction_folder, file_segment[0].split("/")[-1], options.fakerate_file)
                 commands.append(command)
 
-        if False:
+        else:
 
             for input_file in input_files:
-
-                # get nev:
                 tree = TChain("Events")
                 tree.Add(input_file)
                 nev = tree.GetEntries()
@@ -575,7 +557,7 @@ if __name__ == "__main__":
            
         runParallel(commands, options.runmode, condorDir = "%s.condor" % options.prediction_folder, use_more_mem=False, use_more_time=False, confirm=not options.start)
 
-        hadd_everything(options)
+        hadd_everything(options.prediction_folder)
 
     # otherwise run locally:
     else:
@@ -590,5 +572,6 @@ if __name__ == "__main__":
              nevents = int(options.nev),
              fakerate_file = options.fakerate_file,
              event_start = int(options.event_start),
+             input_is_unmerged = options.unmerged,
             )
 
