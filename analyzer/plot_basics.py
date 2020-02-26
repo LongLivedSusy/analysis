@@ -1,6 +1,5 @@
 #!/bin/env python
 from __future__ import division
-import os
 from ROOT import *
 import plotting
 import collections
@@ -45,7 +44,7 @@ def plot(variable, histos, lumi, pdffile):
     for label in histos:
         if "SMS" in label or "g1800" in label:
             histos[label].Draw("same")
-            legend.AddEntry(histos[label], label)
+            legend.AddEntry(histos[label], histos[label].GetTitle())
 
        
     hratio.GetYaxis().SetRangeUser(-0.1,2.6)    
@@ -72,6 +71,7 @@ def do_plots(variables, cutstring, thisbatchname, folder, labels):
         histos = collections.OrderedDict()
         for label in labels:
             input_files = glob.glob(folder + "/" + label + "*.root")
+            print label, "\n", input_files, "\n"
             histos[label] = plotting.get_histogram_from_file(input_files, "Events", variable, cutstring=cutstring, nBinsX=binnings[variable][0], xmin=binnings[variable][1], xmax=binnings[variable][2])
             if "Run201" in label:
                 lumi = lumis[label.replace("*", "_")] * 1e3
@@ -94,7 +94,8 @@ if __name__ == "__main__":
     folder = "../skims/current"
     
     labels = collections.OrderedDict()
-    labels["Run2016*MET"] =         ["Run2016 MET", kBlack]
+    #labels["Run2016*MET"] =         ["Run2016 MET", kBlack]
+    labels["Run2016*SingleElectron"] = ["SingleElectron", kBlack]
     labels["Summer16.WJetsToLNu"] = ["WJets", 85]
     labels["Summer16.DYJetsToLL"] = ["DY Jets", 67]
     labels["Summer16.QCD"] =        ["QCD", 97]
@@ -119,5 +120,7 @@ if __name__ == "__main__":
                 "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leptons_mt<70",
                       }
 
-    do_plots(["tracks_invmass"], event_selections["SElValidationZLL"], "hello", folder, labels)
+    has_DT = "(n_tracks_SR_short>0 || n_tracks_SR_long>0) && "
+
+    do_plots(["tracks_invmass"], has_DT + event_selections["SElValidationZLL"], "hello", folder, labels)
 
