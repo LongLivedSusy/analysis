@@ -100,7 +100,8 @@ def plot_run_periods(mc_root_input, variable, header, pdffile, ymin=1e-5, ymax=1
 for variable in ["Ht", "Mht"]:
     
     cr = "Baseline"
-    
+    folder = "prediction7"    
+
     if variable == "Ht":
         ymin = 1
         ymax = 1e8
@@ -108,7 +109,7 @@ for variable in ["Ht", "Mht"]:
         ymin = 1e-4
         ymax = 1e7    
     
-    plot_run_periods("prediction/prediction_Summer16_QCDZJets.root", variable, "%s region, QCD/ZJets-only" % cr, "fakeclosure_%s_%s_QCDZJets.pdf" % (variable, cr), ymin = ymin, ymax = ymax, cr = cr)
-    plot_run_periods("prediction/prediction_Summer16_all.root", variable, "%s region" % cr, "fakeclosure_%s_%s.pdf" % (variable, cr), ymin = ymin, ymax = ymax, cr = cr)
+    plot_run_periods(folder + "/prediction_Summer16_QCDZJets.root", variable, "%s region, QCD/ZJets-only" % cr, "fakeclosure_%s_%s_QCDZJets.pdf" % (variable, cr), ymin = ymin, ymax = ymax, cr = cr)
+    plot_run_periods(folder + "/prediction_Summer16_all.root", variable, "%s region" % cr, "fakeclosure_%s_%s.pdf" % (variable, cr), ymin = ymin, ymax = ymax, cr = cr)
 
 

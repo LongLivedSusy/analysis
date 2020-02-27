@@ -83,6 +83,8 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
 
 def fill_histogram(histos, histogram_name, variable, value, weight):
     
+    print histogram_name, variable, value, weight
+    
     histogram_names = [histogram_name, histogram_name.replace("_short_", "_combined_").replace("_long_", "_combined_").replace("_multi_", "_combined_")]
 
     for histogram_name in histogram_names:
@@ -182,18 +184,16 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             tree.Add(tree_file)
 
     event_selections = {
-                "Baseline":               "n_goodleptons==0 || tracks_invmass>110",
-                "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0",
-                "BaselineNoLeptons":      "n_goodleptons==0",
-                "BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110",
-                "BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110",
-                "PromptDeterminationEl":  "n_goodelectrons==1 && n_goodmuons==0",
-                "PromptDeterminationMu":  "n_goodelectrons==0 && n_goodmuons==1",
-                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || tracks_invmass>110)",
-                "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leptons_mt>90",
-                "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
-                "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leptons_mt>90",
-                "SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
+                #"Baseline":               "n_goodleptons==0 || tracks_invmass>110",
+                #"BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0",
+                ##"BaselineNoLeptons":      "n_goodleptons==0",
+                ##"BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110",
+                ##"BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110",
+                #"HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || tracks_invmass>110)",
+                #"SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leptons_mt>90",
+                #"SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
+                #"SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leptons_mt>90",
+                #"SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
                 "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leptons_mt<70",
                 "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leptons_mt<70",
                       }
@@ -226,7 +226,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         "DeDxAverageCorrected": TH1F("DeDxAverageCorrected", "DeDxAverageCorrected", 60, 0, 6),
         "BinNumber": TH1F("BinNumber", "BinNumber", 88, 1, 89),
         #"n_tags": TH1F("n_tags", "n_tags", 3, 0, 3),
-        #"n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
+        "n_goodjets": TH1F("n_goodjets", "n_goodjets", 10, 0, 10),
         #"n_goodelectrons": TH1F("n_goodelectrons", "n_goodelectrons", 5, 0, 5),
         #"n_goodmuons": TH1F("n_goodmuons", "n_goodmuons", 5, 0, 5),
         "MinDeltaPhiMhtJets": TH1F("MinDeltaPhiMhtJets", "MinDeltaPhiMhtJets", 16, 0, 3.2),
@@ -241,7 +241,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     for variable in histos.keys():
         for category in ["combined", "short", "long", "multi"]:
             for event_selection in event_selections:
-                    for itype in ["signal", "signalfake", "signalprompt", "nonpromptcontrol", "nonpromptcontrolfake", "nonpromptcontrolprompt", "nonpromptprediction", "promptelectrons"]:
+                    for itype in ["signal", "signalfake", "signalprompt", "nonpromptcontrol", "nonpromptcontrolfake", "nonpromptcontrolprompt", "nonpromptprediction"]:
                         h_name = "%s_%s_%s_%s" % (variable, itype, category, event_selection)
                         histos[h_name] = histos[variable].Clone()
                         histos[h_name].SetName(h_name)
@@ -257,6 +257,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         if (iEv+1) % 100 == 0:
             print "Processing event %s / %s" % (iEv + 1, nev_tree)
 
+        is_tagged = event.n_tracks_SR_short>0 or event.n_tracks_SR_long>0 or event.n_tracks_CR_short>0 or event.n_tracks_CR_long>0
+        if not is_tagged:
+            continue
+
         if is_data:
             weight = 1.0
         else:
@@ -267,6 +271,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
 
             # check cutstring on event level:
             if event_selections[event_selection] != "" and not tree.Query("", event_selections[event_selection], "", 1, iEv).GetRowCount(): continue
+
+            #if "ValidationMT" in event_selection:
+            #    print event_selection, len(event.leptons_mt), event.leptons_mt[0]
 
             # check for  leptons_mt>90 cut:
             if "Baseline" in event_selection and event.n_goodleptons>0:

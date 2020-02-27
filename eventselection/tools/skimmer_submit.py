@@ -138,11 +138,8 @@ if __name__ == "__main__":
     if not options.dataset:
         options.add_signals = True
         options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = "RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = mc_fall17 + "," + data_phase1
-        #options.dataset = data_phase0
     if not options.output_folder:
-        options.output_folder = "skim_68"
+        options.output_folder = "skim_69"
     ######## defaults ########
 
     commands = []
@@ -161,15 +158,10 @@ if __name__ == "__main__":
         else:
             nowildcard = False
     
-        #FIXME THIS IS AN ISSUE
-
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=int(options.files_per_job), nowildcard=nowildcard)
     
-    #if len(commands)>5000:
-    #    print "Too many jobs..."
-
     do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
 
-    #print "Merging..."
-    #os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
+    print "Merging..."
+    os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
 

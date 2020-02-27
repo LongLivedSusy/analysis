@@ -45,7 +45,6 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
         print sample
 
     cmds = []
-    os.system("mkdir -p %s_merged" % folder)
     for i, sample in enumerate(samples):
         if use_custom_hadd:
             command = "./terahadd.py %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
@@ -63,8 +62,6 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
 
 
 def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
-
-    os.system("mkdir -p %s_merged" % folder)
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -148,8 +145,6 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
 
 def get_lumis(folder, cern_username):
 
-    os.system("mkdir -p %s_merged" % folder)
-
     lumis = {}
     for json_file in glob.glob("%s_merged/*.json" % folder):
 
@@ -182,13 +177,16 @@ if __name__ == "__main__":
     if len(args) > 0:
         folder = args[0]
     else:
-        print "Merge everything: run with ./merge_samples.py --hadd --json --bril output_skim_14_moredata/"
+        print "Merge everything: run with ./merge_samples.py output_skim_14_moredata/"
         print "For brilcalc, make sure that you have brilws installed (pip install --user brilws)"
         print "Set your CERN username with --cern_username"
         quit()
 
+    if not os.path.exists("%s_merged" % folder):
+        os.system("mkdir -p %s_merged" % folder)
+
     # do everything by default
-    if not (options.hadd or options.json or options.bril):
+    if not options.hadd and not options.json and not options.bril:
         options.hadd = True
         options.json = True
         options.bril = True

@@ -9,13 +9,14 @@ import glob
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
-def plot(variable, histos, lumi, pdffile):
+def plot(variable, histos, lumi, pdffile, ymin=1e-1, ymax=1e5):
 
     contains_data = False
     for label in histos:
         if not "Run201" in label:
-            contains_data = True
             histos[label].Scale(lumi)
+        else:
+            contains_data = True
     
     for label in histos:
         histos[label].SetLineWidth(2)
@@ -36,10 +37,11 @@ def plot(variable, histos, lumi, pdffile):
     if contains_data:
         hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, histolist[0], histolist[1:], lumi = lumi, datamc = 'Data')
     else:
-        hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, histolist[0], histolist, lumi = lumi, datamc = 'Data')
+        print "No data"
+        hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, histolist[-1], histolist, lumi = lumi, datamc = 'Data')
 
     for i_label, label in enumerate(histos):
-        histos[label].GetYaxis().SetRangeUser(1e-1, 1e10)
+        histos[label].GetYaxis().SetRangeUser(ymin, ymax)
 
     for label in histos:
         if "SMS" in label or "g1800" in label:
@@ -62,16 +64,17 @@ def do_plots(variables, cutstring, thisbatchname, folder, labels):
     with open(folder + "/luminosity.py") as fin:
         lumis = eval(fin.read())
 
-    lumi = 1.0
+    lumi = 37000
     binnings = {}
     binnings["MHT"] = [20, 0, 1000]
-    binnings["tracks_invmass"] = [50, 0, 200]
+    binnings["tracks_invmass"] = [50, 40, 140]
+    binnings["leptons_mt"] = [16, 0, 160]
 
     for variable in variables:
         histos = collections.OrderedDict()
         for label in labels:
             input_files = glob.glob(folder + "/" + label + "*.root")
-            print label, "\n", input_files, "\n"
+            print label, ":\n", ",".join(input_files), "\n"
             histos[label] = plotting.get_histogram_from_file(input_files, "Events", variable, cutstring=cutstring, nBinsX=binnings[variable][0], xmin=binnings[variable][1], xmax=binnings[variable][2])
             if "Run201" in label:
                 lumi = lumis[label.replace("*", "_")] * 1e3
@@ -85,8 +88,11 @@ def do_plots(variables, cutstring, thisbatchname, folder, labels):
             else:
                 histos[label].SetLineColor(color)
 
-        plot(variable, histos, lumi, "%s_%s.pdf" % (thisbatchname, variable))
-        plot(variable, histos, lumi, "%s_%s.root" % (thisbatchname, variable))
+        ymin = 1e-3
+        ymax = 1e6
+
+        plot(variable, histos, lumi, "%s_%s.pdf" % (thisbatchname, variable), ymin, ymax)
+        plot(variable, histos, lumi, "%s_%s.root" % (thisbatchname, variable), ymin, ymax)
 
 
 if __name__ == "__main__":
@@ -95,12 +101,14 @@ if __name__ == "__main__":
     
     labels = collections.OrderedDict()
     #labels["Run2016*MET"] =         ["Run2016 MET", kBlack]
-    labels["Run2016*SingleElectron"] = ["SingleElectron", kBlack]
+    #labels["Run2016*SingleElectron"] = ["SingleElectron", kBlack]
     labels["Summer16.WJetsToLNu"] = ["WJets", 85]
     labels["Summer16.DYJetsToLL"] = ["DY Jets", 67]
     labels["Summer16.QCD"] =        ["QCD", 97]
     labels["Summer16.TTJets"] =     ["TT Jets", 8]
-    labels["Summer16.??_Tune"] =    ["Diboson", 62]
+    labels["Summer16.WW_Tune"] =    ["WW", 62]
+    labels["Summer16.WZ_Tune"] =    ["WZ", 63]
+    labels["Summer16.ZZ_Tune"] =    ["ZZ", 64]
     labels["*g1800_chi1400*"] =     ["Signal", kBlue]
 
     event_selections = {
@@ -116,11 +124,15 @@ if __name__ == "__main__":
                 "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
                 "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leptons_mt>90",
                 "SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
-                "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leptons_mt<70",
-                "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leptons_mt<70",
+                "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0",
+                "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0",
                       }
 
     has_DT = "(n_tracks_SR_short>0 || n_tracks_SR_long>0) && "
 
-    do_plots(["tracks_invmass"], has_DT + event_selections["SElValidationZLL"], "hello", folder, labels)
+    #do_plots(["leptons_mt"], has_DT + event_selections["SElValidationMT"], "SElValidationMT", folder, labels)
+    #do_plots(["leptons_mt"], has_DT + event_selections["SMuValidationMT"], "SMuValidationMT", folder, labels)
+
+    do_plots(["tracks_invmass"], has_DT + event_selections["SElValidationZLL"], "SElValidationZLL", folder, labels)
+    do_plots(["tracks_invmass"], has_DT + event_selections["SMuValidationZLL"], "SMuValidationZLL", folder, labels)
 

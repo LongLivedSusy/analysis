@@ -530,7 +530,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                 
                 lepton_level_output.append({"leptons_pt": electron.Pt(),
                                              "leptons_eta": electron.Eta(),
-                                             "leptons_mt": electron.Mt(),
+                                             "leptons_mt": event.Electrons_MTW[i],
                                              "leptons_phi": electron.Phi(),
                                              "leptons_dedx": matched_dedx,
                                              "leptons_id": 11,
@@ -552,7 +552,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 
                 lepton_level_output.append({"leptons_pt": muon.Pt(),
                                              "leptons_eta": muon.Eta(),
-                                             "leptons_mt": muon.Mt(),
+                                             "leptons_mt": event.Muons_MTW[i],
                                              "leptons_phi": muon.Phi(),
                                              "leptons_dedx": matched_dedx,
                                              "leptons_id": 13,
@@ -610,7 +610,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     elif lepton_type == "Muons": selected_mu_indices.append(i)                
 
         if (len(selected_e_indices) == 2 and len(selected_mu_indices) == 0):
-            if bool(event.Electrons_mediumID[selected_e_indices[0]]) and bool(event.Electrons_mediumID[selected_e_indices[1]]):
+            if bool(event.Electrons_tightID[selected_e_indices[0]]) and bool(event.Electrons_tightID[selected_e_indices[1]]):
                 if (event.Electrons_charge[selected_e_indices[0]] * event.Electrons_charge[selected_e_indices[1]] < 0):
                     invariant_mass = (event.Electrons[selected_e_indices[0]] + event.Electrons[selected_e_indices[1]]).M()
                     if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
@@ -820,8 +820,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             for tag in tags:
                 tagged_tracks[-1]["tracks_%s" % tag] = tags[tag]
   
-        if only_tagged_events and len(tagged_tracks)==0 and n_goodleptons==0:
-            continue
+
+        # throw away non-tagged events...
+        if only_tagged_events and len(tagged_tracks)==0:
+            # but keep the single-lepton events!
+            if n_goodleptons==1:
+                print "OK"
+            else:
+                continue
 
         # get fake rate for event:
         fakerate_short = -1

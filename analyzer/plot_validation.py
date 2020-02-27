@@ -89,9 +89,11 @@ def plot_run_periods(variable, prediction_folder, header, pdffile, lumi = 1.0, c
     canvas.SaveAs(pdffile)
     
 
-folder = "../skims/tools/skim_65"
+folder = "../skims/current"
 with open(folder + "/luminosity.py") as fin:
     lumis = eval(fin.read())
+
+pred_folder = "prediction7"
 
 for variable in ["LepMT", "Mht", "InvMass"]:
     for dataset in ["SingleElectron", "SingleMuon"]:
@@ -103,7 +105,7 @@ for variable in ["LepMT", "Mht", "InvMass"]:
             crs = ["SMuValidationMT", "SMuValidationZLL"]
 
         for cr in crs:
-            plot_run_periods(variable, "prediction", "%s region" % cr, "validation_%s_%s.pdf" % (variable, cr), cr = cr, dataset = dataset, lumi = lumi)
+            plot_run_periods(variable, pred_folder, "%s region" % cr, "validation_%s_%s.pdf" % (variable, cr), cr = cr, dataset = dataset, lumi = lumi)
 
 
 
