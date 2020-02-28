@@ -38,7 +38,6 @@ binnings["Log10DedxMass"] = [10, 0, 5]
 
 def get_fkbg_histograms(variable, basecuts, label, folder, globstrings, output_root_file):
 
-
     histos = collections.OrderedDict()
 
     input_files = []
@@ -46,8 +45,8 @@ def get_fkbg_histograms(variable, basecuts, label, folder, globstrings, output_r
        input_files += glob.glob(folder + "/" + globstring + "*.root")
     
     def get_histo(additional_cuts, scaling = ""):
-        print "getting", additional_cuts, scaling
-        return plotting.get_histogram_from_file(input_files, "Events", variable, cutstring=basecuts + additional_cuts, scaling=scaling, nBinsX=binnings[variable][0], xmin=binnings[variable][1], xmax=binnings[variable][2])
+        print "Getting", variable, label, additional_cuts, scaling
+        return plotting.get_histogram_from_file(input_files, "Events", variable, cutstring=basecuts+additional_cuts, scaling=scaling, nBinsX=binnings[variable][0], xmin=binnings[variable][1], xmax=binnings[variable][2])
 
     # get nonprompt CR and nonprompt prediction
     histos[label + "_fakecr_short"] = get_histo(" && tracks_CR_short==1")
@@ -73,7 +72,7 @@ def get_fkbg_histograms(variable, basecuts, label, folder, globstrings, output_r
 
 if __name__ == "__main__":
 
-    folder = "../skims/current"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/current"
     
     event_selections = {
                 "Baseline":               "(n_goodleptons==0 || tracks_invmass>110)",
@@ -93,11 +92,10 @@ if __name__ == "__main__":
     # get histograms and save them to a file:
     os.system("rm ddbg.root")
     for variable in ["MHT", "tracks_invmass", "leptons_mt"]:
-        #for region in ["Baseline", "SElValidationZLL", "SMuValidationZLL", "SElValidationMT", "SMuValidationMT"]:
-        for region in ["SElValidationMT"]:
+        for region in ["Baseline", "SElValidationZLL", "SMuValidationZLL", "SElValidationMT", "SMuValidationMT"]:
+            get_fkbg_histograms(variable, event_selections[region], region + "_Summer16", folder, ["Summer16"], "ddbg.root")
             get_fkbg_histograms(variable, event_selections[region], region + "_Summer16QCDZJets", folder, ["Summer16.QCD", "Summer16.ZJets"], "ddbg.root")
-            #get_fkbg_histograms(variable, event_selections[region], region + "_Run2016MET", folder, ["Run2016*MET"], "ddbg.root")
+            get_fkbg_histograms(variable, event_selections[region], region + "_Run2016MET", folder, ["Run2016*MET"], "ddbg.root")
             get_fkbg_histograms(variable, event_selections[region], region + "_Run2016SingleElectron", folder, ["Run2016*SingleElectron"], "ddbg.root")
-            #get_fkbg_histograms(variable, event_selections[region], region + "_Run2016SingleMuon", folder, ["Run2016*Muon"], "ddbg.root")
+            get_fkbg_histograms(variable, event_selections[region], region + "_Run2016SingleMuon", folder, ["Run2016*SingleMuon"], "ddbg.root")
 
-    
