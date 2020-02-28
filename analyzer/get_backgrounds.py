@@ -72,7 +72,7 @@ def get_fkbg_histograms(variable, basecuts, label, folder, globstrings, output_r
 
 if __name__ == "__main__":
 
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/current"
+    folder = "../skims/current"
     
     event_selections = {
                 "Baseline":               "(n_goodleptons==0 || tracks_invmass>110)",

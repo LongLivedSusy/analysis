@@ -75,7 +75,7 @@ if __name__ == "__main__":
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
    
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/current"
+    folder = "../skims/current"
     with open(folder + "/luminosity.py") as fin:
         lumis = eval(fin.read())
 
