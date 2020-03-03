@@ -7,7 +7,7 @@ import sys
 from GridEngineTools import runParallel
 import json
 
-def hadd_histograms(folder, runmode, delete_input_files = False, start = False, use_custom_hadd = True):
+def hadd_histograms(folder, runmode, delete_input_files = True, start = False, use_custom_hadd = True):
 
     if folder[-1] == "/":
         folder = folder[:-1]

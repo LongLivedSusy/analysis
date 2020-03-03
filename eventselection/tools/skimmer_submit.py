@@ -117,7 +117,7 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default=45)
+    parser.add_option("--nfiles", dest="files_per_job", default=50)
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         options.add_signals = True
         options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
     if not options.output_folder:
-        options.output_folder = "skim_69"
+        options.output_folder = "skim_02"
     ######## defaults ########
 
     commands = []

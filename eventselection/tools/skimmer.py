@@ -9,6 +9,16 @@ import math
 import shared_utils
 import xsections
 
+def correct_dedx_intercalibration(dedx, filename):
+    
+    correction_values = shared_utils.datacalibdict
+    correction_value = 1.0
+    for label in correction_values:
+        if label in filename:
+            correction_value = correction_values[label]    
+    return correction_value * dedx
+
+
 def prepareReader(xmlfilename, vars_training, vars_spectator, tmva_variables):
     # general set up training/spectator variables for TMVA
     reader = TMVA.Reader()
@@ -413,8 +423,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tout = TTree("Events", "tout")
 
     # prepare variables for output tree   
-    float_branches = ["weight", "MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec", "chargino_parent_mass", "fakerate_short", "fakerate_long", "region", "region_sideband", "signal_gluino_mass", "signal_lsp_mass"]
-    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "dilepton_leptontype",  "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus", "triggered_met", "triggered_singleelectron", "triggered_singlemuon"]
+    float_branches = ["weight", "MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec", "chargino_parent_mass", "fakerate_short", "fakerate_long", "region", "region_sideband", "regionCorrected", "regionCorrected_sideband", "signal_gluino_mass", "signal_lsp_mass", "leadinglepton_pt", "leadinglepton_mt", "leadinglepton_eta", "leadinglepton_phi", "leadinglepton_dedx", "leadinglepton_dedxCorrected"]
+    integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "dilepton_leptontype",  "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus", "triggered_met", "triggered_singleelectron", "triggered_singlemuon", "leadinglepton_id"]
 
     for tag in tags:
         integer_branches.append("n_tracks_%s" % tag)
@@ -454,7 +464,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<int>', tree_branch_values[branch])
 
-    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2strips', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_mt', 'tracks_invmass', 'tracks_mva_tight', 'tracks_mva_loose', 'leptons_pt', 'leptons_mt', 'leptons_eta', 'leptons_phi', 'leptons_dedx']
+    vector_float_branches = ['tracks_dxyVtx', 'tracks_dzVtx', 'tracks_matchedCaloEnergy', 'tracks_trkRelIso', 'tracks_ptErrOverPt2', 'tracks_pt', 'tracks_eta', 'tracks_phi', 'tracks_trkMiniRelIso', 'tracks_trackJetIso', 'tracks_ptError', 'tracks_neutralPtSum', 'tracks_neutralWithoutGammaPtSum', 'tracks_minDrLepton', 'tracks_matchedCaloEnergyJets', 'tracks_deDxHarmonic2pixel', 'tracks_deDxHarmonic2pixelCorrected', 'tracks_deDxHarmonic2strips', 'tracks_massfromdeDxPixel', 'tracks_massfromdeDxStrips', 'tracks_chi2perNdof', 'tracks_chargedPtSum', 'tracks_chiCandGenMatchingDR', 'tracks_mt', 'tracks_invmass', 'tracks_mva_tight', 'tracks_mva_loose', 'leptons_pt', 'leptons_mt', 'leptons_eta', 'leptons_phi', 'leptons_dedx', 'leptons_dedxCorrected']
 
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
@@ -482,6 +492,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
         if only_json:
             continue
+
+        current_file_name = tree.GetFile().GetName()
 
         # reset all branch values:
         for label in tree_branch_values:
@@ -533,6 +545,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                              "leptons_mt": event.Electrons_MTW[i],
                                              "leptons_phi": electron.Phi(),
                                              "leptons_dedx": matched_dedx,
+                                             "leptons_dedxCorrected": correct_dedx_intercalibration(matched_dedx, current_file_name),
                                              "leptons_id": 11,
                                              })
         for i, muon in enumerate(event.Muons):
@@ -555,13 +568,13 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                              "leptons_mt": event.Muons_MTW[i],
                                              "leptons_phi": muon.Phi(),
                                              "leptons_dedx": matched_dedx,
+                                             "leptons_dedxCorrected": correct_dedx_intercalibration(matched_dedx, current_file_name),
                                              "leptons_id": 13,
                                              })
 
         n_goodleptons = n_goodelectrons + n_goodmuons
-
+               
         # get T2bt and T1qqqq xsections
-        current_file_name = tree.GetFile().GetName()
 
         if is_signal:
             chargino_parent_mass = -1.0
@@ -613,21 +626,19 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             if bool(event.Electrons_tightID[selected_e_indices[0]]) and bool(event.Electrons_tightID[selected_e_indices[1]]):
                 if (event.Electrons_charge[selected_e_indices[0]] * event.Electrons_charge[selected_e_indices[1]] < 0):
                     invariant_mass = (event.Electrons[selected_e_indices[0]] + event.Electrons[selected_e_indices[1]]).M()
-                    if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                        if bool(event.Electrons_passIso[selected_e_indices[0]]) and bool(event.Electrons_passIso[selected_e_indices[1]]):
-                            if abs(event.Electrons[selected_e_indices[0]].Eta()) < 2.4 and abs(event.Electrons[selected_e_indices[1]].Eta()) < 2.4:
-                                dilepton_invariant_mass = invariant_mass
-                                dilepton_leptontype = 11
+                    if bool(event.Electrons_passIso[selected_e_indices[0]]) and bool(event.Electrons_passIso[selected_e_indices[1]]):
+                        if abs(event.Electrons[selected_e_indices[0]].Eta()) < 2.4 and abs(event.Electrons[selected_e_indices[1]].Eta()) < 2.4:
+                            dilepton_invariant_mass = invariant_mass
+                            dilepton_leptontype = 11
 
         elif (len(selected_mu_indices) == 2 and len(selected_e_indices) == 0):
             if (bool(event.Muons_tightID[selected_mu_indices[0]]) and bool(event.Muons_tightID[selected_mu_indices[1]])):
                 if (event.Muons_charge[selected_mu_indices[0]] * event.Muons_charge[selected_mu_indices[1]] < 0):
                     invariant_mass = (event.Muons[selected_mu_indices[0]] + event.Muons[selected_mu_indices[1]]).M()            
-                    if invariant_mass > (91.19 - 10.0) and invariant_mass < (91.19 + 10.0):
-                        if bool(event.Muons_passIso[selected_mu_indices[0]]) and bool(event.Muons_passIso[selected_mu_indices[1]]):
-                            if abs(event.Muons[selected_mu_indices[0]].Eta()) < 2.4 and abs(event.Muons[selected_mu_indices[1]].Eta()) < 2.4:
-                                dilepton_invariant_mass = invariant_mass
-                                dilepton_leptontype = 11
+                    if bool(event.Muons_passIso[selected_mu_indices[0]]) and bool(event.Muons_passIso[selected_mu_indices[1]]):
+                        if abs(event.Muons[selected_mu_indices[0]].Eta()) < 2.4 and abs(event.Muons[selected_mu_indices[1]].Eta()) < 2.4:
+                            dilepton_invariant_mass = invariant_mass
+                            dilepton_leptontype = 11
         
         # count number of good jets:
         n_goodjets = 0
@@ -803,6 +814,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_minDrLepton": event.tracks_minDrLepton[iCand],
                                      "tracks_matchedCaloEnergyJets": event.tracks_matchedCaloEnergyJets[iCand],
                                      "tracks_deDxHarmonic2pixel": event.tracks_deDxHarmonic2pixel[iCand],
+                                     "tracks_deDxHarmonic2pixelCorrected": correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name),
                                      "tracks_deDxHarmonic2strips": event.tracks_deDxHarmonic2strips[iCand],
                                      "tracks_massfromdeDxPixel": tracks_massfromdeDxPixel,
                                      "tracks_massfromdeDxStrips": tracks_massfromdeDxStrips,
@@ -823,10 +835,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
         # throw away non-tagged events...
         if only_tagged_events and len(tagged_tracks)==0:
-            # but keep the single-lepton events!
-            if n_goodleptons==1:
-                print "OK"
-            else:
+            # but keep the single-lepton events! And zpeak events
+            if n_goodleptons==0 or n_goodleptons>2:
                 continue
 
         # get fake rate for event:
@@ -866,6 +876,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         # save region number depending on track tag:
         n_DT_SR = 0
         DeDxAverage_SR = -1
+        DeDxAverageCorrected_SR = -1
         is_pixel_track_SR = False
         for tag in tags:
             n_DT = 0
@@ -874,13 +885,17 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                     n_DT += 1
                     if "SR" in tag:
                         n_DT_SR += 1
-                        DeDxAverage = tagged_track["tracks_deDxHarmonic2pixel"]
-                        is_pixel_track = tagged_track["tracks_is_pixel_track"]
+                        DeDxAverage_SR = tagged_track["tracks_deDxHarmonic2pixel"]
+                        DeDxAverageCorrected_SR = correct_dedx_intercalibration(tagged_track["tracks_deDxHarmonic2pixel"], current_file_name)
+                        is_pixel_track_SR = tagged_track["tracks_is_pixel_track"]
 
             tree_branch_values["n_tracks_%s" % tag][0] = n_DT
 
         region = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, n_DT_SR, is_pixel_track_SR, DeDxAverage_SR, n_goodelectrons, n_goodmuons, event_tree_filenames[0])
         region_sideband = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, n_DT_SR, is_pixel_track_SR, DeDxAverage_SR, n_goodelectrons, n_goodmuons, event_tree_filenames[0], sideband = True)
+
+        regionCorrected = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, n_DT_SR, is_pixel_track_SR, DeDxAverageCorrected_SR, n_goodelectrons, n_goodmuons, event_tree_filenames[0])
+        regionCorrected_sideband = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, n_DT_SR, is_pixel_track_SR, DeDxAverageCorrected_SR, n_goodelectrons, n_goodmuons, event_tree_filenames[0], sideband = True)
 
         # save event-level variables:
         try:
@@ -950,9 +965,24 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 tree_branch_values[label][i] = track_output_dict[label]
 
         # save lepton properties vector:
-        for i, lepton_output_dict in enumerate(lepton_level_output):
-            for label in lepton_output_dict:
-                tree_branch_values[label][i] = lepton_output_dict[label]
+        if n_goodleptons > 0:
+            highest_lepton_pt = 0
+            highest_lepton_index = 0
+            for i, lepton_output_dict in enumerate(lepton_level_output):
+                for label in lepton_output_dict:
+                    tree_branch_values[label][i] = lepton_output_dict[label]
+                    if lepton_output_dict["leptons_pt"] > highest_lepton_pt:
+                        highest_lepton_pt = lepton_output_dict["leptons_pt"]
+                        highest_lepton_index = i
+                
+            # save leading lepton:
+            tree_branch_values["leadinglepton_pt"][0] = lepton_level_output[highest_lepton_index]["leptons_pt"]
+            tree_branch_values["leadinglepton_mt"][0] = lepton_level_output[highest_lepton_index]["leptons_mt"]
+            tree_branch_values["leadinglepton_eta"][0] = lepton_level_output[highest_lepton_index]["leptons_eta"]
+            tree_branch_values["leadinglepton_phi"][0] = lepton_level_output[highest_lepton_index]["leptons_phi"]
+            tree_branch_values["leadinglepton_dedx"][0] = lepton_level_output[highest_lepton_index]["leptons_dedx"]
+            tree_branch_values["leadinglepton_dedxCorrected"][0] = lepton_level_output[highest_lepton_index]["leptons_dedxCorrected"]
+            tree_branch_values["leadinglepton_id"][0] = lepton_level_output[highest_lepton_index]["leptons_id"]
 
         tout.Fill()
                          

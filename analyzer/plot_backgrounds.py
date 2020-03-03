@@ -7,12 +7,10 @@ import glob
 import os
 import shared_utils
 
-def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, region, pdffile):
+def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, region, dedx, pdffile):
     
     dataid = variable + "_" + region + "_" + datalabel
     mcid = variable + "_" + region + "_" + mclabel
-    
-    dedx = "_MidDeDx"
     
     # get all histograms from ddbg.root:
     histos = collections.OrderedDict()
@@ -47,7 +45,7 @@ def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, reg
     
     canvas = shared_utils.mkcanvas()
     legend = shared_utils.mklegend(x1 = 0.6, y1 = 0.4, x2 = 0.9, y2 = 0.8)
-    legend.SetHeader(region + " region")
+    legend.SetHeader(region + " " + dedx)
     colors = [kBlack, kRed, kBlue, kGreen, kOrange, kAzure, kMagenta, kYellow, kTeal]
        
     #################################
@@ -74,8 +72,8 @@ def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, reg
     prompt_scale = histos[dataid + "_promptprediction" + dedx + category].Clone()
     histos[dataid + "_promptprediction" + dedx + category].Divide(histos[dataid + "_promptEl_SidebandDeDx" + category])
 
-    histos[dataid + "_promptprediction" + category].SetFillColor(207)
-    histos[dataid + "_promptprediction" + category].SetTitle("Prompt prediction")
+    histos[dataid + "_promptprediction" + dedx + category].SetFillColor(207)
+    histos[dataid + "_promptprediction" + dedx + category].SetTitle("Prompt prediction")
 
     #################################
     # Fake background               #
@@ -89,8 +87,8 @@ def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, reg
     #################################
 
     stacked_histograms = [
-                           histos[dataid + "_fakeprediction" + dedx + category],
                            histos[dataid + "_promptprediction" + dedx + category],
+                           histos[dataid + "_fakeprediction" + dedx + category],
                          ]
 
     lumi = float("%.2f" % (lumi/1e3))
@@ -100,24 +98,32 @@ def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, reg
         datahist = histos[dataid + "_sr" + dedx + category]
     else:
         datahist = stacked_histograms[-1]
-    
-    hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, datahist, stacked_histograms, lumi = lumi, datamc = 'Data')
-    stacked_histograms[-1].SetTitle("")
 
     if "ValidationMT" in region and variable == "leadinglepton_mt":
-        ymin = 5e1; ymax = 2e4
-    if "ValidationMT" in region and variable == "tracks_invmass":
+        ymin = 1e2; ymax = 1e6
+    elif "ValidationMT" in region and variable == "tracks_invmass":
         ymin = 1e-1; ymax = 5e3
+    elif "ValidationZLL" in region and variable == "leadinglepton_mt":
+        ymin = 1e-4; ymax = 1e4
     elif "ValidationZLL" in region and variable == "tracks_invmass":
         ymin = 5e-2; ymax = 5e3
-    elif "ValidationZLL" in region and variable == "leadinglepton_mt":
-        ymin = 1e-1; ymax = 1e4
     else:
         ymin = 5e1; ymax = 2e4
 
     for i_label, label in enumerate(histos):
         histos[label].GetYaxis().SetRangeUser(ymin, ymax)
-           
+    
+    for stacked_histogram in stacked_histograms:
+        stacked_histogram.GetYaxis().SetRangeUser(ymin, ymax)
+        stacked_histogram.GetYaxis().SetLimits(ymin, ymax)
+    
+    #print stacked_histograms[0].GetBinContent(1), stacked_histograms[1].GetBinContent(1), stacked_histograms[1].GetBinContent(2)        
+    
+    hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, datahist, stacked_histograms, lumi = lumi, datamc = 'Data')
+    #stacked_histograms[-1].SetTitle("")
+    
+    #print stacked_histograms[0].GetBinContent(1), stacked_histograms[1].GetBinContent(1), stacked_histograms[1].GetBinContent(2)    
+    
     hratio.GetYaxis().SetRangeUser(-0.1,2.6)    
     hratio.GetYaxis().SetTitle('Data/prediction')
 
@@ -136,14 +142,14 @@ def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, reg
     prompt_scale.Draw("same")
     legend.AddEntry(prompt_scale, "Prompt bg. scale")
 
-    # add MC Truth info:
-    histos[dataid + "_srgenfake" + dedx + category].SetLineColor(kRed)
-    histos[dataid + "_srgenfake" + dedx + category].Draw("same")
-    legend.AddEntry(histos[dataid + "_srgenfake" + dedx + category], "Genfakes")
-    
-    histos[dataid + "_srgenprompt" + dedx + category].SetLineColor(kOrange)
-    histos[dataid + "_srgenprompt" + dedx + category].Draw("same")
-    legend.AddEntry(histos[dataid + "_srgenprompt" + dedx + category], "Genprompt")
+    ## add MC Truth info:
+    #histos[dataid + "_srgenfake" + dedx + category].SetLineColor(kRed)
+    #histos[dataid + "_srgenfake" + dedx + category].Draw("same")
+    #legend.AddEntry(histos[dataid + "_srgenfake" + dedx + category], "Genfakes")
+    #
+    #histos[dataid + "_srgenprompt" + dedx + category].SetLineColor(kOrange)
+    #histos[dataid + "_srgenprompt" + dedx + category].Draw("same")
+    #legend.AddEntry(histos[dataid + "_srgenprompt" + dedx + category], "Genprompt")
     
     for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
         if hratio.GetBinContent(ibin)==0:
@@ -157,7 +163,7 @@ if __name__ == "__main__":
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
    
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/tools/skim_69_merged"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/tools/skim_01_merged"
     inputfile = "ddbg20.root"
 
     with open(folder + "/luminosity.py") as fin:
@@ -165,19 +171,36 @@ if __name__ == "__main__":
 
     regions = collections.OrderedDict()
     regions["SElValidationMT"] = ["leadinglepton_mt", "tracks_invmass"]
-    #regions["SElValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
-    #regions["SMuValidationMT"] = ["leadinglepton_mt", "tracks_invmass"]
-    #regions["SMuValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
+    regions["SElValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
+    regions["SMuValidationMT"] = ["leadinglepton_mt", "tracks_invmass"]
+    regions["SMuValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
+    regions["Baseline"] = ["HT", "MHT", "tracks_deDxHarmonic2pixel", "n_goodjets", "n_btags", "MinDeltaPhiMhtJets"]
     
     for region in regions:
         for variable in regions[region]:
-            
-            if "SEl" in region:
-                datalabel = "SingleElectron"
-            elif "SMu" in region:
-                datalabel = "SingleMuon"
-            else:
-                continue
-            
-            plot_validation(variable, inputfile, "Summer16", "Run2016%s" % datalabel, "", lumis["Run2016_%s" % datalabel] * 1e3, region, "combined_" + variable + "_" + region)
-
+            for category in [""]:
+                for dedx in ["_MidDeDx", "_HighDeDx"]:
+                
+                    if "SEl" in region:
+                        datalabel = "SingleElectron"
+                    elif "SMu" in region:
+                        datalabel = "SingleMuon"
+                    elif "Baseline" in region:
+                        datalabel = "MET"
+                    
+                    try:
+                        plot_validation(variable, inputfile, "Summer16", "Run2016%s" % datalabel, category, lumis["Run2016_%s" % datalabel] * 1e3, region, dedx, "ddbg_" + variable + "_" + region + dedx + category)
+                    except:
+                        print "Missing histograms"
+                        
+                    if "Baseline" in region:
+                        try:
+                            plot_validation(variable, inputfile, "Summer16QCDZJets", "Run2016%s" % datalabel, category, lumis["Run2016_%s" % datalabel] * 1e3, region, dedx, "closure_" + variable + "_" + region + dedx + category)
+                        except:
+                            print "Missing histograms"
+                        
+                        try:
+                            plot_validation(variable, inputfile, "Summer16DY", "Run2016%s" % datalabel, category, lumis["Run2016_%s" % datalabel] * 1e3, region, dedx, "closure_" + variable + "_" + region + dedx + category)
+                        except:
+                            print "Missing histograms"
+                        
