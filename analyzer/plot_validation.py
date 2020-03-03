@@ -69,7 +69,7 @@ def plot_run_periods(variable, prediction_folder, header, pdffile, lumi = 1.0, c
     #    color = colors.pop(0)
     #    histos[label].SetLineColor(color)
         histos[label].GetYaxis().SetRangeUser(1e-4, 1e4)
-       
+           
     hratio.GetYaxis().SetRangeUser(-0.1,2.6)    
     hratio.GetYaxis().SetTitle('Events/bin')
     hratio.GetXaxis().SetTitle(variable)
@@ -95,7 +95,7 @@ with open(folder + "/luminosity.py") as fin:
 
 pred_folder = "prediction7"
 
-for variable in ["LepMT", "Mht", "InvMass"]:
+for variable in ["LepMT", "Ht", "Mht", "InvMass"]:
     for dataset in ["SingleElectron", "SingleMuon"]:
         lumi = lumis["Run2016_%s" % dataset] * 1e3
 
