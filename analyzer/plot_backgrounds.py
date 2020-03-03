@@ -9,104 +9,95 @@ import shared_utils
 
 def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, region, pdffile):
     
+    dataid = variable + "_" + region + "_" + datalabel
+    mcid = variable + "_" + region + "_" + mclabel
+    
+    dedx = "_MidDeDx"
+    
     # get all histograms from ddbg.root:
     histos = collections.OrderedDict()
     fin = TFile(root_file, "read")
-
-    import get_backgrounds
-    zones = get_backgrounds.histos.keys()
-    #zones = ['_sr_short', '_sr_long', '_srSideband_short', '_srSideband_long', '_srMid_short', '_srMid_long', '_srMidHighDeDx_short', '_srMidHighDeDx_long', '_srHighDeDx_short', '_srHighDeDx_long', '_fakecr_short', '_fakecr_long', '_fakecrSideband_short', '_fakecrSideband_long', '_fakecrMid_short', '_fakecrMid_long', '_fakecrMidHighDeDx_short', '_fakecrMidHighDeDx_long', '_fakecrHighDeDx_short', '_fakecrHighDeDx_long', '_fakeprediction_short', '_fakeprediction_long', '_fakepredictionSideband_short', '_fakepredictionSideband_long', '_fakepredictionMid_short', '_fakepredictionMid_long', '_fakepredictionMidHighDeDx_short', '_fakepredictionMidHighDeDx_long', '_fakepredictionHighDeDx_short', '_fakepredictionHighDeDx_long', '_lowDeDxPromptElectron', '_lowDeDxDTnoLep', '_lowDeDxDT', '_midHighDeDxPromptElectron', '_midHighDeDxDTnoLep', '_midHighDeDxDT', '_midDeDxPromptElectron', '_midDeDxDTnoLep', '_midDeDxDT', '_highDeDxPromptElectron', '_highDeDxDTnoLep', '_highDeDxDT', '_srgenfakes_short', '_srgenfakes_long', '_srgenprompt_short', '_srgenprompt_long']
-
-    for zone in zones:
-        histos[mclabel + zone] = fin.Get(variable + "_" + region + "_" + mclabel + zone)
-        histos[datalabel + zone] = fin.Get(variable + "_" + region + "_" + datalabel + zone)
+    
+    for obj in fin.GetListOfKeys():
+        label = obj.ReadObj().GetName()
+        histos[label] = obj.ReadObj()
 
     for label in histos.keys():
-
-        try:
-            histos[label].SetDirectory(0)
-            histos[label].SetLineWidth(2)
-        except:
-            del histos[label]
-            continue
+        histos[label].SetDirectory(0)
+        histos[label].SetLineWidth(2)
 
         if "Run201" not in label:
             histos[label].Scale(lumi)
         shared_utils.histoStyler(histos[label])
 
         # combine short and long tracks:
-        if category == "" and "_short" in label:
-            try:
-                histos[label.replace("_short", "")] = histos[label].Clone()
-                histos[label.replace("_short", "")].SetDirectory(0)
-                histos[label.replace("_short", "")].Add(histos[label.replace("_short", "_long")])
-            except:
-                del histos[label.replace("_short", "")]
-                continue
+        if category == "" and "_short" in label and label.replace("_short", "_long") in histos:
+            histos[label.replace("_short", "")] = histos[label].Clone()
+            histos[label.replace("_short", "")].SetDirectory(0)
+            histos[label.replace("_short", "")].Add(histos[label.replace("_short", "_long")])
 
     fin.Close()
 
-    for label in histos.keys():
-        easyname = label.replace(datalabel, "Data")
-        easyname = easyname.replace(mclabel, "MC")
+    for label in histos:
+        easyname = label.replace(dataid, "Data")
+        easyname = easyname.replace(mcid, "MC")
         easyname = easyname.replace("_", " ")
         easyname = easyname.replace("sr", "SR")
         histos[label].SetTitle(easyname)
     
-    # ABCD method to get prompt contribution in SR:
-
-    # first, subtract fake background from low-dE/dx sideband DT region:
-    #histos[datalabel + "_lowDeDxDT_fakesubtraced"] = histos[datalabel + "_lowDeDxDT"].Clone()
-    #histos[datalabel + "_lowDeDxDT_fakesubtraced"].Add(histos[datalabel + "_fakepredictionSideband"], -1)
-    
-    # ABCD method: C = D  * A / B
-    histos[datalabel + "_promptprediction"] = histos[datalabel + "_midDeDxPromptElectron"].Clone()
-    histos[datalabel + "_promptprediction"].Multiply(histos[datalabel + "_midDeDxDT"])
-    #histos[datalabel + "_promptprediction"].Multiply(histos[datalabel + "_lowDeDxDT_fakesubtraced"])
-    histos[datalabel + "_promptprediction"].Divide(histos[datalabel + "_midDeDxPromptElectron"])
-
-    # plot:
     canvas = shared_utils.mkcanvas()
-    canvas.SetFillStyle(4000)    
     legend = shared_utils.mklegend(x1 = 0.6, y1 = 0.4, x2 = 0.9, y2 = 0.8)
     legend.SetHeader(region + " region")
     colors = [kBlack, kRed, kBlue, kGreen, kOrange, kAzure, kMagenta, kYellow, kTeal]
+       
+    #################################
+    # prompt background             #
+    #################################
     
-    # Fake prediction using FR map
-    histos[datalabel + "_fakeprediction" + category].SetFillColor(216)
-    histos[datalabel + "_fakeprediction" + category].SetTitle("Fake prediction")
+    # ABCD method to get prompt contribution in SR:
+    # _______ _________ __________
+    #        |         |         |
+    #  1 DT  |    A    |    C    |
+    # _______|_________|_________|
+    #        |         |         |      ABCD method: C = D     * A / B
+    #  1 el  |    B    |    D    |                       shape * scale
+    # _______|_________|_________| 
+    #        | lowDeDx | highDeDx|      shape from CR, scale from sideband
+
+    # first, subtract fake background from low-dE/dx sideband DT region (A):
+    histos[dataid + "_sr_SidebandDeDx_fakesubtraced" + category] = histos[dataid + "_sr_SidebandDeDx" + category].Clone()
+    histos[dataid + "_sr_SidebandDeDx_fakesubtraced" + category].Add(histos[dataid + "_fakeprediction_SidebandDeDx" + category], -1)
+
+    # do C = D * A / B
+    histos[dataid + "_promptprediction" + dedx + category] = histos[dataid + "_promptEl" + dedx].Clone()
+    histos[dataid + "_promptprediction" + dedx + category].Multiply(histos[dataid + "_sr_SidebandDeDx_fakesubtraced" + category])
+    prompt_scale = histos[dataid + "_promptprediction" + dedx + category].Clone()
+    histos[dataid + "_promptprediction" + dedx + category].Divide(histos[dataid + "_promptEl_SidebandDeDx" + category])
+
+    histos[dataid + "_promptprediction" + category].SetFillColor(207)
+    histos[dataid + "_promptprediction" + category].SetTitle("Prompt prediction")
+
+    #################################
+    # Fake background               #
+    #################################
     
-    # Fake pred. using constant factor:
-    #data_fakerate_short = fin.Get("HT_FakeRateDetQCDJetHT_Run2016JetHT_sr_short")
-    #data_fakerate_short_denom = fin.Get("HT_FakeRateDetQCDJetHT_Run2016JetHT_fakecr_short")
-    #data_fakerate_short.SetDirectory(0)
-    #data_fakerate_short_denom.SetDirectory(0)
-    #fr_short = data_fakerate_short.Integral()/data_fakerate_short_denom.Integral()
-    #data_fakerate_short.Divide(data_fakerate_short_denom)
-    #data_fakerate_short.Draw()
-    #canvas.Print("fakerate_data_short.pdf")
-    #
-    #data_fakerate_long = fin.Get("HT_FakeRateDetQCDJetHT_Run2016JetHT_sr_long")
-    #data_fakerate_long_denom = fin.Get("HT_FakeRateDetQCDJetHT_Run2016JetHT_fakecr_long")
-    #data_fakerate_long.SetDirectory(0)
-    #data_fakerate_long_denom.SetDirectory(0)
-    #fr_long = data_fakerate_long.Integral()/data_fakerate_long_denom.Integral()
-    #data_fakerate_long.Divide(data_fakerate_long_denom)
-    #data_fakerate_long.Draw()
-    #canvas.Print("fakerate_data_long.pdf")    
+    histos[dataid + "_fakeprediction" + dedx + category].SetFillColor(216)
+    histos[dataid + "_fakeprediction" + dedx + category].SetTitle("Fake prediction")
     
-    histos[datalabel + "_promptprediction"].SetFillColor(207)
-    histos[datalabel + "_promptprediction"].SetTitle("Prompt prediction")
+    #################################
+    # Stack backgrounds             #
+    #################################
 
     stacked_histograms = [
-                           histos[datalabel + "_fakeprediction" + category],
-                           histos[datalabel + "_promptprediction"],
+                           histos[dataid + "_fakeprediction" + dedx + category],
+                           histos[dataid + "_promptprediction" + dedx + category],
                          ]
 
     lumi = float("%.2f" % (lumi/1e3))
 
+    # signal region is blinded
     if "Validation" in region:
-        datahist = histos[datalabel + "_sr" + category]
+        datahist = histos[dataid + "_sr" + dedx + category]
     else:
         datahist = stacked_histograms[-1]
     
@@ -132,26 +123,27 @@ def plot_validation(variable, root_file, mclabel, datalabel, category, lumi, reg
 
     xlabel = variable
     xlabel = xlabel.replace("leptons_mt", "m_{T}^{lepton} (GeV)")
+    xlabel = xlabel.replace("leadinglepton_mt", "m_{T}^{lepton} (GeV)")
     hratio.GetXaxis().SetTitle(xlabel)
 
     # add fake CR:
-    histos[datalabel + "_fakecr" + category].SetLineColor(kTeal)
-    histos[datalabel + "_fakecr" + category].Draw("same")
-    legend.AddEntry(histos[datalabel + "_fakecr" + category], "Fake CR")
+    histos[dataid + "_fakecr" + dedx + category].SetLineColor(kTeal)
+    histos[dataid + "_fakecr" + dedx + category].Draw("same")
+    legend.AddEntry(histos[dataid + "_fakecr" + dedx + category], "Fake CR")
 
     # add prompt CR:
-    histos[datalabel + "_highDeDxPromptElectron"].SetLineColor(kTeal+2)
-    histos[datalabel + "_highDeDxPromptElectron"].Draw("same")
-    legend.AddEntry(histos[datalabel + "_highDeDxPromptElectron"], "Prompt el. (dE/dx>2.1)")
+    prompt_scale.SetLineColor(kTeal+2)
+    prompt_scale.Draw("same")
+    legend.AddEntry(prompt_scale, "Prompt bg. scale")
 
-    ## add MC Truth info:
-    #histos[mclabel + "_srgenfakes" + category].SetLineColor(kRed)
-    #histos[mclabel + "_srgenfakes" + category].Draw("same")
-    #legend.AddEntry(histos[mclabel + "_srgenfakes" + category], "Genfakes")
-    #
-    #histos[mclabel + "_srgenprompt" + category].SetLineColor(kOrange)
-    #histos[mclabel + "_srgenprompt" + category].Draw("same")
-    #legend.AddEntry(histos[mclabel + "_srgenprompt" + category], "Genprompt")
+    # add MC Truth info:
+    histos[dataid + "_srgenfake" + dedx + category].SetLineColor(kRed)
+    histos[dataid + "_srgenfake" + dedx + category].Draw("same")
+    legend.AddEntry(histos[dataid + "_srgenfake" + dedx + category], "Genfakes")
+    
+    histos[dataid + "_srgenprompt" + dedx + category].SetLineColor(kOrange)
+    histos[dataid + "_srgenprompt" + dedx + category].Draw("same")
+    legend.AddEntry(histos[dataid + "_srgenprompt" + dedx + category], "Genprompt")
     
     for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
         if hratio.GetBinContent(ibin)==0:
@@ -166,15 +158,15 @@ if __name__ == "__main__":
     TH1D.SetDefaultSumw2()
    
     folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/tools/skim_69_merged"
-    inputfile = "ddbg5.root"
+    inputfile = "ddbg20.root"
 
     with open(folder + "/luminosity.py") as fin:
         lumis = eval(fin.read())
 
     regions = collections.OrderedDict()
     regions["SElValidationMT"] = ["leadinglepton_mt", "tracks_invmass"]
+    #regions["SElValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
     #regions["SMuValidationMT"] = ["leadinglepton_mt", "tracks_invmass"]
-    regions["SElValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
     #regions["SMuValidationZLL"] = ["leadinglepton_mt", "tracks_invmass"]
     
     for region in regions:
@@ -187,7 +179,5 @@ if __name__ == "__main__":
             else:
                 continue
             
-            #plot_validation(variable, inputfile, "Summer16", "Run2016%s" % datalabel, "_short", lumis["Run2016_%s" % datalabel] * 1e3, region, "short_" + variable + "_" + region)
-            #plot_validation(variable, inputfile, "Summer16", "Run2016%s" % datalabel, "_long", lumis["Run2016_%s" % datalabel] * 1e3, region, "long_" + variable + "_" + region)
             plot_validation(variable, inputfile, "Summer16", "Run2016%s" % datalabel, "", lumis["Run2016_%s" % datalabel] * 1e3, region, "combined_" + variable + "_" + region)
 
