@@ -268,7 +268,8 @@ def main(inputfiles,output_folder,nev):
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
     InputFileName = inputfiles.split('/')[-1]
-    Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H','Summer16']
+    Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H','Summer16',
+		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F','Run2017G','Run2017H','RunIIFall17']
     FileName = c.GetFile().GetName().split('/')[-1].split('.')[0]
     for identifier in Identifiers:
 	if identifier in FileName :
@@ -392,27 +393,52 @@ def main(inputfiles,output_folder,nev):
     hTrkEta_tightgenelematch_barrel = TH1F('hTrkEta_tightgenelematch_barrel','hTrkEta_tightgenelematch_barrel',100,0,1000)
     hTrkEta_tightgenelematch_endcap = TH1F('hTrkEta_tightgenelematch_endcap','hTrkEta_tightgenelematch_endcap',100,0,1000)
     
-    hTrkDedx_mumatch = TH1F('hTrkDedx_mumatch','hTrkDedx_mumatch',100,0,10)
-    hTrkDedx_tightmumatch = TH1F('hTrkDedx_tightmumatch','hTrkDedx_tightmumatch',100,0,10)
-    hTrkDedx_tightmumatch_barrel = TH1F('hTrkDedx_tightmumatch_barrel','hTrkDedx_tightmumatch_barrel',100,0,10)
-    hTrkDedx_tightmumatch_endcap = TH1F('hTrkDedx_tightmumatch_endcap','hTrkDedx_tightmumatch_endcap',100,0,10)
-    hTrkDedx_tightgenmumatch = TH1F('hTrkDedx_tightgenmumatch','hTrkDedx_tightgenmumatch',100,0,10)
-    hTrkDedx_tightgenmumatch_barrel = TH1F('hTrkDedx_tightgenmumatch_barrel','hTrkDedx_tightgenmumatch_barrel',100,0,10)
-    hTrkDedx_tightgenmumatch_endcap = TH1F('hTrkDedx_tightgenmumatch_endcap','hTrkDedx_tightgenmumatch_endcap',100,0,10)
-    hTrkDedxCalib_tightmumatch = TH1F('hTrkDedxCalib_tightmumatch','hTrkDedxCalib_tightmumatch',100,0,10)
-    hTrkDedxCalib_tightmumatch_barrel = TH1F('hTrkDedxCalib_tightmumatch_barrel','hTrkDedxCalib_tightmumatch_barrel',100,0,10)
-    hTrkDedxCalib_tightmumatch_endcap = TH1F('hTrkDedxCalib_tightmumatch_endcap','hTrkDedxCalib_tightmumatch_endcap',100,0,10)
+    hTrkPixelDedx_mumatch = TH1F('hTrkPixelDedx_mumatch','hTrkPixelDedx_mumatch',100,0,10)
+    hTrkPixelDedx_tightmumatch = TH1F('hTrkPixelDedx_tightmumatch','hTrkPixelDedx_tightmumatch',100,0,10)
+    hTrkPixelDedx_tightmumatch_barrel = TH1F('hTrkPixelDedx_tightmumatch_barrel','hTrkPixelDedx_tightmumatch_barrel',100,0,10)
+    hTrkPixelDedx_tightmumatch_endcap = TH1F('hTrkPixelDedx_tightmumatch_endcap','hTrkPixelDedx_tightmumatch_endcap',100,0,10)
+    hTrkPixelDedx_tightmumatch_P30to40 = TH1F('hTrkPixelDedx_tightmumatch_P30to40','hTrkPixelDedx_tightmumatch_P30to40',100,0,10)
+    hTrkPixelDedx_tightmumatch_P40to50 = TH1F('hTrkPixelDedx_tightmumatch_P40to50','hTrkPixelDedx_tightmumatch_P40to50',100,0,10)
+    hTrkPixelDedx_tightmumatch_P50to60 = TH1F('hTrkPixelDedx_tightmumatch_P50to60','hTrkPixelDedx_tightmumatch_P50to50',100,0,10)
+    hTrkPixelDedx_tightgenmumatch = TH1F('hTrkPixelDedx_tightgenmumatch','hTrkPixelDedx_tightgenmumatch',100,0,10)
+    hTrkPixelDedx_tightgenmumatch_barrel = TH1F('hTrkPixelDedx_tightgenmumatch_barrel','hTrkPixelDedx_tightgenmumatch_barrel',100,0,10)
+    hTrkPixelDedx_tightgenmumatch_endcap = TH1F('hTrkPixelDedx_tightgenmumatch_endcap','hTrkPixelDedx_tightgenmumatch_endcap',100,0,10)
+    hTrkPixelDedxCalib_tightmumatch = TH1F('hTrkPixelDedxCalib_tightmumatch','hTrkPixelDedxCalib_tightmumatch',100,0,10)
+    hTrkPixelDedxCalib_tightmumatch_barrel = TH1F('hTrkPixelDedxCalib_tightmumatch_barrel','hTrkPixelDedxCalib_tightmumatch_barrel',100,0,10)
+    hTrkPixelDedxCalib_tightmumatch_endcap = TH1F('hTrkPixelDedxCalib_tightmumatch_endcap','hTrkPixelDedxCalib_tightmumatch_endcap',100,0,10)
     
-    hTrkDedx_elematch = TH1F('hTrkDedx_elematch','hTrkDedx_elematch',100,0,10)
-    hTrkDedx_tightelematch = TH1F('hTrkDedx_tightelematch','hTrkDedx_tightelematch',100,0,10)
-    hTrkDedx_tightelematch_barrel = TH1F('hTrkDedx_tightelematch_barrel','hTrkDedx_tightelematch_barrel',100,0,10)
-    hTrkDedx_tightelematch_endcap = TH1F('hTrkDedx_tightelematch_endcap','hTrkDedx_tightelematch_endcap',100,0,10)
-    hTrkDedx_tightgenelematch = TH1F('hTrkDedx_tightgenelematch','hTrkDedx_tightgenelematch',100,0,10)
-    hTrkDedx_tightgenelematch_barrel = TH1F('hTrkDedx_tightgenelematch_barrel','hTrkDedx_tightgenelematch_barrel',100,0,10)
-    hTrkDedx_tightgenelematch_endcap = TH1F('hTrkDedx_tightgenelematch_endcap','hTrkDedx_tightgenelematch_endcap',100,0,10)
-    hTrkDedxCalib_tightelematch = TH1F('hTrkDedxCalib_tightelematch','hTrkDedxCalib_tightelematch',100,0,10)
-    hTrkDedxCalib_tightelematch_barrel = TH1F('hTrkDedxCalib_tightelematch_barrel','hTrkDedxCalib_tightelematch_barrel',100,0,10)
-    hTrkDedxCalib_tightelematch_endcap = TH1F('hTrkDedxCalib_tightelematch_endcap','hTrkDedxCalib_tightelematch_endcap',100,0,10)
+    hTrkPixelDedx_elematch = TH1F('hTrkPixelDedx_elematch','hTrkPixelDedx_elematch',100,0,10)
+    hTrkPixelDedx_tightelematch = TH1F('hTrkPixelDedx_tightelematch','hTrkPixelDedx_tightelematch',100,0,10)
+    hTrkPixelDedx_tightelematch_barrel = TH1F('hTrkPixelDedx_tightelematch_barrel','hTrkPixelDedx_tightelematch_barrel',100,0,10)
+    hTrkPixelDedx_tightelematch_endcap = TH1F('hTrkPixelDedx_tightelematch_endcap','hTrkPixelDedx_tightelematch_endcap',100,0,10)
+    hTrkPixelDedx_tightgenelematch = TH1F('hTrkPixelDedx_tightgenelematch','hTrkPixelDedx_tightgenelematch',100,0,10)
+    hTrkPixelDedx_tightgenelematch_barrel = TH1F('hTrkPixelDedx_tightgenelematch_barrel','hTrkPixelDedx_tightgenelematch_barrel',100,0,10)
+    hTrkPixelDedx_tightgenelematch_endcap = TH1F('hTrkPixelDedx_tightgenelematch_endcap','hTrkPixelDedx_tightgenelematch_endcap',100,0,10)
+    hTrkPixelDedxCalib_tightelematch = TH1F('hTrkPixelDedxCalib_tightelematch','hTrkPixelDedxCalib_tightelematch',100,0,10)
+    hTrkPixelDedxCalib_tightelematch_barrel = TH1F('hTrkPixelDedxCalib_tightelematch_barrel','hTrkPixelDedxCalib_tightelematch_barrel',100,0,10)
+    hTrkPixelDedxCalib_tightelematch_endcap = TH1F('hTrkPixelDedxCalib_tightelematch_endcap','hTrkPixelDedxCalib_tightelematch_endcap',100,0,10)
+    
+    hTrkStripsDedx_mumatch = TH1F('hTrkStripsDedx_mumatch','hTrkStripsDedx_mumatch',100,0,10)
+    hTrkStripsDedx_tightmumatch = TH1F('hTrkStripsDedx_tightmumatch','hTrkStripsDedx_tightmumatch',100,0,10)
+    hTrkStripsDedx_tightmumatch_barrel = TH1F('hTrkStripsDedx_tightmumatch_barrel','hTrkStripsDedx_tightmumatch_barrel',100,0,10)
+    hTrkStripsDedx_tightmumatch_endcap = TH1F('hTrkStripsDedx_tightmumatch_endcap','hTrkStripsDedx_tightmumatch_endcap',100,0,10)
+    hTrkStripsDedx_tightgenmumatch = TH1F('hTrkStripsDedx_tightgenmumatch','hTrkStripsDedx_tightgenmumatch',100,0,10)
+    hTrkStripsDedx_tightgenmumatch_barrel = TH1F('hTrkStripsDedx_tightgenmumatch_barrel','hTrkStripsDedx_tightgenmumatch_barrel',100,0,10)
+    hTrkStripsDedx_tightgenmumatch_endcap = TH1F('hTrkStripsDedx_tightgenmumatch_endcap','hTrkStripsDedx_tightgenmumatch_endcap',100,0,10)
+    hTrkStripsDedxCalib_tightmumatch = TH1F('hTrkStripsDedxCalib_tightmumatch','hTrkStripsDedxCalib_tightmumatch',100,0,10)
+    hTrkStripsDedxCalib_tightmumatch_barrel = TH1F('hTrkStripsDedxCalib_tightmumatch_barrel','hTrkStripsDedxCalib_tightmumatch_barrel',100,0,10)
+    hTrkStripsDedxCalib_tightmumatch_endcap = TH1F('hTrkStripsDedxCalib_tightmumatch_endcap','hTrkStripsDedxCalib_tightmumatch_endcap',100,0,10)
+    
+    hTrkStripsDedx_elematch = TH1F('hTrkStripsDedx_elematch','hTrkStripsDedx_elematch',100,0,10)
+    hTrkStripsDedx_tightelematch = TH1F('hTrkStripsDedx_tightelematch','hTrkStripsDedx_tightelematch',100,0,10)
+    hTrkStripsDedx_tightelematch_barrel = TH1F('hTrkStripsDedx_tightelematch_barrel','hTrkStripsDedx_tightelematch_barrel',100,0,10)
+    hTrkStripsDedx_tightelematch_endcap = TH1F('hTrkStripsDedx_tightelematch_endcap','hTrkStripsDedx_tightelematch_endcap',100,0,10)
+    hTrkStripsDedx_tightgenelematch = TH1F('hTrkStripsDedx_tightgenelematch','hTrkStripsDedx_tightgenelematch',100,0,10)
+    hTrkStripsDedx_tightgenelematch_barrel = TH1F('hTrkStripsDedx_tightgenelematch_barrel','hTrkStripsDedx_tightgenelematch_barrel',100,0,10)
+    hTrkStripsDedx_tightgenelematch_endcap = TH1F('hTrkStripsDedx_tightgenelematch_endcap','hTrkStripsDedx_tightgenelematch_endcap',100,0,10)
+    hTrkStripsDedxCalib_tightelematch = TH1F('hTrkStripsDedxCalib_tightelematch','hTrkStripsDedxCalib_tightelematch',100,0,10)
+    hTrkStripsDedxCalib_tightelematch_barrel = TH1F('hTrkStripsDedxCalib_tightelematch_barrel','hTrkStripsDedxCalib_tightelematch_barrel',100,0,10)
+    hTrkStripsDedxCalib_tightelematch_endcap = TH1F('hTrkStripsDedxCalib_tightelematch_endcap','hTrkStripsDedxCalib_tightelematch_endcap',100,0,10)
     
     hMuP = TH1F('hMuP','hMuP',100,0,10000)
     hMuPt = TH1F('hMuPt','hMuPt',100,0,1000)
@@ -428,9 +454,14 @@ def main(inputfiles,output_folder,nev):
     hElePhi = TH1F('hElePhi','hElePhi',100,-3.14,3.14)
     hGamma_ele = TH1F('hGamma_ele','hGamma_ele',100,0,200000)
 
-    h2_TrkMu_Dedx_P = TH2F('h2_TrkMu_Dedx_P','Muon track Dedx vs P', 100,0,10000,100,0,10)
-    h2_TrkEle_Dedx_P = TH2F('h2_TrkEle_Dedx_P','Electron track Dedx vs P', 100,0,10000,100,0,10)
+    h2_TrkMu_P_Dedx = TH2F('h2_TrkMu_P_Dedx','Muon P vs Dedx', 100,0,2000,100,0,10)
+    h2_TrkEle_P_Dedx = TH2F('h2_TrkEle_P_Dedx','Electron P vs Dedx', 100,0,2000,100,0,10)
+    h2_TrkChi_P_Dedx = TH2F('h2_TrkChi_P_Dedx','Chargino P vs Dedx', 200,0,4000,100,0,10)
 
+    h3_TrkMu_P_Eta_Dedx = TH3F('h3_TrkMu_P_Eta_Dedx','Muon P vs Eta vs Dedx', 100,0,2000,10,0,2.5,100,0,10)
+    h3_TrkEle_P_Eta_Dedx = TH3F('h3_TrkEle_P_Eta_Dedx','Electron P vs Eta vs Dedx', 100,0,2000,10,0,2.5,100,0,10)
+    h3_TrkChi_P_Eta_Dedx = TH3F('h3_TrkChi_P_Eta_Dedx','Chargino P vs Eta vs Dedx', 200,0,4000,10,0,2.5,100,0,10)
+    
     # Event loop
     updateevery = 10000
     for ientry in range(nentries):
@@ -537,7 +568,6 @@ def main(inputfiles,output_folder,nev):
 			break
 
 
-
 	# JETS
 	n_recojets=0
 	for ijet, jet in enumerate(c.Jets):
@@ -565,31 +595,51 @@ def main(inputfiles,output_folder,nev):
                 drmu = min(drmu, mu.DeltaR(track))
 		pTdiff_rel = abs(mu.Pt()-track.Pt())/mu.Pt()
                 if drmu<0.01 and pTdiff_rel<0.1: 
-		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 		    #FillHisto(hTrkPt_mumatch,track.Pt(),weight)
-		    #FillHisto(hTrkDedx_mumatch,dedx,weight)
+		    #FillHisto(hTrkPixelDedx_mumatch,dedx,weight)
 		    FillHisto(hTrkP_tightmumatch,track.P(),weight)
 		    FillHisto(hTrkPt_tightmumatch,track.Pt(),weight)
-		    FillHisto(hTrkDedx_tightmumatch,dedx,weight)
-		    h2_TrkMu_Dedx_P.Fill(track.P(),dedx,weight)
+		    FillHisto(hTrkPixelDedx_tightmumatch,dedx_pixel,weight)
+		    if track.P()>=30 and track.P()<40 : FillHisto(hTrkPixelDedx_tightmumatch_P30to40,dedx_pixel,weight)
+		    elif track.P()>=40 and track.P()<50 : FillHisto(hTrkPixelDedx_tightmumatch_P40to50,dedx_pixel,weight)
+		    elif track.P()>=50 and track.P()<60 : FillHisto(hTrkPixelDedx_tightmumatch_P50to60,dedx_pixel,weight)
+		    FillHisto(hTrkStripsDedx_tightmumatch,dedx_strips,weight)
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(mu matching)'
-			SF_dedx = datacalibdict_SingleMuon_barrel[Identifier]
+			if phase==0:
+			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
+			    SF_dedx_strips = 1.0
+			elif phase==1:
+			    SF_dedx_pixel = 1.0
+			    SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightmumatch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_barrel,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightmumatch_barrel,dedx,weight)
-		    	FillHisto(hTrkDedxCalib_tightmumatch_barrel,dedx*SF_dedx,weight)
-			FillHisto(hTrkDedxCalib_tightmumatch,dedx*SF_dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightmumatch_barrel,dedx_pixel,weight)
+		    	FillHisto(hTrkPixelDedxCalib_tightmumatch_barrel,dedx_pixel*SF_dedx_pixel,weight)
+		    	FillHisto(hTrkPixelDedxCalib_tightmumatch,dedx_pixel*SF_dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightmumatch_barrel,dedx_strips,weight)
+		    	FillHisto(hTrkStripsDedxCalib_tightmumatch_barrel,dedx_strips*SF_dedx_strips,weight)
+		    	FillHisto(hTrkStripsDedxCalib_tightmumatch,dedx_strips*SF_dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(mu matching)'
-			SF_dedx = datacalibdict_SingleMuon_endcap[Identifier]
+			if phase==0:
+			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
+			    SF_dedx_strips = 1.0
+			elif phase==1:
+			    SF_dedx_pixel = 1.0
+			    SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightmumatch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_endcap,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightmumatch_endcap,dedx,weight)
-		    	FillHisto(hTrkDedxCalib_tightmumatch_endcap,dedx*SF_dedx,weight)
-			FillHisto(hTrkDedxCalib_tightmumatch,dedx*SF_dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightmumatch_endcap,dedx_pixel,weight)
+		    	FillHisto(hTrkPixelDedxCalib_tightmumatch_endcap,dedx_pixel*SF_dedx_pixel,weight)
+			FillHisto(hTrkPixelDedxCalib_tightmumatch,dedx_pixel*SF_dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightmumatch_endcap,dedx_strips,weight)
+		    	FillHisto(hTrkStripsDedxCalib_tightmumatch_endcap,dedx_strips*SF_dedx_strips,weight)
+			FillHisto(hTrkStripsDedxCalib_tightmumatch,dedx_strips*SF_dedx_strips,weight)
 		    else : print 'should not see this'
 	
 		    break
@@ -601,23 +651,29 @@ def main(inputfiles,output_folder,nev):
 		pTdiff_rel = abs(mu.Pt()-track.Pt())/mu.Pt()
                 if dr<0.01 and pTdiff_rel<0.1: 
 		    #print 'track - genmatched muon matching'
-		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 		    FillHisto(hTrkP_tightgenmumatch,track.P(),weight)
 		    FillHisto(hTrkPt_tightgenmumatch,track.Pt(),weight)
-		    FillHisto(hTrkDedx_tightgenmumatch,dedx,weight)
+		    FillHisto(hTrkPixelDedx_tightgenmumatch,dedx_pixel,weight)
+		    FillHisto(hTrkStripsDedx_tightgenmumatch,dedx_strips,weight)
+		    h2_TrkMu_P_Dedx.Fill(track.P(),dedx_pixel,weight)
+		    h3_TrkMu_P_Eta_Dedx.Fill(track.P(),track.Eta(),dedx_pixel,weight)
 		    
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(gen-mu matching)'
 			FillHisto(hTrkP_tightgenmumatch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightgenmumatch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightgenmumatch_barrel,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightgenmumatch_barrel,dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightgenmumatch_barrel,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightgenmumatch_barrel,dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(gen-mu matching)'
 			FillHisto(hTrkP_tightgenmumatch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightgenmumatch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightgenmumatch_endcap,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightgenmumatch_endcap,dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightgenmumatch_endcap,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightgenmumatch_endcap,dedx_strips,weight)
 		    else : print 'should not see this'
 		    
 		    break
@@ -629,32 +685,49 @@ def main(inputfiles,output_folder,nev):
                 drele = min(drele, ele.DeltaR(track))
 		pTdiff_rel = abs(ele.Pt()-track.Pt())/ele.Pt()
                 if drele<0.01 and pTdiff_rel<0.1: 
-		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 		    #FillHisto(hTrkPt_elematch,track.Pt(),weight)
-		    #FillHisto(hTrkDedx_elematch,dedx,weight)
+		    #FillHisto(hTrkPixelDedx_elematch,dedx_pixel,weight)
 		    FillHisto(hTrkP_tightelematch,track.P(),weight)
 		    FillHisto(hTrkPt_tightelematch,track.Pt(),weight)
-		    FillHisto(hTrkDedx_tightelematch,dedx,weight)
-		    h2_TrkEle_Dedx_P.Fill(track.P(),dedx,weight)
+		    FillHisto(hTrkPixelDedx_tightelematch,dedx_pixel,weight)
+		    FillHisto(hTrkStripsDedx_tightelematch,dedx_strips,weight)
 		    
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(ele matching)'
-			SF_dedx = datacalibdict_SingleElectron_barrel[Identifier]
+			if phase==0:
+			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
+			    SF_dedx_strips = 1.0
+			elif phase==1:
+			    SF_dedx_pixel = 1.0
+			    SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightelematch_barrel,dedx,weight)
-		    	FillHisto(hTrkDedxCalib_tightelematch_barrel,dedx*SF_dedx,weight)
-			FillHisto(hTrkDedxCalib_tightelematch,dedx*SF_dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightelematch_barrel,dedx_pixel,weight)
+		    	FillHisto(hTrkPixelDedxCalib_tightelematch_barrel,dedx_pixel*SF_dedx_pixel,weight)
+			FillHisto(hTrkPixelDedxCalib_tightelematch,dedx_pixel*SF_dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightelematch_barrel,dedx_strips,weight)
+		    	FillHisto(hTrkStripsDedxCalib_tightelematch_barrel,dedx_strips*SF_dedx_strips,weight)
+			FillHisto(hTrkStripsDedxCalib_tightelematch,dedx_strips*SF_dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(ele matching)'
-			SF_dedx = datacalibdict_SingleElectron_endcap[Identifier]
+			if phase==0:
+			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
+			    SF_dedx_strips = 1.0
+			elif phase==1:
+			    SF_dedx_pixel = 1.0
+			    SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightelematch_endcap,dedx,weight)
-		    	FillHisto(hTrkDedxCalib_tightelematch_endcap,dedx*SF_dedx,weight)
-			FillHisto(hTrkDedxCalib_tightelematch,dedx*SF_dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightelematch_endcap,dedx_pixel,weight)
+		    	FillHisto(hTrkPixelDedxCalib_tightelematch_endcap,dedx_pixel*SF_dedx_pixel,weight)
+			FillHisto(hTrkPixelDedxCalib_tightelematch,dedx_pixel*SF_dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightelematch_endcap,dedx_strips,weight)
+		    	FillHisto(hTrkStripsDedxCalib_tightelematch_endcap,dedx_strips*SF_dedx_strips,weight)
+			FillHisto(hTrkStripsDedxCalib_tightelematch,dedx_strips*SF_dedx_strips,weight)
 		    else : print 'should not see this'
 	    
 	    # Gen-matched Electron matching
@@ -664,26 +737,46 @@ def main(inputfiles,output_folder,nev):
 		pTdiff_rel = abs(ele.Pt()-track.Pt())/ele.Pt()
                 if dr<0.01 and pTdiff_rel<0.1: 
 		    #print 'track - genmatched electron matching'
-		    dedx = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 		    FillHisto(hTrkP_tightgenelematch,track.P(),weight)
 		    FillHisto(hTrkPt_tightgenelematch,track.Pt(),weight)
-		    FillHisto(hTrkDedx_tightgenelematch,dedx,weight)
+		    FillHisto(hTrkPixelDedx_tightgenelematch,dedx_pixel,weight)
+		    FillHisto(hTrkStripsDedx_tightgenelematch,dedx_strips,weight)
+		    h2_TrkEle_P_Dedx.Fill(track.P(),dedx_pixel,weight)
+		    h3_TrkEle_P_Eta_Dedx.Fill(track.P(),track.Eta(),dedx_pixel,weight)
 		    
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(ele matching)'
 			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightelematch_barrel,dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightelematch_barrel,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightelematch_barrel,dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(ele matching)'
 			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
-		    	FillHisto(hTrkDedx_tightelematch_endcap,dedx,weight)
+		    	FillHisto(hTrkPixelDedx_tightelematch_endcap,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightelematch_endcap,dedx_strips,weight)
 		    else : print 'should not see this'
 		    
 		    break
+	    
+	    # Gen-chargino matching
+	    if not is_data:
+	        drchi_gen=99
+	        for igp,gp in enumerate(c.GenParticles):
+	            if not abs(c.GenParticles_PdgId[igp])==1000024 : continue #Gen-Chargino
+	            drchi_gen = min(drchi_gen, track.DeltaR(gp))
+		    pTdiff_rel = abs(gp.Pt()-track.Pt())/track.Pt()
+	            if drchi_gen<0.01 and pTdiff_rel<0.1: 
+	        	#print 'Track matched with Gen-Chargino : trackPt:%s genchiPt:%s'%(track.Pt(),gp.Pt())
+			h2_TrkChi_P_Dedx.Fill(track.P(),dedx_pixel,weight)
+		    	h3_TrkChi_P_Eta_Dedx.Fill(track.P(),track.Eta(),dedx_pixel,weight)
+	        	break
+
 	
 
 
