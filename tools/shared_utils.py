@@ -1,5 +1,6 @@
 from ROOT import *
 from array import array
+import collections
 
 dedxcutLow = 2.1
 dedxcutMid = 4.0
@@ -926,7 +927,7 @@ def passesUniversalDataSelection(t):
     return True
     
 
-binnumbers = {}
+binnumbers = collections.OrderedDict()
 listagain = ['Ht',   'Mht',    'NJets',  'BTags',  'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']#, 'TrackLepMass', 'LepMT'
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
