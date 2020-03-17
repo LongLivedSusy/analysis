@@ -2,7 +2,7 @@ from ROOT import *
 from array import array
 
 dedxcutLow = 2.1
-dedxcutMid = 4
+dedxcutMid = 4.0
 
 #dedxcutLow = 3.4
 #dedxcutMid = 6
@@ -39,7 +39,7 @@ epsilon = 0.0001
 
 binning = {}
 #binning['Met']=[0,20,50,100,150,250,400,650,800,900,1000]
-binning['Met']=[450,0,1200]
+binning['Met']=[400,0,1200]
 binning['Mht']=binning['Met']
 #binning['TrkPt']=[15,30,50,100,300]
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,400,410]#good for gen check, and two eta bins
@@ -81,7 +81,7 @@ for key in binning: binningAnalysis[key] = binning[key]
 
 binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
-binningAnalysis['BinNumber'] = [46,1,46]
+binningAnalysis['BinNumber'] = [54,1,55]
 binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
 binningAnalysis['InvMass'] = [50,0,200]
 binningAnalysis['LepMT'] = [16,0,160]
@@ -837,7 +837,7 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 			
 #just changed a couple of lines above to loosen the tag
 			
-def isBaselineTrack(track, itrack, c, hMask):
+def isBaselineTrack(track, itrack, c, hMask=''):
 	if not abs(track.Eta())< 2.4: return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
 	if not bool(c.tracks_trackQualityHighPurity[itrack]) : return False
