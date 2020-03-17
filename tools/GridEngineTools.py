@@ -147,9 +147,6 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     if use_more_time:
         if use_more_time == 1:
             use_more_time = 86400
-    else:
-        use_more_time = 60*60*3
-        additional_parameters += "+RequestRuntime = %s\n" % use_more_time
 
     def write_submission_file(queue_start_index, queue_length, file_name):
 

@@ -7,9 +7,12 @@ import plotting
 import uuid
 import GridEngineTools
 import collections
-import tags
 import shared_utils
 import array
+
+gROOT.SetBatch(True)
+gStyle.SetOptStat(0)
+TH1D.SetDefaultSumw2()
 
 def get_interpolated_histogram(histo):
 
@@ -143,8 +146,8 @@ def get_configurations(threads):
                #"tracks_eta": [12, -3, 3],
                #"tracks_phi": [16, -4, 4],
                #"HT:n_allvertices": ["variable", [0,20,40,1000], [0,200,400,1000]],
-               "HT:n_allvertices": [3, 0, 50, 3, 0, 500],
-               "tracks_eta:tracks_phi": [12, -3, 3, 16, -4, -4],
+               "HT:n_allvertices": [10, 0, 50, 10, 0, 1000],
+               #"tracks_eta:tracks_phi": [12, -3, 3, 16, -4, -4],
               }
 
     selected_datasets = ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
@@ -158,23 +161,20 @@ def get_configurations(threads):
                  "n_btags",
                  "MinDeltaPhiMhtJets",
                  "HT:n_allvertices",
-                 "tracks_eta:tracks_phi",
+                 #"tracks_eta:tracks_phi",
                 ]
     
     regions = collections.OrderedDict()
-    regions["qcd_lowlowlowMHT"] = " && MHT<50"
-    regions["qcd_lowlowMHT"] = " && MHT<100"
-    regions["qcd_lowMHT"] = " && MHT<200"
+    regions["qcd_lowMHT"] = " && n_goodleptons==0 && MHT<150"
     
     configurations = []
 
-    for label in tags.tags:
+    for label in ["loose8"]:
 
         for category in ["_short", "_long"]:
 
-            numerator_cuts = tags.tags[label]["SR" + category]
-            denominator_cuts = tags.tags[label]["CR" + category]
-            base_cuts = tags.base_cuts
+            numerator_cuts = "tracks_SR%s==1" % category
+            denominator_cuts = "tracks_CR%s==1" % category
 
             if base_cuts[:3] == " &&":
                 base_cuts = base_cuts[3:]
@@ -183,7 +183,7 @@ def get_configurations(threads):
                 for variable in variables:          
                     for region in regions:
                     
-                        cuts = base_cuts + regions[region]
+                        cuts = regions[region]
 
                         current_selected_dataset = selected_dataset
                         if "Run201" in selected_dataset:
@@ -195,15 +195,15 @@ def get_configurations(threads):
                             else:
                                 print "Something wrong"
                                 quit()
-                        else:
-                            # running on MC
-                            if "qcd" in region and "QCD" not in current_selected_dataset:
-                                current_selected_dataset += "*QCD"
-                            elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
-                                current_selected_dataset += "*DYJetsToLL"
-                            else:
-                                print "Something wrong"
-                                quit()
+                        #else:
+                        #    # running on MC
+                        #    if "qcd" in region and "QCD" not in current_selected_dataset:
+                        #        current_selected_dataset += "*QCD"
+                        #    elif "dilepton" in region and "DYJetsToLL" not in current_selected_dataset:
+                        #        current_selected_dataset += "*DYJetsToLL"
+                        #    else:
+                        #        print "Something wrong"
+                        #        quit()
 
                         current_variable = variable
                         if "dilepton" in region:

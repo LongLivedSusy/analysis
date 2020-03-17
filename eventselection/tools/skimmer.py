@@ -8,6 +8,7 @@ import json
 import math
 import shared_utils
 import xsections
+import os
 
 def correct_dedx_intercalibration(dedx, filename):
     
@@ -15,7 +16,7 @@ def correct_dedx_intercalibration(dedx, filename):
     correction_value = 1.0
     for label in correction_values:
         if label in filename:
-            correction_value = correction_values[label]    
+            correction_value = correction_values[label]
     return correction_value * dedx
 
 
@@ -321,7 +322,7 @@ def getBinContent_with_overflow(histo, xval, yval = False):
         return value
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", only_tagged_events = True, save_cleaned_variables = False, only_json = False, mask_file_name = "../../tools/usefulthings/Masks.root", fakerate_filename = "../../background-estimation/non-prompt/fakerate.root"):
+def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", only_tagged_events = True, save_cleaned_variables = False, only_json = False, mask_file_name = "../../tools/usefulthings/Masks.root", fakerate_filename = "../../analyzer/fakerate.root"):
 
     print "Input:  %s" % event_tree_filenames
     print "Output: %s" % track_tree_output
@@ -329,6 +330,21 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
+
+    # check if output file exists:
+    if os.path.exists(track_tree_output):
+        print "Already done, do file check"
+        try:
+            test = TFile(track_tree_output)
+            test.Get("nev")
+            test.Get("Events")
+            if not (test.IsZombie() or test.TestBit(TFile.kRecovered)):
+                print "Already done, file ok"
+                test.Close()
+                return()
+            test.Close()
+        except:
+            print "Need to redo file"
 
     if mask_file_name:
         print "Loaded mask histograms: %s" % mask_file_name
@@ -343,15 +359,18 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     data_period = ""
     is_signal = False
     is_data = False
-    for label in ["Run2016", "Run2017", "Run2018", "Summer16", "Fall17", "Autumn18"]:
+    for label in ["Run2016", "Run2017", "Run2018", "Summer16", "Fall17", "Autumn18", "RunIISummer16MiniAODv3"]:
         if label in event_tree_filenames[0]:
             data_period = label
             if "Run201" in label:
                 is_data = True
-            if label == "Run2016" or label == "Summer16":
+            if label == "Run2016" or label == "Summer16" or label == "RunIISummer16MiniAODv3":
                 phase = 0
             elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
                 phase = 1
+                
+    if data_period == "RunIISummer16MiniAODv3":
+        data_period = "Summer16"
 
     if "_chi" in event_tree_filenames[0] or "SMS-" in event_tree_filenames[0]:
         is_signal = True
@@ -373,17 +392,41 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         h_mask = ""
 
     # load fakerate histograms:
+    h_fakerate = {}
+    fakerate_variables = [
+                 "HT",
+                 "n_goodjets",
+                 "n_allvertices",
+                 "n_btags",
+                 "MinDeltaPhiMhtJets",
+                 "HT:n_allvertices",
+                ]
+    fakerate_regions = ["FakeRateDet"]
+        
     if fakerate_filename:
-        fakerate_variable = "HT:n_allvertices"
-        fakerate_maptag = "qcd_lowMHT_loose8"
+    
+        fakerate_branchlabels = []
+        
         tfile_fakerate = TFile(fakerate_filename, "open")
-        h_fakerate_short = tfile_fakerate.Get("%s_short/%s/fakerate_%s" % (fakerate_maptag, data_period, fakerate_variable.replace(":", "_")))
-        h_fakerate_short.SetDirectory(0)
-        h_fakerate_long = tfile_fakerate.Get("%s_long/%s/fakerate_%s" % (fakerate_maptag, data_period, fakerate_variable.replace(":", "_")))
-        h_fakerate_long.SetDirectory(0)
-    else:
-        h_fakerate_short = False
-        h_fakerate_long = False
+
+        for variable in fakerate_variables:
+            
+            variable = variable.replace(":", "_")
+            
+            for region in fakerate_regions:
+                
+                for fakeratetype in ["fakerate", "fakerateIso"]:
+                
+                    for category in ["short", "long"]:
+                    
+                        label = "%s_%s_%s_%s_%s" % (variable, region, data_period, fakeratetype, category)
+                        branchlabel = "%s_%s_%s_%s" % (variable, region, fakeratetype, category)
+                        h_fakerate[label] = tfile_fakerate.Get(label)
+                        h_fakerate[label].SetDirectory(0)
+                        fakerate_branchlabels.append(branchlabel)
+                
+        tfile_fakerate.Close()
+                
 
     # load tree
     tree = TChain(treename)
@@ -423,11 +466,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tout = TTree("Events", "tout")
 
     # prepare variables for output tree   
-    float_branches = ["weight", "MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec", "chargino_parent_mass", "fakerate_short", "fakerate_long", "region", "region_sideband", "regionCorrected", "regionCorrected_sideband", "signal_gluino_mass", "signal_lsp_mass", "leadinglepton_pt", "leadinglepton_mt", "leadinglepton_eta", "leadinglepton_phi", "leadinglepton_dedx", "leadinglepton_dedxCorrected"]
+    float_branches = ["weight", "MET", "MHT", "HT", "MinDeltaPhiMhtJets", "PFCaloMETRatio", "dilepton_invmass", "event", "run", "lumisec", "chargino_parent_mass", "region", "region_sideband", "regionCorrected", "regionCorrected_sideband", "signal_gluino_mass", "signal_lsp_mass", "leadinglepton_pt", "leadinglepton_mt", "leadinglepton_eta", "leadinglepton_phi", "leadinglepton_dedx", "leadinglepton_dedxCorrected"]
     integer_branches = ["n_jets", "n_goodjets", "n_btags", "n_leptons", "n_goodleptons", "n_goodelectrons", "n_goodmuons", "n_allvertices", "n_NVtx", "dilepton_leptontype",  "n_genLeptons", "n_genElectrons", "n_genMuons", "n_genTaus", "triggered_met", "triggered_singleelectron", "triggered_singlemuon", "leadinglepton_id"]
 
     for tag in tags:
         integer_branches.append("n_tracks_%s" % tag)
+
+    for label in fakerate_branchlabels:
+        float_branches.append("fakerate_%s" % label)
 
     if not is_data:
         float_branches.append("madHT")
@@ -455,7 +501,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if "tracks_" in label:
             track_variables.append(label)
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_is_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_passpionveto', 'tracks_passjetveto', 'tracks_basecuts']
 
     for tag in tags:
         vector_int_branches += ["tracks_%s" % tag]
@@ -650,6 +696,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         continue
                 n_goodjets += 1
                 goodjets.append(jet)
+        event.n_goodjets = n_goodjets
 
         # calculate MinDeltaPhiMhtJets:
         csv_b = 0.8838
@@ -664,6 +711,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             if event.Jets_bDiscriminatorCSV[ijet]>csv_b: nb+=1
             if abs(jet.DeltaPhi(mhtvec))<MinDeltaPhiMhtJets:
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
+        event.MinDeltaPhiMhtJets = MinDeltaPhiMhtJets
 
         ## reset tagged tracks counter to zero:
         for tag in tags:
@@ -684,8 +732,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 if event.tracks[iCand].DeltaR(event.TAPPionTracks[k]) < 0.03:
                     passpionveto = False
                     break
-            if not passpionveto:
-                continue
 
             # veto DTs too close to jets
             track_jet_mindeltaR = 9999
@@ -694,7 +740,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 if deltaR < track_jet_mindeltaR:
                     track_jet_mindeltaR = deltaR
             if track_jet_mindeltaR<0.4:
-                continue
+                passjetveto = False
+            else:
+                passjetveto = True
 
             is_reco_lepton = check_is_reco_lepton(event, track, deltaR = 0.01)
             ptErrOverPt2 = event.tracks_ptError[iCand] / (track.Pt()**2)
@@ -704,21 +752,25 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
 
+            base_cuts = not is_reco_lepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=3 and passpionveto and passjetveto
+            if not base_cuts:
+                continue
+
             # check disappearing track tags:
             mva_tight = get_disappearing_track_score("tight", event, iCand, readers)
             mva_loose = get_disappearing_track_score("loose", event, iCand, readers)
 
-            base_cuts = not is_reco_lepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=3
             tags["SR_short"] = base_cuts and is_pixel_track and mva_loose>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.25) and event.tracks_trkRelIso[iCand]<0.01
             tags["SR_long"] = base_cuts and not is_pixel_track and mva_loose>(event.tracks_dxyVtx[iCand]*(0.7/0.01) + 0.05) and event.tracks_trkRelIso[iCand]<0.01
             tags["CR_short"] = base_cuts and is_pixel_track and mva_loose<(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
             tags["CR_long"] = base_cuts and not is_pixel_track and mva_loose<(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
 
-            keep_this_track = True
+            keep_this_track = False
             for tag in tags:
-                if not tag:
-                    keep_this_track = False
-            if not keep_this_track:
+                if tag:
+                    keep_this_track = True
+                    break
+            if only_tagged_events and (not keep_this_track):
                 continue
 
             # check if actual fake track (no genparticle in cone around track):
@@ -775,7 +827,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 for k in range(len(event.GenParticles)):
                     if abs(event.GenParticles_PdgId[k]) == 1000024:
                         deltaR = track.DeltaR(event.GenParticles[k])
-                        #if deltaR < 0.01:
                         if deltaR < min_deltaR:
                             chiCandGenMatchingDR = deltaR
 
@@ -826,6 +877,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_charge": event.tracks_charge[iCand],
                                      "tracks_invmass": invariant_mass,
                                      "tracks_chiCandGenMatchingDR": chiCandGenMatchingDR,
+                                     "tracks_passpionveto": passpionveto,
+                                     "tracks_passjetveto": passjetveto,
+                                     "tracks_basecuts": base_cuts,
                                    }
                                   )
                                        
@@ -840,17 +894,33 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 continue
 
         # get fake rate for event:
-        fakerate_short = -1
-        fakerate_long = -1
-        if ":" in fakerate_variable:
-            xvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "NVtx").split(":")[1])
-            yvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "NVtx").split(":")[0])                
-            fakerate_short = getBinContent_with_overflow(h_fakerate_short, xvalue, yval = yvalue)
-            fakerate_long = getBinContent_with_overflow(h_fakerate_long, xvalue, yval = yvalue)
-        else:                
-            xvalue = eval("event.%s" % fakerate_variable)
-            fakerate_short = getBinContent_with_overflow(h_fakerate_short, xvalue)
-            fakerate_long = getBinContent_with_overflow(h_fakerate_long, xvalue)
+        #fakerate_short = -1
+        #fakerate_long = -1
+        #if ":" in fakerate_variable:
+        #    xvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "NVtx").split(":")[1])
+        #    yvalue = eval("event.%s" % fakerate_variable.replace("_interpolated", "").replace("_cleaned", "").replace("n_allvertices", "NVtx").split(":")[0])                
+        #    fakerate_short = getBinContent_with_overflow(h_fakerate_short, xvalue, yval = yvalue)
+        #    fakerate_long = getBinContent_with_overflow(h_fakerate_long, xvalue, yval = yvalue)
+        #else:                
+        #    xvalue = eval("event.%s" % fakerate_variable)
+        #    fakerate_short = getBinContent_with_overflow(h_fakerate_short, xvalue)
+        #    fakerate_long = getBinContent_with_overflow(h_fakerate_long, xvalue)
+
+        if fakerate_filename:
+            for fakerate_variable in fakerate_variables:                
+                for fakerate_region in fakerate_regions:
+                    for fakerate_type in ["fakerate", "fakerateIso"]:
+                        for category in ["short", "long"]:
+                            label = "%s_%s_%s_%s_%s" % (fakerate_variable.replace(":", "_"), fakerate_region, data_period, fakerate_type, category)
+                            branchlabel = "%s_%s_%s_%s" % (fakerate_variable.replace(":", "_"), fakerate_region, fakerate_type, category)
+                            
+                            if ":" in fakerate_variable:
+                                xvalue = eval("event.%s" % fakerate_variable.replace("n_allvertices", "NVtx").replace("n_btags", "BTags").split(":")[1])
+                                yvalue = eval("event.%s" % fakerate_variable.replace("n_allvertices", "NVtx").replace("n_btags", "BTags").split(":")[0])
+                                tree_branch_values["fakerate_%s" % branchlabel][0] = getBinContent_with_overflow(h_fakerate[label], xvalue, yval = yvalue)
+                            else:
+                                xvalue = eval("event.%s" % fakerate_variable.replace("n_allvertices", "NVtx").replace("n_btags", "BTags"))
+                                tree_branch_values["fakerate_%s" % branchlabel][0] = getBinContent_with_overflow(h_fakerate[label], xvalue)
 
         # check if genLeptons are present in event:
         if not is_data:
@@ -924,9 +994,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         tree_branch_values["dilepton_invmass"][0] = dilepton_invariant_mass
         tree_branch_values["dilepton_leptontype"][0] = dilepton_leptontype
         tree_branch_values["region"][0] = region
+        tree_branch_values["regionCorrected"][0] = regionCorrected
         tree_branch_values["region_sideband"][0] = region_sideband
-        tree_branch_values["fakerate_short"][0] = fakerate_short
-        tree_branch_values["fakerate_long"][0] = fakerate_long
+        tree_branch_values["regionCorrected_sideband"][0] = regionCorrected_sideband
         if not is_data:
             tree_branch_values["madHT"][0] = madHT
             tree_branch_values["CrossSection"][0] = event.CrossSection
@@ -1023,5 +1093,6 @@ if __name__ == "__main__":
     main(options.inputfiles,
          options.outputfiles,
          nevents = int(options.nev),
+         mask_file_name = False,
         )
 
