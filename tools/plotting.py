@@ -123,7 +123,10 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
 
     ## xsection and puweight scaling:
     if not is_data:
-        cutstring = "(%s)*CrossSection*puWeight%s" % (cutstring, scaling)
+        if scaling != "":
+            cutstring = "(%s)*CrossSection*puWeight*%s" % (cutstring, scaling)
+        else:
+            cutstring = "(%s)*CrossSection*puWeight" % (cutstring)
     else:
         if scaling != "":
             cutstring = "(%s)*%s" % (cutstring, scaling)
@@ -222,7 +225,7 @@ def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nB
         if threads != 1:
             if threads == -1:
                 # start thread pool with half of all cores
-                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.7))
+                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.5))
             else:
                 # start thread pool with specified number of cores
                 pool = multiprocessing.Pool(threads)

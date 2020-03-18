@@ -47,7 +47,8 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
     cmds = []
     for i, sample in enumerate(samples):
         if use_custom_hadd:
-            command = "./terahadd.py %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
+            #command = "./terahadd.py %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
+            command = "hadd %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
         else:
             command = "hadd -f %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
         if delete_input_files:
@@ -78,9 +79,7 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
             filelist = sorted(glob.glob("%s/*Run%s*%s*.json" % (folder, year, datastream)))
             
             for i_ifile, ifile in enumerate(filelist):
-                
-                #TODO: check for accpn. ROOT file
-                
+                               
                 if i_ifile % 100 == 0:
                      sys.stderr.write("%s/%s\n" % (i_ifile, len(filelist)))
                 idict = ""

@@ -54,7 +54,7 @@ def do_submission(commands, output_folder, condorDir = "bird", executable = "loo
 def get_data_sample_names(folder, globstring = "*"):
     
     samples = []
-    for item in glob.glob(folder + "/" + globstring + ".root"):
+    for item in glob.glob(folder + "*/" + globstring + ".root"):
         sample_name = "_".join( item.split("/")[-1].split(".root")[0].split("_")[:-2] )
         samples.append(sample_name)
     samples = list(set(samples))
@@ -78,10 +78,7 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
     ntuples = {}
     for user in get_userlist():
         print "Adding NtupleHub contents from %s..." % user
-        if user == "sbein":
-            folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v4" % user
-        else:
-            folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user
+        folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user
         if folder not in ntuples:
             ntuples[folder] = []
         for i_globstring in globstrings:
@@ -117,7 +114,7 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default=45)
+    parser.add_option("--nfiles", dest="files_per_job", default=60)
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
@@ -138,8 +135,9 @@ if __name__ == "__main__":
     if not options.dataset:
         options.add_signals = True
         options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
+        #options.dataset = "Run2017*"
     if not options.output_folder:
-        options.output_folder = "skim_69"
+        options.output_folder = "skim_06_onlytagged"
     ######## defaults ########
 
     commands = []
