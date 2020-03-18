@@ -1,5 +1,6 @@
 from ROOT import *
 from array import array
+import collections
 
 dedxcutLow = 2.1
 dedxcutMid = 4.0
@@ -263,7 +264,7 @@ def namewizard(name):
 	if 'MinDPhiMhtJets' == name:
 		return r'#Delta#phi_{min}'                        
 	if 'NLeptons' == name:
-		return r'n_{#ell}'
+		return r'n_{\ell}'
 	if 'NMuons' == name:
 		return r'n(#mu)'
 	if 'NTags' == name:
@@ -272,6 +273,14 @@ def namewizard(name):
 		return r'R^{*}'
 	if 'DPhiMetSumTags' == name:
 		return r'#Delta#phi^{*}'
+	if 'InvMass' == name:
+		return r'm_{\ell#bar{#\ll}}'
+	if 'DeDxAverage' == name:
+		return 'de/dx (MeV/cm)'
+	if 'TrkPt' == name:
+		return r'p_{T}(\ell_{2})'
+	if 'TrkEta' == name:
+		return '|#eta|'
 	return name
 
 def mkEfficiencies(hPassList, hAllList):
@@ -926,7 +935,7 @@ def passesUniversalDataSelection(t):
     return True
     
 
-binnumbers = {}
+binnumbers = collections.OrderedDict()
 listagain = ['Ht',   'Mht',    'NJets',  'BTags',  'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']#, 'TrackLepMass', 'LepMT'
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
