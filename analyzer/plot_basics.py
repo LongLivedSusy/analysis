@@ -69,9 +69,9 @@ def plot2D(variable, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, show
         os.system("mkdir -p %s" % "/".join(pdffile.split("/")[:-1]))
 
     shared_utils.stamp()
-    canvas.SaveAs(pdffile + "_" + label + ".pdf")
+    #canvas.SaveAs(pdffile + "_" + label + ".pdf")
 
-    # draw some funky lines
+    # draw some funky lcines
     text = TLatex()
     text.SetTextFont(132)
     text.SetTextSize(0.059)
@@ -81,12 +81,12 @@ def plot2D(variable, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, show
         upper_line.SetLineWidth(2)
         upper_line.Draw("same")
 
-        #lower_line = TLine(0, -0.5, (1 + 0.5)/(0.65/0.01), 1)
-        #lower_line.SetLineWidth(2)
-        #lower_line.Draw("same")
-        lower_line2 = TLine(0.02, -1, 0.02, 1)
-        lower_line2.SetLineWidth(2)
-        lower_line2.Draw("same")
+        lower_line = TLine(0, -0.5, (1 + 0.5)/(0.65/0.01), 1)
+        lower_line.SetLineWidth(2)
+        lower_line.Draw("same")
+        #lower_line2 = TLine(0.02, -1, 0.02, 1)
+        #lower_line2.SetLineWidth(2)
+        #lower_line2.Draw("same")
 
         text.DrawLatex(0.005, 0.75, "SR")
         text.DrawLatex(0.03, 0.75, "CR")
@@ -96,12 +96,12 @@ def plot2D(variable, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, show
         upper_line.SetLineWidth(2)
         upper_line.Draw("same")
 
-        #lower_line = TLine(0, -0.5, (1 + 0.5)/(0.7/0.01), 1)
-        #lower_line.SetLineWidth(2)
-        #lower_line.Draw("same")
-        lower_line2 = TLine(0.02, -1, 0.02, 1)
-        lower_line2.SetLineWidth(2)
-        lower_line2.Draw("same")
+        lower_line = TLine(0, -0.5, (1 + 0.5)/(0.7/0.01), 1)
+        lower_line.SetLineWidth(2)
+        lower_line.Draw("same")
+        #lower_line2 = TLine(0.02, -1, 0.02, 1)
+        #lower_line2.SetLineWidth(2)
+        #lower_line2.Draw("same")
 
         text.DrawLatex(0.003, 0.75, "SR")
         text.DrawLatex(0.03, 0.75, "CR")
@@ -309,30 +309,36 @@ if __name__ == "__main__":
 
     if True:
 
-        ## cand tracks:
-        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==1", "bdtsideband/cand_bdtsideband_short", folder, labels)
+        labels = {"Signal": [[
+                #"Summer16.g1800_chi1400_27_200970_step4_10AODSIM",
+                #"Summer16.g1800_chi1400_27_200970_step4_30AODSIM",
+                #"Summer16.g1800_chi1400_27_200970_step4_50AODSIM",
+                "Summer16.g1800_chi1400_27_200970_step4_100AODSIM",
+                ], kBlue]}
+
+        # cand tracks:
+        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==1", "bdtsideband/cand_bdtsideband_short_100", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==0", "bdtsideband/cand_bdtsideband_long", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1", "bdtsideband/cand_bdtsideband_short_genfake", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==0 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1", "bdtsideband/cand_bdtsideband_long_genfake", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0", "bdtsideband/cand_bdtsideband_short_genprompt", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_is_pixel_track==0 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0", "bdtsideband/cand_bdtsideband_long_genprompt", folder, labels)
-        #
-        ## with added dxy-BDT cut to define cut function:
+        
+        # with added dxy-BDT cut to define cut function:
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_tight>0.1 && tracks_is_pixel_track==1", "bdtsideband/dxybdt_bdtsideband_short", folder, labels)
-        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_bdt>0.25 && tracks_is_pixel_track==0", "bdtsideband/dxybdt_bdtsideband_long", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_tight>0.25 && tracks_is_pixel_track==0", "bdtsideband/dxybdt_bdtsideband_long", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_tight>0.1 && tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1", "bdtsideband/dxybdt_bdtsideband_short_genfake", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_bdt>0.25 && tracks_is_pixel_track==0 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1", "bdtsideband/dxybdt_bdtsideband_long_genfake", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_tight>0.1 && tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0", "bdtsideband/dxybdt_bdtsideband_short_genprompt", folder, labels)
         #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_basecuts==1 && tracks_mva_bdt>0.25 && tracks_is_pixel_track==0 && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0", "bdtsideband/dxybdt_bdtsideband_long_genprompt", folder, labels)
 
         # SR and CR tracks:
-        labels = {"Signal": labels["Signal"]}
-        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && (tracks_SR_short>0 || tracks_CR_short>0)", "bdtsideband/bdtsideband_short", folder, labels)
-        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && (tracks_SR_long>0 || tracks_CR_long>0)", "bdtsideband/bdtsideband_long", folder, labels)
-        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1 && (tracks_SR_short>0 || tracks_CR_short>0)", "bdtsideband/bdtsideband_short_genfake", folder, labels)
-        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1 && (tracks_SR_long>0 || tracks_CR_long>0)", "bdtsideband/bdtsideband_long_genfake", folder, labels)
-        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0 && (tracks_SR_short>0 || tracks_CR_short>0)", "bdtsideband/bdtsideband_short_genprompt", folder, labels)
-        do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0 && (tracks_SR_long>0 || tracks_CR_long>0)", "bdtsideband/bdtsideband_long_genprompt", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && (tracks_SR_short>0 || tracks_CR_short>0)", "bdtsideband/bdtsideband_short", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && (tracks_SR_long>0 || tracks_CR_long>0)", "bdtsideband/bdtsideband_long", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1 && (tracks_SR_short>0 || tracks_CR_short>0)", "bdtsideband/bdtsideband_short_genfake", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==1 && (tracks_SR_long>0 || tracks_CR_long>0)", "bdtsideband/bdtsideband_long_genfake", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0 && (tracks_SR_short>0 || tracks_CR_short>0)", "bdtsideband/bdtsideband_short_genprompt", folder, labels)
+        #do_plots(["tracks_mva_loose:tracks_dxyVtx"], event_selections["Baseline"] + " && tracks_chiCandGenMatchingDR>0.01 && tracks_fake==0 && (tracks_SR_long>0 || tracks_CR_long>0)", "bdtsideband/bdtsideband_long_genprompt", folder, labels)
 
         
     if False:

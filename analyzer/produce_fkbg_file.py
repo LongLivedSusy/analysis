@@ -1,77 +1,96 @@
 #!/bin/env python
 from __future__ import division
-import os
 from ROOT import *
 import collections
+import glob
+import os
+import shared_utils
+from optparse import OptionParser
+import time
 
-def main(root_file, output_root_file, variable, category, cr, canvas_label, lumi = 137000):
+def rebin_histo(histogram, nbins, xmin, xmax):
+    h_name = histogram.GetName()
+    h_rebinned = TH1F(h_name + "_rebin", h_name + "_rebin", nbins, xmin, xmax)
+    for ibin in range(1, histogram.GetXaxis().GetNbins()+1):
+        xvalue = histogram.GetBinLowEdge(ibin)
+        value = histogram.GetBinContent(ibin)
+        valueErr = histogram.GetBinError(ibin)
+        
+        h_rebinned.SetBinContent(h_rebinned.GetXaxis().FindBin(xvalue), value)
+        h_rebinned.SetBinError(h_rebinned.GetXaxis().FindBin(xvalue), valueErr)
 
-    if "Run201" in output_root_file:
-        is_data = True
-    else:
-        is_data = False
-       
-    histos = collections.OrderedDict()
-    tfile = TFile(root_file, "open")      
-    histos["mc_CR"] = tfile.Get("%s_nonpromptcontrol_%s_%s" % (variable, category, cr) )
-    histos["mc_prediction"] = tfile.Get("%s_nonpromptprediction_%s_%s" % (variable, category, cr) )
-    
-    for label in histos:                
-        if not is_data:
-            histos[label].Scale(lumi)
+    shared_utils.histoStyler(h_rebinned)
+    return h_rebinned
 
-    fout = TFile(output_root_file, "update")
-    if is_data:
-        histos["mc_prediction"].SetName("%sMethod" % (canvas_label))
-    else:
-        histos["mc_prediction"].SetName("%sTruth" % (canvas_label))
-    histos["mc_prediction"].Write()
-
-    if is_data:
-        histos["mc_CR"].SetName("%sMethod_CR" % (canvas_label))
-    else:
-        histos["mc_CR"].SetName("%sTruth_CR" % (canvas_label))
-    histos["mc_CR"].Write()
-
-    fout.Close()
-    
 
 if __name__ == "__main__":
+        
+    root_file_out = "fkbg.root"
+    os.system("rm " + root_file_out)
+        
+    for datalabel in ["Summer16", "Run2016"]:
+        
+        for variable in ["regionCorrected", "regionCorrected_sideband", "region", "region_sideband"]:
+        
+            for region in ["Baseline"]:
+            
+                if "region" in variable:
+                    root_file = "predictionRegion_%s.root" % datalabel
+                else:
+                    root_file = "predictionRegion_%s.root" % datalabel
+                
+                h_name = variable + "_" + region + "_" + datalabel + "_fakepredictionIso"
+                
+                histos = {}
+                fin = TFile(root_file, "read")
+                histos[h_name + "_short"] = fin.Get(h_name + "_short")
+                histos[h_name + "_long"] = fin.Get(h_name + "_long")
+                
+                # combine short and long:
+                histos[h_name] = histos[h_name + "_short"].Clone()
+                histos[h_name].Add(histos[h_name + "_long"])
+                
+                for label in histos:
+                    histos[label].SetDirectory(0)
+                    if "Run201" not in label:
+                        histos[label].Scale(137000)
+                    shared_utils.histoStyler(histos[label])
+                fin.Close()
+                
+                fout = TFile(root_file_out, "update")
+                
+                newvariable = variable
+                newvariable = newvariable.replace("regionCorrected", "BinNumber")
+                newvariable = newvariable.replace("region", "BinNumberUncorrected")
+                newvariable = newvariable.replace("leadinglepton_mt", "LepMT")
+                newvariable = newvariable.replace("tracks_invmass", "InvMass")
+                newvariable = newvariable.replace("_sideband", "Sideband")
+                newvariable = newvariable.replace("MHT", "Mht")
+                newvariable = newvariable.replace("HT", "Ht")
+                newvariable = newvariable.replace("n_goodjets", "NJets")
+                newvariable = newvariable.replace("n_btags", "BTags")
+                
+                binningAnalysis = collections.OrderedDict()
+                binningAnalysis["region"] = shared_utils.binningAnalysis['BinNumber']
+                binningAnalysis["leadinglepton_mt"] = shared_utils.binningAnalysis['LepMT']
+                binningAnalysis["tracks_invmass"] = shared_utils.binningAnalysis['InvMass']
+                binningAnalysis["MHT"] = shared_utils.binningAnalysis['Mht']
+                binningAnalysis["Ht"] = shared_utils.binningAnalysis['Mht']
+                binningAnalysis["n_goodjets"] = shared_utils.binningAnalysis['Ht']
+                binningAnalysis["n_btags"] = shared_utils.binningAnalysis['BTags']
+                
+                if "region" in variable:
+                    histos[h_name] = rebin_histo(histos[h_name], binningAnalysis["region"][0], binningAnalysis["region"][1], binningAnalysis["region"][2])
+                
+                if "Run201" in h_name:
+                    histos[h_name].SetName("%s_%sMethod" % (region, newvariable))
+                    histos[h_name].SetTitle("%s_%sMethod" % (region, newvariable))
 
-    prediction_folder = "prediction7"
-   
-    variables = ['BTags', 'Met', 'Mht', 'BinNumber', 'InvMass', 'DeDxAverageCorrected', 'LepMT', 'Ht', 'DeDxAverage']
-    data_periods = ["Summer16_all", "Run2016_all", "Run2016_SingleElectron", "Run2016_SingleMuon", "Run2016_MET"]
-    
-    event_selections_from_analyzer = {
-                "Baseline":               "n_goodleptons==0 || tracks_invmass>110",
-                "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0",
-                #"BaselineNoLeptons":      "n_goodleptons==0",
-                #"BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110",
-                #"BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110",
-                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || tracks_invmass>110)",
-                "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leptons_mt>90",
-                "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
-                "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leptons_mt>90",
-                "SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leptons_mt>90",
-                "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leptons_mt<70",
-                "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leptons_mt<70",
-                      }
+                else:
+                    histos[h_name].SetName("%s_%sMethodTruth" % (region, newvariable))
+                    histos[h_name].SetTitle("%s_%sMethodTruth" % (region, newvariable))                
 
-    # add zones:
-    event_selections = []
-    for event_selection in event_selections_from_analyzer.keys():
-        for zone in ["", "ZoneDeDx1p6to2p1", "ZoneDeDx0p0to2p1", "ZoneDeDx2p1to4p0", "ZoneDeDx4p0toInf"]:
-            event_selections.append(event_selection + zone)
-
-    for data_period in data_periods:
-
-        os.system("rm %s/fakebg_%s.root" % (prediction_folder, data_period))
-        root_file = "%s/prediction_%s.root" % (prediction_folder, data_period)
-
-        for variable in variables:
-            for event_selection in event_selections:
-                print data_period, variable, event_selection
-                canvas_label = "%s_%s" % (event_selection, variable)
-                main(root_file, prediction_folder + "/fakebg_%s.root" % (data_period), variable, "combined", event_selection, canvas_label)
-
+                histos[h_name].Write()
+                
+                fout.Close()
+                
