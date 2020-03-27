@@ -30,16 +30,16 @@ if __name__ == "__main__":
         
     for datalabel in ["Summer16", "Run2016"]:
         
-        for variable in ["regionCorrected", "regionCorrected_sideband", "region", "region_sideband"]:
+        for variable in ["regionCorrected", "regionCorrected_sideband"]:
         
             for region in ["Baseline"]:
             
                 if "region" in variable:
-                    root_file = "predictionRegion_%s.root" % datalabel
+                    root_file = "prediction3_%s.root" % datalabel
                 else:
-                    root_file = "predictionRegion_%s.root" % datalabel
+                    root_file = "prediction3_%s.root" % datalabel
                 
-                h_name = variable + "_" + region + "_" + datalabel + "_fakepredictionIso"
+                h_name = variable + "_" + region + "_" + datalabel + "_fakeprediction"
                 
                 histos = {}
                 fin = TFile(root_file, "read")

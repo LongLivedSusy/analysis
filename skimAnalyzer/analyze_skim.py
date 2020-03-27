@@ -7,6 +7,34 @@ from GridEngineTools import runParallel
 #import collections
 import re
 import shared_utils
+import random
+import more_itertools
+
+def getBinContent_with_overflow(histo, xval, yval = False):
+    
+    if not yval:
+        # overflow for TH1Fs:
+        if xval >= histo.GetXaxis().GetXmax():
+            value = histo.GetBinContent(histo.GetXaxis().GetNbins())
+        else:
+            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval))
+        return value
+    else:
+        # overflow for TH2Fs:
+        if xval >= histo.GetXaxis().GetXmax() and yval < histo.GetYaxis().GetXmax():
+            xbins = histo.GetXaxis().GetNbins()
+            value = histo.GetBinContent(xbins, histo.GetYaxis().FindBin(yval))
+        elif xval < histo.GetXaxis().GetXmax() and yval >= histo.GetYaxis().GetXmax():
+            ybins = histo.GetYaxis().GetNbins()
+            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), ybins)
+        elif xval >= histo.GetXaxis().GetXmax() or yval >= histo.GetYaxis().GetXmax():
+            xbins = histo.GetXaxis().GetNbins()
+            ybins = histo.GetYaxis().GetNbins()
+            value = histo.GetBinContent(xbins, ybins)
+        else:
+            value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
+        return value
+        
 
 def parse_root_cutstring(cut, tracks_increment_variable = "i"):
 
@@ -168,7 +196,34 @@ def fill_histogram(event, variable, histograms, event_selection, data_period, zo
         histograms[h_name].Fill(value+1, weight*scaling)
 
 
-def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_file="fakerate.root", input_is_unmerged = True):
+def get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fakerate):
+    
+    fakerates = {}
+    
+    for fakerate_variable in fakerate_variables:                
+        for fakerate_region in fakerate_regions:
+            for fakerate_type in ["fakerate", "fakerateIso"]:
+                for category in ["short", "long"]:
+                    
+                    if data_period == "Run2016":
+                        this_data_period = "Run2016GH"
+                    else:
+                        this_data_period = data_period
+                    
+                    label = "%s_%s_%s_%s_%s" % (fakerate_variable.replace(":", "_"), fakerate_region, this_data_period, fakerate_type, category)
+                                            
+                    if ":" in fakerate_variable:
+                        xvalue = eval("event.%s" % fakerate_variable.split(":")[1])
+                        yvalue = eval("event.%s" % fakerate_variable.split(":")[0])
+                        fakerates[fakerate_variable.replace(":", "_") + "_" + fakerate_region + "_" + fakerate_type + "_" + category] = getBinContent_with_overflow(h_fakerate[label], xvalue, yval = yvalue)
+                    else:
+                        xvalue = eval("event.%s" % fakerate_variable)
+                        fakerates[fakerate_variable.replace(":", "_") + "_" + fakerate_region + "_" + fakerate_type + "_" + category] = getBinContent_with_overflow(h_fakerate[label], xvalue)
+    
+    return fakerates
+    
+
+def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_filename="fakerate.root", input_is_unmerged = True):
 
     # check if output file exists:
     if os.path.exists(output_file):
@@ -201,41 +256,42 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     nev = 0
     ignore_files = []
 
-    if input_is_unmerged:
-
-        print "Input is unmerged..."
-        file_name = input_filenames[0].split("/")[-1]
-        identifier = "_".join(file_name.split("_")[:-2]).replace("_ext1", "*").replace("_ext2", "*").replace("_ext3", "*").replace("ext4", "*")
-        if "/" in input_filenames[0]:
-            folder = "/".join(input_filenames[0].split("/")[:-1])
+    if not is_data:
+        if input_is_unmerged:
+        
+            print "Input is unmerged..."
+            file_name = input_filenames[0].split("/")[-1]
+            identifier = "_".join(file_name.split("_")[:-2]).replace("_ext1", "*").replace("_ext2", "*").replace("_ext3", "*").replace("ext4", "*")
+            if "/" in input_filenames[0]:
+                folder = "/".join(input_filenames[0].split("/")[:-1])
+            else:
+                folder = "."
+            print "globstring:", folder + "/*%s*" % identifier
+            loop_over_files = glob.glob(folder + "/*%s*.root" % identifier)
+            loop_over_files += glob.glob(folder + "/*%s*.root" % identifier.replace("AOD_", "ext1AOD_"))
+            loop_over_files += glob.glob(folder + "/*%s*.root" % identifier.replace("AOD_", "ext2AOD_"))
+            loop_over_files += glob.glob(folder + "/*%s*.root" % identifier.replace("AOD_", "ext3AOD_"))
+            loop_over_files = list(set(loop_over_files))
+        
         else:
-            folder = "."
-        print "globstring:", folder + "/*%s*" % identifier
-        loop_over_files = glob.glob(folder + "/*%s*" % identifier)
-        loop_over_files += glob.glob(folder + "/*%s*" % identifier.replace("AOD_", "ext1AOD_"))
-        loop_over_files += glob.glob(folder + "/*%s*" % identifier.replace("AOD_", "ext2AOD_"))
-        loop_over_files += glob.glob(folder + "/*%s*" % identifier.replace("AOD_", "ext3AOD_"))
-        loop_over_files = list(set(loop_over_files))
-
-    else:
-        loop_over_files = input_filenames
-
-    for tree_file in loop_over_files:
-        print "Reading %s for n_ev calculation..." % tree_file 
-        try:
-            fin = TFile(tree_file)
-            fin.Get("nev")
-            fin.Get(treename)
-            h_nev = fin.Get("nev")
-            nev += int(h_nev.GetBinContent(1))
-            fin.Close()
-        except:
-            "Ignoring file: %s" % tree_file
-            ignore_files.append(ignore_files)
-            print "Ignoring", tree_file
-            continue
-
-    print "n_ev for weighting: %s" % nev
+            loop_over_files = input_filenames
+        
+        for tree_file in loop_over_files:
+            print "Reading %s for n_ev calculation..." % tree_file 
+            try:
+                fin = TFile(tree_file)
+                fin.Get("nev")
+                fin.Get(treename)
+                h_nev = fin.Get("nev")
+                nev += int(h_nev.GetBinContent(1))
+                fin.Close()
+            except:
+                "Ignoring file: %s" % tree_file
+                ignore_files.append(ignore_files)
+                print "Ignoring", tree_file
+                continue
+        
+        print "n_ev for weighting: %s" % nev
 
     tree = TChain(treename)       
     for i, tree_file in enumerate(input_filenames):
@@ -247,11 +303,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     dEdxMid = 4.0
     
     event_selections = {
-                "Baseline":               "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
-                "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
-                #"BaselineNoLeptons":      "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
-                #"BaselineElectrons":     "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                #"BaselineMuons":         "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90",
+                "Baseline":              "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
+                "BaselineJetsNoLeptons": "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
+                "BaselineElectrons":     "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
+                "BaselineMuons":         "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90",
                 "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
                 "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90",
                 "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
@@ -266,9 +321,8 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     event_selections_notracks = {
                 "Baseline":               "(n_goodleptons==0 || leadinglepton_mt>90)",
                 "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
-                #"BaselineNoLeptons":      "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
-                #"BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && leadinglepton_mt>90",
-                #"BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && leadinglepton_mt>90",
+                "BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && leadinglepton_mt>90",
+                "BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && leadinglepton_mt>90",
                 "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || (leadinglepton_mt>90))",
                 "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && leadinglepton_mt>90",
                 "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && leadinglepton_mt>90",
@@ -281,7 +335,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                       }
     
     zones = {}
-    for dedx in ["", "_SidebandDeDx", "_MidDeDx", "_HighDeDx"]:
+    for dedx in ["_SidebandDeDx", "_MidDeDx", "_HighDeDx"]:
         if dedx == "_SidebandDeDx":
             lower = dEdxSidebandLow; upper = dEdxLow
         elif dedx == "_MidDeDx":
@@ -294,31 +348,33 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             lower = 0; upper = 9999
         
         for category in ["short", "long"]:
-            zones["sr%s_%s" % (dedx, category)] = [" && tracks_SR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), ""]
-            zones["srgenfake%s_%s" % (dedx, category)] = [" && tracks_SR_%s==1 && tracks_fake==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), ""]
-            zones["srgenprompt%s_%s" % (dedx, category)] = [" && tracks_SR_%s==1 && tracks_fake==0 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), ""]
+            
+            if category == "short":
+                is_pixel_track = 1
+            else:
+                is_pixel_track = 0
+            
+            zones["sr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["srgenfake%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["srgenprompt%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==0 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
             
             # previous FR CR region:
-            zones["fakecr%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), ""]
-            zones["fakeprediction%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), "fakerate_HT_n_allvertices_FakeRateDet_fakerate_%s" % category]
+            zones["fakecr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["fakeprediction%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerate_%s" % category]
             
-            # added iso cut on FR CR:
-            zones["fakecrIso%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), ""]
-            zones["fakepredictionIso%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), "fakerate_HT_n_allvertices_FakeRateDet_fakerateIso_%s" % category]
-
             # added iso cut on FR CR and cut on MVA:
-            #zones["fakecrIsoMVA%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), ""]
-            #zones["fakepredictionIsoMVA%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (category, lower, upper), "fakerate_HT_n_allvertices_FakeRateDet_fakerateIso_%s" % category]
+            zones["fakecrIsoMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["fakepredictionIsoMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerateIso_%s" % category]
 
             zones["PromptEl%s" % dedx] = [" && leadinglepton_dedx>%s && leadinglepton_dedx<%s" % (lower, upper), ""]
             #zones["prompt"] = ["(tracks_SR_short+tracks_SR_long)==0", ""]
             #zones["promptMu%s" % dedx] = [" && (tracks_SR_short+tracks_SR_long)==0 && n_goodelectrons==0 && n_goodmuons==1 && leadinglepton_dedx>%s && leadinglepton_dedx<%s" % (lower, upper), ""]
 
-    # streamline zones a bit...
-    #for zone_label in zones:
-    #    for delstring in ["&& tracks_deDxHarmonic2pixel<9999", "&& tracks_deDxHarmonic2pixel>0",  "&& leadinglepton_dedx<9999", "&& leadinglepton_dedx>0"]:
-    #        if delstring in zones[zone_label][0]:
-    #            zones[zone_label][0] = zones[zone_label][0].replace(delstring, "")
+    # streamline zones a bit...:
+    for zone_label in zones:
+        for delstring in ["&& tracks_deDxHarmonic2pixel<9999", "&& tracks_deDxHarmonic2pixel>0"]:
+            if delstring in zones[zone_label][0]:
+                zones[zone_label][0] = zones[zone_label][0].replace(delstring, "")
 
     binnings = {}
     binnings["LepMT"] = [16, 0, 160]
@@ -360,13 +416,13 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     
     variables = [
                   "leadinglepton_mt",
-                  "leadinglepton_pt",
-                  "leadinglepton_eta",
+                  #"leadinglepton_pt",
+                  #"leadinglepton_eta",
                   "tracks_invmass",
                   "tracks_deDxHarmonic2pixelCorrected",
-                  "tracks_pt",
-                  "tracks_eta",
-                  "tracks_dxyVtx",
+                  #"tracks_pt",
+                  #"tracks_eta",
+                  #"tracks_dxyVtx",
                   "HT",
                   "MHT",
                   "n_goodjets",
@@ -406,6 +462,35 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     for zone in zones:
         zones_converted[zone] = parse_root_cutstring(zones[zone][0], tracks_increment_variable = "i_track")
 
+    print "Loading fakerate maps..."
+    h_fakerate = {}
+    fakerate_variables = [
+                 #"HT",
+                 #"n_goodjets",
+                 #"n_allvertices",
+                 #"n_btags",
+                 #"MinDeltaPhiMhtJets",
+                 "HT:n_allvertices",
+                ]
+    fakerate_regions = ["FakeRateDet"]
+                
+    tfile_fakerate = TFile(fakerate_filename, "open")
+
+    for variable in fakerate_variables:
+        variable = variable.replace(":", "_")
+        for region in fakerate_regions:
+            for fakeratetype in ["fakerate", "fakerateIso"]:
+                for category in ["short", "long"]:
+                    if data_period == "Run2016":
+                        this_data_period = "Run2016GH"
+                    else:
+                        this_data_period = data_period
+                    label = "%s_%s_%s_%s_%s" % (variable, region, this_data_period, fakeratetype, category)
+                    h_fakerate[label] = tfile_fakerate.Get(label)
+                    h_fakerate[label].SetDirectory(0)
+            
+    tfile_fakerate.Close()
+
     nev_tree = tree.GetEntries()
     print "Looping over %s events" % nev_tree
     
@@ -421,6 +506,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         if not is_data:
             weight = 1.0 * event.CrossSection * event.puWeight / nev
 
+        # get fakerate:
+        fakerates = {}
+        
         # loop over all event selections:
         for event_selection in event_selections:
                         
@@ -447,11 +535,18 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 if scaling_factor == "":
                     scaling = 1.0
                 else:
-                    scaling = eval("event.%s" % scaling_factor)
+                    #scaling = eval("event.%s" % scaling_factor)
+                    scaling = fakerates[scaling_factor]
+
+                if len(fakerates) == 0:
+                    fakerates = get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fakerate)
                                                                                 
                 for variable in variables:
+                    
+                    if event_selection == "Baseline" and "region" not in variable:
+                        continue 
                                              
-                    if "tracks_" in cut:    
+                    if "tracks_" in cut:
                         
                         cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone]
                         
@@ -492,9 +587,9 @@ if __name__ == "__main__":
     parser.add_option("--unweighted", dest="unweighted", action="store_true")
     parser.add_option("--nev", dest = "nev", default = -1)
     parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 60)
-    parser.add_option("--njobs", dest = "njobs", default = 2000)
+    parser.add_option("--njobs", dest = "njobs")
     parser.add_option("--event_start", dest = "event_start", default = 0)
-    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "../background-estimation/non-prompt/fakerate.root")
+    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--unmerged", dest="unmerged", action="store_true")
@@ -509,7 +604,7 @@ if __name__ == "__main__":
         
         for dataset in ["Run2016*MET", "Run2016*SingleElectron", "Run2016*SingleMuon", "Summer16"]:
             os.system("hadd -f %s_%s.root %s/%s*root" % (options.prediction_folder, dataset.replace("*", ""), options.prediction_folder, dataset))
-        os.system("hadd -f %s_Run2016.root %s_Run*root" % (options.prediction_folder, options.prediction_folder))
+        os.system("hadd -f %s_AllRun2016.root %s_Run2016*.root" % (options.prediction_folder, options.prediction_folder))
         quit()
 
     # run parallel if input is a folder:
@@ -525,7 +620,7 @@ if __name__ == "__main__":
         input_files += glob.glob(options.inputfiles + "/Summer16.WW_TuneCUETP8M1*.root")
         input_files += glob.glob(options.inputfiles + "/Summer16.WZ_TuneCUETP8M1*.root")
         input_files += glob.glob(options.inputfiles + "/Summer16.ZZ_TuneCUETP8M1*.root")
-        input_files += glob.glob(options.inputfiles + "/Summer16.TT_Tune*.root")
+        input_files += glob.glob(options.inputfiles + "/Summer16.TTJets*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*MET*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*SingleElectron*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*SingleMuon*.root")
@@ -537,14 +632,21 @@ if __name__ == "__main__":
 
             print "Running unmerged"
 
-            options.njobs = len(input_files)
-
-            file_segments = [input_files[x:x+int(len(input_files)/options.njobs)] for x in range(0, len(input_files), int(len(input_files)/options.njobs))]
-            for file_segment in file_segments:
-                command = ""
-                for input_file in file_segment:
-                    command += "./analyze_skim2.py --input %s --output %s/%s --unmerged; " % (input_file, options.prediction_folder, file_segment[0].split("/")[-1])
+            for input_file in input_files:
+                command = "./analyze_skim.py --input %s --output %s/%s --unmerged" % (input_file, options.prediction_folder, input_file.split("/")[-1])
                 commands.append(command)
+
+            if options.njobs:
+                options.njobs = int(options.njobs)
+                random.shuffle(commands)
+                file_segments = [list(c) for c in more_itertools.divide(int(options.njobs), commands)]
+                
+                new_commands = []
+                for file_segment in file_segments:
+                    command = "; ".join(file_segment)
+                    new_commands.append(command)
+                    
+                commands = new_commands
 
         else:
 
@@ -556,11 +658,9 @@ if __name__ == "__main__":
                  
                 for i in range(int(options.jobs_per_file)):
                     event_start = i * nev_per_interval
-                    commands.append("./analyze_skim2.py --input %s --output %s/%s --nev %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, event_start))
+                    commands.append("./analyze_skim.py --input %s --output %s/%s --nev %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, event_start))
            
-        runParallel(commands, options.runmode, condorDir = "%s.condor" % options.prediction_folder, use_more_mem=False, use_more_time=False, confirm=not options.start)
-
-        #hadd_everything(options.prediction_folder)
+        runParallel(commands, options.runmode, condorDir = "%s.condor" % options.prediction_folder, use_more_mem=False, use_more_time=21600, confirm=not options.start)
 
     # otherwise run locally:
     else:
@@ -573,7 +673,7 @@ if __name__ == "__main__":
         event_loop(inputfiles_list,
              options.outputfiles,
              nevents = int(options.nev),
-             fakerate_file = options.fakerate_file,
+             fakerate_filename = options.fakerate_file,
              event_start = int(options.event_start),
             )
 

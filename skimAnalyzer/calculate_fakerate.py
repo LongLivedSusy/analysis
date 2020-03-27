@@ -11,8 +11,8 @@ def rebin(histo, variable, category):
 
     if variable == "HT_n_allvertices":
         if category == "short":
-            histo = histo.RebinX(10)
-            histo = histo.RebinY(10)
+            histo = histo.RebinX(3)
+            histo = histo.RebinY(3)
         else:
             histo = histo.RebinX(3)
             histo = histo.RebinY(3)
@@ -47,17 +47,18 @@ if __name__ == "__main__":
    
     variables = [
                  #"tracks_pt",
-                 "HT",
-                 "n_goodjets",
-                 "n_allvertices",
-                 "n_btags",
-                 "MinDeltaPhiMhtJets",
+                 #"HT",
+                 #"n_goodjets",
+                 #"n_allvertices",
+                 #"n_btags",
+                 #"MinDeltaPhiMhtJets",
                  "HT:n_allvertices",
                  #"tracks_eta:tracks_phi",
                 ]
 
-    datasets = ["Summer16", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
-
+    #datasets = ["Summer16", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
+    datasets = ["Summer16", "Run2016", "Run2016GH"]
+    
     os.system("mv fakerate.root fakerate.root.bak")
 
     #datasets = ["Run2016", "Summer16"]
@@ -83,7 +84,7 @@ if __name__ == "__main__":
                     denominator.SetDirectory(0)
                     denominator = rebin(denominator, variable, category)
 
-                    denominatorIso = fin.Get("%s_%s_%s_fakecrRelIso%s_%s" % (variable, region, dataset, dedx, category))
+                    denominatorIso = fin.Get("%s_%s_%s_fakecrIsoMVA%s_%s" % (variable, region, dataset, dedx, category))
                     denominatorIso.SetDirectory(0)
                     denominatorIso = rebin(denominatorIso, variable, category)
                     
