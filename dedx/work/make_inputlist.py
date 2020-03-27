@@ -3,35 +3,20 @@ from glob import glob
 
 def make_inputlist(samples):
     userlist = []
-    hub_folders = glob("/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/")
-    for hub_folder in hub_folders:
-        userlist.append(hub_folder.split("/")[-3])
-    
-    folders=[]
-    for user in userlist:
-        print "Adding NtupleHub contents from %s..." % user
-        if user == "sbein":
-            folders.append("/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v4" % user)
-	elif user == "vkutzner":
-            folders.append("/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user)
-            folders.append("/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3_aksingh" % user)
-        else:
-            folders.append("/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user)
-   
+    hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
+
     print "Making input lists.."
     if not os.path.exists("./inputs"):
 	os.system("mkdir -p inputs")
     
-    samplelist=[]
     for sample in samples:
 	outputname = sample
 	if "*" in sample : 
 	    outputname = sample.replace("*","_")
         print outputname
 	with open("./inputs/%s.txt"%outputname,'w') as f:
-	    for folder in folders:
-		for inputfile in sorted(glob(folder + "/" + sample +"*.root")):
-		    f.write(inputfile+'\n')
+	    for inputfile in sorted(glob(hub_folders + "/*"+sample+"*.root")):
+		f.write(inputfile+'\n')
    
 def split_inputlist(nfpj=100):
     inputfiles = glob("./inputs/*.txt")
@@ -187,28 +172,35 @@ if __name__ == "__main__" :
     Run2017_SingleMuon = [
     "Run2017B*SingleMuon",
     "Run2017C*SingleMuon",
+    "Run2017D*SingleMuon",
+    "Run2017E*SingleMuon",
     "Run2017F*SingleMuon",
+    "Run2017G*SingleMuon",
+    "Run2017H*SingleMuon",
     ]
 
     Run2017_SingleElectron=[
     "Run2017B*SingleElectron",
     "Run2017C*SingleElectron",
+    "Run2017D*SingleElectron",
     "Run2017E*SingleElectron",
     "Run2017F*SingleElectron",
+    "Run2017G*SingleElectron",
+    "Run2017H*SingleElectron",
     ]
 
     samples=[]
-    samples.extend(Summer16_bkg)
-    samples.extend(Run2016_SingleMuon)
-    samples.extend(Run2016_SingleElectron)
-    samples.extend(Fall17_bkg)
+    #samples.extend(Summer16_bkg)
+    #samples.extend(Run2016_SingleMuon)
+    #samples.extend(Run2016_SingleElectron)
+    #samples.extend(Fall17_bkg)
     samples.extend(Run2017_SingleMuon)
-    samples.extend(Run2017_SingleElectron)
+    #samples.extend(Run2017_SingleElectron)
     
     #Input list for each process
     make_inputlist(samples)
 
     #Split list for number of files per job
-    nfpj = 100
-    split_inputlist(nfpj)
+    #nfpj = 100
+    #split_inputlist(nfpj)
 
