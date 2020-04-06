@@ -2,6 +2,8 @@
 import os, glob
 from optparse import OptionParser
 from GridEngineTools import runParallel
+import random
+import more_itertools
 
 def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job = 5, files_per_sample = -1, command = "./looper.py $INPUT $OUTPUT 0 0", nowildcard=False, process_files_individually=False):
 
@@ -114,8 +116,9 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default=60)
-    parser.add_option("--start", dest="start", action="store_true")
+    parser.add_option("--nfiles", dest="files_per_job", default = 70)
+    parser.add_option("--njobs", dest="njobs")
+    parser.add_option("--start", dest="start", action = "store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
     parser.add_option("--cuts", dest="cuts", default = "")
@@ -124,7 +127,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     mc_summer16 = "Summer16.DYJetsToLL*,Summer16.QCD*,Summer16.WJetsToLNu*,Summer16.ZJetsToNuNu*,Summer16.WW_TuneCUETP8M1*,Summer16.WZ_TuneCUETP8M1*,Summer16.ZZ_TuneCUETP8M1*,Summer16.TT*"
-    mc_fall17 = "RunIIFall17MiniAODv2.DYJetsToLL*,RunIIFall17MiniAODv2.QCD*,RunIIFall17MiniAODv2.WJetsToLNu*,RunIIFall17MiniAODv2.ZJetsToNuNu*,RunIIFall17MiniAODv2.WW*,RunIIFall17MiniAODv2.WZ*,RunIIFall17MiniAODv2.ZZ*,RunIIFall17MiniAODv2.TT*,RunIIFall17MiniAODv2.TTJets_HT*,RunIIFall17MiniAODv2.GJets_HT*"
+    mc_fall17 = "RunIIFall17MiniAODv2.DYJetsToLL*,RunIIFall17MiniAODv2.QCD*,RunIIFall17MiniAODv2.WJetsToLNu*,RunIIFall17MiniAODv2.ZJetsToNuNu*,RunIIFall17MiniAODv2.WW*,RunIIFall17MiniAODv2.WZ*,RunIIFall17MiniAODv2.ZZ*,RunIIFall17MiniAODv2.TT*,RunIIFall17MiniAODv2.GJets_HT*"
     data_phase0 = "Run2016*"
     data_phase1 = "Run2017*,Run2018*"
     mc_sms = "RunIISummer16MiniAODv3.SMS*"
@@ -134,10 +137,12 @@ if __name__ == "__main__":
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
         options.add_signals = True
-        options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = "Run2017*"
+        #options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
+        options.dataset = mc_summer16 + ",Run2016*"
+        #options.dataset = mc_fall17 + ",Run2017*"
+        #options.dataset = "Run2018*"
     if not options.output_folder:
-        options.output_folder = "skim_06_onlytagged"
+        options.output_folder = "../skim_09_promptel"
     ######## defaults ########
 
     commands = []
@@ -158,8 +163,20 @@ if __name__ == "__main__":
     
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=int(options.files_per_job), nowildcard=nowildcard)
     
+    if options.njobs:
+        options.njobs = int(options.njobs)
+        random.shuffle(commands)
+        file_segments = [list(c) for c in more_itertools.divide(int(options.njobs), commands)]
+        
+        new_commands = []
+        for file_segment in file_segments:
+            command = "; ".join(file_segment)
+            new_commands.append(command)
+            
+        commands = new_commands
+    
     do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
 
-    print "Merging..."
-    os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
+    #print "Merging..."
+    #os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
 

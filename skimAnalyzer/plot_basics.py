@@ -19,7 +19,7 @@ binnings["leadinglepton_mt"] = [16, 0, 160]
 binnings["tracks_mva_tight:tracks_dxyVtx"] = [40, 0, 0.04, 20, 0.1, 1.0]
 binnings["tracks_mva_loose:tracks_dxyVtx"] = [50, 0, 0.05, 40, -1.0, 1.0]
 
-def plot2D(variable, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, showdata = False, drawoption = "colz"):
+def plot2D(variable, binnings, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, showdata = False, drawoption = "colz"):
 
     # BDT sideband region plot
     
@@ -109,7 +109,7 @@ def plot2D(variable, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, show
     canvas.SaveAs(pdffile + "_" + label + "_lines.pdf")
 
 
-def plot1D(variable, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, showdata = False):
+def plot1D(variable, binnings, cutstring, histos, lumi, pdffile, ymin=1e-1, ymax=1e5, showdata = False):
 
     contains_data = False
     for label in histos.keys():

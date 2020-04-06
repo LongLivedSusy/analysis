@@ -59,7 +59,9 @@ if __name__ == "__main__":
     #datasets = ["Summer16", "Run2016", "Run2017", "Run2018", "Run2016B", "Run2016C", "Run2016D", "Run2016E", "Run2016F", "Run2016G", "Run2016H", "Run2017B", "Run2017C", "Run2017D", "Run2017E", "Run2017F", "Run2018A", "Run2018B", "Run2018C", "Run2018D"]
     datasets = ["Summer16", "Run2016", "Run2016GH"]
     
-    os.system("mv fakerate.root fakerate.root.bak")
+    output_file = "fakerate3.root"
+    numdenom_file = "fakerate_numdenom3.root"
+    os.system("mv %s %s.bak" % (output_file, output_file))
 
     #datasets = ["Run2016", "Summer16"]
     for dataset in datasets:
@@ -69,44 +71,31 @@ if __name__ == "__main__":
             variable = variable.replace(":", "_")
             for category in ["short", "long"]:
                 for region in ["FakeRateDet"]:
+                    for region_fakeid in ["", "MVA", "EDep10", "EDep20"]:
 
-                    dedx = ""
-                    
-                    print variable, dataset, dedx, category
-                    
-                    fin = TFile("fakerate_numdenom.root", "read")       
-                    
-                    numerator = fin.Get("%s_%s_%s_sr%s_%s" % (variable, region, dataset, dedx, category))
-                    numerator.SetDirectory(0)
-                    numerator = rebin(numerator, variable, category)
-                    
-                    denominator = fin.Get("%s_%s_%s_fakecr%s_%s" % (variable, region, dataset, dedx, category))
-                    denominator.SetDirectory(0)
-                    denominator = rebin(denominator, variable, category)
+                        dedx = ""
 
-                    denominatorIso = fin.Get("%s_%s_%s_fakecrIsoMVA%s_%s" % (variable, region, dataset, dedx, category))
-                    denominatorIso.SetDirectory(0)
-                    denominatorIso = rebin(denominatorIso, variable, category)
-                    
-                    fin.Close()
-                    
-                    fakerate = numerator.Clone()
-                    fakerate.Divide(denominator)
-                    fakerate.SetName(fakerate.GetName().replace("_sr", "_fakerate").replace("JetHT", ""))
-                    fakerate.SetTitle(fakerate.GetTitle().replace("_sr", "_fakerate").replace("JetHT", ""))
-
-                    fakerateIso = numerator.Clone()
-                    fakerateIso.Divide(denominatorIso)
-                    fakerateIso.SetName(fakerateIso.GetName().replace("_sr", "_fakerateIso").replace("JetHT", ""))
-                    fakerateIso.SetTitle(fakerateIso.GetTitle().replace("_sr", "_fakerateIso").replace("JetHT", ""))
-                    
-                    fout = TFile("fakerate.root", "update")
-                    
-                    fakerate.Write()
-                    fakerateIso.Write()
-                    
-                    fout.Close()
-                    
-                    print fakerate.GetTitle()
-                    print fakerateIso.GetTitle()
-
+                        print "%s_%s_%s_sr%s_%s" % (variable, region, dataset, dedx, category)
+                        print "%s_%s_%s_fakecr%s%s_%s" % (variable, region, dataset, region_fakeid, dedx, category)
+                        
+                        fin = TFile(numdenom_file, "read")       
+                        
+                        numerator = fin.Get("%s_%s_%s_sr%s_%s" % (variable, region, dataset, dedx, category))
+                        numerator.SetDirectory(0)
+                        numerator = rebin(numerator, variable, category)
+                        
+                        denominator = fin.Get("%s_%s_%s_fakecr%s%s_%s" % (variable, region, dataset, region_fakeid, dedx, category))
+                        denominator.SetDirectory(0)
+                        denominator = rebin(denominator, variable, category)
+                        
+                        fin.Close()
+                        
+                        fakerate = numerator.Clone()
+                        fakerate.Divide(denominator)
+                        fakerate.SetName(fakerate.GetName().replace("_sr", "_fakerate" + region_fakeid).replace("JetHT", ""))
+                        fakerate.SetTitle(fakerate.GetTitle().replace("_sr", "_fakerate" + region_fakeid).replace("JetHT", ""))
+                        
+                        fout = TFile(output_file, "update")
+                        fakerate.Write()                        
+                        fout.Close()
+                        

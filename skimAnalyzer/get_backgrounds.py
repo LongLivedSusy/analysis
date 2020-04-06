@@ -94,7 +94,10 @@ for dedx in ["", "_SidebandDeDx", "_MidDeDx", "_HighDeDx"]:
         #histos["_fakepredictionIso%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), "fakerate_HT_n_allvertices_FakeRateDet_fakerateIso_%s" % category]
 
         # added iso cut on FR CR and cut on MVA:
-        histos["_fakecrIsoMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+        histos["_fakecrMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+        histos["_fakecrEDep10%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+        histos["_fakecrEDep15%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_matchedCaloEnergy<15 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+        histos["_fakecrEDep20%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_matchedCaloEnergy<20 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
         #histos["_fakepredictionIsoMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), "fakerate_HT_n_allvertices_FakeRateDet_fakerateIso_%s" % category]
 
         ## other FRs:
@@ -152,21 +155,21 @@ if __name__ == "__main__":
     parser.add_option("--hadd", dest = "hadd", action = "store_true")
     (options, args) = parser.parse_args()
     
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/tools/skim_07"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/skim_09_cand_merged"
    
     event_selections = {
-                #"Baseline":               "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
-                #"BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
-                #"BaselineNoLeptons":      "n_goodleptons==0 && MHT>150",
-                #"BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                #"BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90",
-                #"HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
-                #"SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                #"SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
-                #"SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                #"SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
-                #"SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70",
-                #"SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70",
+                "Baseline":               "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
+                "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
+                "BaselineNoLeptons":      "n_goodleptons==0 && MHT>150",
+                "BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
+                "BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90",
+                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0",
+                "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90",
+                "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
+                "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
+                "SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
+                "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70",
+                "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70",
                 "FakeRateDet":            "n_goodleptons==0 && MHT<150",
                       }
 
@@ -214,7 +217,8 @@ if __name__ == "__main__":
                 "Summer16.QCD_HT1000to1500_TuneCUETP8M1",
                 "Summer16.QCD_HT1500to2000_TuneCUETP8M1",
                 "Summer16.QCD_HT2000toInf_TuneCUETP8M1",
-                "Summer16.TTJets",
+                "Summer16.TTJets_DiLept",
+                "Summer16.TTJets_SingleLeptFromT",
                 "Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1",
                 "Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1",
                 "Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1",
@@ -278,7 +282,6 @@ if __name__ == "__main__":
                 parameters.append([variable, event_selections[region] + cuts, scaling, region + "_Summer16", h_suffix, folder, Summer16, output_root_file])
                 if "Baseline" in region:
                     parameters.append([variable, event_selections[region] + cuts, scaling, region + "_Summer16QCDZJets", h_suffix, folder, Summer16QCDZJets, output_root_file])
-                    #parameters.append([variable, event_selections[region] + cuts, scaling, region + "_Summer16DY", h_suffix, folder, Summer16DY, output_root_file])
                     if not "genfake" in h_suffix and not "genprompt" in h_suffix:
                         parameters.append([variable, event_selections[region] + cuts, scaling, region + "_Run2016MET", h_suffix, folder, ["Run2016*MET"], output_root_file])
                 elif "SEl" in region or "SMu" in region:
@@ -313,9 +316,5 @@ if __name__ == "__main__":
                 subcommand += "%s --index %s --folder %s; " % (this_scripts_name, param_index, options.output_folder)
             commands.append(subcommand)
 
-        #GridEngineTools.runParallel(commands, "grid", "%s.condor" % options.output_folder, use_more_time=15000)
-        #time.sleep(10)
-        #GridEngineTools.runParallel(commands, "grid", "%s.condor" % options.output_folder, confirm=True)
-        #print "jobs:", len(commands)
         GridEngineTools.runParallel(commands, "grid", "%s.condor" % options.output_folder, confirm=True)
 

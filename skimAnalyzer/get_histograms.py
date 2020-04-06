@@ -50,19 +50,15 @@ def fakerate_rebin(histo, variable, category):
         else:
             histo = histo.RebinX(3)
             histo = histo.RebinY(3)
-    
     elif variable == "HT":
         if category == "short":
             histo = histo.Rebin(10)
         else:
             histo = histo.Rebin(2)
-
     elif variable == "n_allvertices":
         histo = histo.Rebin(5)
-
     elif variable == "n_goodjets":
         histo = histo.Rebin(2)
-
     elif variable == "MinDeltaPhiMhtJets":
         histo = histo.Rebin(2)
 
@@ -75,8 +71,6 @@ def calculate_fakerate(variables, folder, output_file, datasets, regions, region
     os.system("rm %s" % output_file)
 
     for dataset in datasets:
-        #if "Run201" in dataset:
-        #    dataset += "JetHT"
         for variable in variables:
             variable = variable.replace(":", "_")
             for category in ["short", "long"]:
@@ -85,9 +79,7 @@ def calculate_fakerate(variables, folder, output_file, datasets, regions, region
 
                         dedx = ""
                         fin = TFile("fakerate_numdenom.root", "read")       
-                        
-                        print dataset, variable, region, dedx, category
-                        
+                                                
                         numerator = fin.Get("%s_%s_%s_sr%s_%s" % (dataset, variable, region, dedx, category))
                         numerator.SetDirectory(0)
                         numerator = fakerate_rebin(numerator, variable, category)
@@ -124,7 +116,6 @@ def write_histogram_to_file(variable, binnings, cuts, scaling, h_suffix, folder,
         for globstring in globstrings:
             input_files = glob.glob(folder + "/" + globstring + "*.root")
             if len(input_files) > 0:
-                #print h_name, input_files
                 if not ":" in variable:
                     current_histo = plotting.get_histogram_from_file(input_files, "Events", variable, cutstring=cuts, scaling=scaling, nBinsX=binnings[0], xmin=binnings[1], xmax=binnings[2])
                 else:
@@ -210,7 +201,8 @@ if __name__ == "__main__":
     
     binnings = {}
     binnings["analysis"] = {}
-    binnings["analysis"]["LepMT"] = [16, 0, 160]
+    binnings["analysis"]["LepMT"] = [50, 0, 100]
+    #binnings["analysis"]["LepMT"] = [16, 0, 160]
     binnings["analysis"]["leptons_mt"] = binnings["analysis"]["LepMT"]
     binnings["analysis"]["leadinglepton_mt"] = binnings["analysis"]["LepMT"]
     binnings["analysis"]["InvMass"] = [50, 0, 200]
@@ -279,23 +271,22 @@ if __name__ == "__main__":
         
         for is_pixel_track, category in enumerate(["long", "short"]):
 
-            zones["sr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["srgenfake%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["srgenprompt%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==0 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            morecuts = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+
+            zones["sr%s_%s" % (dedx, category)] = [" && tracks_SR_%s==1 && %s" % (category, morecuts), ""]
+            zones["srgenfake%s_%s" % (dedx, category)] = [" && tracks_SR_%s==1 && tracks_fake==1 && %s" % (category, morecuts), ""]
+            zones["srgenprompt%s_%s" % (dedx, category)] = [" && tracks_SR_%s==1 && tracks_fake==0 && %s" % (category, morecuts), ""]
+            zones["fakecr%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && %s" % (category, morecuts), ""]
+            zones["fakeprediction%s_%s" % (dedx, category)] = [" && tracks_CR_%s==1 && %s" % (category, morecuts), "HT_n_allvertices_QCDLowMHT_fakerate_%s" % category]
             
-            # previous FR CR region:
-            zones["fakecr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["fakeprediction%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_QCDLowMHT_fakerate_%s" % category]
-            
-            ## previous FR CR region:
-            zones["fakecrMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["fakepredictionMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_QCDLowMHT_fakerateMVA_%s" % category]
-            
-            # added iso cut on FR CR and cut on EDEP:
-            zones["fakecrEDep10%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["fakepredictionEDep10%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_QCDLowMHT_fakerateEDep10_%s" % category]
-            zones["fakecrEDep20%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<20 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["fakepredictionEDep20%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<20 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_QCDLowMHT_fakerateEDep20_%s" % category]
+            # add more variations:
+            region_fakeids = collections.OrderedDict()
+            region_fakeids["MVA"] = "tracks_mva_loose>-0.2"
+            region_fakeids["EDep10"] = "tracks_matchedCaloEnergy<10"
+            for region_fakeid in region_fakeids:
+                zones["srgenfake%s%s_%s" % (region_fakeid, dedx, category)] = [" && tracks_SR_%s==1 && tracks_fake==1 && %s && %s" % (category, morecuts, region_fakeids[region_fakeid]), ""]
+                zones["fakecr%s%s_%s" % (region_fakeid, dedx, category)] = [" && tracks_CR_%s==1 && %s && %s" % (category, morecuts, region_fakeids[region_fakeid]), ""]
+                zones["fakeprediction%s%s_%s" % (region_fakeid, dedx, category)] = [" && tracks_CR_%s==1 && %s && %s" % (category, morecuts, region_fakeids[region_fakeid]), "HT_n_allvertices_QCDLowMHT_fakerate%s_%s" % (region_fakeid, category)]
             
             #zones["PromptEl%s" % dedx] = [" && leadinglepton_dedx>%s && leadinglepton_dedx<%s" % (lower, upper), ""]
             #zones["prompt"] = ["(tracks_SR_short+tracks_SR_long)==0", ""]
@@ -309,14 +300,14 @@ if __name__ == "__main__":
    
     event_selections = {}
     event_selections["analysis"] = collections.OrderedDict()
-    #event_selections["analysis"]["Baseline"] =          "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))"
+    event_selections["analysis"]["Baseline"] =          "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))"
     ##event_selections["analysis"]["BaselineElectrons"] = "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
     ##event_selections["analysis"]["BaselineMuons"] =     "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90"
-    #event_selections["analysis"]["HadBaseline"] =       "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0"
-    #event_selections["analysis"]["SMuBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+    event_selections["analysis"]["HadBaseline"] =       "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0"
+    event_selections["analysis"]["SMuBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
     event_selections["analysis"]["SMuValidationZLL"] =  "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
     event_selections["analysis"]["SMuValidationMT"] =   "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70"
-    #event_selections["analysis"]["SElBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+    event_selections["analysis"]["SElBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
     event_selections["analysis"]["SElValidationZLL"] =  "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
     event_selections["analysis"]["SElValidationMT"] =   "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70"
     #event_selections["analysis"]["PromptEl"] =         "n_goodelectrons==1 && n_goodmuons==0"
@@ -330,11 +321,16 @@ if __name__ == "__main__":
     variables["analysis"] = [
                               "leadinglepton_mt",
                               "tracks_invmass",
-                              #"HT",
-                              #"MHT",
-                              #"tracks_deDxHarmonic2pixelCorrected",
-                              #"n_goodjets",
-                              #"n_btags",
+                              "tracks_is_pixel_track",
+                              "tracks_pt",
+                              "tracks_eta",
+                              "HT",
+                              "MHT",
+                              "tracks_deDxHarmonic2pixelCorrected",
+                              "n_goodjets",
+                              "n_btags",
+                              "regionCorrected",
+                              "regionCorrected_sideband",
                             ]
     variables["fakerate"] = [
                               #"tracks_pt",
@@ -438,14 +434,16 @@ if __name__ == "__main__":
                     if event_selection == "HadBaseline":
                         parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2016MET", ["Run2016*MET"], options.output_folder, fakerate_file])
                 elif options.type == "fakerate":
+                    parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Summer16QCDZJets", Summer16QCDZJets, options.output_folder, fakerate_file])
                     parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2016JetHT", ["Run2016*JetHT"], options.output_folder, fakerate_file])
                     parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2016GHJetHT", Run2016GHJetHT, options.output_folder, fakerate_file])
                  
-    region_fakeids = ["", "MVA", "EDep10", "EDep20"]
+    region_fakeids = ["", "MVA", "EDep10"]
     #region_fakeids = [""]
     
     # run script:
     if options.index:
+        print "%s / %s" (options.index, len(parameters)) 
         write_histogram_to_file(*parameters[int(options.index)])
 
     elif options.hadd:

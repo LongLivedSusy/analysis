@@ -202,7 +202,7 @@ def get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fak
     
     for fakerate_variable in fakerate_variables:                
         for fakerate_region in fakerate_regions:
-            for fakerate_type in ["fakerate", "fakerateIso"]:
+            for fakerate_type in ["fakerate", "fakerateMVA", "fakerateEDep10", "fakerateEDep20"]:
                 for category in ["short", "long"]:
                     
                     if data_period == "Run2016":
@@ -223,7 +223,7 @@ def get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fak
     return fakerates
     
 
-def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_filename="fakerate.root", input_is_unmerged = True):
+def event_loop(input_filenames, output_file, nevents=-1, treename="Events", event_start=0, fakerate_filename="fakerate.root", input_is_unmerged = False):
 
     # check if output file exists:
     if os.path.exists(output_file):
@@ -304,10 +304,9 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     
     event_selections = {
                 "Baseline":              "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
-                "BaselineJetsNoLeptons": "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
                 "BaselineElectrons":     "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
                 "BaselineMuons":         "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90",
-                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))",
+                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0",
                 "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90",
                 "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
                 "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
@@ -315,15 +314,14 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70",
                 "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70",
                 #"FakeRateDet":            "n_goodleptons==0 && MHT<150",
-                "PromptEl":               "n_goodelectrons==1 && n_goodmuons==0",
+                #"PromptEl":               "n_goodelectrons==1 && n_goodmuons==0",
                       }
     
     event_selections_notracks = {
                 "Baseline":               "(n_goodleptons==0 || leadinglepton_mt>90)",
-                "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0 && MHT>150",
                 "BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && leadinglepton_mt>90",
                 "BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && leadinglepton_mt>90",
-                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodleptons==0 || (leadinglepton_mt>90))",
+                "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0",
                 "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && leadinglepton_mt>90",
                 "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && leadinglepton_mt>90",
                 "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && leadinglepton_mt>90",
@@ -331,7 +329,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70",
                 "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70",
                 #"FakeRateDet":            "n_goodleptons==0 && MHT<150",
-                "PromptEl":               "n_goodelectrons==1 && n_goodmuons==0",
+                #"PromptEl":               "n_goodelectrons==1 && n_goodmuons==0",
                       }
     
     zones = {}
@@ -347,26 +345,27 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         elif dedx == "":
             lower = 0; upper = 9999
         
-        for category in ["short", "long"]:
-            
-            if category == "short":
-                is_pixel_track = 1
-            else:
-                is_pixel_track = 0
-            
-            zones["sr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["srgenfake%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["srgenprompt%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==0 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
+        for is_pixel_track, category in enumerate(["short", "long"]):
+                        
+            zones["sr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["srgenfake%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["srgenprompt%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_SR_%s==1 && tracks_fake==0 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
             
             # previous FR CR region:
-            zones["fakecr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["fakeprediction%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerate_%s" % category]
-            
-            # added iso cut on FR CR and cut on MVA:
-            zones["fakecrIsoMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), ""]
-            zones["fakepredictionIsoMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_trkRelIso<0.01 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerateIso_%s" % category]
+            zones["fakecr%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["fakeprediction%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerate_%s" % category]
 
-            zones["PromptEl%s" % dedx] = [" && leadinglepton_dedx>%s && leadinglepton_dedx<%s" % (lower, upper), ""]
+            # previous FR CR region:
+            zones["fakecrMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["fakepredictionMVA%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_mva_loose>-0.2 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerateMVA_%s" % category]
+            
+            # added iso cut on FR CR and cut on EDEP:
+            zones["fakecrEDep10%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["fakepredictionEDep10%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerateEDep10_%s" % category]
+            zones["fakecrEDep20%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<20 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), ""]
+            zones["fakepredictionEDep20%s_%s" % (dedx, category)] = [" && tracks_is_pixel_track==%s && tracks_CR_%s==1 && tracks_matchedCaloEnergy<20 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, category, lower, upper), "HT_n_allvertices_FakeRateDet_fakerateEDep20_%s" % category]
+
+            #zones["PromptEl%s" % dedx] = [" && leadinglepton_dedx>%s && leadinglepton_dedx<%s" % (lower, upper), ""]
             #zones["prompt"] = ["(tracks_SR_short+tracks_SR_long)==0", ""]
             #zones["promptMu%s" % dedx] = [" && (tracks_SR_short+tracks_SR_long)==0 && n_goodelectrons==0 && n_goodmuons==1 && leadinglepton_dedx>%s && leadinglepton_dedx<%s" % (lower, upper), ""]
 
@@ -479,7 +478,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
     for variable in fakerate_variables:
         variable = variable.replace(":", "_")
         for region in fakerate_regions:
-            for fakeratetype in ["fakerate", "fakerateIso"]:
+            for fakeratetype in ["fakerate", "fakerateMVA", "fakerateEDep10", "fakerateEDep20"]:
                 for category in ["short", "long"]:
                     if data_period == "Run2016":
                         this_data_period = "Run2016GH"
@@ -499,7 +498,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
         if iEv < event_start: continue
         if nevents > 0 and iEv > nevents + event_start: break
         
-        if (iEv+1) % 1000 == 0:
+        if (iEv+1) % 100 == 0:
             print "%s/%s" % (iEv + 1, nev_tree)
 
         weight = 1.0
@@ -507,11 +506,10 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             weight = 1.0 * event.CrossSection * event.puWeight / nev
 
         # get fakerate:
-        fakerates = {}
+        fakerates = get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fakerate)
         
         # loop over all event selections:
         for event_selection in event_selections:
-                        
             for zone in zones:
 
                 if "gen" in zone and is_data:
@@ -534,18 +532,11 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
                 scaling_factor = zones[zone][1]
                 if scaling_factor == "":
                     scaling = 1.0
-                else:
-                    #scaling = eval("event.%s" % scaling_factor)
+                else:                        
                     scaling = fakerates[scaling_factor]
-
-                if len(fakerates) == 0:
-                    fakerates = get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fakerate)
-                                                                                
+                                                                                                     
                 for variable in variables:
-                    
-                    if event_selection == "Baseline" and "region" not in variable:
-                        continue 
-                                             
+                                                                 
                     if "tracks_" in cut:
                         
                         cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone]
@@ -589,14 +580,12 @@ if __name__ == "__main__":
     parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 60)
     parser.add_option("--njobs", dest = "njobs")
     parser.add_option("--event_start", dest = "event_start", default = 0)
-    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate.root")
+    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate3.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--unmerged", dest="unmerged", action="store_true")
     (options, args) = parser.parse_args()
-    
-    options.unmerged = True
-    
+        
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
 
@@ -620,7 +609,8 @@ if __name__ == "__main__":
         input_files += glob.glob(options.inputfiles + "/Summer16.WW_TuneCUETP8M1*.root")
         input_files += glob.glob(options.inputfiles + "/Summer16.WZ_TuneCUETP8M1*.root")
         input_files += glob.glob(options.inputfiles + "/Summer16.ZZ_TuneCUETP8M1*.root")
-        input_files += glob.glob(options.inputfiles + "/Summer16.TTJets*.root")
+        input_files += glob.glob(options.inputfiles + "/Summer16.TTJets_DiLept*.root")
+        input_files += glob.glob(options.inputfiles + "/Summer16.TTJets_SingleLeptFromT*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*MET*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*SingleElectron*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*SingleMuon*.root")
@@ -651,14 +641,7 @@ if __name__ == "__main__":
         else:
 
             for input_file in input_files:
-                tree = TChain("Events")
-                tree.Add(input_file)
-                nev = tree.GetEntries()
-                nev_per_interval = int(nev/int(options.jobs_per_file))
-                 
-                for i in range(int(options.jobs_per_file)):
-                    event_start = i * nev_per_interval
-                    commands.append("./analyze_skim.py --input %s --output %s/%s --nev %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, event_start))
+                commands.append("./analyze_skim.py --input %s --output %s/%s --nev %s --event_start %s" % (input_file, options.prediction_folder, input_file.split("/")[-1], nev_per_interval, event_start))
            
         runParallel(commands, options.runmode, condorDir = "%s.condor" % options.prediction_folder, use_more_mem=False, use_more_time=21600, confirm=not options.start)
 
