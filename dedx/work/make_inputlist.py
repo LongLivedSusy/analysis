@@ -5,32 +5,19 @@ def make_inputlist(samples):
     userlist = []
     hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
 
-    print "Making input lists.."
+    print "Making input ntuples list.."
     if not os.path.exists("./inputs"):
 	os.system("mkdir -p inputs")
     
     for sample in samples:
 	outputname = sample
 	if "*" in sample : 
-	    outputname = sample.replace("*","_")
+	    outputname = sample.replace("*","-")
         print outputname
 	with open("./inputs/%s.txt"%outputname,'w') as f:
 	    for inputfile in sorted(glob(hub_folders + "/*"+sample+"*.root")):
 		f.write(inputfile+'\n')
    
-def split_inputlist(nfpj=100):
-    inputfiles = glob("./inputs/*.txt")
-    
-    print "Making splitted input lists.."
-    if not os.path.exists("./inputs/split"):
-	os.system("mkdir -p ./inputs/split")
-    
-    for inputfile in inputfiles:
-	outfile = inputfile.split('/')[-1].replace(".txt","_")
-	os.system("split -l %s -d -a 3 %s ./inputs/split/%s"%(nfpj,inputfile,outfile))
-
-
-
 
 if __name__ == "__main__" : 
    
@@ -175,8 +162,8 @@ if __name__ == "__main__" :
     "Run2017D*SingleMuon",
     "Run2017E*SingleMuon",
     "Run2017F*SingleMuon",
-    "Run2017G*SingleMuon",
-    "Run2017H*SingleMuon",
+    #"Run2017G*SingleMuon",
+    #"Run2017H*SingleMuon",
     ]
 
     Run2017_SingleElectron=[
@@ -185,16 +172,17 @@ if __name__ == "__main__" :
     "Run2017D*SingleElectron",
     "Run2017E*SingleElectron",
     "Run2017F*SingleElectron",
-    "Run2017G*SingleElectron",
-    "Run2017H*SingleElectron",
+    #"Run2017G*SingleElectron",
+    #"Run2017H*SingleElectron",
     ]
 
     samples=[]
     #samples.extend(Summer16_bkg)
+    samples.extend(Summer16_signal)
     #samples.extend(Run2016_SingleMuon)
     #samples.extend(Run2016_SingleElectron)
     #samples.extend(Fall17_bkg)
-    samples.extend(Run2017_SingleMuon)
+    #samples.extend(Run2017_SingleMuon)
     #samples.extend(Run2017_SingleElectron)
     
     #Input list for each process
