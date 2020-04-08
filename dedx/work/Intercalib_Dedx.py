@@ -7,8 +7,8 @@ gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1111)
 
-format_c = 'pdf'
-#format_c = 'png'
+#format_c = 'pdf'
+format_c = 'png'
 
 
 dict_Run2016_SingleMuon = {
@@ -34,8 +34,8 @@ dict_Run2016_SingleElectron = {
 dict_Run2017_SingleMuon = {
 		    'Run2017B_SingleMuon':'./output_mediumchunks/Run2017B_SingleMuon.root',
 		    'Run2017C_SingleMuon':'./output_mediumchunks/Run2017C_SingleMuon.root',
-	       	    #'Run2017D_SingleMuon':'./output_mediumchunks/Run2017D_SingleMuon.root',
-               	    #'Run2017E_SingleMuon':'./output_mediumchunks/Run2017E_SingleMuon.root',
+	       	    'Run2017D_SingleMuon':'./output_mediumchunks/Run2017D_SingleMuon.root',
+               	    'Run2017E_SingleMuon':'./output_mediumchunks/Run2017E_SingleMuon.root',
                	    'Run2017F_SingleMuon':'./output_mediumchunks/Run2017F_SingleMuon.root',
                	    #'Run2017G_SingleMuon':'./output_mediumchunks/Run2017G_SingleMuon.root',
                	    #'Run2017H_SingleMuon':'./output_mediumchunks/Run2017H_SingleMuon.root',
@@ -44,8 +44,8 @@ dict_Run2017_SingleMuon = {
 dict_Run2017_SingleElectron = {
 		    'Run2017B_SingleElectron':'./output_mediumchunks/Run2017B_SingleElectron.root',
 		    'Run2017C_SingleElectron':'./output_mediumchunks/Run2017C_SingleElectron.root',
-	       	    #'Run2017D_SingleElectron':'./output_mediumchunks/Run2017D_SingleElectron.root',
-               	    #'Run2017E_SingleElectron':'./output_mediumchunks/Run2017E_SingleElectron.root',
+	       	    'Run2017D_SingleElectron':'./output_mediumchunks/Run2017D_SingleElectron.root',
+               	    'Run2017E_SingleElectron':'./output_mediumchunks/Run2017E_SingleElectron.root',
                	    'Run2017F_SingleElectron':'./output_mediumchunks/Run2017F_SingleElectron.root',
                	    #'Run2017G_SingleElectron':'./output_mediumchunks/Run2017G_SingleElectron.root',
                	    #'Run2017H_SingleElectron':'./output_mediumchunks/Run2017H_SingleElectron.root',
@@ -125,7 +125,7 @@ dict_Fall17 = {
 	'ZJetsToNuNu_HT-600To800':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-600To800.root',
 	'ZJetsToNuNu_HT-800To1200':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-800To1200.root',
 	'ZJetsToNuNu_HT-1200To2500':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-1200To2500.root',
-	#'ZJetsToNuNu_HT-2500ToInf':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-2500ToInf.root',
+	'ZJetsToNuNu_HT-2500ToInf':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-2500ToInf.root',
 	}
 
 

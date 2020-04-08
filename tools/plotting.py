@@ -123,11 +123,13 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
 
     ## xsection and puweight scaling:
     if not is_data:
+        # MC
         if scaling != "":
             cutstring = "(%s)*CrossSection*puWeight*%s" % (cutstring, scaling)
         else:
             cutstring = "(%s)*CrossSection*puWeight" % (cutstring)
     else:
+        # Data
         if scaling != "":
             cutstring = "(%s)*%s" % (cutstring, scaling)
 
@@ -139,9 +141,10 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
     else:
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
 
+    #print "cutstring:", cutstring
     if not is_data:
         histo.Scale(1.0/nev)
-
+        #print "Scaled with nev = ", nev
     return histo
 
 

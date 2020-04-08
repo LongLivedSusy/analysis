@@ -255,27 +255,24 @@ def myround(x, base=5):
     return int(base * round(float(x)/base))
 
 
-def main(inputfiles,output_folder,nev):
+def main(inputfiles,output_dir,output,nev):
     
     # Adding Trees
     c = TChain("TreeMaker2/PreSelection")
-    with open(inputfiles,'r') as f:
-        lines = f.readlines()
-        for i,line in enumerate(lines):
-           print 'adding %sth file:'%i, line
-    	   c.Add(line.rstrip('\n'))
+    for i,inputfile in enumerate(inputfiles):
+        print 'adding {}th file:{}'.format(i,inputfile)
+    	c.Add(inputfile)
     
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
-    InputFileName = inputfiles.split('/')[-1]
     Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H','Summer16',
 		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F','Run2017G','Run2017H','RunIIFall17']
-    FileName = c.GetFile().GetName().split('/')[-1].split('.')[0]
+    FileName = c.GetFile().GetName().split('/')[-1]
     for identifier in Identifiers:
 	if identifier in FileName :
 	    Identifier = identifier 
 
-    print "InputFileName : ",InputFileName
+    print "FileName : ",FileName
     print "Indentifier : ",Identifier
     print "Total Entries : ",nentries 
     #c.Show(0)
@@ -285,7 +282,7 @@ def main(inputfiles,output_folder,nev):
     data_period = ""
     is_data = False
     for label in ["Run2016", "Run2017", "Run2018", "Summer16", "Fall17", "Autumn18"]:
-        if label in inputfiles.split('/')[-1]:
+        if label in FileName:
             data_period = label
             if "Run201" in label:
                 is_data = True
@@ -332,8 +329,7 @@ def main(inputfiles,output_folder,nev):
         hMask = '' 
     
     # Output file
-    output = inputfiles.split('/')[-1]+".root" 
-    fout = TFile(output_folder+'/'+output, "recreate")
+    fout = TFile(output_dir+'/'+output, "recreate")
 
     # write number of events to histogram:
     nev = c.GetEntries()
@@ -350,23 +346,23 @@ def main(inputfiles,output_folder,nev):
     hNlepton = TH1F('Nlepton','Nlepton',10,0,10)
     
     hTrkP = TH1F('hTrkP','hTrkP',100,0,10000)
-    hTrkP_tightmumatch = TH1F('hTrkP_tightmumatch','hTrkP_tightmumatch',100,0,10000)
-    hTrkP_tightmumatch_barrel = TH1F('hTrkP_tightmumatch_barrel','hTrkP_tightmumatch_barrel',100,0,10000)
-    hTrkP_tightmumatch_endcap = TH1F('hTrkP_tightmumatch_endcap','hTrkP_tightmumatch_endcap',100,0,10000)
-    hTrkP_tightgenmumatch = TH1F('hTrkP_tightgenmumatch','hTrkP_tightgenmumatch',100,0,10000)
-    hTrkP_tightgenmumatch_barrel = TH1F('hTrkP_tightgenmumatch_barrel','hTrkP_tightgenmumatch_barrel',100,0,10000)
-    hTrkP_tightgenmumatch_endcap = TH1F('hTrkP_tightgenmumatch_endcap','hTrkP_tightgenmumatch_endcap',100,0,10000)
-    hTrkP_tightelematch = TH1F('hTrkP_tightelematch','hTrkP_tightelematch',100,0,10000)
-    hTrkP_tightelematch_barrel = TH1F('hTrkP_tightelematch_barrel','hTrkP_tightelematch_barrel',100,0,10000)
-    hTrkP_tightelematch_endcap = TH1F('hTrkP_tightelematch_endcap','hTrkP_tightelematch_endcap',100,0,10000)
-    hTrkP_tightgenelematch = TH1F('hTrkP_tightgenelematch','hTrkP_tightgenelematch',100,0,10000)
-    hTrkP_tightgenelematch_barrel = TH1F('hTrkP_tightgenelematch_barrel','hTrkP_tightgenelematch_barrel',100,0,10000)
-    hTrkP_tightgenelematch_endcap = TH1F('hTrkP_tightgenelematch_endcap','hTrkP_tightgenelematch_endcap',100,0,10000)
+    hTrkP_tightmumatch =	TH1F('hTrkP_tightmumatch','P of track matched with tight muon',100,0,10000)
+    hTrkP_tightmumatch_barrel = TH1F('hTrkP_tightmumatch_barrel','P of track matched with tight muon in barrel region',100,0,10000)
+    hTrkP_tightmumatch_endcap = TH1F('hTrkP_tightmumatch_endcap','P of track matched with tight muon in endcap region',100,0,10000)
+    hTrkP_tightgenmumatch =	TH1F('hTrkP_tightgenmumatch','P of track matched with gen-matched muon',100,0,10000)
+    hTrkP_tightgenmumatch_barrel =  TH1F('hTrkP_tightgenmumatch_barrel','P of track matched with gen-matched muon in barrel region',100,0,10000)
+    hTrkP_tightgenmumatch_endcap =  TH1F('hTrkP_tightgenmumatch_endcap','P of track matched with gen-matched muon in endcap region',100,0,10000)
+    hTrkP_tightelematch =	TH1F('hTrkP_tightelematch','P of track matched with tight electron',100,0,10000)
+    hTrkP_tightelematch_barrel = TH1F('hTrkP_tightelematch_barrel','P of track matched with tight electron in barrel region',100,0,10000)
+    hTrkP_tightelematch_endcap = TH1F('hTrkP_tightelematch_endcap','P of track matched with tight electron in endcap region',100,0,10000)
+    hTrkP_tightgenelematch = TH1F('hTrkP_tightgenelematch','P of track matched with gen-matched electron',100,0,10000)
+    hTrkP_tightgenelematch_barrel = TH1F('hTrkP_tightgenelematch_barrel','P of track matched with gen-matched electron in barrel region',100,0,10000)
+    hTrkP_tightgenelematch_endcap = TH1F('hTrkP_tightgenelematch_endcap','P of track matched with gen-matched electron in endcap region',100,0,10000)
     
-    hTrkPt = TH1F('hTrkPt','hTrkPt',100,0,1000)
-    hTrkPt_mumatch = TH1F('hTrkPt_mumatch','hTrkPt_mumatch',100,0,1000)
-    hTrkPt_tightmumatch = TH1F('hTrkPt_tightmumatch','hTrkPt_tightmumatch',100,0,1000)
-    hTrkPt_tightmumatch_barrel = TH1F('hTrkPt_tightmumatch_barrel','hTrkPt_tightmumatch_barrel',100,0,1000)
+    hTrkPt = TH1F('hTrkPt','pT of track',100,0,1000)
+    hTrkPt_mumatch = TH1F('hTrkPt_mumatch','pT of track matched with muon',100,0,1000)
+    hTrkPt_tightmumatch = TH1F('hTrkPt_tightmumatch','pT of track matched with tight muon',100,0,1000)
+    hTrkPt_tightmumatch_barrel = TH1F('hTrkPt_tightmumatch_barrel','pT of track matched with tight muon in barrel region',100,0,1000)
     hTrkPt_tightmumatch_endcap = TH1F('hTrkPt_tightmumatch_endcap','hTrkPt_tightmumatch_endcap',100,0,1000)
     hTrkPt_tightgenmumatch = TH1F('hTrkPt_tightgenmumatch','hTrkPt_tightgenmumatch',100,0,1000)
     hTrkPt_tightgenmumatch_barrel = TH1F('hTrkPt_tightgenmumatch_barrel','hTrkPt_tightgenmumatch_barrel',100,0,1000)
@@ -481,17 +477,17 @@ def main(inputfiles,output_folder,nev):
 	    weight = c.CrossSection * c.puWeight
 
 	# data trigger and mc madHT check
-	if is_data and "MET" in InputFileName :
+	if is_data and "MET" in FileName :
 	    if not PassTrig(c,'MhtMet6pack') : continue
-	elif is_data and "SingleMuon" in InputFileName :
+	elif is_data and "SingleMuon" in FileName :
 	    if not PassTrig(c,'SingleMuon') : continue
-	elif is_data and "SingleElectron" in InputFileName :
+	elif is_data and "SingleElectron" in FileName :
 	    if not PassTrig(c,'SingleElectron') : continue
 	else :
 	    # madHT check
 	    if c.GetBranch("madHT"):
 		madHT = c.madHT
-	    	if not pass_background_stitching(InputFileName, madHT, phase): continue
+	    	if not pass_background_stitching(FileName, madHT, phase): continue
 	    
 	# MET filters, etc
 	if not passesUniversalSelection(c): continue
@@ -772,6 +768,8 @@ def main(inputfiles,output_folder,nev):
 	            drchi_gen = min(drchi_gen, track.DeltaR(gp))
 		    pTdiff_rel = abs(gp.Pt()-track.Pt())/track.Pt()
 	            if drchi_gen<0.01 and pTdiff_rel<0.1: 
+			dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    	dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 	        	#print 'Track matched with Gen-Chargino : trackPt:%s genchiPt:%s'%(track.Pt(),gp.Pt())
 			h2_TrkChi_P_Dedx.Fill(track.P(),dedx_pixel,weight)
 		    	h3_TrkChi_P_Eta_Dedx.Fill(track.P(),track.Eta(),dedx_pixel,weight)
@@ -813,14 +811,16 @@ def main(inputfiles,output_folder,nev):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input",dest="inputfiles")
-    parser.add_argument("--output_folder",default="outputs_smallchunks",dest="output_folder")
+    parser.add_argument("--input", nargs="*", dest="inputfiles", required=True)
+    parser.add_argument("--output_dir",default="outputs_smallchunks",dest="output_dir")
+    parser.add_argument("--output",default="output.root",dest="output")
     parser.add_argument("--nev",default=-1,dest="nev")
 
     args = parser.parse_args()
     inputfiles = args.inputfiles
-    output_folder = args.output_folder
+    output_dir = args.output_dir
+    output = args.output
     nev = int(args.nev)
 
-    main(inputfiles,output_folder,nev)
+    main(inputfiles,output_dir,output,nev)
 
