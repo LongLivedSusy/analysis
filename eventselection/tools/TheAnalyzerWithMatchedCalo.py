@@ -369,4 +369,113 @@ for ientry in range(nentries):
 			dedx = c.tracks_deDxHarmonic2pixel[itrack]
 		if abs(track.Eta())<1.5: dedxcalib = dedxcalib_barrel
 		else: dedxcalib = dedxcalib_endcap
-		disappearingTracks.append([track,dtstatus,dedxcalib*c.tr
+		disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], itrack])
+
+
+	if not len(disappearingTracks)>0: continue
+	
+	
+	RecoElectrons = []
+	for iel, ele in enumerate(c.Electrons):
+		if debugmode: print ientry, iel,'ele with Pt' , ele.Pt()
+		if not abs(ele.Eta())<2.4: continue
+		if debugmode: print 'passed eta and Pt'
+		if not c.Electrons_passIso[iel]: continue
+		if not c.Electrons_mediumID[iel]: continue
+		if ele.Pt()>candPtCut: RecoElectrons.append([ele, iel])
+
+
+	RecoMuons = []
+	for ilep, lep in enumerate(c.Muons):
+		if verbose: print ientry, ilep,'mu with Pt' , lep.Pt()
+		if not abs(lep.Eta())<2.4: continue
+		if verbose: print 'passed eta and Pt'
+		if not c.Muons_passIso[ilep]: continue
+		if not c.Muons_mediumID[ilep]: continue
+		if lep.Pt()>candPtCut: RecoMuons.append([lep,ilep])    
+
+
+	metvec = TLorentzVector()
+	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
+				  
+	if len(disappearingTracks)>0: 
+		dt = disappearingTracks[0][0]
+		pt = dt.Pt()
+		eta = abs(dt.Eta()) 
+		dedx = disappearingTracks[0][2] 
+		Log10DedxMass = TMath.Log10(TMath.Sqrt((dedx-3.01)*pow(c.tracks[disappearingTracks[0][3]].P(),2)/1.74))
+	else: 
+		print 'should never see this'
+		dt = TLorentzVector()
+		pt = -1
+		eta = -1
+		dedx = -1
+		Log10DedxMass = 0.01
+		
+	adjustedBTags = 0        
+	adjustedJets = []
+	adjustedHt = 0
+	adjustedMht = TLorentzVector()
+	adjustedMht.SetPxPyPzE(0,0,0,0)
+	for ijet, jet in enumerate(c.Jets):
+		if not jet.Pt()>30: continue			
+		if not abs(jet.Eta())<5.0: continue
+		someoverlap = False
+		for dt_ in disappearingTracks: 
+			if jet.DeltaR(dt_[0])<0.4: 
+				someoverlap = True
+				break
+		if someoverlap: continue
+		adjustedMht-=jet		
+		if not abs(jet.Eta())<2.4: continue
+		adjustedJets.append(jet)			
+		if c.Jets_bJetTagDeepCSVBvsAll[ijet]>btag_cut: adjustedBTags+=1 ####hellooo
+		adjustedHt+=jet.Pt()
+	adjustedNJets = len(adjustedJets)
+	mindphi = 4
+	for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht))) 
+	
+	if len(RecoElectrons)>0: 
+		mT = c.Electrons_MTW[RecoElectrons[0][1]]
+		if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoElectrons[0][0]+dt).M()
+		else: invmass = 999			
+	elif len(RecoMuons)>0: 
+		mT = c.Muons_MTW[RecoMuons[0][1]]
+		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoMuons[0][0]+dt).M()
+		else: invmass = 999			
+	else: 
+		mT = 999
+		invmass = 999	
+	
+	matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
+
+	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedx, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalo, disappearingTracks[0][1],Log10DedxMass]
+	fv.append(getBinNumber(fv))
+	fv.append(c.MET)
+	
+	if isdata: weight = 1
+	elif len(RecoElectrons)+len(RecoMuons)>0: 
+		weight = 0.9*signalweight#*c.puWeight
+	else: 
+		weight = signalweight*gtrig.Eval(c.MHT)#*c.puWeight
+		#weight = 1.0
+	hHtWeighted.Fill(c.HT,signalweight)
+		
+	#print fv
+	#for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]	
+	for regionkey in regionCuts:
+		for ivar, varname in enumerate(varlist_):
+			if selectionFeatureVector(fv,regionkey,varname):
+				fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], weight)
+		
+fnew_.cd()
+hHt.Write()
+hHtWeighted.Write()
+writeHistoStruct(histoStructDict, 'truth')
+print 'just created', fnew_.GetName()
+fnew_.Close()	
+fMask.Close()
+os.abort()
+
+
+
