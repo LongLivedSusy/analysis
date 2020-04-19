@@ -86,7 +86,7 @@ for key in binning: binningAnalysis[key] = binning[key]
 
 binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
-binningAnalysis['BinNumber'] = [54,1,55]
+binningAnalysis['BinNumber'] = [49,1,50]
 binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
 binningAnalysis['InvMass'] = [25,0,200]
 binningAnalysis['LepMT'] = [16,0,160]
@@ -278,7 +278,7 @@ def namewizard(name):
 	if 'DPhiMetSumTags' == name:
 		return r'#Delta#phi^{*}'
 	if 'InvMass' == name:
-		return r'm_{#ell,track}'
+		return r'm_{\ell,track}'
 	if 'DeDxAverage' == name:
 		return 'de/dx (MeV/cm)'
 	if 'TrkPt' == name:
@@ -634,13 +634,20 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	hComponentsUp.GetYaxis().SetTitleSize(0.11)
 	hComponentsUp.GetYaxis().SetTitleOffset(0.5)
 	hComponentsUp.GetYaxis().SetLabelSize(0.095)
-	hComponentsUp.Draw('hist')
-	hComponents[0].Draw('hist same')	
-	hComponentsDown.Draw('hist same')
+	#hComponentsUp.Draw('hist')
+	hComponents[0].SetLineColor(kGray+1)
+	hComponents[0].SetLineWidth(2)
+	hComponents[0].Draw('hist e')
+	#hComponentsDown.Draw('hist same')
 	for h in hComponents[1:]: 
+		#h.SetFillStyle(3244)
 		print 'there are actually components here!'
 		h.Draw('hist same')
-		cGold.Update()
+	ErrorHistogram = hComponents[0].Clone('ErrorHistogram')
+	ErrorHistogram.SetFillStyle(3244)
+	ErrorHistogram.SetFillColor(kGray)
+	ErrorHistogram.Draw('e2 sames')		
+	cGold.Update()
 	#hComponents[0].Draw('same') 
 	hTruth.Draw('p same')
 	hTruth.Draw('e same')    
@@ -696,7 +703,8 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	histoMethodFracErrorUp = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystUp')
 	histoMethodFracErrorUp.SetFillStyle(3001)
 	histoMethodFracErrorUp.SetLineColor(kWhite)	
-	histoMethodFracErrorUp.SetFillColor(hComponents[0].GetFillColor())	
+	histoMethodFracErrorUp.SetFillColor(kGray)#hComponents[0].GetFillColor())	
+	histoMethodFracErrorUp.SetFillStyle(3244)
 	histoMethodFracErrorDown = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystDown')
 	histoMethodFracErrorDown.SetLineColor(kWhite)
 	#histoMethodFracErrorDown.SetFillStyle(1001)
@@ -712,7 +720,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 		histoMethodFracErrorNom.SetBinContent(ibin, 1)		
 		histoMethodFracErrorNom.SetBinError(ibin, 0)
 	hRatio.GetYaxis().SetRangeUser(-0.2,2.7)	
-	hRatio.Draw('e0')    
+	hRatio.Draw('e0')
 	histoMethodFracErrorUp.Draw('same hist')	
 	histoMethodFracErrorNom.Draw('same')
 	histoMethodFracErrorDown.Draw('same hist')
@@ -723,7 +731,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	hTruth.SetTitle(title0)
 	pad1.Update()
 
-	return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hComponentsDown, pad1, pad2]
+	return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hComponentsDown, ErrorHistogram,pad1, pad2]
 
 def stampFab(lumi,datamc='MC'):
 	tl.SetTextFont(cmsTextFont)
@@ -1023,6 +1031,26 @@ susybypdg[1000022] = 'Chi1ne'
 susybypdg[1000023] = 'Chi2ne'
 susybypdg[1000024] = 'Chi1pm'
 
+def merge2dtbins(hist):
+	haux1 = TH1F('haux1','haux1',1,0,1)
+	haux2 = TH1F('haux2','haux2',1,0,1)
+	haux3 = TH1F('haux3','haux3',1,0,1)
+	bnxax = hist.GetXaxis()
+	haux1.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(49.5)))
+	haux1.SetBinError(1, hist.GetBinError(bnxax.FindBin(49.5)))
+	haux2.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(50.5)))
+	haux2.SetBinError(1, hist.GetBinError(bnxax.FindBin(50.5)))
+	haux3.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(51.5)))
+	haux3.SetBinError(1, hist.GetBinError(bnxax.FindBin(51.5)))
+	haux1.Add(haux2)	
+	haux1.Add(haux3)				
+	hist.SetBinContent(bnxax.FindBin(49.5), haux1.GetBinContent(1))
+	hist.SetBinError(bnxax.FindBin(49.5), haux1.GetBinError(1))
+	hist.SetBinContent(bnxax.FindBin(50.5),0)
+	hist.SetBinError(bnxax.FindBin(50.5),0)
+	hist.SetBinContent(bnxax.FindBin(51.5),0)
+	hist.SetBinError(bnxax.FindBin(51.5),0)
+	return hist
 
 triggerIndeces = {}
 triggerIndeces['MhtMet6pack'] = [124,109,110,111,112,114,115,116]#123
