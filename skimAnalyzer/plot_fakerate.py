@@ -12,25 +12,30 @@ if __name__ == "__main__":
     TH1D.SetDefaultSumw2()
 
     variables = [
+                 "tracks_pt",
                  "HT",
+                 "MHT",
                  "n_goodjets",
                  "n_allvertices",
                  "n_btags",
-                 "MinDeltaPhiMhtJets",
                  "HT:n_allvertices",
+                 "tracks_is_pixel_track",
                 ]
    
     histos = collections.OrderedDict()
    
-    fin = TFile("fakerate.root", "read")
-    region = "FakeRateDet"
+    fin = TFile("new28/fakerate.root", "read")
+    region = "QCDLowMHT"
     fakeratetype = "fakerate"
     
     for variable in variables:
-        for category in ["short", "long"]:
+        for category in ["combined", "short", "long"]:
             for dataset in ["Summer16", "Run2016"]:
 
-                label = "%s_%s_%s_%s_%s" % (variable.replace(":", "_"), region, dataset, fakeratetype, category)
+                if category == "combined":
+                    label = "%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype)
+                else:
+                    label = "%s_%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype, category)
 
                 print label
 
@@ -81,41 +86,64 @@ if __name__ == "__main__":
             
             for i, dataset in enumerate(["Run2016", "Summer16"]):
             
-                for category in ["long", "short"]:
+                for category in ["combined", "long", "short"]:
+                
+                    if category == "combined" and variable != "tracks_is_pixel_track":
+                        continue
                 
                     if category == "short":
                         color = kRed
-                    else:
+                    elif category == "long":
                         color = kBlue
+                    else:
+                        color = kBlack
                     
-                    label = "%s_%s_%s_%s_%s" % (variable, region, dataset, fakeratetype, category)
+                    if category == "combined":
+                        label = "%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype)
+                    else:
+                        label = "%s_%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype, category)
+                        
+                    print label
+                        
                     histos[label].SetLineStyle(i+1)
                     histos[label].SetLineColor(color)
+                    histos[label].GetYaxis().SetRangeUser(1e-3, 1)
                     histos[label].SetTitle(category + " tracks, " + dataset.replace("Summer16", "MC").replace("Run2016", "Data"))
                     if "Run201" in dataset:
                         data_histograms.append(histos[label])
                     else:
                         mc_histograms.append(histos[label])
+                        
+                    if category == "combined":
+                        break
 
-            hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, data_histograms[0], mc_histograms, lumi = 36.0, datamc = 'Data')
+            hratio, pad1, pad2 = shared_utils.FabDraw(canvas, legend, data_histograms[0], mc_histograms, lumi = 36.0, datamc = 'Data', ytitle = "Fake rate")
 
             hratio.SetMarkerColor(hratio.GetLineColor())            
             
-            hratio.GetYaxis().SetRangeUser(1e-3,1e3)
+            hratio.GetYaxis().SetRangeUser(1e-2,1e2)
+            hratio.GetXaxis().SetTitle(variable)
+            hratio.GetYaxis().SetTitle('Data/MC')
+            
+            data_histograms[0].GetYaxis().SetTitle('Fake rate')
             mc_histograms[0].GetYaxis().SetTitle('Fake rate')
 
             data_histograms[0].SetMarkerStyle(20)
             data_histograms[0].SetMarkerColor(data_histograms[0].GetLineColor())            
-            data_histograms[1].SetMarkerStyle(20)
-            data_histograms[1].SetMarkerColor(data_histograms[1].GetLineColor())
-            data_histograms[1].Draw("same p")
-            legend.AddEntry(data_histograms[1], data_histograms[1].GetTitle())
+            if category != "combined":
+                data_histograms[1].SetMarkerStyle(20)
+                data_histograms[1].SetMarkerColor(data_histograms[1].GetLineColor())
+                data_histograms[1].GetYaxis().SetTitle('Fake rate')
+                data_histograms[1].Draw("same p")
+                legend.AddEntry(data_histograms[1], data_histograms[1].GetTitle())
     
-            pad2.cd()
+                pad2.cd()
+                ratio2 = data_histograms[1].Clone()
+                ratio2.Divide(mc_histograms[1])
+                ratio2.Draw("same p")
+                
+    
             pad2.SetLogy()
-            ratio2 = data_histograms[1].Clone()
-            ratio2.Divide(mc_histograms[1])
-            ratio2.Draw("same p")
     
-            canvas.SaveAs("frplots/" + variable + ".pdf")
+            canvas.SaveAs("frplots/" + variable + "_" + category + ".pdf")
         
