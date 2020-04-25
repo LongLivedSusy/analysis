@@ -6,36 +6,33 @@ import time
 import numpy as np
 import random
 import math
-import json
 gROOT.SetStyle('Plain')
 gROOT.SetBatch(1)
 from code import interact
-import collections
+
 
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False 
 
-binning['MatchedCalo'] = [120,0,60]
-binning['DtStatus'] = [6,-3,3]
 
-
-maketree = True
+binning['MatchedCalo'] = [100,0,100]
 
 codeproduct = sys.argv[0].split('/')[-1].split('With')[0].split('Maker')[0]
+
 defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vormwald/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_50000-3*.root"
 #/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v2RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8_78_RA2AnalysisTree.root
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", "--verbosity", type=int, default=1,help="analyzer script to batch")
+parser.add_argument("-v", "--verbosity", type=int, default=1000,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
 parser.add_argument("-gk", "--useGenKappa", type=bool, default=False,help="use gen-kappa")
-parser.add_argument("-ps", "--processskims", type=str, default='False',help="use gen-kappa")
+parser.add_argument("-SmearLeps4Zed", "--SmearLeps4Zed", type=str, default='True')
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 args = parser.parse_args()
 nfpj = args.nfpj
-processskims = bool(args.processskims=='True')
+SmearLeps4Zed_ = bool(args.SmearLeps4Zed=='True')
 inputFileNames = args.fnamekeyword
 if ',' in inputFileNames: inputFiles = inputFileNames.split(',')
 else: inputFiles = glob(inputFileNames)
@@ -46,11 +43,6 @@ verbosity = args.verbosity
 print 'useGenKappa =', useGenKappa
 
 
-if inputFileNames=='skimRun2017B-SingleElectron.root':
-	need2skip =-1#that didn't work1102
-else: need2skip = -1
-
-
 genMatchEverything = False
 RelaxGenKin = True
 ClosureMode = True #false means run as if real data
@@ -59,7 +51,8 @@ UseJets_bJetTagDeepCSVBvsAll = False
 sayalot = False
 candPtCut = 30
 candPtUpperCut = 6499
-
+if SmearLeps4Zed_: kappasmearlevellabel = 'SmearLeps4ZedTrue'
+else: kappasmearlevellabel = 'SmearLeps4ZedFalse'
 
 
 
@@ -69,7 +62,7 @@ verbose = False
 isdata = 'Run201' in inputFileNames
 if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames or 'aksingh' in inputFileNames: 
 	is2016, is2017, is2018 = True, False, False
-elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames: 
+elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames or 'Run2017' in inputFileNames: 
 	is2016, is2017, is2018 = False, True, False
 elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or other' in inputFileNames: 
 	is2016, is2017, is2018 = False, True, True
@@ -90,60 +83,16 @@ print 'phase', phase
 
 if isdata: ClosureMode = False
 
-if isdata: 
-	if is2016: ffakerate = TFile('usefulthings/promptDataDrivenRun2016-forfr.root')
-	if is2017: ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')
-	if is2018: ffakerate = TFile('usefulthings/promptDataDrivenRun2018-forfr.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')	
-else:
-	if is2016: ffakerate = TFile('usefulthings/promptDataDrivenMCSummer16-forfr.root')
-	if is2017: ffakerate = TFile('usefulthings/promptDataDrivenMCFall17-forfr.root')
-hnum = ffakerate.Get('hFakeShortHadMhtSideband_HtTruth')
-hden = ffakerate.Get('hFakeShortHadMhtSidebandFakeCr_HtTruth')
-if not isdata:
-	#hnum.Add(ffakerate.Get('hPromptShortHadMhtSideband_HtTruth'))
-	#hden.Add(ffakerate.Get('hPromptShortHadMhtSidebandFakeCr_HtTruth'))
-	a=2
-hfrshort = hnum.Clone('hfrshort')
-hfrshort.Divide(hden)
-
-
-hnum = ffakerate.Get('hFakeLongHadMhtSideband_HtTruth')
-hden = ffakerate.Get('hFakeLongHadMhtSidebandFakeCr_HtTruth')
-if not isdata:
-	#hnum.Add(ffakerate.Get('hPromptLongHadMhtSideband_HtTruth'))
-	#hden.Add(ffakerate.Get('hPromptLongHadMhtSidebandFakeCr_HtTruth'))	
-	a = 2
-hfrlong = hnum.Clone('hfrlong')
-hfrlong.Divide(hden)
-
-	
-hfrlong = hnum.Clone('hfrlong')
-hfrlong.Divide(hden)
-
-
-fakeax = hnum.GetXaxis()
-def getfakerate(ht, hfr):
-	return hfr.GetBinContent(fakeax.FindBin(ht))
-
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
 
 
-calib_version = '-SingleElectron'
-if 'Run2016' in identifier: 
-	keyforcalibs = identifier.split('-')[0].replace('skims','').replace('skim','')+calib_version
-	dedxcalib_barrel = datacalibdict_Run2016_barrel[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-	dedxcalib_endcap = datacalibdict_Run2016_endcap[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-elif 'Run2017' in identifier: 
-	keyforcalibs = identifier.split('-')[0].replace('skims','').replace('skim','')+calib_version
-	dedxcalib_barrel = datacalibdict_Run2017_barrel[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-	dedxcalib_endcap = datacalibdict_Run2017_endcap[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']	
+if 'Run201' in identifier: 
+	dedxcalib_barrel = datacalibdict_SingleElectron_barrel[identifier.split('-')[0]]
+	dedxcalib_endcap = datacalibdict_SingleElectron_endcap[identifier.split('-')[0]]	
 elif 'Summer16' in identifier: 
-	dedxcalib_barrel = 1.
-	dedxcalib_endcap = datacalibdict_Run2016_endcap['Summer16']/datacalibdict_Run2016_barrel['Summer16']
-elif 'Fall17' in identifier: 
-	dedxcalib_barrel = datacalibdict_Run2017_barrel['Fall17']/datacalibdict_Run2016_barrel['Summer16']		
-	dedxcalib_endcap = datacalibdict_Run2017_endcap['Fall17']/datacalibdict_Run2016_barrel['Summer16']		
+	dedxcalib_barrel = datacalibdict_SingleElectron_barrel['Summer16']	
+	dedxcalib_endcap = datacalibdict_SingleElectron_endcap['Summer16']
 else: 
 	dedxcalib_barrel = 1.0
 	dedxcalib_endcap = 1.0	
@@ -156,8 +105,6 @@ moreargs = moreargs.split('--fnamekeyword')[-1]
 moreargs = ' '.join(moreargs.split()[1:])
 moreargs = moreargs.replace(' ','').replace('--','-')
 newfname = newfname.replace('.root',moreargs+'.root')
-if maketree:
-	newfname = newfname.replace('Hist', 'Tree')
 
 fnew = TFile(newfname,'recreate')
 print 'making', fnew.GetName()
@@ -167,70 +114,29 @@ hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 
 inf = 999999
 
-calm = 20
-calh = 25
-
-calm = 10
-calh = 15
-
-calm = 15
-calh = 20
-
-calm = 25
-calh = 40
-
-
-
-lowht = 0
 regionCuts = {}
-varlist_                                           = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'Met']
-if processskims:
-	regionCuts['Baseline']                         = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (0,inf),    (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortLowMhtBaseline']              = [(lowht,inf), (100,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (1,1),    (-inf,inf),  (-inf,inf)]
-	#varlist_                                     = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'Met']
-	regionCuts['ShortBaseline']                    = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (1,1),    (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortHadBaseline']                 = [(lowht,inf),(150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (0,0),    (0,inf),   (100,inf), (candPtCut,inf), (0,2.4), (0,10),        (1,1),     (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortSMuBaseline']                 = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (1,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),       (1,1),     (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortSElBaseline']                 = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,inf ),  (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),       (1,1),     (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortSElValidationZLL']            = [(0,inf),     (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,inf ),  (0,0),    (65,110),  (0,inf),  (candPtCut,inf), (0,2.4), (0,10),        (1,1),     (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortSElValidationMT']             = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,1 ),    (0,0),    (0,inf),   (0,90),   (candPtCut,inf), (0,2.4), (0,10),      (1,1),     (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortSMuValidationMT']             = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0),     (1,1),    (110,inf), (0,90),   (candPtCut,inf), (0,2.4), (0,10),      (1,1),     (-inf,inf),  (-inf,inf)]
-	regionCuts['ShortHadMhtSideband']              = [(lowht,inf), (0,100),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,0),   (0,0),      (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),       (1,1),     (-inf,inf),  (-inf,inf)]
-	#varlist_                                       = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'Met']
-	regionCuts['LongBaseline']                     = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (2,2),    (-inf,inf),  (-inf,inf)]
-	regionCuts['LongLowMhtBaseline']               = [(lowht,inf), (100,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (2,2),    (-inf,inf),  (-inf,inf)]
-	regionCuts['LongHadBaseline']                  = [(lowht,inf),(150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (0,0),    (0,inf),   (100,inf), (candPtCut,inf), (0,2.4), (0,10),        (2,2),     (-inf,inf),  (-inf,inf)]
-	regionCuts['LongSMuBaseline']                  = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (1,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),       (2,2),     (-inf,inf),  (-inf,inf)]
-	regionCuts['LongSElBaseline']                  = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,inf ),  (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),       (2,2),     (-inf,inf),  (-inf,inf)]
-	regionCuts['LongSElValidationZLL']             = [(0,inf),     (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,inf ),  (0,0),    (65,110),  (0,inf),  (candPtCut,inf), (0,2.4), (0,10),        (2,2),     (-inf,inf),  (-inf,inf)]
-	regionCuts['LongSElValidationMT']              = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,1 ),    (0,0),    (0,inf), (0,90),   (candPtCut,inf), (0,2.4), (0,10),      (2,2),     (-inf,inf),  (-inf,inf)]
-	regionCuts['LongSMuValidationMT']              = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0),     (1,1),    (0,inf), (0,90),   (candPtCut,inf), (0,2.4), (0,10),      (2,2),     (-inf,inf),  (-inf,inf)]
-	regionCuts['LongHadMhtSideband']               = [(lowht,inf), (0,100),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0),     (0,0),    (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),       (2,2),     (-inf,inf),  (-inf,inf)]
-#varlist_                                       = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'Met']
+varlist_                                   = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons',   'NMuons', 'InvMass', 'LepMT', 'NPions',   'TrkPt',        'TrkEta',    'MatchedCalo', 'Log10DedxMass','BinNumber', 'Met']
+regionCuts['Baseline']                     = [(0,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),      (0,inf),    (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4), (0,10),     (-inf,inf),  (-inf,inf)]
+regionCuts['BaselineCaloSideband']         = [(0,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),      (0,inf),    (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4), (30,9999),     (-inf,inf),  (-inf,inf)]
+regionCuts['HadBaseline']                  = [(150,inf), (150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (0,0),    (0,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),       (0,10),    (-inf,inf),  (-inf,inf)]
+regionCuts['HadBaselineCaloSideband']      = [(150,inf), (150,inf),(1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (0,0),    (0,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),      (30,9999),     (-inf,inf),  (-inf,inf)]
+regionCuts['SMuBaseline']                  = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),    (0,10),     (-inf,inf),  (-inf,inf)]
+regionCuts['SMuBaselineCaloSideband']      = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0 ),      (1,inf),  (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),    (30,9999),     (-inf,inf),  (-inf,inf)]
+regionCuts['SElBaseline']                  = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),     (0,inf), (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),    (0,10),    (-inf,inf),  (-inf,inf)]
+regionCuts['SElBaselineCaloSideband']      = [(150,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),     (0,inf), (110,inf), (90,inf),   (0,inf),    (candPtCut,inf), (0,2.4),    (30,9999),    (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationZLL']             = [(0,inf),   (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,0),     (65,110), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),       (0,10), (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationZLLCaloSideband'] = [(0,inf),   (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,inf ),    (0,0),     (65,110), (0,inf),   (0,inf),    (candPtCut,inf), (0,2.4),       (30,9999), (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationMT']              = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,1 ),      (0,0),     (0,inf),  (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),        (0,10),   (-inf,inf),  (-inf,inf)]
+regionCuts['SElValidationMTCaloSideband']  = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (1,1 ),      (0,0),     (0,inf),  (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),        (30,9999),   (-inf,inf),  (-inf,inf)]
+regionCuts['SMuValidationMT']              = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0),       (1,1),     (0,inf),  (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),        (0,10),    (-inf,inf),  (-inf,inf)]
+regionCuts['SMuValidationMTCaloSideband']  = [(0,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,0),       (1,1),     (0,inf),  (0,70),   (0,inf),    (candPtCut,inf), (0,2.4),        (30,9999),    (-inf,inf),  (-inf,inf)]
 
+
+
+zoneOfDedx = {}
+zonebinning = binning['DeDxZones']
 dedxidx = varlist_.index('DeDxAverage')
 srindex = varlist_.index('BinNumber')
-mcalidx = varlist_.index('MatchedCalo')
-statidx = varlist_.index('DtStatus')
-
-regionkeys = regionCuts.keys()
-for key in regionkeys:
-
-	newlist2 = list(regionCuts[key])
-	newlist2[mcalidx] = (calm,calh)
-	newkey = key+'CaloSideband'
-	regionCuts[newkey] = newlist2
-	
-	newlist1 = list(regionCuts[key])
-	newlist1[statidx] = (-regionCuts[key][statidx][1],-regionCuts[key][statidx][0])
-	newkey = key+'FakeCr'
-	regionCuts[newkey] = newlist1
-	newlist3 = list(regionCuts[key])
-	newlist3[mcalidx] = (calm,calh)
-	newlist3[statidx] = (-regionCuts[key][statidx][1],-regionCuts[key][statidx][0])
-	newkey = key+'CaloSidebandFakeCr'
-	regionCuts[newkey] = newlist3	
-
 
 
 #zonebinning = [0.0,99]
@@ -245,7 +151,11 @@ for region in regionCuts:
 	histname = 'Track'+region+'_'+'EtaVsPhiDT'
 	hEtaVsPhiDT[region] = TH2F(histname,histname,160,-3.2,3.2,250,-2.5,2.5)# need to try this
 	for var in varlist_:
-		histname = 'Prompt'+region+'_'+var
+		histname = 'El'+region+'_'+var
+		histoStructDict[histname] = mkHistoStruct(histname)
+		histname = 'Mu'+region+'_'+var
+		histoStructDict[histname] = mkHistoStruct(histname)
+		histname = 'Pi'+region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname)
 		histname = 'Fake'+region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname)
@@ -279,13 +189,7 @@ for ifile, f in enumerate(inputFiles):
 	c.Add(f)
 
 nentries = c.GetEntries()
-
-nentries = 3000
-
-if maketree:
-	fnew.mkdir('TreeMaker2')
-	fnew.cd('TreeMaker2/')
-	tree_out = c.CloneTree(0)
+#nentries = 100
 
 c.Show(0)
 c.GetEntry(0)
@@ -323,25 +227,16 @@ if 'MET' in inputFileNames:
 	ismu = False
 	isel = False
 	ismet= True	
-	isjetht = False	
 elif 'SingleMu' in inputFileNames: 
 	trigkey = 'SingleMuon'
 	ismu = True
 	isel = False
 	ismet= False	
-	isjetht = False	
-elif 'SingleEl' in inputFileNames or 'EGamma' in inputFileNames: 
+elif 'SingleEl' in inputFileNames or 'SingleEG' in inputFileNames: 
 	trigkey = 'SingleElectron'
 	ismu = False
 	isel = True
 	ismet= False	
-	isjetht = False	
-elif 'JetHT' in inputFileNames: 
-	trigkey = 'HtTrain'
-	ismu = False
-	isel = False
-	ismet= False
-	isjetht = True
 
 fMask = TFile('usefulthings/Masks.root')
 if 'Run2016' in inputFileNames: 
@@ -388,16 +283,15 @@ lastlumi = -1
 lastrun = -1
 
 
-
 matchedpinum = 0.0001
 unmatchedpinum = 0.0001
 print nentries, 'events to be analyzed'
 for ientry in range(nentries):
-	if ientry==1102: continue
 	if debugmode:
 		if not ientry in [29168]: continue
 	if ientry%verbosity==0:
 		print 'now processing event number', ientry, 'of', nentries
+		os.system('echo "now processing '+str(ientry)+'of'+str(nentries)+'" > funnylog'+str(ientry)+'.log')
 		if ientry==0: 
 			for itrig, trigname in enumerate(c.TriggerNames):
 				print itrig, trigname, c.TriggerPass[itrig], c.TriggerPrescales[itrig]
@@ -444,13 +338,12 @@ for ientry in range(nentries):
 	
 	basicTracks = []
 	disappearingTracks = []    
-	fakecrTracks = []
 	nShort, nLong = 0, 0
 	for itrack, track in enumerate(c.tracks):
 		if verbose: print itrack, 'no selection at all', track.Pt(), 'eta', track.Eta()        
 		if not track.Pt() > 10 : continue
 		if not abs(track.Eta()) < 2.4: continue
-		##if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue    #I kind of want to drop this eventually
+		if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue    #I kind of want to drop this eventually
 		if verbose: print itrack, 'before baseline pt', track.Pt(), 'eta', track.Eta()        
 		if not isBaselineTrack(track, itrack, c, hMask): continue
 				
@@ -460,7 +353,7 @@ for ientry in range(nentries):
 		if verbose: print ientry, itrack, 'basic track!', track.Pt()
 		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
 		if verbose: print ientry, itrack, 'mva results were:', dtstatus, mva
-		if dtstatus==0: continue
+		if not dtstatus>0: continue
 		if verbose: print ientry, itrack, 'still got this', track.Pt()
 			
 		drlep = 99
@@ -474,29 +367,24 @@ for ientry in range(nentries):
 		if verbose: print ientry, 'passeslepton'
 		isjet = False
 		for jet in c.Jets:
-			if not jet.Pt()>25: continue
 			if jet.DeltaR(track)<0.4: 
 				isjet = True
 				break
-		if isjet: 
-			continue
-		#print ientry, 'found disappearing track w pT =', track.Pt(), dtstatus
-		#print 'track has pixel layers', c.tracks_pixelLayersWithMeasurement[itrack]		
+		if isjet: continue
+		print ientry, 'found disappearing track w pT =', track.Pt(), dtstatus
+		print 'track has pixel layers', c.tracks_pixelLayersWithMeasurement[itrack]		
 		
-		if abs(dtstatus)==1: nShort+=1
-		if abs(dtstatus)==2: nLong+=1         
-		if verbose: print ientry, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta(), dtstatus   
+		if dtstatus==1: nShort+=1
+		if dtstatus==2: nLong+=1         
+		if verbose: print ientry, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta()     
 		
-		if abs(track.Eta())<1.5: dedxcalib = dedxcalib_barrel
+		if abs(track.Eta())<1.4: dedxcalib = dedxcalib_barrel
 		else: dedxcalib = dedxcalib_endcap
-		
-		disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], itrack])
+		if dtstatus==1: disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], itrack])
+		if dtstatus==2: disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], itrack])			
 
 
 	if not len(disappearingTracks)>=1: continue
-	
-	if maketree:
-		tree_out.Fill()
 	
 			
 	genels = []
@@ -521,10 +409,10 @@ for ientry in range(nentries):
 			#print 'isoPionTracks', c.isoPionTracks
 			genpis.append(gp)
 			
-	'''		
+			
 	for dt in disappearingTracks:
 		track = dt[0]
-		itrack = dt[-1]
+		print ientry, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta(), 'status', dtstatus, mva
 		if isMatched2(track, genels, 0.02):
 			print ientry, '---->is electron'
 		elif isMatched2(track, genmus, 0.02):
@@ -535,12 +423,12 @@ for ientry in range(nentries):
 				print igp, bool(c.GenTaus_had[igp]==True), c.GenTaus_NProngs[igp] 
 		else:
 			print 'is fake'			
-	'''
+
 
 	RecoElectrons = []
 	for ilep, lep in enumerate(c.Electrons):
 		if debugmode: print ientry, ilep, 'ele with Pt' , lep.Pt()
-		#if (abs(lep.Eta()) < 1.566 and abs(lep.Eta()) > 1.4442): continue
+		if (abs(lep.Eta()) < 1.566 and abs(lep.Eta()) > 1.4442): continue
 		if not abs(lep.Eta())<2.4: continue
 		if debugmode: print ilep, 'passed eta and Pt'
 		if not c.Electrons_passIso[ilep]: continue
@@ -554,7 +442,7 @@ for ientry in range(nentries):
 	RecoMuons = []
 	for ilep, lep in enumerate(c.Muons):
 		if verbose: print ientry, ilep,'mu with Pt' , lep.Pt()
-		#if (abs(lep.Eta()) > 1.4442 and abs(lep.Eta()) < 1.566): continue
+		if (abs(lep.Eta()) > 1.4442 and abs(lep.Eta()) < 1.566): continue
 		if not abs(lep.Eta())<2.4: continue
 		if not c.Muons_passIso[ilep]: continue
 		if not c.Muons_tightID[ilep]: continue
@@ -567,22 +455,15 @@ for ientry in range(nentries):
 		weight = 1                    ###this needs some help
 		if ismet: 
 			if not (len(RecoElectrons)+len(RecoMuons)==0): continue
-			if not c.MHT>150: continue
 		if ismu: 
 			if not (len(RecoMuons)>0 and len(RecoElectrons)==0): continue			
 		if isel: 
 			if not (len(RecoElectrons)>0): continue
-		if isjetht:
-			if not (c.MHT<150): continue
-			if not (len(RecoMuons)==0 and len(RecoElectrons)==0): continue
-	else:
-		if processskims: wof = c.weight
-		else: wof = c.CrossSection
-		if len(RecoElectrons)+len(RecoMuons)>0: 
-			weight = 0.9*wof*c.puWeight
-		else: 
-			weight = wof*gtrig.Eval(c.MHT)*c.puWeight
-
+						
+	elif len(RecoElectrons)+len(RecoMuons)>0: 
+		weight = c.CrossSection#*c.puWeight
+	else: 
+		weight = c.CrossSection*gtrig.Eval(c.MHT)#*c.puWeight
 
 	if isdata: hHtWeighted.Fill(c.HTOnline,weight)
 	else: hHtWeighted.Fill(c.madHT,weight)	
@@ -594,8 +475,7 @@ for ientry in range(nentries):
 	isPromptEl = isMatched2(dt, genels, 0.02)
 	isPromptMu = isMatched2(dt, genmus, 0.02)
 	isPromptPi = isMatched2(dt, genpis, 0.02)
-	if isdata: isPromptEl, isPromptMu, isPromptPi, isfake = True, True, True, True
-	else: isfake = not (isPromptEl or isPromptMu or isPromptPi)
+	if isdata: isPromptEl, isPromptMu, isPromptPi = True, True, True
 
 	#if not (isPromptEl or isPromptMu or isPromptPi): continue
 
@@ -644,55 +524,48 @@ for ientry in range(nentries):
 	if log10dedxmass!=log10dedxmass: log10dedxmass = -10	
 	
 	
-	if len(RecoMuons)>0: 
-		mT = c.Muons_MTW[RecoMuons[0][1]]
-		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoMuons[0][0]+dt).M()
-		else: invmass = 999				
-	elif len(RecoElectrons)>0: 
+	if len(RecoElectrons)>0: 
 		mT = c.Electrons_MTW[RecoElectrons[0][1]]
 		if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoElectrons[0][0]+dt).M()
+		else: invmass = 999			
+	elif len(RecoMuons)>0: 
+		mT = c.Muons_MTW[RecoMuons[0][1]]
+		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoMuons[0][0]+dt).M()
 		else: invmass = 999			
 	else: 
 		mT = 999
 		invmass = 999
 	
 				
-	matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
-	fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta,matchedcalo, disappearingTracks[0][1], log10dedxmass]
-	#print 'once things are stable, I suggest consolodating the nshort, nlong into the dtstatus thingy'
+	matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]
+	fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, 0, pt, eta,matchedcalo, log10dedxmass]
 	fv.append(getBinNumber(fv))
-	fv.extend([c.MET])
-	if abs(disappearingTracks[0][1])==1: FR = getfakerate(fv[0], hfrshort)
-	if abs(disappearingTracks[0][1])==2: FR = getfakerate(fv[0], hfrlong)	
+	fv.extend([c.MET])		
 	for regionkey in regionCuts:
-		if 'MhtSideband' in regionkey and (not isdata): weight_ = weight/gtrig.Eval(c.MHT)
-		else: weight_ = weight
-		if selectionFeatureVector(fv,regionkey,'Mht'): fillth2(hEtaVsPhiDT[regionkey], phi, dt.Eta())
+	
+		if selectionFeatureVector(fv,regionkey,'Mht'): fillth2(hEtaVsPhiDT[regionkey], phi, eta)
 		
 		for ivar, varname in enumerate(varlist_):
 				if selectionFeatureVector(fv,regionkey,varname):
-						if (isPromptEl or isPromptMu or isPromptPi): 
-							fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Truth, fv[ivar], weight_)
-							fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method,fv[ivar], FR*weight_)							
-						if isfake:
-							#print 'filling something with weight', weight_, 'Fake'+regionkey+'_'+varname
-							fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Truth,   fv[ivar], weight_)
-							fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method,  fv[ivar], FR*weight_)
+						if isPromptEl: 
+							print 'filling', histoStructDict['El'+regionkey+'_'+varname].Truth
+							fillth1(histoStructDict['El'+regionkey+'_'+varname].Truth,fv[ivar], weight)								
+						elif isPromptMu: 
+							fillth1(histoStructDict['Mu'+regionkey+'_'+varname].Truth,fv[ivar], weight)
+						elif isPromptPi: 
+							fillth1(histoStructDict['Pi'+regionkey+'_'+varname].Truth,fv[ivar], weight)
+						else:
+							fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Truth,fv[ivar], weight)
 
 
 
 fnew.cd()
+writeHistoStruct(histoStructDict, 'truth')
+for key_ in hEtaVsPhiDT: hEtaVsPhiDT[key_].Write()
 hHt.Write()
 hHtWeighted.Write()
-
-writeHistoStruct(histoStructDict, 'truthmethod')
-for key_ in hEtaVsPhiDT: hEtaVsPhiDT[key_].Write()
-	
-if maketree and not processskims:
-	fnew.cd('TreeMaker2/')
-	tree_out.Write()
-	
-
+print 'just created', fnew.GetName()
+fnew.Close()
 
 if isdata:
 	if len(runs) > 0:
@@ -707,9 +580,8 @@ if isdata:
 					runs_compacted[run].append([lumisec, lumisec])
 
 		json_content = json.dumps(runs_compacted)
-		with open(fnew.GetName().replace(".root", ".json"), "w") as fo:
+		with open(fnew_.GetName().replace(".root", ".json"), "w") as fo:
 			fo.write(json_content)
 
+	fnew_.Close()
 
-print 'just created', fnew.GetName()
-fnew.Close()

@@ -1,60 +1,60 @@
+import os, sys
 from ROOT import *
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 
-fofinterest = TFile('output/totalweightedbkgsDataDrivenDataNoSmear.root')
+redoBinning = binningAnalysis
+sourcename = 'output/totalweightedbkgsDataDrivenDataNoSmear.root'
+sourcename = 'output/totalweightedbkgsDataDrivenMCYesZSmear.root'
+sourcename = 'output/totalweightedbkgsDataDrivenMCSmearLeps4ZedFalse.root'
+sourcename = 'closureAbcd_phase0.root'
+fofinterest = TFile(sourcename)
+
+
 fofinterest.ls()
 
 fnew = TFile('prompt-bg-results.root','recreate')
-vars = ['BinNumber', 'Log10DedxMass', 'NJets', 'Mht', 'DeDxAverage']
+vars = ['BinNumber']#, 'Log10DedxMass', 'NJets', 'Mht', 'DeDxAverage']
 
 for var in vars:
-
+	kinvar = var.replace('Method','').replace('Truth','').replace('Control','')
 	hElectron = fofinterest.Get('hElBaseline_'+var+'Method')
-	hMuon = fofinterest.Get('hMuBaseline_'+var+'Method')
-	hPion = fofinterest.Get('hPiBaseline_'+var+'Method')
-	hPion.Scale(0.5)
+	
+	print 'collecting', 'hElBaseline_'+var+'Method'
+	
 	hTruth = fofinterest.Get('hElBaseline_'+var+'Truth')
-	hists = [hElectron, hMuon, hPion, hTruth]
+	
+	print 'hElectron.GetXaxis().GetBinLowEdge(1)', hElectron.GetXaxis().GetBinLowEdge(1)
+	hists = [hElectron, hTruth]
 	for hist in hists:
 		xax = hist.GetXaxis()
-		hist.SetBinContent(xax.FindBin(0.5), 0)
+		#hist.SetBinContent(xax.FindBin(0.1), 0)
+		if len(redoBinning[kinvar])!=3:
+			nbins = len(redoBinning[kinvar])-1
+			newxs = array('d',redoBinning[kinvar])
+			hist = hist.Rebin(nbins,'',newxs)
+		else:
+			newbinning = []
+			stepsize = round(1.0*(redoBinning[kinvar][2]-redoBinning[kinvar][1])/redoBinning[kinvar][0],4)
+			for ibin in range(redoBinning[kinvar][0]+1): newbinning.append(redoBinning[kinvar][1]+ibin*stepsize)
+			nbins = len(newbinning)-1
+			newxs = array('d',newbinning)
+			hist = hist.Rebin(nbins,'',newxs)
+			print 'hist.GetXaxis().GetBinLowEdge(1)', hist.GetXaxis().GetBinLowEdge(1)
 
-	hElectron.Write()
-	hMuon.Write()
-	hPion.Write()
+	fnew.cd()
+	hElectron = hists[0]
+	hTruth = hists[1]
+	
+	
+	
+	print 'hElectron.GetXaxis().GetBinLowEdge(1)', hElectron.GetXaxis().GetBinLowEdge(1)
+	thing = hElectron.GetName().replace('Zone2p1to4p0','')
+	thing = thing.replace('Control','Method')	
+	hElectron.Write(thing)
+
 	#hTruth.Write()
 	
-	
-	hElectronMuVeto = fofinterest.Get('hElBaselineMuVeto_'+var+'Method')
-	hMuonMuVeto = fofinterest.Get('hMuBaselineMuVeto_'+var+'Method')
-	hPionMuVeto = fofinterest.Get('hPiBaselineMuVeto_'+var+'Method')
-	hPionMuVeto.Scale(0.5)
-	hTruthMuVeto = fofinterest.Get('hElBaselineMuVeto_'+var+'Truth')
-	hists = [hElectronMuVeto, hMuonMuVeto, hPionMuVeto, hTruthMuVeto]
-	for hist in hists:
-		xax = hist.GetXaxis()
-		hist.SetBinContent(xax.FindBin(0.5), 0)
 
-	hElectronMuVeto.Write()
-	hMuonMuVeto.Write()
-	hPionMuVeto.Write()
-	#hTruthMuVeto.Write()
-	
-	hElectronMuVeto = fofinterest.Get('hElHighNJetBaseline_'+var+'Method')
-	hMuonMuVeto = fofinterest.Get('hMuHighNJetBaseline_'+var+'Method')
-	hPionMuVeto = fofinterest.Get('hPiHighNJetBaseline_'+var+'Method')
-	hPionMuVeto.Scale(0.5)
-	hTruthMuVeto = fofinterest.Get('hElHighNJetBaseline_'+var+'Truth')
-	hists = [hElectronMuVeto, hMuonMuVeto, hPionMuVeto, hTruthMuVeto]
-	for hist in hists:
-		xax = hist.GetXaxis()
-		hist.SetBinContent(xax.FindBin(0.5), 0)
-
-	hElectronMuVeto.Write()
-	hMuonMuVeto.Write()
-	hPionMuVeto.Write()
-	#hTruthMuVeto.Write()
-	
-		
 
 print 'just created', fnew.GetName()
 
