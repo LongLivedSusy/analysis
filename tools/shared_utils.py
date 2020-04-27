@@ -79,7 +79,7 @@ binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [58,0,58]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [100,0,10]
-binning['DeDxZones'] = [0.0,dedxcutLow,dedxcutMid,99]
+binning['MinDPhiMhtHemJet'] = [16,0,3.2]
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
@@ -268,7 +268,7 @@ def namewizard(name):
 	if 'MinDPhiMhtJets' == name:
 		return r'#Delta#phi_{min}'                        
 	if 'NLeptons' == name:
-		return r'n_{\ell}'
+		return r'n_{l}'
 	if 'NMuons' == name:
 		return r'n(#mu)'
 	if 'NTags' == name:
@@ -278,7 +278,7 @@ def namewizard(name):
 	if 'DPhiMetSumTags' == name:
 		return r'#Delta#phi^{*}'
 	if 'InvMass' == name:
-		return r'm_{\ell,track}'
+		return r'm_{l,track}'
 	if 'DeDxAverage' == name:
 		return 'de/dx (MeV/cm)'
 	if 'TrkPt' == name:
@@ -1020,6 +1020,18 @@ binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),  (0,0),   (0,0))]   = 49
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),  (0,0),   (1,inf))] = 50
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),  (1,inf), (0,inf))] = 51
+
+
+def GetMinDeltaPhiMhtHemJets(jets, mht):
+    lowestDPhi = 10
+    for jet in jets:
+        if not jet.Pt()>30: continue
+        if -3.2<jet.Eta() and jet.Eta()<-1.2 and -1.77<jet.Phi() and jet.Phi()<-0.67:
+            if abs(jet.DeltaPhi(mht))<lowestDPhi:
+                lowestDPhi = abs(jet.DeltaPhi(mht))
+    if lowestDPhi<0: return 10
+    else: return lowestDPhi
+
 
 susybypdg = {}
 susybypdg[1000021] = 'Glu'
