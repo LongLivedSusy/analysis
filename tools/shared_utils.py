@@ -80,6 +80,7 @@ binning['BinNumber'] = [58,0,58]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [100,0,10]
 binning['MinDPhiMhtHemJet'] = [16,0,3.2]
+binning['MatchedCalo'] = [120,0,60]
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
@@ -891,7 +892,9 @@ def isBaselineTrack(track, itrack, c, hMask=''):
 	if hMask!='':
 		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
 		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
-		if hMask.GetBinContent(ibinx, ibiny)==0: return False
+		if hMask.GetBinContent(ibinx, ibiny)==0: 
+			#print 'zeroing out this DT', ibinx, ibiny
+			return False
 	return True
 
 			
