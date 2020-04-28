@@ -9,24 +9,16 @@ from time import sleep
 lumi = 35.9 #just for labeling. this weightw as already applied
 #must agree with lumi in merged...py!
 
-blinding = False
-
-datamc = 'data'
-
-fnameviktor = '/nfs/dust/cms/user/kutznerv/shorttrack/analysis/background-estimation/non-prompt/prediction_zones/fakebg_Run2016_SingleElectron.root'
-fnameviktor = '/nfs/dust/cms/user/kutznerv/shorttrack/analysis/analyzer/prediction_zones/fakebg_Run2016_SingleElectron.root'
-fviktor = TFile(fnameviktor)
-
-print 'first viktor'
-fviktor.ls()
 
 
+mycutedatatest = True
+if mycutedatatest: datamc = 'data'
+else: datamc = 'MC'
 
+biggerNormbox = False
 redoBinning = binningAnalysis
 redoBinning['DeDxAverage'] = [21,0,7]
 redoBinning['TrkPt'] = [30,0,300]
-redoBinning['LepMT'] = [8,0,80]
-redoBinning['InvMass'] = [20,0,160]
 makefolders = False
 
 phase = 0
@@ -36,14 +28,15 @@ drawhists = True
 zoneOfDedx = {}
 zonebinning = binning['DeDxZones']
 for izone in range(len(zonebinning)-1):
-	dedx_zone = str(zonebinning[izone]).replace('.','p')+'To'+str(zonebinning[izone+1]).replace('.','p')
+	dedx_zone = str(zonebinning[izone]).replace('.','p')+'to'+str(zonebinning[izone+1]).replace('.','p')
 	zoneOfDedx[izone] = dedx_zone
 	
 print 'zonebinning', zonebinning
 normzone = zoneOfDedx[0]
 
 if phase==0:	
-	fCentralMC = 'output/totalweightedbkgsDataDrivenSingleElDataNoSmear.root'
+	if mycutedatatest: fCentralMC = 'output/totalweightedbkgsDataDrivenSingleElDataNoSmear.root'#for my cute
+	else:fCentralMC = 'output/totalweightedbkgsDataDrivenMCSmearLeps4ZedFalse.root'
 	#fCentralMC = 'output/mediumchunks/TTJets_SingleLeptFromTbar_SmearLeps4ZedFalse.root'
 	#fCentralMC = 'testWJHT100.root'
 	#fCentralMC = 'output/bigchunks/WJetsSmearLeps4ZedTrue.root'
@@ -62,14 +55,15 @@ variationColors = [kBlue-1, kBlue, kBlue+1]
 
 drawVariations = True
 usePredictionWithClosureCorrection = False
+CombineLeptons_ = True
 			
 
 
 infile = TFile(fCentralMC)
+infile.ls()
 
-
-
-fout = 'validationPromptFake_phase'+str(phase)+'.root'
+fout = 'closureAbcd_phase'+str(phase)+'.root'
+if mycutedatatest: fout = fout.replace('.root','_cute.root')
 
 fnew = TFile(fout,'recreate')
 
@@ -86,15 +80,14 @@ for key in sorted(keys):#[:241]:
 	if 'Fake' in name: continue
 	#if not ('DeDxAverage' in name or 'BinNumber' in name): continue
 	
-	if not 'hEl'==name[:3]: continue
-	
-	if not 'Validation' in name: continue
-
-
-	if not ('Control' in name.split('_')[-1]): continue
-	if 'hEl'==name[:3]: lepname = 'el'
-	if 'hMu'==name[:3]: lepname = '#mu'
-	if 'hPi'==name[:3]: lepname = '#pi^#pm/k^#pm'		
+	if CombineLeptons_: 
+		if not ('Control' in name.split('_')[-1] and 'hEl'==name[:3]): continue# and 'hElBaseline' in name): continue
+		lepname = 'candidate (el, #mu, or #pi^{#pm})'
+	else: 
+		if not ('Control' in name.split('_')[-1]): continue
+		if 'hEl'==name[:3]: lepname = 'el'
+		if 'hMu'==name[:3]: lepname = '#mu'
+		if 'hPi'==name[:3]: lepname = '#pi^#pm/k^#pm'		
 
 	if normzone in name: continue
 	
@@ -106,37 +99,85 @@ for key in sorted(keys):#[:241]:
 	truthname = controlname.replace('Control','Truth')
 	print 'starting out on hist', truthname
 	hTruth = infile.Get(truthname)
-	hTruth.SetTitle('observed (Run2016)')
+	hTruth.SetTitle('MC observed (prompt)')
 	
 	
 	zone = name.split('Zone')[-1].split('_')[0]
 	normnameNum     = truthname.replace(zone,normzone)
 	controlnameNorm = controlname.replace(zone,normzone)	
 	hNormTruth = infile.Get(normnameNum)
-	
 	hControlNorm = infile.Get(controlnameNorm)	
 	
+		
+	if CombineLeptons_: 
+		hControl.Add(infile.Get(name.replace('hEl','hMu')))
+		hControl.Add(infile.Get(name.replace('hEl','hPi')))
+		hTruth.Add(infile.Get(truthname.replace('hEl','hMu')))
+		hTruth.Add(infile.Get(truthname.replace('hEl','hPi')))	
+		hNormTruth.Add(infile.Get(normnameNum.replace('hEl','hMu')))
+		hNormTruth.Add(infile.Get(normnameNum.replace('hEl','hPi')))		
+		hControlNorm.Add(infile.Get(controlnameNorm.replace('hEl','hMu')))
+		hControlNorm.Add(infile.Get(controlnameNorm.replace('hEl','hPi')))
+				
+		#hTruth.Add(infile.Get(truthname.replace('hEl','hFake')))
+		
 	
-	if not ('LepMT' in name or 'InvMass' in name or 'DeDxAverage' in name): continue
+	#hTruth.Draw()
+	#c1.SetLogy()
+	#c1.Update()
+	#pause()	
 	
+	if 'DeDxAverage' in name:
+			hTruth.Add(hNormTruth)
+			hControl.Add(hControlNorm)
+			if zone==zoneOfDedx[1]:
+				hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2])))
+				hControl.Add(infile.Get(name.replace(zone,zoneOfDedx[2])))
+				if CombineLeptons_:				
+					hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2]).replace('hEl','hMu')))
+					hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2]).replace('hEl','hPi')))					
+					
+					hControl.Add(infile.Get(controlname.replace(zone,zoneOfDedx[2]).replace('hEl','hMu')))
+					hControl.Add(infile.Get(controlname.replace(zone,zoneOfDedx[2]).replace('hEl','hPi')))										
+			
+			
+			#hTruth = infile.Get(truthname.replace(zone,zoneOfDedx[0]))
+			#hControl = infile.Get(controlname.replace(zone,zoneOfDedx[0]))
+			a = 1
+	if 'BinNumber' in name:# or 'DeDxAverage' in name:
+		hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2])))
+		hControl.Add(infile.Get(controlname.replace(zone,zoneOfDedx[2])))
+		if CombineLeptons_:
+			hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2]).replace('hEl','hMu')))
+			hControl.Add(infile.Get(controlname.replace(zone,zoneOfDedx[2]).replace('hEl','hMu')))
+			hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2]).replace('hEl','hMu')))
+			hControl.Add(infile.Get(controlname.replace(zone,zoneOfDedx[2]).replace('hEl','hMu')))			
+		
+		
 
-	viktormethodname = controlname.replace('Control','Method').replace('hEl','').replace('Zone','ZoneDeDx').replace('2p1To4','2p1To4p0').replace('4To99','4p0ToInf').replace('To','to')
+	
+			
+	hMethod = hControl.Clone(controlname)#.replace('Control','Method'))
 	
 	
-	print 'trying to get', viktormethodname, 'from', fviktor.GetName()
-	hViktorMethod = fviktor.Get(viktormethodname)
+	if biggerNormbox or 'DeDxAverage' in name:
+		b = hControlNorm.Integral()
+		c = hNormTruth.Integral()
+		if b>0: hMethod.Scale(c/b)	
+		hMethod.SetLineWidth(4)		
+	else:
+		hMethod.Divide(hControlNorm)
+		hMethod.Multiply(hNormTruth)	
 	
-	funkyscale = 1
-	hViktorMethod.Scale(funkyscale)
-	
-	
-	print 'taking method name', viktormethodname, 'replacing', zone.replace('2p1To4','2p1To4p0'), 'with', normzone
-	vlowdedxname = viktormethodname.replace(zone.replace('2p1To4','2p1To4p0'),normzone).replace('To','to')
-	print 'going for dedx fake sideband', vlowdedxname
-	hViktorLowDeDx = fviktor.Get(vlowdedxname)
-	hViktorLowDeDx.Scale(funkyscale)
-
-
+	if 'hMu'==name[:3]: 
+		hMethod.SetLineColor(kViolet+2)
+		hControl.SetLineColor(kRed+2)
+	elif 'hPi'==name[:3]:
+		hMethod.SetLineColor(kOrange+1)
+		hControl.SetLineColor(kOrange)	
+	else:
+		hMethod.SetLineColor(kGreen+3)
+		
 		
 		
 		
@@ -154,76 +195,24 @@ for key in sorted(keys):#[:241]:
 		for ibin in range(redoBinning[kinvar][0]+1): newbinning.append(redoBinning[kinvar][1]+ibin*stepsize)
 		nbins = len(newbinning)-1
 		newxs = array('d',newbinning)
-		
-	hMethod = hControl.Clone(controlname)#.replace('Control','Method'))		
-		
 	hTruth = hTruth.Rebin(nbins,'',newxs)
-	hViktorLowDeDx = hViktorLowDeDx.Rebin(nbins,'',newxs)
-	hViktorMethod = hViktorMethod.Rebin(nbins,'',newxs)	
-	hNormTruth = hNormTruth.Rebin(nbins,'',newxs)
-	hViktorLowDeDx = hViktorLowDeDx.Rebin(nbins,'',newxs)
-	hMethod = hMethod.Rebin(nbins,'',newxs)
-	hControlNorm = hControlNorm.Rebin(nbins,'',newxs)
-	
-	
-	print 'adding', hViktorLowDeDx.GetXaxis().GetNbins(), 'with', hNormTruth.GetXaxis().GetNbins()
-	hNormTruth.Add(hViktorLowDeDx,-1)
-	hMethod.Divide(hControlNorm)
-	hMethod.Multiply(hNormTruth)
-	
-	histoStyler(hViktorMethod, kRed+2)	
-	hViktorMethod.SetFillStyle(1001)
-	hViktorMethod.SetFillColor(hViktorMethod.GetLineColor())
-	hViktorMethod.SetMarkerStyle(0)
-	hViktorMethod.SetTitle('fake prediction')	
-	
-	
-	if 'DeDxAverage' in name:
-			hTruth.Add(hNormTruth)
-			hTruth.Add(hViktorLowDeDx)# to undo what was done
-			hControl.Add(hControlNorm)
-			hViktorMethod.Add(fviktor.Get(viktormethodname.replace('2p1To4','0p0To2p1').replace('To','to')),funkyscale)
-			hViktorLowDeDx.Add(fviktor.Get(vlowdedxname.replace('2p1To4','0p0To2p1').replace('To','to')),funkyscale)			
-			if zone==zoneOfDedx[1]:
-				hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2])))
-				hControl.Add(infile.Get(name.replace(zone,zoneOfDedx[2])))
-				hViktorMethod.Add(fviktor.Get(viktormethodname.replace('2p1To4','4p0ToInf').replace('To','to')),funkyscale)
-				hViktorLowDeDx.Add(fviktor.Get(vlowdedxname.replace('2p1To4','4p0ToInf').replace('To','to')),funkyscale)
-			#hTruth = infile.Get(truthname.replace(zone,zoneOfDedx[0]))
-			#hControl = infile.Get(controlname.replace(zone,zoneOfDedx[0]))
-	if 'BinNumber' in name:# or 'DeDxAverage' in name:
-		continue
-		hTruth.Add(infile.Get(truthname.replace(zone,zoneOfDedx[2])))
-		hControl.Add(infile.Get(controlname.replace(zone,zoneOfDedx[2])))
-		
-	
-	
-	if 'hMu'==name[:3]: 
-		hMethod.SetLineColor(kViolet+2)
-		hControl.SetLineColor(kRed+2)
-	elif 'hPi'==name[:3]:
-		hMethod.SetLineColor(kOrange+1)
-		hControl.SetLineColor(kOrange)	
-	else:
-		hMethod.SetLineColor(kGreen+3)	
-
-
-	if kinvar=='InvMass' and blinding:
-		xaxt = hTruth.GetXaxis()
-		for ibin in range(1,xaxt.GetNbins()+1):
-			if xaxt.GetBinLowEdge(ibin)>=110: hTruth.SetBinContent(ibin, 0)
-	if kinvar=='LepMT':
-		xaxt = hTruth.GetXaxis()
-		for ibin in range(1,xaxt.GetNbins()+1):
-			if xaxt.GetBinLowEdge(ibin)>=90: hTruth.SetBinContent(ibin, 0)
-				
+	if mycutedatatest: 
+		if kinvar=='InvMass':
+			xaxt = hTruth.GetXaxis()
+			for ibin in range(1,xaxt.GetNbins()+1):
+				if xaxt.GetBinLowEdge(ibin)>=110: hTruth.SetBinContent(ibin, 0)
+		if kinvar=='LepMT':
+			xaxt = hTruth.GetXaxis()
+			for ibin in range(1,xaxt.GetNbins()+1):
+				if xaxt.GetBinLowEdge(ibin)>=90: hTruth.SetBinContent(ibin, 0)				
 	hMethod = hMethod.Rebin(nbins,'',newxs)
 	hControl = hControl.Rebin(nbins,'',newxs)		
 	hNormTruth = hNormTruth.Rebin(nbins,'',newxs)
 	hControlNorm = hControlNorm.Rebin(nbins,'',newxs)
 		
-	hMethod.SetTitle('prompt prediction')
+	hMethod.SetTitle('prediction')
 	shortname = name.replace('Control','').replace('Truth','').replace('Method','')
+	if CombineLeptons_: shortname = shortname.replace('hEl','hObj')[1:]
 	varname = shortname.split('_')[-1]
 	xax = hMethod.GetXaxis()
 	hControl.GetXaxis().SetTitle(namewizard(varname))
@@ -237,11 +226,14 @@ for key in sorted(keys):#[:241]:
 	legname = 'single-lep'
 	if 'hEl' in name: legname = legname.replace('lep','electron')
 	if 'hMu' in name: legname = legname.replace('lep','muon')
+	leg.AddEntry(hControl,'single-'+lepname,'lp')
 	#hMethod.Scale()
-	themax = 1000*max([hMethod.GetMaximum(),hControl.GetMaximum(),hTruth.GetMaximum()])
-	themax = 10000*max([hMethod.GetMaximum()])	
+	themax = 1000000*max([hMethod.GetMaximum(),hControl.GetMaximum(),hTruth.GetMaximum()])
+	hMethod.GetYaxis().SetRangeUser(0.01,themax)
 	#hMethod.SetFillStyle(1001)
 	hMethod.SetFillColor(hMethod.GetLineColor()-1)	
+	hTruth.GetYaxis().SetRangeUser(0.01,themax)
+	hControl.GetYaxis().SetRangeUser(0.01,themax)
 	hMethod.SetLineColor(kGray+2)
 	fnew.cd()
 	plotname = shortname.replace('_','')
@@ -260,14 +252,10 @@ for key in sorted(keys):#[:241]:
 				hMethod = hMethodCorrected
 	
 
-	hratio, pad1, pad2 = FabDraw(c1,leg,hTruth,[hViktorMethod,hMethod],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
-	
-	hMethod.GetYaxis().SetRangeUser(0.1,themax)
-	hTruth.GetYaxis().SetRangeUser(0.1,themax)
-	hControl.GetYaxis().SetRangeUser(0.1,themax)	
+	hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,hTruth,[hMethod],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
 	#hratio.GetYaxis().SetRangeUser(0.0,2.5)
 	hratio.GetYaxis().SetRangeUser(-0.1,2.6)	
-	hratio.GetYaxis().SetTitle('data/prediction')
+	hratio.GetYaxis().SetTitle('(B/A*C)/D')
 	#hratio.GetYaxis().SetRangeUser(-3,3)		
 	hratio.SetLineColor(kBlack)
 	for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
@@ -280,7 +268,19 @@ for key in sorted(keys):#[:241]:
 	c1.Update()
 	c1.cd(1)
 	hMethod.SetTitle('')
-	hTruth.SetTitle('')
+	hTruth.SetTitle('')	
+
+	#leg.AddEntry(hControl,'Method','l')
+	leg.AddEntry(hControlNorm,'Ctr-lowDedx','l')
+	leg.AddEntry(hNormTruth,'Truth-lowDedx','l')
+	hControl.Draw('same')	
+	hControlNorm.SetLineColor(hControl.GetLineColor()+1)	
+	hControlNorm.Draw('same')
+	hNormTruth.SetLineColor(kGray)
+	hNormTruth.Draw('same')
+	
+	hMethod.SetLineWidth(3)
+	hMethod.Draw('same')
 						
 	c1.Update()
 	fnew.cd()
@@ -291,12 +291,13 @@ for key in sorted(keys):#[:241]:
 	#hTruth.Write()
 	#hMethod.Write()
 	
-	c1.Print('pdfs/validation/'+shortname.replace('_','')+'.pdf')
+	c1.Print(pdfname)
 	
 	clist.append(c1)
-	hratios.append([hratio, pad1, pad2])
+	#c1.Delete()
+	hratios.append([hratio, hmethodsyst])
 	c1.Update()
-
+	#pause()
 
 	
 import os, sys

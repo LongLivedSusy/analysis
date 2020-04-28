@@ -6,6 +6,7 @@ import sys
 from random import shuffle
 gROOT.SetBatch(1)
 
+
 dofit = True
 if dofit: funcs = {}
 
@@ -17,6 +18,7 @@ try:fname =sys.argv[1]
 except:
 	fname = 'TagnProbe_DYJetsToLL.root'
 	print 'Histogram file not specified, will run default file:',fname
+
 
 try:foname =sys.argv[2]
 except:

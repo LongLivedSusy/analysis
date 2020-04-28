@@ -10,8 +10,11 @@ mkpdfs = False
 try: dtmode = sys.argv[1]
 except:	dtmode = 'PixOrStrips'
 
-try: smear = sys.argv[2]
-except: smear = 'Yes'
+try: 
+	smear = sys.argv[2]
+	smear = str(smear=='Yes')
+except: smear = 'False'
+
 
 
 UseFits = True
@@ -37,20 +40,20 @@ else:
 #python tools/PlotKappaClosureAndDataSplit.py PixAndStrips && python tools/PlotKappaClosureAndDataSplit.py PixOnly
 useAllForDYJets = True
 if PixMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly_'+smear+'ZSmear.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly_'+smear+'ZSmear.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixOnly_SmearLeps4Zed'+smear+'.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixOnly_SmearLeps4Zed'+smear+'.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixOnly.root')
-	if useAllForDYJets: fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOnly_'+smear+'ZSmear.root')
-	else: fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly_'+smear+'ZSmear.root')
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly_'+smear+'ZSmear.root')]
-	fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly_'+smear+'ZSmear.root')]
+	if useAllForDYJets: fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixOnly_SmearLeps4Zed'+smear+'.root')
+	else: fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixOnly_SmearLeps4Zed'+smear+'.root')
+	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixOnly_SmearLeps4Zed'+smear+'.root')]
+	fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixOnly_SmearLeps4Zed'+smear+'.root')]
 if PixStripsMode:
-	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips_'+smear+'ZSmear.root')
-	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips_'+smear+'ZSmear.root')
+	fTTJets = TFile('usefulthings/KappaSummer16.TTJets_PixAndStrips_SmearLeps4Zed'+smear+'.root')
+	fWJetsToLL = TFile('usefulthings/KappaSummer16.WJets_PixAndStrips_SmearLeps4Zed'+smear+'.root')
 	#fWJetsToLL = TFile('usefulthings/KappaDYJets_PixAndStrips.root')
-	if useAllForDYJets: fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixAndStrips_'+smear+'ZSmear.root')
-	else: fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_'+smear+'ZSmear.root')	
-	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips_'+smear+'ZSmear.root')]
+	if useAllForDYJets: fMethodMC = TFile('usefulthings/KappaSummer16.AllMC_PixAndStrips_SmearLeps4Zed'+smear+'.root')
+	else: fMethodMC = TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_SmearLeps4Zed'+smear+'.root')	
+	fMethodDataList = [TFile('usefulthings/KappaRun2016_PixAndStrips_SmearLeps4Zed'+smear+'.root')]
 	#fMethodDataList = [TFile('usefulthings/KappaSummer16.DYJets_PixAndStrips_'+smear+'ZSmear.root')]	
 	#fMethodDataList = [TFile('usefulthings/KappaRun2016B.root'), TFile('usefulthings/KappaRun2016D.root'), TFile('usefulthings/KappaRun2016G.root'), TFile('usefulthings/KappaRun2016.root')]	
 

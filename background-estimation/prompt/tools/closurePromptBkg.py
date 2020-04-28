@@ -19,7 +19,7 @@ phase = 0
 drawhists = True
 
 if phase==0:
-	fCentralMC = 'output/totalweightedbkgsDataDrivenMCYesZSmear.root'
+	fCentralMC = 'output/totalweightedbkgsDataDrivenMCNoZSmear.root'
 	#fCentralMC = 'output/totalweightedbkgsNoSmearedKappa.root'
 	#fCentralMC = 'test.root'
 	#fCentralMC = 'output/totalweightedbkgsTrueKappa.root'
@@ -39,6 +39,7 @@ drawVariations = True
 usePredictionWithClosureCorrection = False
 CombineLeptons_ = True
 			
+
 
 
 testscale = 1# = lumi*1000
@@ -106,6 +107,7 @@ for key in sorted(keys):#[:241]:
 	truthname = truthname.replace('Control','Truth')
 	truthname = truthname.replace('barBarf','barControl')
 	hVarTruth = infile.Get(truthname)
+	#hVarTruth.Scale(5)
 	hVarTruth.Scale(testscale)
 	hVarTruth.SetTitle('MC observed (truth)')
 	if CombineLeptons_: 
@@ -213,9 +215,9 @@ for key in sorted(keys):#[:241]:
 			h2add = f.Get(methodname.replace('hEl','hMu'))
 			h2add.Scale(testscale)
 			hAlt.Add(h2add)
-			#h2add2 = f.Get(methodname.replace('hEl','hPi'))
-			#h2add2.Scale(testscale)
-			#hAlt.Add(h2add2)			
+			h2add2 = f.Get(methodname.replace('hEl','hPi'))
+			h2add2.Scale(testscale)
+			hAlt.Add(h2add2)			
 		hAlt = hAlt.Rebin(nbins,'',newxs)
 		hRatioVariation = hAlt.Clone()
 		hRatioVariation.Divide(hVarMethod)
@@ -266,7 +268,7 @@ for key in sorted(keys):#[:241]:
 	#hVarTruth.Write()
 	#hVarMethod.Write()
 	
-	c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
+	#c1.Print('pdfs/closure/prompt-bkg/'+shortname.replace('_','')+'.pdf')
 	
 	clist.append(c1)
 	#c1.Delete()
