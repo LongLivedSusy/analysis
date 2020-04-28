@@ -137,12 +137,12 @@ if __name__ == "__main__":
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
         options.add_signals = True
-        #options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
-        options.dataset = mc_summer16 + ",Run2016*"
+        options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
+        #options.dataset = mc_summer16 + ",Run2016*"
         #options.dataset = mc_fall17 + ",Run2017*"
         #options.dataset = "Run2018*"
     if not options.output_folder:
-        options.output_folder = "../skim_09_promptel"
+        options.output_folder = "../skim_12_newregions"
     ######## defaults ########
 
     commands = []

@@ -231,6 +231,9 @@ def get_disappearing_track_score(label, event, iCand, readers):
         bool(event.tracks_trackQualityHighPurity[iCand]) == 1):
             return -10
     
+    for bdtvar in bdt["tmva_variables"]:
+        bdt["tmva_variables"][bdtvar][0] = 0
+        
     if use_dxy:
         bdt["tmva_variables"]["dxyVtx"][0] = event.tracks_dxyVtx[iCand]
     if use_dz:

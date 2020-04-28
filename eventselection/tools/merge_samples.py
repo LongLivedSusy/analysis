@@ -15,6 +15,9 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
     samples = []
     for item in glob.glob(folder + "/*root"):
 
+        #if "RunIISummer16Mini" not in item:
+        #    continue
+
         # ignore broken HT binning labels
         ignore_item = False
         ignore_list = ["-100to20_", "-10to200_", "-200to40_", "-20to400_", "-40to600_", "-600to80_", "-20To400_", "-400To60_", "-40To600_", "HT100to1500_", "HT1500to200_", "HT200toInf_", "-200toInf_", "-80to1200_", "-200To40_", "-250toInf_", "-1200to250_", "-800to120_", "-120to2500_", "1000to150_", "-60ToInf_", "400to60_", "100To20_", "HT150to2000_", "HT200to30_", "HT1000to150_", "Run218", "Run217", "Run216"]
@@ -23,8 +26,11 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
                 ignore_item = True
         if ignore_item: continue
 
-        sample_name = item.split("/")[-1].split("AOD_")[0]
-        sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","")
+        if "RunIIFall17MiniAODv2" in item or "RunIISummer16Mini" in item:
+            sample_name = item.split("/")[-1].split("AOD_")[0]
+        else:
+            sample_name = item.split("/")[-1].split("AOD")[0]
+        sample_name = sample_name.replace("_ext1","").replace("_ext2","").replace("_ext3","").replace("_ext4","")
         sample_name = sample_name.split("_RA2AnalysisTree")[0]
 
         if sample_name[-1] == "-":
@@ -203,8 +209,8 @@ if __name__ == "__main__":
         hadd_histograms(folder, options.runmode, start = options.start)
     if options.json:
         #merge_json_files(folder, years = ["2016", "2017", "2018", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-        #merge_json_files(folder, years = ["2016", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-        merge_json_files(folder, years = ["2017", "2017B", "2017C", "2017D", "2017E", "2017F"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        merge_json_files(folder, years = ["2016", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
+        #merge_json_files(folder, years = ["2017", "2017B", "2017C", "2017D", "2017E", "2017F"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
         #merge_json_files(folder, years = ["2018", "2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "EGamma", "SingleMuon"])
     if options.bril:
         get_lumis(folder, options.cern_username)
