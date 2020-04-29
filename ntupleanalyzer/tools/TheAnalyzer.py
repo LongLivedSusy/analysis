@@ -207,7 +207,7 @@ else:
 	hMask = ''
 '''
 
-fMask = TFile(os.environ['CMSSW_BASE']+'/src/disappearing-track-tag/Masks_mcal10to15.root')
+fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
 hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
 
 import os
