@@ -1091,116 +1091,111 @@ datacalibdict = {'Run2016H': 1.0, 'Run2016D': 0.9110228586038934,\
 				'Run2017B': 0.7753458186951745, 'Run2018A': 0.8748729581145911, \
 				'Run2018C': 0.9106488664283063, 'Run2017E': 0.8455468376019104}
 
-datacalibdict_Run2016_barrel = {
-	'Run2016B-SingleMuon' : 1.17611041567,
-	'Run2016C-SingleMuon' : 1.20879649116,
-	'Run2016D-SingleMuon' : 1.23240397067,
-	'Run2016E-SingleMuon' : 1.28716980629,
-	'Run2016F-SingleMuon' : 1.31330942525,
-	'Run2016G-SingleMuon' : 1.37677642103,
-	'Run2016H-SingleMuon' : 1.36860256317,
-	'Run2016B-SingleElectron' : 1.16970463653,
-	'Run2016C-SingleElectron' : 1.19938348262,
-	'Run2016D-SingleElectron' : 1.24006352691,
-	'Run2016E-SingleElectron' : 1.28332623718,
-	'Run2016F-SingleElectron' : 1.31288256581,
-	'Run2016G-SingleElectron' : 1.39039630529,
-	'Run2016H-SingleElectron' : 1.36695943915,
-	'Summer16': 1.0, 
+Dedxcalibdict_Muon_barrel = {
+	# Run2016
+	'Run2016B-SingleMuon' : 1.17636779514,
+	'Run2016C-SingleMuon' : 1.20891418822,
+	'Run2016D-SingleMuon' : 1.23273182391,
+	'Run2016E-SingleMuon' : 1.28736734126,
+	'Run2016F-SingleMuon' : 1.31353747918,
+	'Run2016G-SingleMuon' : 1.37715068895,
+	'Run2016H-SingleMuon' : 1.36878067322,
+	# Run2017
+	'Run2017B-SingleMuon' : 0.963801899609,
+	'Run2017C-SingleMuon' : 1.20140470672,
+	'Run2017D-SingleMuon' : 1.19791461654,
+	'Run2017E-SingleMuon' : 1.05157145077,
+	'Run2017F-SingleMuon' : 1.13770618643,
+	# Run2018
+	'Run2018A-SingleMuon' : 1.14073449743,
+	'Run2018B-SingleMuon' : 1.18492683612,
+	'Run2018C-SingleMuon' : 1.19878707494,
+	'Run2018D-SingleMuon' : 1.22751598814,
+	# Summer16 MC
+	'Summer16-Muon' : 1.0,
+	# Fall17 MC
+	'Fall17-Muon' : 0.969011079587,
 	}
 
-datacalibdict_Run2016_endcap = {
-	'Run2016B-SingleMuon' : 1.24978310758,
-	'Run2016C-SingleMuon' : 1.25921194496,
-	'Run2016D-SingleMuon' : 1.26401986139,
-	'Run2016E-SingleMuon' : 1.29966718366,
-	'Run2016F-SingleMuon' : 1.34537498927,
-	'Run2016G-SingleMuon' : 1.37951985208,
-	'Run2016H-SingleMuon' : 1.38215526952,
-	'Run2016B-SingleElectron' : 1.24300088292,
-	'Run2016C-SingleElectron' : 1.25625506664,
-	'Run2016D-SingleElectron' : 1.25037485523,
-	'Run2016E-SingleElectron' : 1.29286581767,
-	'Run2016F-SingleElectron' : 1.32755901977,
-	'Run2016G-SingleElectron' : 1.37135325076,
-	'Run2016H-SingleElectron' : 1.36568784316,
-	'Summer16': 1.0, 
+Dedxcalibdict_Muon_endcap = {
+	# Run2016
+	'Run2016B-SingleMuon' : 1.18791104187,
+	'Run2016C-SingleMuon' : 1.19741550573,
+	'Run2016D-SingleMuon' : 1.20143536049,
+	'Run2016E-SingleMuon' : 1.23522243433,
+	'Run2016F-SingleMuon' : 1.27912918923,
+	'Run2016G-SingleMuon' : 1.31137102021,
+	'Run2016H-SingleMuon' : 1.31391843523,
+	# Run2017
+	'Run2017B-SingleMuon' : 1.06222928757,
+	'Run2017C-SingleMuon' : 1.18481128585,
+	'Run2017D-SingleMuon' : 1.20570879851,
+	'Run2017E-SingleMuon' : 1.23734438471,
+	'Run2017F-SingleMuon' : 1.33529854936,
+	# Run2018
+	'Run2018A-SingleMuon' : 1.22322665702,
+	'Run2018B-SingleMuon' : 1.27013767105,
+	'Run2018C-SingleMuon' : 1.2950130203,
+	'Run2018D-SingleMuon' : 1.26567462258,
+	# Summer16 MC
+	'Summer16-Muon' : 0.954869489523,
+	# Fall17 MC
+	'Fall17-Muon' : 0.949087793289,
 	}
 
-datacalibdict_Run2017_barrel = {
-	'Run2017B-SingleMuon' : 0.999553868677,
-	'Run2017C-SingleMuon' : 1.24712274979,
-	'Run2017D-SingleMuon' : 1.24250417392,
-	'Run2017E-SingleMuon' : 1.09045616109,
-	'Run2017F-SingleMuon' : 1.17986946554,
-	'Run2017B-SingleElectron' : 1.00420884124,
-	'Run2017C-SingleElectron' : 1.25618352834,
-	'Run2017D-SingleElectron' : 1.24052906793,
-	'Run2017E-SingleElectron' : 1.09239868675,
-	'Run2017F-SingleElectron' : 1.18494102361,
-	'Fall17' : 1.0,
+Dedxcalibdict_Electron_barrel = {
+	# Run2016
+	'Run2016B-SingleElectron' : 1.17402383132,
+	'Run2016C-SingleElectron' : 1.20684301222,
+	'Run2016D-SingleElectron' : 1.23179339234,
+	'Run2016E-SingleElectron' : 1.28562324175,
+	'Run2016F-SingleElectron' : 1.31188575138,
+	'Run2016G-SingleElectron' : 1.3733546783,
+	'Run2016H-SingleElectron' : 1.36435519035,
+	# Run2017
+	'Run2017B-SingleElectron' : 0.964114469507,
+	'Run2017C-SingleElectron' : 1.20763025908,
+	'Run2017D-SingleElectron' : 1.19527561327,
+	'Run2017E-SingleElectron' : 1.0533676592,
+	'Run2017F-SingleElectron' : 1.13926942947,
+	# Run2018
+	'Run2018A-EGamma' : 1.14433246845,
+	'Run2018B-EGamma' : 1.18837716859,
+	'Run2018C-EGamma' : 1.20391423501,
+	#'Run2018D-EGamma' : 1.0,   # not yet
+	# Summer16 MC
+	'Summer16-Electron' : 1.0,
+	# Fall17 MC
+	'Fall17-Electron' : 0.972916363528,
 	}
 
-datacalibdict_Run2017_endcap = {
-	'Run2017B-SingleMuon' : 1.12101434366,
-	'Run2017C-SingleMuon' : 1.25138966892,
-	'Run2017D-SingleMuon' : 1.27277239452,
-	'Run2017E-SingleMuon' : 1.3057705989,
-	'Run2017F-SingleMuon' : 1.40923996458,
-	'Run2017B-SingleElectron' : 1.14660888256,
-	'Run2017C-SingleElectron' : 1.25194997981,
-	'Run2017D-SingleElectron' : 1.26732273326,
-	'Run2017E-SingleElectron' : 1.30189343005,
-	'Run2017F-SingleElectron' : 1.42934462469,
-	'Fall17' : 1.0,
+Dedxcalibdict_Electron_endcap = {
+	# Run2016
+	'Run2016B-SingleElectron' : 1.18244438538,
+	'Run2016C-SingleElectron' : 1.18734689713,
+	'Run2016D-SingleElectron' : 1.19146464655,
+	'Run2016E-SingleElectron' : 1.21923754436,
+	'Run2016F-SingleElectron' : 1.26899666821,
+	'Run2016G-SingleElectron' : 1.29357275765,
+	'Run2016H-SingleElectron' : 1.29338476783,
+	# Run2017
+	'Run2017B-SingleElectron' : 1.04700939961,
+	'Run2017C-SingleElectron' : 1.17904524318,
+	'Run2017D-SingleElectron' : 1.19531524496,
+	'Run2017E-SingleElectron' : 1.21618713126,
+	'Run2017F-SingleElectron' : 1.30235512632,
+	# Run2018
+	'Run2018A-EGamma' : 1.22167930566,
+	'Run2018B-EGamma' : 1.26678309764,
+	'Run2018C-EGamma' : 1.29334118935,
+	#'Run2018D-EGamma' : 1.0,   # not yet
+	# Summer16 MC
+	'Summer16-Electron' : 0.950670487473,
+	# Fall17 MC
+	'Fall17-Electron' : 0.950210140051,
 	}
 
 
-'''
-datacalibdict_SingleElectron_barrel = {
-	'Run2016B': 0.863466407007,
-	'Run2016C': 0.889338010815,
-	'Run2016D': 0.907943663129,
-	'Run2016E': 0.947678410717,
-	'Run2016F': 0.959571628322,
-	'Run2016G': 1.00839857255,
-	'Run2016H': 1.0,
-	'Summer16': 0.736988329264, 
-	}
-
-datacalibdict_SingleElectron_endcap = {
-	'Run2016B': 0.918138760845,
-	'Run2016C': 0.924024783242,
-	'Run2016D': 0.927361662426,
-	'Run2016E': 0.9485708619,
-	'Run2016F': 0.978311784039,
-	'Run2016G': 0.999810545042,
-	'Run2016H': 1.0,
-	'Summer16': 0.736396091859, 
-	}
-	
-datacalibdict_SingleMuon_barrel = {
-	'Run2016B': 0.860255909986,
-	'Run2016C': 0.88591964233,
-	'Run2016D': 0.903592297431,
-	'Run2016E': 0.943166235663,
-	'Run2016F': 0.956834917324,
-	'Run2016G': 1.00506404036,
-	'Run2016H': 1.0,
-	'Summer16': 0.73319253747, 
-	}
-
-datacalibdict_SingleMuon_endcap = {
-	'Run2016B': 0.903880795645,
-	'Run2016C': 0.912293984279,
-	'Run2016D': 0.914932486588,
-	'Run2016E': 0.939200935627,
-	'Run2016F': 0.972275833831,
-	'Run2016G': 0.995536237131,
-	'Run2016H': 1.0,
-	'Summer16': 0.722927519855, 
-	}
-'''
 
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
