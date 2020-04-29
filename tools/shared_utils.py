@@ -1112,7 +1112,7 @@ Dedxcalibdict_Muon_barrel = {
 	'Run2018C-SingleMuon' : 1.19878707494,
 	'Run2018D-SingleMuon' : 1.22751598814,
 	# Summer16 MC
-	'Summer16-Muon' : 1.0
+	'Summer16-Muon' : 1.0,
 	# Fall17 MC
 	'Fall17-Muon' : 0.969011079587,
 	}
