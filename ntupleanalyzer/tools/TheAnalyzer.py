@@ -335,7 +335,7 @@ for ientry in range(nentries):
 			continue
 		isjet = False
 		for jet in c.Jets:
-			if not jet.Pt()>30: continue
+			if not jet.Pt()>25: continue
 			if jet.DeltaR(track)<0.4: 
 				isjet = True
 				thejet = jet
