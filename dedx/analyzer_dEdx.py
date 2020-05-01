@@ -317,16 +317,9 @@ def main(inputfiles,output_dir,output,nev):
     prepareReaderPixel_loose(readerPixelOnly, pixelXml)
     
     # load and configure data mask:
-    if phase == 0:
-        mask_file= TFile("../../tools/usefulthings/Masks.root")
-        if is_data : 
-            hMask = mask_file.Get("hEtaVsPhiDT_maskData-2016Data-2016")
-        else :
-            #hMask = mask_file.Get("hEtaVsPhiDT_maskMC-2016MC-2016")
-            hMask = ''
-        print "Loaded mask:", hMask
-    else:
-        hMask = '' 
+    fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
+    hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
+    print "Loaded mask:", hMask
     
     # Output file
     fout = TFile(output_dir+'/'+output, "recreate")

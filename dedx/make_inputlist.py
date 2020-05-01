@@ -59,59 +59,29 @@ if __name__ == "__main__" :
     "Summer16.WZ_TuneCUETP8M1",
     "Summer16.ZZ_TuneCUETP8M1",
     ]
-
-    Run2016_MET = [
-    "Run2016B*MET",
-    "Run2016C*MET",
-    "Run2016D*MET",
-    "Run2016E*MET",
-    "Run2016F*MET",
-    "Run2016G*MET",
-    "Run2016H*MET",
-    ]
-    
-    Run2016_SingleMuon=[
-    "Run2016B*SingleMuon",
-    "Run2016C*SingleMuon",
-    "Run2016D*SingleMuon",
-    "Run2016E*SingleMuon",
-    "Run2016F*SingleMuon",
-    "Run2016G*SingleMuon",
-    "Run2016H*SingleMuon",
-    ]
-    
-    Run2016_SingleElectron=[
-    "Run2016B*SingleElectron",
-    "Run2016C*SingleElectron",
-    "Run2016D*SingleElectron",
-    "Run2016E*SingleElectron",
-    "Run2016F*SingleElectron",
-    "Run2016G*SingleElectron",
-    "Run2016H*SingleElectron",
-    ]
     
     Summer16_signal = [
     #"RunIISummer16MiniAODv3.SMS-T1qqqq",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-100_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1300_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1700_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1800_",
-    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-100_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1",
+    "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1",
     ]
 
     Fall17_bkg = [
@@ -155,6 +125,36 @@ if __name__ == "__main__" :
     "RunIIFall17MiniAODv2.ZZTo2L2Q",
     "RunIIFall17MiniAODv2.WZZ_TuneCP5",
     ]
+
+    Run2016_MET = [
+    "Run2016B*MET",
+    "Run2016C*MET",
+    "Run2016D*MET",
+    "Run2016E*MET",
+    "Run2016F*MET",
+    "Run2016G*MET",
+    "Run2016H*MET",
+    ]
+    
+    Run2016_SingleMuon=[
+    "Run2016B*SingleMuon",
+    "Run2016C*SingleMuon",
+    "Run2016D*SingleMuon",
+    "Run2016E*SingleMuon",
+    "Run2016F*SingleMuon",
+    "Run2016G*SingleMuon",
+    "Run2016H*SingleMuon",
+    ]
+    
+    Run2016_SingleElectron=[
+    "Run2016B*SingleElectron",
+    "Run2016C*SingleElectron",
+    "Run2016D*SingleElectron",
+    "Run2016E*SingleElectron",
+    "Run2016F*SingleElectron",
+    "Run2016G*SingleElectron",
+    "Run2016H*SingleElectron",
+    ]
     
     Run2017_SingleMuon = [
     "Run2017B*SingleMuon",
@@ -162,8 +162,6 @@ if __name__ == "__main__" :
     "Run2017D*SingleMuon",
     "Run2017E*SingleMuon",
     "Run2017F*SingleMuon",
-    #"Run2017G*SingleMuon",
-    #"Run2017H*SingleMuon",
     ]
 
     Run2017_SingleElectron=[
@@ -172,23 +170,34 @@ if __name__ == "__main__" :
     "Run2017D*SingleElectron",
     "Run2017E*SingleElectron",
     "Run2017F*SingleElectron",
-    #"Run2017G*SingleElectron",
-    #"Run2017H*SingleElectron",
     ]
 
+    Run2018_SingleMuon = [
+    "Run2018A*SingleMuon",
+    "Run2018B*SingleMuon",
+    "Run2018C*SingleMuon",
+    "Run2018D*SingleMuon",
+    ]
+    
+    Run2018_EGamma=[
+    "Run2018A*EGamma",
+    "Run2018B*EGamma",
+    "Run2018C*EGamma",
+    "Run2018D*EGamma",
+    ]
+
+	    
     samples=[]
-    #samples.extend(Summer16_bkg)
-    samples.extend(Summer16_signal)
-    #samples.extend(Run2016_SingleMuon)
-    #samples.extend(Run2016_SingleElectron)
-    #samples.extend(Fall17_bkg)
-    #samples.extend(Run2017_SingleMuon)
-    #samples.extend(Run2017_SingleElectron)
+    samples.extend(Summer16_bkg)
+    #samples.extend(Summer16_signal)
+    samples.extend(Fall17_bkg)
+    samples.extend(Run2016_SingleMuon)
+    samples.extend(Run2016_SingleElectron)
+    samples.extend(Run2017_SingleMuon)
+    samples.extend(Run2017_SingleElectron)
+    samples.extend(Run2018_SingleMuon)
+    samples.extend(Run2018_EGamma)
     
     #Input list for each process
     make_inputlist(samples)
-
-    #Split list for number of files per job
-    #nfpj = 100
-    #split_inputlist(nfpj)
 
