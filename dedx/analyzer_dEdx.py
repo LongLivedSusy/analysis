@@ -269,7 +269,7 @@ def main(inputfiles,output_dir,output,nev):
     Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H',
 		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F',
 		    'Run2018A','Run2018B','Run2018C','Run2018D',
-		    'Summer16','RunIIFall17']
+		    'Summer16','Fall17']
     FileName = c.GetFile().GetName().split('/')[-1]
     for identifier in Identifiers:
 	if identifier in FileName :
@@ -610,12 +610,8 @@ def main(inputfiles,output_dir,output,nev):
 		    FillHisto(hTrkStripsDedx_tightmumatch,dedx_strips,weight)
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(mu matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Muon_barrel[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightmumatch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_barrel,track.Eta(),weight)
@@ -627,12 +623,8 @@ def main(inputfiles,output_dir,output,nev):
 		    	FillHisto(hTrkStripsDedxCalib_tightmumatch,dedx_strips*SF_dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(mu matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Muon_endcap[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightmumatch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_endcap,track.Eta(),weight)
@@ -698,12 +690,8 @@ def main(inputfiles,output_dir,output,nev):
 		    
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(ele matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Electron_barrel[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
@@ -715,12 +703,8 @@ def main(inputfiles,output_dir,output,nev):
 			FillHisto(hTrkStripsDedxCalib_tightelematch,dedx_strips*SF_dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(ele matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Electron_endcap[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
@@ -780,8 +764,6 @@ def main(inputfiles,output_dir,output,nev):
 			h2_TrkChi_P_Dedx.Fill(track.P(),dedx_pixel,weight)
 		    	h3_TrkChi_P_Eta_Dedx.Fill(track.P(),track.Eta(),dedx_pixel,weight)
 	        	break
-
-	
 
 
 	    dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
