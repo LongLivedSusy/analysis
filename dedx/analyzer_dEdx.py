@@ -1,4 +1,5 @@
-import os,sys
+import os
+import sys
 import argparse
 import json
 from ROOT import *
@@ -265,8 +266,10 @@ def main(inputfiles,output_dir,output,nev):
     
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
-    Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H','Summer16',
-		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F','Run2017G','Run2017H','RunIIFall17']
+    Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H',
+		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F',
+		    'Run2018A','Run2018B','Run2018C','Run2018D',
+		    'Summer16','Fall17']
     FileName = c.GetFile().GetName().split('/')[-1]
     for identifier in Identifiers:
 	if identifier in FileName :
@@ -305,11 +308,11 @@ def main(inputfiles,output_dir,output,nev):
     # load BDTs and fetch list of DT tag labels
     #readers = load_tmva_readers(phase)
     if phase==0:
-    	pixelXml = '../../disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
-    	pixelstripsXml = '../../disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+    	pixelXml = '../disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+    	pixelstripsXml = '../disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
     else:
-    	pixelXml = '../../disappearing-track-tag/2017-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
-    	pixelstripsXml = '../../disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
+    	pixelXml = '../disappearing-track-tag/2017-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+    	pixelstripsXml = '../disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
 
     readerPixelOnly = TMVA.Reader()
     readerPixelStrips = TMVA.Reader()
@@ -317,16 +320,10 @@ def main(inputfiles,output_dir,output,nev):
     prepareReaderPixel_loose(readerPixelOnly, pixelXml)
     
     # load and configure data mask:
-    if phase == 0:
-        mask_file= TFile("../../tools/usefulthings/Masks.root")
-        if is_data : 
-            hMask = mask_file.Get("hEtaVsPhiDT_maskData-2016Data-2016")
-        else :
-            #hMask = mask_file.Get("hEtaVsPhiDT_maskMC-2016MC-2016")
-            hMask = ''
-        print "Loaded mask:", hMask
-    else:
-        hMask = '' 
+    #fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
+    fMask = TFile('../disappearing-track-tag/Masks_mcal10to15.root')
+    hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
+    print "Loaded mask:", hMask
     
     # Output file
     fout = TFile(output_dir+'/'+output, "recreate")
@@ -470,8 +467,17 @@ def main(inputfiles,output_dir,output,nev):
 	# Counting histogram
 	FillHisto(hHT_unweighted,c.HT)
 
+	# store runs for JSON output:
+    	runs = {}
+
 	# Weight
 	if is_data:
+            runnum = c.RunNum
+            lumisec = c.LumiBlockNum
+            if runnum not in runs:
+                runs[runnum] = []
+            if lumisec not in runs[runnum]:
+                runs[runnum].append(lumisec)
 	    weight = 1.0
 	else : 
 	    weight = c.CrossSection * c.puWeight
@@ -604,12 +610,8 @@ def main(inputfiles,output_dir,output,nev):
 		    FillHisto(hTrkStripsDedx_tightmumatch,dedx_strips,weight)
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(mu matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Muon_barrel[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightmumatch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_barrel,track.Eta(),weight)
@@ -621,12 +623,8 @@ def main(inputfiles,output_dir,output,nev):
 		    	FillHisto(hTrkStripsDedxCalib_tightmumatch,dedx_strips*SF_dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(mu matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Muon_endcap[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightmumatch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightmumatch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightmumatch_endcap,track.Eta(),weight)
@@ -692,12 +690,8 @@ def main(inputfiles,output_dir,output,nev):
 		    
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(ele matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Electron_barrel[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightelematch_barrel,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_barrel,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_barrel,track.Eta(),weight)
@@ -709,12 +703,8 @@ def main(inputfiles,output_dir,output,nev):
 			FillHisto(hTrkStripsDedxCalib_tightelematch,dedx_strips*SF_dedx_strips,weight)
 		    elif abs(track.Eta())>1.5 : 
 			#print 'endcap region(ele matching)'
-			if phase==0:
-			    SF_dedx_pixel = datacalibdict_SingleMuon_barrel[Identifier]
-			    SF_dedx_strips = 1.0
-			elif phase==1:
-			    SF_dedx_pixel = 1.0
-			    SF_dedx_strips = 1.0
+			SF_dedx_pixel = Dedxcalibdict_Electron_endcap[Identifier]
+			SF_dedx_strips = 1.0
 			FillHisto(hTrkP_tightelematch_endcap,track.P(),weight)
 			FillHisto(hTrkPt_tightelematch_endcap,track.Pt(),weight)
 			FillHisto(hTrkEta_tightelematch_endcap,track.Eta(),weight)
@@ -775,8 +765,6 @@ def main(inputfiles,output_dir,output,nev):
 		    	h3_TrkChi_P_Eta_Dedx.Fill(track.P(),track.Eta(),dedx_pixel,weight)
 	        	break
 
-	
-
 
 	    dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
 	    #if not dtstatus>0: continue
@@ -807,6 +795,22 @@ def main(inputfiles,output_dir,output,nev):
     fout.Write()
     fout.Close()
     print("DONE")
+    
+    # write JSON containing lumisections:
+    if len(runs) > 0:
+        runs_compacted = {}
+        for run in runs:
+            if run not in runs_compacted:
+                runs_compacted[run] = []
+            for lumisec in runs[run]:
+                if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
+                    runs_compacted[run][-1][-1] = lumisec
+                else:
+                    runs_compacted[run].append([lumisec, lumisec])
+
+        json_content = json.dumps(runs_compacted)
+        with open(output_dir+'/'+output.replace(".root", ".json"), "w") as fjson:
+            fjson.write(json_content)
 
 if __name__ == "__main__":
     

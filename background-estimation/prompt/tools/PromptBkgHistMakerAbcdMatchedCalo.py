@@ -15,7 +15,7 @@ import collections
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False 
 
-binning['MatchedCalo'] = [120,0,60]
+
 binning['DtStatus'] = [6,-3,3]
 
 
@@ -26,7 +26,7 @@ defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vormwald/NtupleHub/Productio
 #/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v2RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8_78_RA2AnalysisTree.root
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", "--verbosity", type=int, default=1,help="analyzer script to batch")
+parser.add_argument("-v", "--verbosity", type=int, default=1000,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
@@ -91,12 +91,12 @@ print 'phase', phase
 if isdata: ClosureMode = False
 
 if isdata: 
-	if is2016: ffakerate = TFile('usefulthings/promptDataDrivenRun2016-forfr.root')
-	if is2017: ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')
-	if is2018: ffakerate = TFile('usefulthings/promptDataDrivenRun2018-forfr.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')	
+	if is2016: ffakerate = TFile('usefulthings/fakerateInfo_year2016_cute.root')
+	if is2017: ffakerate = TFile('usefulthings/fakerateInfo_year2017_cute.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')
+	if is2018: ffakerate = TFile('usefulthings/fakerateInfo_year2018_cute.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')	
 else:
-	if is2016: ffakerate = TFile('usefulthings/promptDataDrivenMCSummer16-forfr.root')
-	if is2017: ffakerate = TFile('usefulthings/promptDataDrivenMCFall17-forfr.root')
+	if is2016: ffakerate = TFile('usefulthings/fakerateInfo_year2016.root')
+	if is2017: ffakerate = TFile('usefulthings/fakerateInfo_year2017.root')
 hnum = ffakerate.Get('hFakeShortHadMhtSideband_HtTruth')
 hden = ffakerate.Get('hFakeShortHadMhtSidebandFakeCr_HtTruth')
 if not isdata:
@@ -106,7 +106,7 @@ if not isdata:
 hfrshort = hnum.Clone('hfrshort')
 hfrshort.Divide(hden)
 
-
+ffakerate.ls()
 hnum = ffakerate.Get('hFakeLongHadMhtSideband_HtTruth')
 hden = ffakerate.Get('hFakeLongHadMhtSidebandFakeCr_HtTruth')
 if not isdata:
@@ -129,21 +129,18 @@ identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').repl
 print 'Identifier', identifier
 
 
-calib_version = '-SingleElectron'
-if 'Run2016' in identifier: 
+calib_version = '-SingleMuon'
+calib_version = ''# Sang-Il's new key names
+if 'Run20' in identifier: 
 	keyforcalibs = identifier.split('-')[0].replace('skims','').replace('skim','')+calib_version
-	dedxcalib_barrel = datacalibdict_Run2016_barrel[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-	dedxcalib_endcap = datacalibdict_Run2016_endcap[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-elif 'Run2017' in identifier: 
-	keyforcalibs = identifier.split('-')[0].replace('skims','').replace('skim','')+calib_version
-	dedxcalib_barrel = datacalibdict_Run2017_barrel[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-	dedxcalib_endcap = datacalibdict_Run2017_endcap[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']	
+	dedxcalib_barrel = Dedxcalibdict_Muon_barrel[keyforcalibs]
+	dedxcalib_endcap = Dedxcalibdict_Muon_endcap[keyforcalibs]
 elif 'Summer16' in identifier: 
-	dedxcalib_barrel = 1.
-	dedxcalib_endcap = datacalibdict_Run2016_endcap['Summer16']/datacalibdict_Run2016_barrel['Summer16']
+	dedxcalib_barrel = Dedxcalibdict_Muon_barrel['Summer16']
+	dedxcalib_endcap = Dedxcalibdict_Muon_endcap['Summer16']
 elif 'Fall17' in identifier: 
-	dedxcalib_barrel = datacalibdict_Run2017_barrel['Fall17']/datacalibdict_Run2016_barrel['Summer16']		
-	dedxcalib_endcap = datacalibdict_Run2017_endcap['Fall17']/datacalibdict_Run2016_barrel['Summer16']		
+	dedxcalib_barrel = Dedxcalibdict_Muon_barrel['Fall17']
+	dedxcalib_endcap = Dedxcalibdict_Muon_endcap['Fall17']
 else: 
 	dedxcalib_barrel = 1.0
 	dedxcalib_endcap = 1.0	
@@ -170,22 +167,23 @@ inf = 999999
 calm = 20
 calh = 25
 
-calm = 10
-calh = 15
-
-calm = 15
-calh = 20
-
 calm = 25
 calh = 40
 
+calm = 10
+calh = 15
 
+calm = 10
+calh = 13
+
+calm = 13
+calh = 27
 
 lowht = 0
 regionCuts = {}
-varlist_                                           = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'Met']
+varlist_                                           = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'MinDPhiMhtHemJet','Met']
+regionCuts['Baseline']                         = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (0,inf),    (-inf,inf),  (-inf,inf)]
 if processskims:
-	regionCuts['Baseline']                         = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (0,inf),    (-inf,inf),  (-inf,inf)]
 	regionCuts['ShortLowMhtBaseline']              = [(lowht,inf), (100,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (1,1),    (-inf,inf),  (-inf,inf)]
 	#varlist_                                     = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'Log10DedxMass','BinNumber', 'Met']
 	regionCuts['ShortBaseline']                    = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (1,1),    (-inf,inf),  (-inf,inf)]
@@ -243,7 +241,8 @@ histoStructDict = {}
 hEtaVsPhiDT = {}
 for region in regionCuts:
 	histname = 'Track'+region+'_'+'EtaVsPhiDT'
-	hEtaVsPhiDT[region] = TH2F(histname,histname,160,-3.2,3.2,250,-2.5,2.5)# need to try this
+	hEtaVsPhiDT[region] = TH2F(histname,histname,180,-3.2,3.2,170,-2.5,2.5)# need to try this
+	hEtaVsPhiDT[region+'_tel'] = TH2F(histname+'_tel',histname+'_tel',180,-3.2,3.2,170,-2.5,2.5)# need to try this	
 	for var in varlist_:
 		histname = 'Prompt'+region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname)
@@ -251,6 +250,7 @@ for region in regionCuts:
 		histoStructDict[histname] = mkHistoStruct(histname)
 
 
+print 'regionCuts', regionCuts
 
 
 def getBinNumber(fv, binnumberdict=binnumbers, omitidx=-1):
@@ -280,15 +280,32 @@ for ifile, f in enumerate(inputFiles):
 
 nentries = c.GetEntries()
 
-nentries = 3000
-
 if maketree:
 	fnew.mkdir('TreeMaker2')
 	fnew.cd('TreeMaker2/')
-	tree_out = c.CloneTree(0)
+
+	'''
+	print 'test c'
+	l= c.GetLeaf("HLTElectronObjects")
+ 	c.GetListOfLeaves().Remove(l)
+	print 'test d'
+	
+	
+	print 'test a'
+	b = c.GetBranch("HLTElectronObjects")
+	print 'test b'	
+	c.GetListOfBranches().Remove(b)	
+
+	print 'test z'
+	'''
+	c.SetBranchStatus('HLTElectronObjects', 0)
+	tree_out = c.CloneTree(0)	
+	print 'test done'
 
 c.Show(0)
+
 c.GetEntry(0)
+
 thisfile = ''
 #nentries = 5
 
@@ -343,16 +360,13 @@ elif 'JetHT' in inputFileNames:
 	ismet= False
 	isjetht = True
 
-fMask = TFile('usefulthings/Masks.root')
-if 'Run2016' in inputFileNames: 
-	hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
-	hMask = ''
-else: 
-	#hMask = fMask.Get('hEtaVsPhiDTRun2016')
-	hMask = ''
+#fMask = TFile('usefulthings/Masks.root')
+#fMask = TFile('usefulthings/Masks_mcal25to40.root')
 
 
 
+fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to13.root')
+hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
 
 import os
 if phase==0:
@@ -389,8 +403,6 @@ lastrun = -1
 
 
 
-matchedpinum = 0.0001
-unmatchedpinum = 0.0001
 print nentries, 'events to be analyzed'
 for ientry in range(nentries):
 	if ientry==1102: continue
@@ -539,6 +551,7 @@ for ientry in range(nentries):
 
 	RecoElectrons = []
 	for ilep, lep in enumerate(c.Electrons):
+		if not lep.Pt()>candPtCut: continue
 		if debugmode: print ientry, ilep, 'ele with Pt' , lep.Pt()
 		#if (abs(lep.Eta()) < 1.566 and abs(lep.Eta()) > 1.4442): continue
 		if not abs(lep.Eta())<2.4: continue
@@ -546,9 +559,10 @@ for ientry in range(nentries):
 		if not c.Electrons_passIso[ilep]: continue
 		if not c.Electrons_tightID[ilep]: continue
 		if debugmode: print ilep, 'passed that nice tight id'
-		drmin = inf
 		matchedTrk = TLorentzVector()
-		if lep.Pt()>candPtCut: RecoElectrons.append([lep, ilep])
+		RecoElectrons.append([lep, ilep])
+		
+	if len(RecoElectrons)>0: fillth2(hEtaVsPhiDT['Baseline'+'_tel'], RecoElectrons[0][0].Phi(), RecoElectrons[0][0].Eta())
 
 
 	RecoMuons = []
@@ -659,16 +673,16 @@ for ientry in range(nentries):
 				
 	matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
 	fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta,matchedcalo, disappearingTracks[0][1], log10dedxmass]
+	
 	#print 'once things are stable, I suggest consolodating the nshort, nlong into the dtstatus thingy'
 	fv.append(getBinNumber(fv))
-	fv.extend([c.MET])
+	fv.extend([c.MET, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht)])
 	if abs(disappearingTracks[0][1])==1: FR = getfakerate(fv[0], hfrshort)
 	if abs(disappearingTracks[0][1])==2: FR = getfakerate(fv[0], hfrlong)	
 	for regionkey in regionCuts:
 		if 'MhtSideband' in regionkey and (not isdata): weight_ = weight/gtrig.Eval(c.MHT)
 		else: weight_ = weight
-		if selectionFeatureVector(fv,regionkey,'Mht'): fillth2(hEtaVsPhiDT[regionkey], phi, dt.Eta())
-		
+		if selectionFeatureVector(fv,regionkey,'Mht'):  fillth2(hEtaVsPhiDT[regionkey], phi, dt.Eta())
 		for ivar, varname in enumerate(varlist_):
 				if selectionFeatureVector(fv,regionkey,varname):
 						if (isPromptEl or isPromptMu or isPromptPi): 

@@ -335,7 +335,7 @@ for ientry in range(nentries):
 			continue
 		isjet = False
 		for jet in c.Jets:
-			if not jet.Pt()>30: continue
+			if not jet.Pt()>25: continue
 			if jet.DeltaR(track)<0.4: 
 				isjet = True
 				thejet = jet
@@ -382,7 +382,7 @@ for ientry in range(nentries):
 		if not abs(ele.Eta())<2.4: continue
 		if debugmode: print 'passed eta and Pt'
 		if not c.Electrons_passIso[iel]: continue
-		if not c.Electrons_mediumID[iel]: continue
+		if not c.Electrons_tightID[iel]: continue
 		if ele.Pt()>candPtCut: RecoElectrons.append([ele, iel])
 
 
@@ -392,7 +392,7 @@ for ientry in range(nentries):
 		if not abs(lep.Eta())<2.4: continue
 		if verbose: print 'passed eta and Pt'
 		if not c.Muons_passIso[ilep]: continue
-		if not c.Muons_mediumID[ilep]: continue
+		if not c.Muons_tightID[ilep]: continue
 		if lep.Pt()>candPtCut: RecoMuons.append([lep,ilep])    
 
 

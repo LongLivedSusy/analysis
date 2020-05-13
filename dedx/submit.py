@@ -23,7 +23,9 @@ if __name__ == "__main__":
 
     #Inputfile txt path
     path = "./inputs/"
-    inputfiles = sorted(glob(path+'/*.txt'))
+    #inputfiles = sorted(glob(path+'/*.txt'))
+    #inputfiles = sorted(glob(path+'/Run2016*.txt'))
+    inputfiles = sorted(glob(path+'/Summer16*.txt'))
     #inputfiles = ["./inputs/Run2016H-SingleMuon.txt"]
     #inputfiles = ["./inputs/Run2017B-SingleMuon.txt"]
     #inputfiles = ["./inputs/Summer16.WJetsToLNu_HT-100To200.txt"]

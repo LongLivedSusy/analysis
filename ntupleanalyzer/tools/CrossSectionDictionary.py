@@ -1105,7 +1105,7 @@ def loadCrossSections(model = "T1"):
  		x.append(float(key))
  		y.append(float(CrossSectionsPb['Higgsino'][key])) 		
  	gr = TGraph( n, x, y )
- 	CrossSectionsPb[model]['graph'] = gr
+ 	CrossSectionsPb[model]['graph'] = gr # note: this has been superceded by Benjamin's interpolations
 	
 	
 	
