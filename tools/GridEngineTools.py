@@ -32,6 +32,11 @@ def ShellExec(command):
 
 def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, confirm=True, babysit = True):
 
+    print "jobs:", len(mycommands)
+    print mycommands[0]
+    print "..."
+    print mycommands[-1]
+
     if runmode == "multiprocessing" or runmode == "multi" or runmode == "single":
 
         if runmode == "single":

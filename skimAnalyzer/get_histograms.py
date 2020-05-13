@@ -49,49 +49,56 @@ def calculate_fakerate(variables, folder, output_file, datasets, regions):
                 h_numerator_added = 0
                 h_denom_added = 0
                 for category in ["short", "long", ""]:                
-
-                    dedx = ""
-                    fin = TFile("%s/fakerate_numdenom.root" % folder, "read")       
-                                                                                   
-                    if category != "":
-                        numerator = fin.Get("%s_%s_%s_sr%s_%s" % (dataset, variable, region, dedx, category))
-                        numerator.SetDirectory(0)
-                        numerator = fakerate_rebin(numerator, variable, category)
-                        
-                        denominator = fin.Get("%s_%s_%s_fakecr%s_%s" % (dataset, variable, region, dedx, category))
-                        denominator.SetDirectory(0)
-                        denominator = fakerate_rebin(denominator, variable, category)
-                        
+                    
+                    if variable == "HT_n_allvertices":
+                        systs = ["", "Left", "Right"]
                     else:
-                        numerator = h_numerator_added
-                        denominator = h_denom_added
+                        systs = [""]
                     
-                    if category != "":
-                        if h_numerator_added == 0:
-                            h_numerator_added = numerator.Clone()
-                            h_numerator_added.SetDirectory(0)
-                            h_numerator_added.SetName(h_numerator_added.GetName().replace("_long", "").replace("_short", ""))
-                            h_numerator_added.SetTitle(h_numerator_added.GetTitle().replace("_long", "").replace("_short", ""))
+                    for syst in systs:
+
+                        dedx = ""
+                        fin = TFile("%s/fakerate_numdenom.root" % folder, "read")       
+                                                                                       
+                        if category != "":
+                            numerator = fin.Get("%s_%s_%s_sr%s_%s%s" % (dataset, variable, region, dedx, category, syst))
+                            numerator.SetDirectory(0)
+                            numerator = fakerate_rebin(numerator, variable, category)
+                            
+                            denominator = fin.Get("%s_%s_%s_fakecr%s_%s%s" % (dataset, variable, region, dedx, category, syst))
+                            denominator.SetDirectory(0)
+                            denominator = fakerate_rebin(denominator, variable, category)
+                            
                         else:
-                            h_numerator_added.Add(numerator)
-                        if h_denom_added == 0:
-                            h_denom_added = denominator.Clone()
-                            h_denom_added.SetDirectory(0)
-                            h_denom_added.SetName(h_denom_added.GetName().replace("_long", "").replace("_short", ""))
-                            h_denom_added.SetTitle(h_denom_added.GetTitle().replace("_long", "").replace("_short", ""))
-                        else:
-                            h_denom_added.Add(denominator)
-                    
-                    fin.Close()
-                    
-                    fakerate = numerator.Clone()
-                    fakerate.Divide(denominator)
-                    fakerate.SetName(fakerate.GetName().replace("_sr", "_fakerate").replace("JetHT", ""))
-                    fakerate.SetTitle(fakerate.GetTitle().replace("_sr", "_fakerate").replace("JetHT", ""))
-                    
-                    fout = TFile(output_file, "update")
-                    fakerate.Write()                        
-                    fout.Close()
+                            numerator = h_numerator_added
+                            denominator = h_denom_added
+                        
+                        if category != "":
+                            if h_numerator_added == 0:
+                                h_numerator_added = numerator.Clone()
+                                h_numerator_added.SetDirectory(0)
+                                h_numerator_added.SetName(h_numerator_added.GetName().replace("_long", "").replace("_short", ""))
+                                h_numerator_added.SetTitle(h_numerator_added.GetTitle().replace("_long", "").replace("_short", ""))
+                            else:
+                                h_numerator_added.Add(numerator)
+                            if h_denom_added == 0:
+                                h_denom_added = denominator.Clone()
+                                h_denom_added.SetDirectory(0)
+                                h_denom_added.SetName(h_denom_added.GetName().replace("_long", "").replace("_short", ""))
+                                h_denom_added.SetTitle(h_denom_added.GetTitle().replace("_long", "").replace("_short", ""))
+                            else:
+                                h_denom_added.Add(denominator)
+                        
+                        fin.Close()
+                        
+                        fakerate = numerator.Clone()
+                        fakerate.Divide(denominator)
+                        fakerate.SetName(fakerate.GetName().replace("_sr", "_fakerate").replace("JetHT", ""))
+                        fakerate.SetTitle(fakerate.GetTitle().replace("_sr", "_fakerate").replace("JetHT", ""))
+                        
+                        fout = TFile(output_file, "update")
+                        fakerate.Write()                        
+                        fout.Close()
 
 
 def write_histogram_to_file(variable, binnings, cuts, scaling, h_suffix, folder, label, globstrings, output_folder, fakerate_file, overwrite):
@@ -303,8 +310,7 @@ if __name__ == "__main__":
 
     # construct all histograms:
     zones = collections.OrderedDict()
-    #for dedx in ["", "_SidebandDeDx", "_MidDeDx", "_HighDeDx"]:
-    for dedx in ["", "_MidHighDeDx", "_MidDeDx", "_HighDeDx"]:
+    for dedx in ["", "_MidHighDeDx", "_MidDeDx", "_HighDeDx"]: 
         if dedx == "_SidebandDeDx":
             lower = dEdxSidebandLow; upper = dEdxLow
         elif dedx == "_MidDeDx":
@@ -318,28 +324,50 @@ if __name__ == "__main__":
         elif dedx == "":
             lower = 0; upper = 9999
         
+        #FIXME
+        if dedx == "" and options.type == "analysis": continue
+        
         tags = collections.OrderedDict()
         tags["SR_short"] = "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
         tags["SR_long"] = "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
-        tags["CR_short"] = "tracks_dxyVtx>0.02" 
-        tags["CR_long"] = "tracks_dxyVtx>0.02"
+        tags["CR_short"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
+        tags["CR_long"] = "tracks_dxyVtx>0.04 && tracks_trkRelIso<0.01"
+
+        tags["SRLeft_short"] = "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.3) && tracks_trkRelIso<0.01"
+        tags["SRLeft_long"] = "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) + 0.2) && tracks_trkRelIso<0.01"
+        tags["CRLeft_short"] = "tracks_dxyVtx>0.015 && tracks_trkRelIso<0.01"
+        tags["CRLeft_long"] = "tracks_dxyVtx>0.015 && tracks_trkRelIso<0.01"
+        
+        tags["SRRight_short"] = "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.7) && tracks_trkRelIso<0.01"
+        tags["SRRight_long"] = "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.2) && tracks_trkRelIso<0.01"
+        tags["CRRight_short"] = "tracks_dxyVtx>0.025 && tracks_trkRelIso<0.01"
+        tags["CRRight_long"] = "tracks_dxyVtx>0.025 && tracks_trkRelIso<0.01"
+
+        tags["SREC_short"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+        tags["SREC_long"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
         
         for is_pixel_track, category in enumerate(["long", "short"]):
 
-            # apply cuts to all regions:
+            #FIXME
+            if category == "short": continue
+
+            # for prompt bg:
+            #morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+            #zones["srEC%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<10" % (tags["SREC_" + category], morecutsEC), ""]
+            #zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>15 && tracks_matchedCaloEnergy<20" % (tags["SREC_" + category], morecutsEC), ""]
+            
             morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
             
-            zones["sr%s_%s" % (dedx, category)] = [" && %s %s" % (tags["SR_" + category], morecuts), ""]
-            zones["srgenfake%s_%s" % (dedx, category)] = [" && %s && tracks_fake==1 %s" % (tags["SR_" + category], morecuts), ""]
-            zones["srgenprompt%s_%s" % (dedx, category)] = [" && %s && tracks_fake==0 %s" % (tags["SR_" + category], morecuts), ""]
+            for syst in [""]: #, "Left", "Right"
             
-            zones["fakecr%s_%s" % (dedx, category)] = [" && %s %s" % (tags["CR_" + category], morecuts), ""]
-            zones["fakeprediction-QCDLowMHT-%s_%s" % (dedx, category)] = [" && %s %s" % (tags["CR_" + category], morecuts), "HT:n_allvertices-QCDLowMHT_fakerate_%s" % (category)]
-            zones["fakeprediction-QCDLowMHTHT-%s_%s" % (dedx, category)] = [" && %s %s" % (tags["CR_" + category], morecuts), "HT-QCDLowMHT_fakerate_%s" % (category)]
-            zones["fakeprediction-QCDLowMHTSimple-%s_%s" % (dedx, category)] = [" && %s %s" % (tags["CR_" + category], morecuts), "tracks_is_pixel_track-QCDLowMHT_fakerate_%s" % (category)]
-            #zones["fakeprediction-QCDLowMHTHT-%s_%s" % (dedx, category)] = [" && %s %s" % (tags["CR_" + category], morecuts), "HT-QCDLowMHT_fakerate_%s" % (category)]
-                        
-            zones["PromptEl%s" % (dedx)] = [" && (tracks_SR_short+tracks_SR_long)==0 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (lower, upper), ""]
+                #zones["sr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["SR%s_" % syst + category], morecuts), ""]
+                #zones["srgenfake%s_%s%s" % (dedx, category, syst)] = [" && %s && tracks_fake==1 %s" % (tags["SR%s_" % syst + category], morecuts), ""]
+                #zones["srgenprompt%s_%s%s" % (dedx, category, syst)] = [" && %s && tracks_fake==0 %s" % (tags["SR%s_" % syst + category], morecuts), ""]
+                
+                zones["fakecr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), ""]
+                zones["fakeprediction-QCDLowMHT-%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices-QCDLowMHT_fakerate_%s%s" % (category, syst)]
+                #zones["fakeprediction-QCDLowMHTHT-%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT-QCDLowMHT_fakerate_%s%s" % (category, syst)]
+                #zones["fakeprediction-QCDLowMHTSimple-%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "tracks_is_pixel_track-QCDLowMHT_fakerate_%s%s" % (category, syst)]
 
     # remove superfluous zone cuts:
     for zone_label in zones:
@@ -353,13 +381,12 @@ if __name__ == "__main__":
     event_selections["analysis"]["HadBaseline"] =       "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0"
     event_selections["analysis"]["SMuBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
     event_selections["analysis"]["SMuValidationZLL"] =  "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-    event_selections["analysis"]["SMuValidationMT"] =    "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70"
-    event_selections["analysis"]["QCDLowMHT"] =          "n_goodleptons==0 && MHT<150"
+    event_selections["analysis"]["SMuValidationMT"] =   "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70"
+    #event_selections["analysis"]["QCDLowMHT"] =         "n_goodleptons==0 && MHT<150"
     event_selections["analysis"]["SElBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
     event_selections["analysis"]["SElValidationZLL"] =  "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
     event_selections["analysis"]["SElValidationMT"] =   "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70"
-    event_selections["analysis"]["PromptEl"] =          "n_goodelectrons==1 && n_goodmuons==0"
-    event_selections["analysis"]["PromptDiEl"] =        "n_goodelectrons==2 && n_goodmuons==0 && dilepton_invmass>71 && dilepton_invmass<111"
+    event_selections["analysis"]["PromptDY"] =          "n_goodelectrons>0 && tracks_invmass>65 && tracks_invmass<110"
 
     event_selections["fakerate"] = collections.OrderedDict()
     event_selections["fakerate"]["QCDLowMHT"] =          "n_goodleptons==0 && MHT<150"
@@ -375,7 +402,7 @@ if __name__ == "__main__":
                               "n_goodjets",
                               "n_btags",
                               "regionCorrected",
-                              "regionCorrected_sideband",
+                              #"regionCorrected_sideband",
                               "leadinglepton_mt",
                               "tracks_invmass",
                               "tracks_is_pixel_track",
@@ -386,13 +413,13 @@ if __name__ == "__main__":
                               "tracks_trkRelIso",
                             ]
     variables["fakerate"] = [
-                              "tracks_pt",
-                              "tracks_is_pixel_track",
+                              #"tracks_pt",
+                              #"tracks_is_pixel_track",
                               "HT",
-                              "MHT",
-                              "n_goodjets",
+                              #"MHT",
+                              #"n_goodjets",
                               "n_allvertices",
-                              "n_btags",
+                              #"n_btags",
                               "HT:n_allvertices",
                             ]
                       
@@ -549,19 +576,16 @@ if __name__ == "__main__":
                 ]
                 
     do_phase0 = True 
-    do_phase1 = True
+    do_phase1 = False
 
     parameters = []
     for variable in variables[options.type]:            
         for event_selection in event_selections[options.type]:
             
-            if "Prompt" in event_selection:
-                folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/skim_11_dilepton_merged"
-                do_phase1 = False
-            else:
-                folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/skim_09_cand_merged"
-                do_phase1 = True
-                
+            if event_selection == "Baseline" and "region" not in variable:
+                continue
+            
+            folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventselection/skim_12_newregions_merged"
                         
             for zone in zones:
 
@@ -578,10 +602,18 @@ if __name__ == "__main__":
                     
                 fakerate_file = "%s/fakerate.root" % options.output_folder
 
-                if do_phase0: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Summer16", Summer16, options.output_folder, fakerate_file])
-                if do_phase1: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Fall17", Fall17, options.output_folder, fakerate_file])
+                if do_phase0:
+                    parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Summer16", Summer16, options.output_folder, fakerate_file])
+                    #parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Summer16QCDZJets", Summer16QCDZJets, options.output_folder, fakerate_file])
+                if do_phase1:
+                    parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Fall17", Fall17, options.output_folder, fakerate_file])
+                    parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Fall17QCDZJets", Fall17QCDZJets, options.output_folder, fakerate_file])
                 
                 if options.type == "analysis":
+                    if "PromptDY" in h_suffix and not "genfake" in h_suffix and not "genprompt" in h_suffix:
+                        if do_phase0: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2016SingleElectron", ["Run2016*SingleElectron"], options.output_folder, fakerate_file])
+                        if do_phase1: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2017SingleElectron", ["Run2017*SingleElectron"], options.output_folder, fakerate_file])
+                        if do_phase1: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2018SingleElectron", ["Run2018*EGamma"], options.output_folder, fakerate_file])
                     if "SEl" in h_suffix and not "genfake" in h_suffix and not "genprompt" in h_suffix:
                         if do_phase0: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2016SingleElectron", ["Run2016*SingleElectron"], options.output_folder, fakerate_file])
                         if do_phase1: parameters.append([variable, binnings[options.type][variable], cuts, scaling, h_suffix, folder, "Run2017SingleElectron", ["Run2017*SingleElectron"], options.output_folder, fakerate_file])
@@ -664,7 +696,7 @@ if __name__ == "__main__":
         
         #os.system("%s --folder %s --type fakerate --runmode multi %s" % (this_scripts_name, options.output_folder, overwritetext) )
         #os.system("%s --folder %s --type fakerate --calculatefakerate" % (this_scripts_name, options.output_folder) )
-        os.system("%s --folder %s --type analysis --runmode multi %s" % (this_scripts_name, options.output_folder, overwritetext) )
+        #os.system("%s --folder %s --type analysis --runmode multi %s" % (this_scripts_name, options.output_folder, overwritetext) )
         os.system("%s --folder %s --hadd" % (this_scripts_name, options.output_folder,) )
         #os.system("./plot_validation.py --histograms histograms_%s.root" % (options.output_folder) )
         

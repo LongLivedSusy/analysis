@@ -1,10 +1,10 @@
 #!/bin/env python
 from __future__ import division
+import __main__ as main
 from ROOT import *
 from optparse import OptionParser
 import math, os, glob
 from GridEngineTools import runParallel
-#import collections
 import re
 import shared_utils
 import random
@@ -34,7 +34,7 @@ def getBinContent_with_overflow(histo, xval, yval = False):
         else:
             value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
         return value
-        
+
 
 def parse_root_cutstring(cut, tracks_increment_variable = "i"):
 
@@ -89,7 +89,7 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
             return 0
         elif "SingleMuon" in filename and (n_goodmuons==0 or n_goodelectrons>0):
             return 0
-        elif "SingleElectron" in filename and n_goodelectrons==0:
+        elif "SingleElectron" in filename and (n_goodmuons>0 or n_goodelectrons==0):
             return 0
         else:
             return region
@@ -202,15 +202,12 @@ def get_fakerate(event, fakerate_variables, fakerate_regions, data_period, h_fak
     
     for fakerate_variable in fakerate_variables:                
         for fakerate_region in fakerate_regions:
-            for fakerate_type in ["fakerate", "fakerateMVA", "fakerateEDep10", "fakerateEDep20"]:
+            for fakerate_type in ["fakerate"]:
                 for category in ["short", "long"]:
                     
-                    if data_period == "Run2016":
-                        this_data_period = "Run2016GH"
-                    else:
-                        this_data_period = data_period
+                    this_data_period = data_period
                     
-                    label = "%s_%s_%s_%s_%s" % (fakerate_variable.replace(":", "_"), fakerate_region, this_data_period, fakerate_type, category)
+                    label = "%s_%s_%s_%s_%s" % (this_data_period, fakerate_variable.replace(":", "_"), fakerate_region, fakerate_type, category)
                                             
                     if ":" in fakerate_variable:
                         xvalue = eval("event.%s" % fakerate_variable.split(":")[1])
@@ -299,7 +296,7 @@ def event_loop(input_filenames, output_file, nevents=-1, treename="Events", even
             tree.Add(tree_file)
     
     dEdxSidebandLow = 1.6
-    dEdxLow = 2.1
+    dEdxLow = 2.0
     dEdxMid = 4.0
     
     event_selections = {
@@ -580,12 +577,13 @@ if __name__ == "__main__":
     parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 60)
     parser.add_option("--njobs", dest = "njobs")
     parser.add_option("--event_start", dest = "event_start", default = 0)
-    parser.add_option("--fakerate_file", dest = "fakerate_file", default = "fakerate3.root")
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
+    parser.add_option("--submit", dest="submit", action="store_true")
     parser.add_option("--unmerged", dest="unmerged", action="store_true")
     (options, args) = parser.parse_args()
         
+    gROOT.SetBatch(True)
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
 
@@ -597,7 +595,7 @@ if __name__ == "__main__":
         quit()
 
     # run parallel if input is a folder:
-    if options.inputfiles and options.inputfiles[-1] == "/":
+    if options.submit:
 
         print "Got input folder, running in batch mode (%s)" % options.runmode
        
@@ -612,6 +610,7 @@ if __name__ == "__main__":
         input_files += glob.glob(options.inputfiles + "/Summer16.TTJets_DiLept*.root")
         input_files += glob.glob(options.inputfiles + "/Summer16.TTJets_SingleLeptFromT*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*MET*.root")
+        input_files += glob.glob(options.inputfiles + "/Run2016*JetHT*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*SingleElectron*.root")
         input_files += glob.glob(options.inputfiles + "/Run2016*SingleMuon*.root")
 
@@ -656,7 +655,6 @@ if __name__ == "__main__":
         event_loop(inputfiles_list,
              options.outputfiles,
              nevents = int(options.nev),
-             fakerate_filename = options.fakerate_file,
              event_start = int(options.event_start),
             )
 

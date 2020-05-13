@@ -178,7 +178,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--input", dest = "inputfiles", default = "../skims/current/")
     parser.add_option("--output", dest = "outputfile", default = "output.root")
-    parser.add_option("--folder", dest = "folder", default="output")
+    parser.add_option("--folder", dest = "folder", default="output2")
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--plot", dest="plot", action="store_true")
     (options, args) = parser.parse_args()
@@ -190,21 +190,22 @@ if __name__ == "__main__":
     print "Get single lepton trigger efficiency from skim"
 
     if options.hadd:
-        os.system("hadd -f output_barrel.root %s/*_barrel.root" % (options.folder))
-        os.system("hadd -f output_endcap.root %s/*_endcap.root" % (options.folder))
-
-        for period in ["2016", "2016A", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
-            for region in ["barrel", "endcap"]:
-                os.system("hadd -f output_%s_%s.root %s/*%s*_%s.root" % (period, region, options.folder, period, region))
+        #os.system("hadd -f Run2016_barrel.root %s/Run2016*_barrel.root" % (options.folder))
+        #os.system("hadd -f Run2016_endcap.root %s/Run2016*_endcap.root" % (options.folder))
+        os.system("hadd -f Run2017_barrel.root %s/Run2017*_barrel.root" % (options.folder))
+        os.system("hadd -f Run2017_endcap.root %s/Run2017*_endcap.root" % (options.folder))
+        os.system("hadd -f Run2018_barrel.root %s/Run2018*_barrel.root" % (options.folder))
+        os.system("hadd -f Run2018_endcap.root %s/Run2018*_endcap.root" % (options.folder))
 
         options.plot = True
         quit()
 
     if options.plot:
-        for period in ["2016", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
+        #for period in ["2016", "2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H"]:
+        for period in ["2017", "2018"]:
             for region in ["barrel", "endcap"]:
-                get_and_plot_ratio("output_%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.pdf" % (region, period))
-                get_and_plot_ratio("output_%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.png" % (region, period))
+                get_and_plot_ratio("Run%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.pdf" % (region, period))
+                get_and_plot_ratio("Run%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.png" % (region, period))
         quit()
 
     # otherwise run locally:
