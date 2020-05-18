@@ -314,6 +314,138 @@ def getBinContent_with_overflow(histo, xval, yval = False):
             value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
         return value
 
+    
+def check_exo_tag(event, track, iCand):
+
+    # Disappearing track tag from EXO-19-010 search ("EXO tag"):
+    # isolated track selection:
+    
+    exo_pass_iso = True
+    for collection in [event.Electrons, event.Muons, event.TAPPionTracks]:
+        for obj in collection:
+            if track.DeltaR(obj) < 0.15:
+                exo_pass_iso = False
+    
+    exo_track_jet_mindeltaR = 9999
+    for jet in event.Jets:
+        deltaR = jet.DeltaR(track)
+        if deltaR < exo_track_jet_mindeltaR:
+            exo_track_jet_mindeltaR = deltaR
+    
+    if track.Pt() > 55 \
+        and abs(track.Eta()) < 2.1 \
+        and not (abs(track.Eta()) > 0.15 and abs(track.Eta()) < 0.35) \
+        and not (abs(track.Eta()) > 1.42 and abs(track.Eta()) < 1.65) \
+        and not (abs(track.Eta()) > 1.55 and abs(track.Eta()) < 1.85) \
+        and event.tracks_nValidPixelHits[iCand] >= 4 \
+        and event.tracks_nMissingInnerHits[iCand] == 0 \
+        and event.tracks_nMissingMiddleHits[iCand] == 0 \
+        and event.tracks_trkRelIso[iCand] < 0.05 \
+        and abs(event.tracks_dxyVtx[iCand]) < 0.02 \
+        and abs(event.tracks_dzVtx[iCand]) < 0.5 \
+        and exo_track_jet_mindeltaR > 0.5 \
+        and bool(event.tracks_passPFCandVeto[iCand]) \
+        and exo_pass_iso \
+        and event.tracks_matchedCaloEnergy[iCand] < 10 \
+        and event.tracks_nMissingOuterHits[iCand] >= 3:
+
+        #print "EXO tag"        
+        return 1
+        
+    else:
+        return 0
+
+
+def check_mt2_tag(event, track, iCand):
+    
+    ptErrOverPt2 = event.tracks_ptError[iCand] / (track.Pt()**2)
+
+    pass_mt2_pass_iso = True
+    pass_mt2_pass_track_iso = True
+    for collection in [event.Electrons, event.Muons]:
+        for obj in collection:
+            if track.DeltaR(obj) < 0.2:
+                pass_mt2_pass_iso = False
+    for i_track in event.tracks:
+        if track.DeltaR(i_track) < 0.1:
+            pass_mt2_pass_track_iso = False
+    
+    # pixel tracks:
+    if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand] \
+        and track.Pt() > 15 \
+        and abs(track.Eta()) < 2.4 \
+        and not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6) \
+        and ptErrOverPt2 < 0.2 \
+        and abs(event.tracks_dxyVtx[iCand]) < 0.02 \
+        and abs(event.tracks_dzVtx[iCand]) < 0.05 \
+        and event.tracks_neutralPtSum[iCand] < 10 \
+        and event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1 \
+        and event.tracks_chargedPtSum[iCand] < 10 \
+        and event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2 \
+        and event.tracks_pixelLayersWithMeasurement[iCand] >= 3 \
+        and event.tracks_nMissingInnerHits[iCand] == 0 \
+        and event.tracks_nMissingOuterHits[iCand] >= 2 \
+        and bool(event.tracks_passPFCandVeto[iCand]) \
+        and pass_mt2_pass_iso:
+        #print "MT2 short track"
+        
+        if pass_mt2_pass_track_iso:
+            return 10
+        else:
+            return 1
+        
+    elif event.tracks_trackerLayersWithMeasurement[iCand] < 7 \
+        and track.Pt() > 15 \
+        and abs(track.Eta()) < 2.4 \
+        and not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6) \
+        and ptErrOverPt2 < 0.02 \
+        and abs(event.tracks_dxyVtx[iCand]) < 0.01 \
+        and abs(event.tracks_dzVtx[iCand]) < 0.05 \
+        and event.tracks_neutralPtSum[iCand] < 10 \
+        and event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1 \
+        and event.tracks_chargedPtSum[iCand] < 10 \
+        and event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2 \
+        and event.tracks_pixelLayersWithMeasurement[iCand] >= 2 \
+        and event.tracks_nMissingInnerHits[iCand] == 0 \
+        and event.tracks_nMissingOuterHits[iCand] >= 2 \
+        and bool(event.tracks_passPFCandVeto[iCand]) \
+        and pass_mt2_pass_iso:
+        #print "MT2 medium track"
+        
+        if pass_mt2_pass_track_iso:
+            return 20
+        else:
+            return 2
+
+    elif event.tracks_trackerLayersWithMeasurement[iCand] >= 7 \
+        and track.Pt() > 15 \
+        and abs(track.Eta()) < 2.4 \
+        and not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6) \
+        and ptErrOverPt2 < 0.005 \
+        and abs(event.tracks_dxyVtx[iCand]) < 0.01 \
+        and abs(event.tracks_dzVtx[iCand]) < 0.05 \
+        and event.tracks_neutralPtSum[iCand] < 10 \
+        and event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1 \
+        and event.tracks_chargedPtSum[iCand] < 10 \
+        and event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2 \
+        and event.tracks_pixelLayersWithMeasurement[iCand] >= 2 \
+        and event.tracks_nMissingInnerHits[iCand] == 0 \
+        and event.tracks_nMissingOuterHits[iCand] >= 2 \
+        and bool(event.tracks_passPFCandVeto[iCand]) \
+        and pass_mt2_pass_iso:
+        
+        if track.Pt() < 150 and event.MT2 < 100:
+            return 0
+        
+        #print "MT2 long track"
+        if pass_mt2_pass_track_iso:
+            return 30
+        else:
+            return 3
+        
+    else:
+        return 0
+        
 
 def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", only_tagged_events = False, save_cleaned_variables = True, only_json = False, fakerate_filename = "", overwrite = False):
 
@@ -369,34 +501,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     fMask = TFile('../../disappearing-track-tag/Masks_mcal10to15.root')
     hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
 
-    ## load fakerate histograms:
-    #h_fakerate = {}
-    #fakerate_variables = [
-    #             "HT",
-    #             "n_goodjets",
-    #             "n_allvertices",
-    #             "n_btags",
-    #             "MinDeltaPhiMhtJets",
-    #             "HT:n_allvertices",
-    #            ]
-    #fakerate_regions = ["FakeRateDet"]
-    #    
-    #if fakerate_filename:
-    #    fakerate_branchlabels = []
-    #    tfile_fakerate = TFile(fakerate_filename, "open")
-    #    for variable in fakerate_variables:
-    #        variable = variable.replace(":", "_")
-    #        for region in fakerate_regions:
-    #            for fakeratetype in ["fakerate", "fakerateIso"]:
-    #                for category in ["short", "long"]:
-    #                    label = "%s_%s_%s_%s_%s" % (variable, region, data_period, fakeratetype, category)
-    #                    branchlabel = "%s_%s_%s_%s" % (variable, region, fakeratetype, category)
-    #                    h_fakerate[label] = tfile_fakerate.Get(label)
-    #                    h_fakerate[label].SetDirectory(0)
-    #                    fakerate_branchlabels.append(branchlabel)
-    #    tfile_fakerate.Close()
-                
-
     # load tree
     tree = TChain(treename)
     for iFile in event_tree_filenames:
@@ -441,10 +545,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     for tag in tags:
         integer_branches.append("n_tracks_%s" % tag)
 
-    #if fakerate_filename:
-    #    for label in fakerate_branchlabels:
-    #        float_branches.append("fakerate_%s" % label)
-
     if not is_data:
         float_branches.append("madHT")
         float_branches.append("CrossSection")
@@ -471,7 +571,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if "tracks_" in label:
             track_variables.append(label)
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_pass_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_passpionveto', 'tracks_passjetveto', 'tracks_basecuts', 'tracks_passexo', 'tracks_passmt2']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_pass_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_passpionveto', 'tracks_passjetveto', 'tracks_basecuts', 'tracks_passexotag', 'tracks_passmt2tag']
 
     for tag in tags:
         vector_int_branches += ["tracks_%s" % tag]
@@ -545,7 +645,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         n_goodelectrons = 0
         n_goodmuons = 0
         for i, electron in enumerate(event.Electrons):
-            if electron.Pt() > 30 and abs(electron.Eta()) < 2.4 and bool(event.Electrons_tightID[i]):
+            if electron.Pt() > 30 and abs(electron.Eta()) < 2.4 and bool(event.Electrons_passIso[i]) and bool(event.Electrons_tightID[i]):
 
                 # check for jets:
                 for jet in event.Jets:
@@ -571,7 +671,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                             })
                                              
         for i, muon in enumerate(event.Muons):
-            if muon.Pt() > 30 and abs(muon.Eta()) < 2.4 and bool(event.Muons_tightID[i]):
+            if muon.Pt() > 30 and abs(muon.Eta()) < 2.4 and bool(event.Muons_passIso[i]) and bool(event.Muons_tightID[i]):
 
                 # check for jets:
                 for jet in event.Jets:
@@ -636,20 +736,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             
                 dilepton_invariant_mass = dilepton_mass
                 dilepton_leptontype = lepton_level_output[highest_lepton_index]["leptons_id"]
-
-        ## check z peak:
-        #dilepton_invariant_mass = -1
-        #dilepton_leptontype = -1
-        #if n_goodelectrons==2 and n_goodmuons==0:
-        #    if lepton_level_output[0]["leptons_charge"] * lepton_level_output[1]["leptons_charge"] < 0:
-        #        if lepton_level_output[0]["leptons_iso"] and lepton_level_output[1]["leptons_iso"]:
-        #            dilepton_invariant_mass = (goodleptons[0] + goodleptons[1]).M()
-        #            dilepton_leptontype = 11
-        #elif n_goodelectrons==0 and n_goodmuons==2:
-        #    if lepton_level_output[0]["leptons_charge"] * lepton_level_output[1]["leptons_charge"] < 0:
-        #        if lepton_level_output[0]["leptons_iso"] and lepton_level_output[1]["leptons_iso"]:
-        #            dilepton_invariant_mass = (goodleptons[0] + goodleptons[1]).M()
-        #            dilepton_leptontype = 13
 
         if save_cleaned_variables and dilepton_invariant_mass>0:
         
@@ -774,8 +860,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
         for iCand, track in enumerate(event.tracks):
 
+            pass_exo_tag = check_exo_tag(event, track, iCand)
+            pass_mt2_tag = check_mt2_tag(event, track, iCand)
+            
             # basic track selection:
-            if track.Pt() < 30 or not shared_utils.isBaselineTrack(track, iCand, event, hMask):
+            if track.Pt() < 30:
                 continue
 
             # check for nearby pions:
@@ -808,10 +897,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
 
-            base_cuts = passrecolepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=3 and passpionveto and passjetveto
+            base_cuts = shared_utils.isBaselineTrack(track, iCand, event, hMask) and passrecolepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=3 and passpionveto and passjetveto
 
             # keep only candidate tracks:
-            if not base_cuts: continue
+            if not base_cuts and not pass_exo_tag and not pass_mt2_tag:
+                continue
 
             # check disappearing track tags:
             mva_looseNoDep = get_disappearing_track_score("looseNoDep", event, iCand, readers)
@@ -884,14 +974,17 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         deltaR = track.DeltaR(event.GenParticles[k])
                         if deltaR < min_deltaR:
                             chiCandGenMatchingDR = deltaR
+            
+            #if chiCandGenMatchingDR<0.01:
+            #    print "Chargino found"
 
-            #if tags["SR_short"] or tags["SR_long"] or tags["CR_short"] or tags["CR_long"]:
-            #    print "iEv, iCand", iEv, iCand
-            #    print "  \_tags", tags
-            #    print "  \_is_pixel_track", is_pixel_track
-            #    print "  \_mva_tight, mva_loose", mva_tight, mva_loose
-            #    print "  \_is_fake_track", is_fake_track
-            #    print "  \_weight = event.puWeight * event.CrossSection =", weight
+            #if tags["SR_short"] or tags["SR_long"]:
+                #print "iEv, iCand, SR_short, SR_long", iEv, iCand, tags["SR_short"], tags["SR_long"]
+                #print "  \_tags", tags
+                #print "  \_is_pixel_track", is_pixel_track
+                #print "  \_mva_tight, mva_loose", mva_tight, mva_loose
+                #print "  \_is_fake_track", is_fake_track
+                #print "  \_weight = event.puWeight * event.CrossSection =", weight
             
             tagged_tracks.append(
                                    {
@@ -944,6 +1037,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_passpionveto": passpionveto,
                                      "tracks_passjetveto": passjetveto,
                                      "tracks_basecuts": base_cuts,
+                                     "tracks_passexotag": pass_exo_tag,
+                                     "tracks_passmt2tag": pass_mt2_tag,
                                    }
                                   )
                                        

@@ -77,8 +77,8 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
         fin = TFile(root_file.replace("MET", "SingleElectron").replace("SingleMuon", "SingleElectron").replace("JetHT", "SingleElectron"), "read")
         #h_DY_low = fin.Get(datalabel + "_tracks_invmass_PromptDY_srECSB" + category)
         #h_DY_high = fin.Get(datalabel + "_tracks_invmass_PromptDY_srECSB" + category)
-        h_DY_low = fin.Get(datalabel + "_" + "tracks_invmass" + "_PromptDY_srEC" + category)
-        h_DY_high = fin.Get(datalabel + "_" + "tracks_invmass" + "_PromptDY_srECSB" + category)
+        h_DY_low = fin.Get(datalabel + "_" + "leadinglepton_mt" + "_PromptDY_srEC" + category)
+        h_DY_high = fin.Get(datalabel + "_" + "leadinglepton_mt" + "_PromptDY_srECSB" + category)
         h_DY_low.SetDirectory(0)
         h_DY_high.SetDirectory(0)
         fin.Close()
@@ -87,9 +87,9 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
         h_DY_low = histos[datalabel + "_tracks_invmass_PromptDY_srEC" + category]
         h_DY_high = histos[datalabel + "_tracks_invmass_PromptDY_srECSB" + category]
     
-    print "h_DY_low.Integral() / h_DY_high.Integral()", h_DY_low.Integral(), "/", h_DY_high.Integral()
+    print "h_DY_low.Integral() / h_DY_high.Integral()", h_DY_low.Integral(h_DY_low.GetXaxis().FindBin(70), h_DY_low.GetXaxis().FindBin(110)), "/", h_DY_high.Integral(h_DY_high.GetXaxis().FindBin(70), h_DY_high.GetXaxis().FindBin(110))
     try:
-        ULowHigh = h_DY_low.Integral() / h_DY_high.Integral()
+        ULowHigh = h_DY_low.Integral(h_DY_low.GetXaxis().FindBin(70), h_DY_low.GetXaxis().FindBin(110)) / h_DY_high.Integral(h_DY_high.GetXaxis().FindBin(70), h_DY_high.GetXaxis().FindBin(110))
     except:
         ULowHigh = 0
     
@@ -128,10 +128,11 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
         
         stacked_histograms = [
                                h_fakeprediction.Clone(),
-                               #h_promptprediction.Clone(),
+                               h_promptprediction.Clone(),
                              ]
 
         if "Validation" in region:
+            print "Unblinding validation region..."
             datahist = histos[dataid + "_sr" + dedx + category]
         else:
             datahist = stacked_histograms[-1]
@@ -188,7 +189,7 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
     #h_fakepredictionLeft.Draw("same")
     #h_fakepredictionRight.SetLineColor(kTeal)
     #h_fakepredictionRight.Draw("same")
-    
+        
     # recalculate ratio: FR pred / FR Truth
     if not "Run201" in dataid:
         
@@ -255,7 +256,7 @@ def run(index, histograms_folder = ""):
                  ##"tracks_trkRelIso",
                 ]
     dedexids = [""] # _MidHighDeDx "_MidDeDx", "_HighDeDx"
-    fakerateregions = ["QCDLowHT"] #,"QCDLowMHTSimple", "QCDLowMHTHT"] 
+    fakerateregions = ["QCDLow2D"] #,"QCDLowMHTSimple", "QCDLowMHTHT"] 
     #fakerateregions = ["QCDLowMHT"]
     categories = ["_short", "_long"]
 

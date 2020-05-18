@@ -202,6 +202,7 @@ def fill_histogram(event, variable, histograms, event_selection, data_period, zo
                     
     h_name = data_period + "_" + variable + "_" + event_selection + "_" + zone
     sideband = False
+    value = -1
     
     if ":" not in variable:
         if "tracks_" in variable:
@@ -220,8 +221,7 @@ def fill_histogram(event, variable, histograms, event_selection, data_period, zo
         else:
             yvalue = eval("event.%s" % variable.split(":")[1])
         histograms[h_name].Fill(xvalue, yvalue, weight*scaling)
-    
-        
+            
     #elif "region" in variable:
     #    
     #    if "sideband" in variable:
@@ -317,7 +317,6 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
 
     nev = 0
     for tree_file in input_filenames:
-        #print "Reading %s for n_ev calculation..." % tree_file 
         fin = TFile(tree_file)
         fin.Get("nev")
         fin.Get(treename)
@@ -373,7 +372,7 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
         zones_converted[zone] = parse_root_cutstring(zones[zone][0], tracks_increment_variable = "i_track")
 
     # Get fakerate maps:
-    if mode == "analysis":
+    if fakerate_filename:
         h_fakerate = {}
         tfile_fakerate = TFile(fakerate_filename, "open")
         for zone in zones:
@@ -413,7 +412,7 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
 
         # get fakerates for event:
         fakerates = {}
-        if mode == "analysis":
+        if fakerate_filename:
             for label in h_fakerate:
                 fakerate_variable = label.split("_")[0]
                 if ":" in fakerate_variable:
@@ -434,11 +433,8 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
 
                 if "gen" in zone and is_data:
                     continue
-
-                #cut = event_selections[event_selection] + zones[zone][0]
-                # check cutstring on event level:                
-                #if not tree.Query("", cut, "", 1, iEv).GetRowCount(): continue
-                                
+                                             
+                # this is to speed things up       
                 if not eval(event_selections_converted_notracks[event_selection]):
                     continue
                                         
@@ -457,20 +453,21 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
                             for i_track in xrange(len(event.tracks_ptError)):
                                 if eval(cut_converted):
                                     fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
+                                    #FIXME
+                                    break
                         else:
                             for i_track in xrange(len(event.tracks_ptError)):
                                 if eval(cut_converted):
                                     fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
                                     break
                     
-                    else:
+                    elif eval(cut_converted):
                         # cutstring without tracks in it                       
-                        if eval(cut_converted):
-                            if "tracks_" in variable:
-                                for i_track in xrange(len(event.tracks_ptError)):
-                                    fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
-                            else:
-                                fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
+                        if "tracks_" in variable:
+                            for i_track in xrange(len(event.tracks_ptError)):
+                                fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
+                        else:
+                            fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
             
     if event_start>0:
         output_file = output_file.replace(".root", "_%s.root" % event_start)
@@ -501,6 +498,7 @@ if __name__ == "__main__":
     parser.add_option("--outputfile", dest = "outputfile")
     parser.add_option("--mode", dest="mode")
     parser.add_option("--outputfolder", dest="outputfolder")
+    parser.add_option("--fakeratefile", dest="fakeratefile", default = "fakerate.root")
     parser.add_option("--skimfolder", dest="skimfolder")
     parser.add_option("--nev", dest = "nev", default = -1)
     parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 4)
@@ -511,9 +509,7 @@ if __name__ == "__main__":
     gROOT.SetBatch(True)
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
-    
-    fakeratefile = options.outputfolder + "/fakerate.root"
-    
+        
     # configure
 
     tags = collections.OrderedDict()
@@ -526,12 +522,10 @@ if __name__ == "__main__":
                     
     variables = {}
     variables["analysis"] = [
-                              "HT",
-                              "MHT",
-                              "n_goodjets",
+                              #"HT",
+                              #"MHT",
+                              #"n_goodjets",
                               #"n_btags",
-                              #"regionCorrected",
-                              #"regionCorrected_sideband",
                               "leadinglepton_mt",
                               "tracks_invmass",
                               #"tracks_is_pixel_track",
@@ -540,6 +534,8 @@ if __name__ == "__main__":
                               #"tracks_deDxHarmonic2pixelCorrected",
                               #"tracks_matchedCaloEnergy",
                               #"tracks_trkRelIso",
+                              #"regionCorrected",
+                              #"regionCorrected_sideband",
                             ]
     variables["fakerate"] = [
                               #"tracks_pt",
@@ -604,7 +600,7 @@ if __name__ == "__main__":
     binnings["fakerate"]["MinDeltaPhiMhtJets"] = [100, 0, 5]
     binnings["fakerate"]["tracks_eta"] = [12, -3, 3]
     binnings["fakerate"]["tracks_phi"] = [16, -4, 4]
-    binnings["fakerate"]["HT:n_allvertices"] = [5, 0, 2000, 5, 0, 50]
+    binnings["fakerate"]["HT:n_allvertices"] = [3, 0, 2000, 3, 0, 50]
     
     dEdxSidebandLow = 1.6
     dEdxLow = 2.0
@@ -612,7 +608,7 @@ if __name__ == "__main__":
 
     # construct all histograms:
     zones = collections.OrderedDict()
-    for dedx in ["", "_MidHighDeDx"]:
+    for dedx in ["", "_MidHighDeDx"]: 
         if dedx == "_SidebandDeDx":
             lower = dEdxSidebandLow; upper = dEdxLow
         elif dedx == "_MidDeDx":
@@ -630,12 +626,19 @@ if __name__ == "__main__":
 
             # for prompt bg:
             if options.mode == "analysis":
-                morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+                if dedx != "":
+                    morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+                else:
+                    morecutsEC = " && tracks_is_pixel_track==%s" % (is_pixel_track)
+                    
                 zones["srEC%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<10" % (tags["SREC_" + category], morecutsEC), ""]
                 zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>13 && tracks_matchedCaloEnergy<27" % (tags["SREC_" + category], morecutsEC), ""]
 
-            morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
-            
+            if dedx != "":
+                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+            else:
+                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<10" % (is_pixel_track)
+                
             for syst in [""]:
                 zones["sr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["SR%s_" % syst + category], morecuts), ""]
                 zones["srgenfake%s_%s%s" % (dedx, category, syst)] = [" && %s && tracks_fake==1 %s" % (tags["SR%s_" % syst + category], morecuts), ""]
@@ -643,27 +646,23 @@ if __name__ == "__main__":
                 zones["fakecr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), ""]
                 if options.mode == "analysis":
                     zones["fakeprediction-QCDLowHT%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerate_%s%s" % (category, syst)]
-                    zones["fakeprediction-QCDLowHT%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s%s" % (category, syst)]
-
-    # remove superfluous zone cuts:
-    for zone_label in zones:
-        for delstring in ["&& tracks_deDxHarmonic2pixelCorrected<9999", "&& tracks_deDxHarmonic2pixelCorrected>0"]:
-            if delstring in zones[zone_label][0]:
-                zones[zone_label][0] = zones[zone_label][0].replace(delstring, "")
+                    zones["fakeprediction-QCDLow2D%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s%s" % (category, syst)]
+   
+    #n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90 && leadinglepton_id==13 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01 && tracks_is_pixel_track==1 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>2.0 && tracks_deDxHarmonic2pixelCorrected<9999
    
     event_selections = {}
     event_selections["analysis"] = collections.OrderedDict()
-    #event_selections["analysis"]["Baseline"] =          "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))"
-    #event_selections["analysis"]["HadBaseline"] =       "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0"
-    #event_selections["analysis"]["SMuBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
-    #event_selections["analysis"]["SMuValidationZLL"] =  "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-    event_selections["analysis"]["SMuValidationMT"] =    "n_goodjets>=1 && n_goodmuons==1 && leptons_iso==1 && n_goodelectrons==0 && leadinglepton_mt<90"
-    #event_selections["analysis"]["QCDLowMHT"] =         "n_goodleptons==0 && MHT<150"
-    #event_selections["analysis"]["SElBaseline"] =       "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
-    #event_selections["analysis"]["SElValidationZLL"] =  "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-    event_selections["analysis"]["SElValidationMT"] =   "n_goodjets>=1 && n_goodelectrons==1 && leptons_iso==1 && n_goodmuons==0 && leadinglepton_mt<70"
+    #event_selections["analysis"]["Baseline"] =           "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))"
+    #event_selections["analysis"]["HadBaseline"] =        "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0"
+    #event_selections["analysis"]["SMuBaseline"] =        "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+    #event_selections["analysis"]["SMuValidationZLL"] =   "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
+    event_selections["analysis"]["SMuValidationMT"] =     "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90"
+    #event_selections["analysis"]["QCDLowMHT"] =          "n_goodleptons==0 && MHT<100"
+    #event_selections["analysis"]["SElBaseline"] =        "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+    #event_selections["analysis"]["SElValidationZLL"] =   "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
+    event_selections["analysis"]["SElValidationMT"] =     "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<90"
     #event_selections["analysis"]["PromptDY"] =           "n_goodelectrons>0 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110"
-    event_selections["analysis"]["PromptDY"] =           "leadinglepton_id==11 && leptons_iso==1 && tracks_invmass>65 && tracks_invmass<110"
+    event_selections["analysis"]["PromptDY"] =            "leadinglepton_id==11 && tracks_invmass>65 && tracks_invmass<110"
 
     event_selections["fakerate"] = collections.OrderedDict()
     #event_selections["fakerate"]["QCDLowMHT"] =          "n_goodleptons==0 && MHT<150"
@@ -693,12 +692,19 @@ if __name__ == "__main__":
                 #"Run2018SingleMuon": ["Run2018*SingleMuon*root"],
                 #"Run2018MET": ["Run2018*MET*root"],
               }
-                    
+                                                  
     if options.inputfile:
-        try:
-            event_loop([options.inputfile], options.outputfile, tags, variables[options.mode], binnings, event_selections[options.mode], zones, fakeratefile, options.mode, nevents=options.nev, treename="Events", event_start=options.event_start)
-        except Exception as e:
-            print str(e)
+        if options.mode == "fakerate":
+            fakeratefile = False
+        else:
+            fakeratefile = options.fakeratefile
+        
+        if fakeratefile and fakeratefile != "False":
+            fakeratefile = options.outputfolder + "/" + fakeratefile
+        else:
+            fakeratefile = False
+        
+        event_loop([options.inputfile], options.outputfile, tags, variables[options.mode], binnings, event_selections[options.mode], zones, fakeratefile, options.mode, nevents=options.nev, treename="Events", event_start=options.event_start)
                     
     else:
         
@@ -714,15 +720,22 @@ if __name__ == "__main__":
                 inputfiles += glob.glob(options.skimfolder + "/" + sample)
         commands = []
         for i, inputfile in enumerate(inputfiles):            
-            fin = TFile(inputfile)
-            tree = fin.Get("Events")
-            nev = tree.GetEntries()
-            fin.Close()
-            for iStart in range(0, nev, int(nev/options.jobs_per_file)):
-                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate --event_start %s --nev %s; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file))
+            if options.jobs_per_file>1:
+                fin = TFile(inputfile)
+                tree = fin.Get("Events")
+                nev = tree.GetEntries()
+                fin.Close()
+                for iStart in range(0, nev, int(nev/options.jobs_per_file)):
+                    cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate --event_start %s --nev %s; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file))
+                    commands.append(cmd)
+            else:
+                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1])
                 commands.append(cmd)
                 
         print "Running %s jobs" % len(commands)        
+        print "@@@@@@@@@"
+        print commands 
+        print "@@@@@@@@@"        
         GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % outputfolder_fakerate + "_fakerate", confirm=True)
                 
         # 2) hadd everything:
@@ -732,7 +745,7 @@ if __name__ == "__main__":
         # 3) calculate fake rate:
         print "\n@@@@@@@@\nstep 3\n@@@@@@@@\n"
         try:
-            calculate_fakerate(fakeratefile, fakeratesamples, variables["fakerate"], event_selections["fakerate"], outputfolder_fakerate)
+            calculate_fakerate(options.outputfolder + "/" + options.fakeratefile, fakeratesamples, variables["fakerate"], event_selections["fakerate"], outputfolder_fakerate)
         except Exception as e:
             print str(e)
             
@@ -743,13 +756,18 @@ if __name__ == "__main__":
             for sample in samples[data_period]:
                 inputfiles += glob.glob(options.skimfolder + "/" + sample)
         commands = []      
-        for i, inputfile in enumerate(inputfiles):            
-            fin = TFile(inputfile)
-            tree = fin.Get("Events")
-            nev = tree.GetEntries()
-            fin.Close()
-            for iStart in range(0, nev, int(nev/options.jobs_per_file)):
-                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis --event_start %s --nev %s; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file))
+        for i, inputfile in enumerate(inputfiles):
+            if options.jobs_per_file>1:         
+                fin = TFile(inputfile)
+                tree = fin.Get("Events")
+                nev = tree.GetEntries()
+                fin.Close()
+                for iStart in range(0, nev, int(nev/options.jobs_per_file)):
+                    print "iStart, ev in intervall, nev", iStart, int(nev/options.jobs_per_file), nev
+                    cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis --event_start %s --nev %s; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file))
+                    commands.append(cmd)
+            else:
+                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1])
                 commands.append(cmd)
             
         print "Running %s jobs" % len(commands)        
