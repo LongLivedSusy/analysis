@@ -15,7 +15,6 @@ def graphStyler(h,color=kBlack):
 	h.SetLineWidth(2)
 	h.SetLineColor(color)
 	h.SetMarkerColor(color)
-	#h.SetFillColor(color)
 	size = 0.059 #.059
 	font = 132
 	h.GetXaxis().SetLabelFont(font)
@@ -32,46 +31,46 @@ def graphStyler(h,color=kBlack):
 
 def main():
 
-    folder = "../../ntupleanalyzer/skim_15_merged"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_15_merged"
         
     labels = collections.OrderedDict()
 
     labels["Background"] = [
-            "Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1",
-            "Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1",
-            "Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1",
-            "Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1",
-            "Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1",
-            "Summer16.WJetsToLNu_HT-2500ToInf_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-2500ToInf_TuneCUETP8M1",
             "Summer16.WJetsToLNu_TuneCUETP8M1",
             "Summer16.DYJetsToLL_M-50_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1",
-            "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1",
-            #"Summer16.QCD_HT200to300_TuneCUETP8M1",
-            #"Summer16.QCD_HT300to500_TuneCUETP8M1",
-            #"Summer16.QCD_HT500to700_TuneCUETP8M1",
-            #"Summer16.QCD_HT700to1000_TuneCUETP8M1",
-            #"Summer16.QCD_HT1000to1500_TuneCUETP8M1",
-            #"Summer16.QCD_HT1500to2000_TuneCUETP8M1",
-            #"Summer16.QCD_HT2000toInf_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1",
+            #"Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1",
+            ##"Summer16.QCD_HT200to300_TuneCUETP8M1",
+            ##"Summer16.QCD_HT300to500_TuneCUETP8M1",
+            ##"Summer16.QCD_HT500to700_TuneCUETP8M1",
+            ##"Summer16.QCD_HT700to1000_TuneCUETP8M1",
+            ##"Summer16.QCD_HT1000to1500_TuneCUETP8M1",
+            ##"Summer16.QCD_HT1500to2000_TuneCUETP8M1",
+            ##"Summer16.QCD_HT2000toInf_TuneCUETP8M1",
             "Summer16.TTJets_DiLept",
             "Summer16.TTJets_SingleLeptFromT",
             "Summer16.TTJets_SingleLeptFromTbar",
-            #"Summer16.ZZ_TuneCUETP8M1",
-            #"Summer16.WW_TuneCUETP8M1",
-            #"Summer16.WZ_TuneCUETP8M1",
-            #"Summer16.ZJetsToNuNu_HT-100To200_13TeV",
-            #"Summer16.ZJetsToNuNu_HT-200To400_13TeV",
-            #"Summer16.ZJetsToNuNu_HT-400To600_13TeV",
-            #"Summer16.ZJetsToNuNu_HT-600To800_13TeV",
-            #"Summer16.ZJetsToNuNu_HT-800To1200_13TeV",
-            #"Summer16.ZJetsToNuNu_HT-1200To2500_13TeV",
-            #"Summer16.ZJetsToNuNu_HT-2500ToInf_13TeV",
+            ##"Summer16.ZZ_TuneCUETP8M1",
+            ##"Summer16.WW_TuneCUETP8M1",
+            ##"Summer16.WZ_TuneCUETP8M1",
+            ##"Summer16.ZJetsToNuNu_HT-100To200_13TeV",
+            ##"Summer16.ZJetsToNuNu_HT-200To400_13TeV",
+            ##"Summer16.ZJetsToNuNu_HT-400To600_13TeV",
+            ##"Summer16.ZJetsToNuNu_HT-600To800_13TeV",
+            ##"Summer16.ZJetsToNuNu_HT-800To1200_13TeV",
+            ##"Summer16.ZJetsToNuNu_HT-1200To2500_13TeV",
+            ##"Summer16.ZJetsToNuNu_HT-2500ToInf_13TeV",
             ]
     labels["Signal"] = [
             "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
@@ -91,6 +90,16 @@ def main():
             "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
             "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
             "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1075_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1275_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1375_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+            "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
                 ]
     
 
@@ -103,6 +112,8 @@ def main():
     cutstrings["nocuts"] = "tracks_is_pixel_track>=0"
     cutstrings["pixeltrack_bdttag"] = "tracks_SR_short>=1"
     cutstrings["stripstrack_bdttag"] = "tracks_SR_long>=1"
+    cutstrings["pixeltrack_bdtEDeptag"] = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<10"
+    cutstrings["stripstrack_bdtEDeptag"] = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<10"
     cutstrings["pixeltrack_exotag"] = "tracks_is_pixel_track==1 && tracks_passexotag==1"
     cutstrings["stripstrack_exotag"] = "tracks_is_pixel_track==0 && tracks_passexotag==1"
     cutstrings["pixeltrack_mt2tag"] = "tracks_passmt2tag==1"
@@ -140,6 +151,7 @@ def main():
         g_tight = TGraph(); graphStyler(g_tight)
         g_loose = TGraph(); graphStyler(g_loose)
         g_bdt = TGraph(); graphStyler(g_bdt)
+        g_bdtEDep = TGraph(); graphStyler(g_bdtEDep)
         g_mt2 = TGraph(); graphStyler(g_mt2)
         g_exo = TGraph(); graphStyler(g_exo)
            
@@ -170,6 +182,8 @@ def main():
                 
                 if "bdttag" in label:
                     g_bdt.SetPoint(g_bdt.GetN(), eff_sg, 1 - eff_bg)
+                elif "bdtEDep" in label:
+                    g_bdtEDep.SetPoint(g_bdtEDep.GetN(), eff_sg, 1 - eff_bg)
                 elif "exotag" in label:
                     g_exo.SetPoint(g_exo.GetN(), eff_sg, 1 - eff_bg)
                 elif "mt2tag" in label:
@@ -200,6 +214,13 @@ def main():
         g_bdt.SetLineColor(kWhite)
         g_bdt.SetFillColor(kWhite)
         legend.AddEntry(g_bdt, "Full tag")
+
+        g_bdtEDep.SetMarkerStyle(20)
+        g_bdtEDep.SetMarkerColor(kOrange)
+        g_bdtEDep.Draw("same p")
+        g_bdtEDep.SetLineColor(kWhite)
+        g_bdtEDep.SetFillColor(kWhite)
+        legend.AddEntry(g_bdtEDep, "Full tag + EDep<10 GeV")
 
         g_exo.SetMarkerStyle(20)
         g_exo.SetMarkerColor(kMagenta-3)
