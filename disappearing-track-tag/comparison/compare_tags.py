@@ -112,8 +112,14 @@ def main():
     cutstrings["nocuts"] = "tracks_is_pixel_track>=0"
     cutstrings["pixeltrack_bdttag"] = "tracks_SR_short>=1"
     cutstrings["stripstrack_bdttag"] = "tracks_SR_long>=1"
-    cutstrings["pixeltrack_bdtEDeptag"] = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<10"
-    cutstrings["stripstrack_bdtEDeptag"] = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<10"
+    cutstrings["pixeltrack_bdtEDep10tag"] = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<10"
+    cutstrings["stripstrack_bdtEDep10tag"] = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<10"
+    cutstrings["pixeltrack_bdtEDep12tag"] = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<12"
+    cutstrings["stripstrack_bdtEDep12tag"] = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<12"
+    cutstrings["pixeltrack_bdtEDep15tag"] = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_bdtEDep15tag"] = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_bdtEDep20tag"] = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<20"
+    cutstrings["stripstrack_bdtEDep20tag"] = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<20"
     cutstrings["pixeltrack_exotag"] = "tracks_is_pixel_track==1 && tracks_passexotag==1"
     cutstrings["stripstrack_exotag"] = "tracks_is_pixel_track==0 && tracks_passexotag==1"
     cutstrings["pixeltrack_mt2tag"] = "tracks_passmt2tag==1"
@@ -146,12 +152,15 @@ def main():
 
     for is_pixel_track, category in enumerate(["long", "short"]): 
         canvas = shared_utils.mkcanvas()
-        legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.5, y2=0.5)
+        legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.5, y2=0.65)
         
         g_tight = TGraph(); graphStyler(g_tight)
         g_loose = TGraph(); graphStyler(g_loose)
         g_bdt = TGraph(); graphStyler(g_bdt)
-        g_bdtEDep = TGraph(); graphStyler(g_bdtEDep)
+        g_bdtEDep10 = TGraph(); graphStyler(g_bdtEDep10)
+        g_bdtEDep12 = TGraph(); graphStyler(g_bdtEDep12)
+        g_bdtEDep15 = TGraph(); graphStyler(g_bdtEDep15)
+        g_bdtEDep20 = TGraph(); graphStyler(g_bdtEDep20)
         g_mt2 = TGraph(); graphStyler(g_mt2)
         g_exo = TGraph(); graphStyler(g_exo)
            
@@ -182,8 +191,14 @@ def main():
                 
                 if "bdttag" in label:
                     g_bdt.SetPoint(g_bdt.GetN(), eff_sg, 1 - eff_bg)
-                elif "bdtEDep" in label:
-                    g_bdtEDep.SetPoint(g_bdtEDep.GetN(), eff_sg, 1 - eff_bg)
+                elif "bdtEDep10" in label:
+                    g_bdtEDep10.SetPoint(g_bdtEDep10.GetN(), eff_sg, 1 - eff_bg)
+                elif "bdtEDep12" in label:
+                    g_bdtEDep12.SetPoint(g_bdtEDep12.GetN(), eff_sg, 1 - eff_bg)
+                elif "bdtEDep15" in label:
+                    g_bdtEDep15.SetPoint(g_bdtEDep15.GetN(), eff_sg, 1 - eff_bg)
+                elif "bdtEDep20" in label:
+                    g_bdtEDep20.SetPoint(g_bdtEDep20.GetN(), eff_sg, 1 - eff_bg)
                 elif "exotag" in label:
                     g_exo.SetPoint(g_exo.GetN(), eff_sg, 1 - eff_bg)
                 elif "mt2tag" in label:
@@ -215,12 +230,33 @@ def main():
         g_bdt.SetFillColor(kWhite)
         legend.AddEntry(g_bdt, "Full tag")
 
-        g_bdtEDep.SetMarkerStyle(20)
-        g_bdtEDep.SetMarkerColor(kOrange)
-        g_bdtEDep.Draw("same p")
-        g_bdtEDep.SetLineColor(kWhite)
-        g_bdtEDep.SetFillColor(kWhite)
-        legend.AddEntry(g_bdtEDep, "Full tag + EDep<10 GeV")
+        g_bdtEDep10.SetMarkerStyle(20)
+        g_bdtEDep10.SetMarkerColor(kOrange)
+        g_bdtEDep10.Draw("same p")
+        g_bdtEDep10.SetLineColor(kWhite)
+        g_bdtEDep10.SetFillColor(kWhite)
+        legend.AddEntry(g_bdtEDep10, "Full tag + EDep<10 GeV")
+
+        g_bdtEDep12.SetMarkerStyle(20)
+        g_bdtEDep12.SetMarkerColor(kOrange+1)
+        g_bdtEDep12.Draw("same p")
+        g_bdtEDep12.SetLineColor(kWhite)
+        g_bdtEDep12.SetFillColor(kWhite)
+        legend.AddEntry(g_bdtEDep12, "Full tag + EDep<12 GeV")
+
+        g_bdtEDep15.SetMarkerStyle(20)
+        g_bdtEDep15.SetMarkerColor(kOrange+2)
+        g_bdtEDep15.Draw("same p")
+        g_bdtEDep15.SetLineColor(kWhite)
+        g_bdtEDep15.SetFillColor(kWhite)
+        legend.AddEntry(g_bdtEDep15, "Full tag + EDep<15 GeV")
+
+        g_bdtEDep20.SetMarkerStyle(20)
+        g_bdtEDep20.SetMarkerColor(kOrange+3)
+        g_bdtEDep20.Draw("same p")
+        g_bdtEDep20.SetLineColor(kWhite)
+        g_bdtEDep20.SetFillColor(kWhite)
+        legend.AddEntry(g_bdtEDep20, "Full tag + EDep<20 GeV")
 
         g_exo.SetMarkerStyle(20)
         g_exo.SetMarkerColor(kMagenta-3)
@@ -239,6 +275,7 @@ def main():
         legend.SetHeader("%s tracks" % category)
         legend.Draw()
         
+        shared_utils.stamp()
         canvas.Print(category + ".pdf")
         
 
