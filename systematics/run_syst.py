@@ -36,10 +36,10 @@ def main() :
 	    
 	    command = 'python SkimSystematics.py %s %s "%s"' %(inputfile, outputDir, sigmas)
 	    commands.append(command)
-	#os.system(command)  #For local test
+	os.system(command)  #For local test
         		
     ### For batch job
-    runParallel(commands, runmode='grid', dryrun=False, qsubOptions='-q cms', dontCheckOnJobs=True)    
+    #runParallel(commands, runmode='grid', dryrun=False, qsubOptions='-q cms', dontCheckOnJobs=True)    
     #runParallel(commands, runmode='multi', dryrun=False, dontCheckOnJobs=True)    
 
 if __name__ == '__main__' :

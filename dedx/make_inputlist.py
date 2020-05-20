@@ -188,15 +188,15 @@ if __name__ == "__main__" :
 
 	    
     samples=[]
-    samples.extend(Summer16_bkg)
-    #samples.extend(Summer16_signal)
-    samples.extend(Fall17_bkg)
-    samples.extend(Run2016_SingleMuon)
-    samples.extend(Run2016_SingleElectron)
-    samples.extend(Run2017_SingleMuon)
-    samples.extend(Run2017_SingleElectron)
-    samples.extend(Run2018_SingleMuon)
-    samples.extend(Run2018_EGamma)
+    #samples.extend(Summer16_bkg)
+    samples.extend(Summer16_signal)
+    #samples.extend(Fall17_bkg)
+    #samples.extend(Run2016_SingleMuon)
+    #samples.extend(Run2016_SingleElectron)
+    #samples.extend(Run2017_SingleMuon)
+    #samples.extend(Run2017_SingleElectron)
+    #samples.extend(Run2018_SingleMuon)
+    #samples.extend(Run2018_EGamma)
     
     #Input list for each process
     make_inputlist(samples)

@@ -25,9 +25,11 @@ if __name__ == "__main__":
     path = "./inputs/"
     #inputfiles = sorted(glob(path+'/*.txt'))
     #inputfiles = sorted(glob(path+'/Run2016*.txt'))
-    inputfiles = sorted(glob(path+'/Summer16*.txt'))
+    #inputfiles = sorted(glob(path+'/Run2017*.txt'))
+    #inputfiles = sorted(glob(path+'/Summer16*.txt'))
+    #inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
     #inputfiles = ["./inputs/Run2016H-SingleMuon.txt"]
-    #inputfiles = ["./inputs/Run2017B-SingleMuon.txt"]
+    inputfiles = ["./inputs/Run2017B-SingleMuon.txt"]
     #inputfiles = ["./inputs/Summer16.WJetsToLNu_HT-100To200.txt"]
     #inputfiles = ["./inputs/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800.txt"]
     #inputfiles = ["./inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_.txt"]
@@ -71,4 +73,4 @@ if __name__ == "__main__":
 	print('python analyzer_dEdx.py --input {} --output_dir {} --output {} --nev 10000;'.format(chunk, "output_smallchunks_test", output))
 	os.system('python analyzer_dEdx.py --input {} --output_dir {} --output {} --nev 10000;'.format(chunk, "output_smallchunks_test", output))
     else :
-	do_submission(commands, output_dir)
+	do_submission(commands, output_dir, condorDir='condor_2017')
