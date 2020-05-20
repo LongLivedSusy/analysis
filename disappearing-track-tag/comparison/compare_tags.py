@@ -115,13 +115,13 @@ def main(quick_mode = False):
     
     cutstrings = {}
 
-    tags = {}
-    tags["SR_short"] = "tracks_basecuts && tracks_is_pixel_track==1 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
-    tags["SR_long"] = "tracks_basecuts && tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+    #tags = {}
+    #tags["SR_short"] = "tracks_basecuts && tracks_is_pixel_track==1 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+    #tags["SR_long"] = "tracks_basecuts && tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
     
     for i_score in numpy.arange(-1,1,0.1): 
-        cutstrings["tight_%s" % i_score] = "tracks_mva_tight>=%s" % i_score
-        cutstrings["loose_%s" % i_score] = "tracks_mva_loose>=%s" % i_score
+        cutstrings["tight_%s" % i_score] = "tracks_basecuts==1 && tracks_mva_tight>=%s" % i_score
+        cutstrings["loose_%s" % i_score] = "tracks_basecuts==1 && tracks_mva_loose>=%s" % i_score
 
     cutstrings["nocuts_short"]              = "tracks_is_pixel_track>=0"
     cutstrings["nocuts_long"]               = "tracks_is_pixel_track>=0 && tracks_nMissingOuterHits>=2"
@@ -285,5 +285,5 @@ def main(quick_mode = False):
 
 if __name__ == "__main__":
 
-    main(quick_mode = False)
+    main(quick_mode = True)
     
