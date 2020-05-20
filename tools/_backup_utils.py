@@ -618,8 +618,17 @@ def passesUniversalSelection(t):
 def prepareReaderBtagSF():
     # load b tag sf from csv file
     import ROOT
+    
+    ## from within CMSSW:
+    #ROOT.gSystem.Load('libCondFormatsBTauObjects') 
+    #ROOT.gSystem.Load('libCondToolsBTau') 
+
+    # OR using standalone code:
     ROOT.gROOT.ProcessLine('.L ./BTagCalibrationStandalone.cpp+')
+    
+    # get the sf data loaded 
     calib = ROOT.BTagCalibration('deepcsv', './DeepCSV_Moriond17_B_H.csv')
+
     # making a std::vector<std::string>> in python is a bit awkward, 
     # but works with root (needed to load other sys types):
     v_sys = getattr(ROOT, 'std::vector<string>')()

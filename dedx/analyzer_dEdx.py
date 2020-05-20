@@ -390,9 +390,6 @@ def main(inputfiles,output_dir,output,nev):
     hTrkPixelDedx_tightmumatch = TH1F('hTrkPixelDedx_tightmumatch','hTrkPixelDedx_tightmumatch',100,0,10)
     hTrkPixelDedx_tightmumatch_barrel = TH1F('hTrkPixelDedx_tightmumatch_barrel','hTrkPixelDedx_tightmumatch_barrel',100,0,10)
     hTrkPixelDedx_tightmumatch_endcap = TH1F('hTrkPixelDedx_tightmumatch_endcap','hTrkPixelDedx_tightmumatch_endcap',100,0,10)
-    hTrkPixelDedx_tightmumatch_P30to40 = TH1F('hTrkPixelDedx_tightmumatch_P30to40','hTrkPixelDedx_tightmumatch_P30to40',100,0,10)
-    hTrkPixelDedx_tightmumatch_P40to50 = TH1F('hTrkPixelDedx_tightmumatch_P40to50','hTrkPixelDedx_tightmumatch_P40to50',100,0,10)
-    hTrkPixelDedx_tightmumatch_P50to60 = TH1F('hTrkPixelDedx_tightmumatch_P50to60','hTrkPixelDedx_tightmumatch_P50to50',100,0,10)
     hTrkPixelDedx_tightgenmumatch = TH1F('hTrkPixelDedx_tightgenmumatch','hTrkPixelDedx_tightgenmumatch',100,0,10)
     hTrkPixelDedx_tightgenmumatch_barrel = TH1F('hTrkPixelDedx_tightgenmumatch_barrel','hTrkPixelDedx_tightgenmumatch_barrel',100,0,10)
     hTrkPixelDedx_tightgenmumatch_endcap = TH1F('hTrkPixelDedx_tightgenmumatch_endcap','hTrkPixelDedx_tightgenmumatch_endcap',100,0,10)
@@ -487,7 +484,7 @@ def main(inputfiles,output_dir,output,nev):
 	    if not PassTrig(c,'MhtMet6pack') : continue
 	elif is_data and "SingleMuon" in FileName :
 	    if not PassTrig(c,'SingleMuon') : continue
-	elif is_data and "SingleElectron" in FileName :
+	elif is_data and ("SingleElectron" in FileName or "EGamma" in FileName) :
 	    if not PassTrig(c,'SingleElectron') : continue
 	else :
 	    # madHT check
@@ -604,9 +601,6 @@ def main(inputfiles,output_dir,output,nev):
 		    FillHisto(hTrkP_tightmumatch,track.P(),weight)
 		    FillHisto(hTrkPt_tightmumatch,track.Pt(),weight)
 		    FillHisto(hTrkPixelDedx_tightmumatch,dedx_pixel,weight)
-		    if track.P()>=30 and track.P()<40 : FillHisto(hTrkPixelDedx_tightmumatch_P30to40,dedx_pixel,weight)
-		    elif track.P()>=40 and track.P()<50 : FillHisto(hTrkPixelDedx_tightmumatch_P40to50,dedx_pixel,weight)
-		    elif track.P()>=50 and track.P()<60 : FillHisto(hTrkPixelDedx_tightmumatch_P50to60,dedx_pixel,weight)
 		    FillHisto(hTrkStripsDedx_tightmumatch,dedx_strips,weight)
 		    if abs(track.Eta())<=1.5 : 
 			#print 'barrel region(mu matching)'
@@ -807,6 +801,7 @@ def main(inputfiles,output_dir,output,nev):
                     runs_compacted[run][-1][-1] = lumisec
                 else:
                     runs_compacted[run].append([lumisec, lumisec])
+	print runs_compacted
 
         json_content = json.dumps(runs_compacted)
         with open(output_dir+'/'+output.replace(".root", ".json"), "w") as fjson:

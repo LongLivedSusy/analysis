@@ -87,9 +87,6 @@ if __name__=="__main__":
 	    "hTrkPixelDedx_tightmumatch_barrel",
 	    "hTrkPixelDedx_tightmumatch_endcap",
 	    "hTrkPixelDedx_tightgenmumatch",
-	    "hTrkPixelDedx_tightmumatch_P30to40",
-	    "hTrkPixelDedx_tightmumatch_P40to60",
-	    "hTrkPixelDedx_tightmumatch_P50to60",
 	    "hTrkPixelDedx_tightgenmumatch_barrel",
 	    "hTrkPixelDedx_tightgenmumatch_endcap",
 	    "hTrkPixelDedxCalib_tightmumatch",
@@ -150,19 +147,21 @@ if __name__=="__main__":
     # Folder for histograms and plots
     histodir = "output_mediumchunks/"
     #histodir = sys.argv[1]
-    plotdir = "plots"
+    #plotdir = "plots_2016"
+    plotdir = "plots_2017"
     ##############################
 
     # Draw plots
     for variable in variables_mu:
-	samples["SingleMuon"]={"select": "Run2016B_SingleMuon|Run2016C_SingleMuon|Run2016D_SingleMuon|Run2016E_SingleMuon|Run2016F_SingleMuon|Run2016G_SingleMuon|Run2016H_SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
-	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="pdf", save_shape=False)
+	#samples["SingleMuon"]={"select": "Run2016B-SingleMuon|Run2016C-SingleMuon|Run2016D-SingleMuon|Run2016E-SingleMuon|Run2016F-SingleMuon|Run2016G-SingleMuon|Run2016H-SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
+	samples["SingleMuon"]={"select": "Run2017B-SingleMuon|Run2017C-SingleMuon|Run2017D-SingleMuon|Run2017E-SingleMuon|Run2017F-SingleMuon", "type": "data", "color": kBlack, "lumi": 40805.1454}
+	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
 	del samples["SingleMuon"]
     
-    for variable in variables_ele:
-	samples["SingleElectron"]={"select": "Run2016B_SingleElectron|Run2016C_SingleElectron|Run2016D_SingleElectron|Run2016E_SingleElectron|Run2016F_SingleElectron|Run2016G_SingleElectron|Run2016H_SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
-	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="pdf", save_shape=False)
-	del samples["SingleElectron"]
+#    for variable in variables_ele:
+#	samples["SingleElectron"]={"select": "Run2016B-SingleElectron|Run2016C-SingleElectron|Run2016D-SingleElectron|Run2016E-SingleElectron|Run2016F-SingleElectron|Run2016G-SingleElectron|Run2016H-SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
+#	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
+#	del samples["SingleElectron"]
     
 #    for variable in variables_met:
 #	samples["MET"]={"select": "Run2016B_MET|Run2016C_MET|Run2016D_MET|Run2016E_MET|Run2016F_MET|Run2016G_MET|Run2016H_MET", "type": "data", "color": kBlack, "lumi": 35767.77446}
