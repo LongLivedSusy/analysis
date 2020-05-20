@@ -120,14 +120,11 @@ def main(quick_mode = False):
     tags["SR_long"] = "tracks_basecuts && tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
     
     for i_score in numpy.arange(-1,1,0.1): 
-    #for i_score in numpy.arange(-0.2,0.2,0.1): 
         cutstrings["tight_%s" % i_score] = "tracks_mva_tight>=%s" % i_score
         cutstrings["loose_%s" % i_score] = "tracks_mva_loose>=%s" % i_score
 
     cutstrings["nocuts_short"]              = "tracks_is_pixel_track>=0"
     cutstrings["nocuts_long"]               = "tracks_is_pixel_track>=0 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_bdttag"]        = "tracks_SR_short>=1"
-    #cutstrings["stripstrack_bdttag"]       = "tracks_SR_long>=1"
     cutstrings["pixeltrack_bdtEDep10tag"]   = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<10"
     cutstrings["stripstrack_bdtEDep10tag"]  = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<10"
     cutstrings["pixeltrack_bdtEDep20tag"]   = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<20"
@@ -172,8 +169,6 @@ def main(quick_mode = False):
         print category
         
         canvas = shared_utils.mkcanvas()
-        #canvas.SetLogx(True)
-        #canvas.SetLogy(True)
         
         legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.5, y2=0.65)
         
@@ -212,22 +207,7 @@ def main(quick_mode = False):
                     if not "tight" in g_label and not "loose" in g_label:
                         if g_label in label:
                             graphs[g_label].SetPoint(graphs[g_label].GetN(), eff_sg, 1 - eff_bg)
-                
-                #if "bdttag" in label:
-                #    g_bdt.SetPoint(g_bdt.GetN(), eff_sg, 1 - eff_bg)
-                #elif "bdtEDep10" in label:
-                #    g_bdtEDep10.SetPoint(g_bdtEDep10.GetN(), eff_sg, 1 - eff_bg)
-                #elif "bdtEDep12" in label:
-                #    g_bdtEDep12.SetPoint(g_bdtEDep12.GetN(), eff_sg, 1 - eff_bg)
-                #elif "bdtEDep15" in label:
-                #    g_bdtEDep15.SetPoint(g_bdtEDep15.GetN(), eff_sg, 1 - eff_bg)
-                #elif "bdtEDep20" in label:
-                #    graphs["bdtEDep20"].SetPoint(graphs["bdtEDep20"].GetN(), eff_sg, 1 - eff_bg)
-                #elif "exotag" in label:
-                #    graphs["exo"].SetPoint(graphs["exo"].GetN(), eff_sg, 1 - eff_bg)
-                #elif "mt2tag" in label:
-                #    graphs["mt2"].SetPoint(graphs["mt2"].GetN(), eff_sg, 1 - eff_bg)
-    
+                    
         graphs["tight"].Sort()
         graphs["tight"].SetLineWidth(2)
         graphs["tight"].SetLineColor(kRed-4)
@@ -253,20 +233,6 @@ def main(quick_mode = False):
         graphs["bdtEDep10"].SetLineColor(kWhite)
         graphs["bdtEDep10"].SetFillColor(kWhite)
         legend.AddEntry(graphs["bdtEDep10"], "Full tag (E_{matched}^{calo}<10 GeV)")
-
-        #g_bdtEDep12.SetMarkerStyle(20)
-        #g_bdtEDep12.SetMarkerColor(kOrange+1)
-        #g_bdtEDep12.Draw("same p")
-        #g_bdtEDep12.SetLineColor(kWhite)
-        #g_bdtEDep12.SetFillColor(kWhite)
-        #legend.AddEntry(g_bdtEDep12, "Full tag + EDep<12 GeV")
-        #
-        #g_bdtEDep15.SetMarkerStyle(20)
-        #g_bdtEDep15.SetMarkerColor(kOrange+2)
-        #g_bdtEDep15.Draw("same p")
-        #g_bdtEDep15.SetLineColor(kWhite)
-        #g_bdtEDep15.SetFillColor(kWhite)
-        #legend.AddEntry(g_bdtEDep15, "Full tag + EDep<15 GeV")
 
         graphs["bdtEDep20"].SetMarkerStyle(20)
         graphs["bdtEDep20"].SetMarkerColor(kOrange+3)
