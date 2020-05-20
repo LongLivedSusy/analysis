@@ -30,7 +30,55 @@ datasets = [
   #  'AK4PF_DeepCSVM'
   #],
   
-  # Signal
+  # Signal - T1qqqq
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-25_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-50_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-75_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-150_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-200_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-400_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-600_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-800_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-900_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1075_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1175_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1200_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1275_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1300_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1375_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1400_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1475_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1575_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1600_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1675_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1700_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1775_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1800_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1875_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1900_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1975_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2075_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2100_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2175_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2200_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2275_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2300_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2375_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2400_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2475_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2500_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2575_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2600_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2675_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2700_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_', binning, 'DeepCSVM'], 
+
+  # Signal - T2bt
   ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_', binning, 'DeepCSVM'], 
   ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_', binning, 'DeepCSVM'], 
   ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-100_', binning, 'DeepCSVM'], 
@@ -119,10 +167,12 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, outputDir, suffix):
     #for ientry in range(10):
         if ientry %verbosity==0: print ientry, 'events passing'
         t.GetEntry(ientry)
-    
-        if not t.MHT  > 150: continue
-        #if not t.HT   > 100: continue
-    
+
+	if not (bool(t.JetID) and  t.NVtx>0): continue
+	
+	if 'T1qqqq' in inputFilename :  
+	    if not t.MHT  > 150: continue
+	
 	for ijet, jet in enumerate(t.Jets):
 	    if jet.Pt()	< 30: continue
 	    if t.Jets_hadronFlavor[ijet]==5:
