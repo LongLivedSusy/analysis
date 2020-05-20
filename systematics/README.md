@@ -9,7 +9,7 @@ To make Btagging Efficiency map :
 
 Useful links : 
 ==BTagging==
-#https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80XReReco
-#https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
-#https://twiki.cern.ch/twiki/bin/view/CMS/BTagCalibration
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80XReReco   
+https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods   
+https://twiki.cern.ch/twiki/bin/view/CMS/BTagCalibration   
 
