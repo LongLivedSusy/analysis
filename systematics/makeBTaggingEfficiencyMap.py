@@ -5,13 +5,20 @@ from array import array
 from glob import glob
 
 gROOT.SetBatch(1)
+gStyle.SetOptStat(0)
 
 #----------------------------------------------------------------------------------
 # Configurable parameters
 
-pathToInputFiles = '/pnfs/knu.ac.kr/data/cms/store/user/spak/DisappTrks/outputs/TREE/'
+pathToInputFiles = '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/'
 inputFileSubdirectory = 'TreeMaker2/PreSelection'
 outputFileSuffix = 'bTaggingEfficiencyMap'
+
+binning = {
+'b':	[[30,50,70,100,140,200,300,1000],   [-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
+'c':	[[30,50,70,100,140,200,300,1000],   [-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
+'udsg':	[[30,50,70,100,140,200,300,600,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]]
+}
 
 datasets = [
   # Background
@@ -22,14 +29,27 @@ datasets = [
   #   'udsg': [[0., 40., 60., 80., 100., 150., 200., 1000.],[0., 0.6, 1.2, 2.4]]},  # jet Pt and |eta| bins for udsg jets
   #  'AK4PF_DeepCSVM'
   #],
+  
   # Signal
-  [
-    '/g1800_chi1400_27_200970_step4_100',
-    {'b':    [[30,50,70,100,140,200,300,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
-     'c':    [[30,50,70,100,140,200,300,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]],
-     'udsg': [[30,50,70,100,140,200,300,600,1000],[-2.4,-2.0,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.0,2.4]]},
-     'DeepCSVM'
-  ]
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-100_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1300_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1700_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1800_', binning, 'DeepCSVM'], 
+  ['RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_', binning, 'DeepCSVM'], 
 ]
 #----------------------------------------------------------------------------------
 
@@ -53,19 +73,20 @@ def FillHisto(hist, valx, valy):
     
     hist.Fill(newvalx, newvaly);
 
-def produceEfficiencyMaps(dataset, inputPath, subdirectory, suffix):
+def produceEfficiencyMaps(dataset, inputPath, subdirectory, outputDir, suffix):
     
-    inputFilename = os.path.join(inputPath, dataset[0].lstrip('/').replace('/','__') + '.root')
+    inputFilename = os.path.join(inputPath, dataset[0] + '*.root')
     
-    outputFilename = dataset[0].split('/')[1] + '_' + dataset[2] + '_' + suffix + '.root'
-    outputFile = TFile(outputFilename, 'RECREATE')
+    outputFilename = dataset[0] + dataset[2] + '_' + suffix + '.root'
+    outputFile = TFile(outputDir+'/'+outputFilename, 'RECREATE')
     
     t = TChain(subdirectory)
     filenamelist = glob(inputFilename)
-    print 'adding', filenamelist
-    [t.Add(fname) for fname in filenamelist]
+    for fname in filenamelist : 
+	print 'adding', fname
+	t.Add(fname)
     
-    nentries = min(1000000,t.GetEntries())
+    nentries = min(100000,t.GetEntries())
     print "nentries:",nentries
     
     verbosity = 1000
@@ -76,6 +97,8 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, suffix):
     elif    'DeepCSVM' in dataset[2]:   CSV = 0.6324
     elif    'DeepCSVT' in dataset[2]:   CSV = 0.8958
     else:   print 'No CSV specified'
+
+    print 'Using CSV : ',dataset[2]
     
     # Histogram for each flavor
     # Pt, Eta 2D histo
@@ -93,11 +116,12 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, suffix):
     
     # Loop events
     for ientry in range(nentries):
+    #for ientry in range(10):
         if ientry %verbosity==0: print ientry, 'events passing'
         t.GetEntry(ientry)
     
-        if not t.MHT  > 200: continue
-        if not t.HT   > 100: continue
+        if not t.MHT  > 150: continue
+        #if not t.HT   > 100: continue
     
 	for ijet, jet in enumerate(t.Jets):
 	    if jet.Pt()	< 30: continue
@@ -136,7 +160,6 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, suffix):
 	numeratorHisto[key].Write()
 	efficiencyHisto[key].Write()
 
-    
     outputFile.Close()
     print '-------------------------------------------------------------------------------------------'
     print 'b-tagging efficiency map for'
@@ -145,10 +168,14 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, suffix):
     print ''
 
 
-def main():
-
-  for dataset in datasets:
-    produceEfficiencyMaps(dataset, pathToInputFiles, inputFileSubdirectory, outputFileSuffix)
-
 if __name__ == "__main__":
-  main()
+    
+    outputDir = './BtagEffMaps/'
+    
+    if not os.path.exists(outputDir):
+	print 'Making outputDir : ', outputDir
+	os.system('mkdir -p '+ outputDir)
+    else : print 'outputDir {} exists'.format(outputDir)
+
+    for dataset in datasets:
+	produceEfficiencyMaps(dataset, pathToInputFiles, inputFileSubdirectory, outputDir, outputFileSuffix)
