@@ -15,13 +15,10 @@ def read_syst(txt) :
 
     return list_systs
 
-def main() :
+
+if __name__ == '__main__' :
     
-    inputDir = "./inputs"
-    
-    #inputfiles = glob(inputDir+"/Input_*.txt")
-    inputfiles = glob(inputDir+"/Input_g1800_chi1400_27_200970_step4_100.txt")
-    #inputfiles = glob(inputDir+"/Input_pMSSM12_MCMC1_12_865833_step4_TREEMAKER_RA2AnalysisTree.txt")
+    inputfiles = glob("../dedx/inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.txt")
     
     systs = read_syst("./Sigma_systematics.txt")
 
@@ -36,12 +33,11 @@ def main() :
 	    
 	    command = 'python SkimSystematics.py %s %s "%s"' %(inputfile, outputDir, sigmas)
 	    commands.append(command)
-	os.system(command)  #For local test
+    
+    print commands[0]
+    #os.system(commands[0])  #For local test
         		
     ### For batch job
     #runParallel(commands, runmode='grid', dryrun=False, qsubOptions='-q cms', dontCheckOnJobs=True)    
     #runParallel(commands, runmode='multi', dryrun=False, dontCheckOnJobs=True)    
-
-if __name__ == '__main__' :
-    main()
 

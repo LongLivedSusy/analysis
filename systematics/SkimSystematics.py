@@ -4,47 +4,9 @@ from ROOT import *
 from lib_systematics import *
 import os, sys
 from glob import glob
-from distracklibs import *
+from shared_utils import *
 
 gStyle.SetOptStat(111111)
-
-##############################################
-# Define feature vector and analysis bins ####
-##############################################
-binnumbers = {}
-listagain = ['Ht',  'Mht',    'NJets','BTags','NTags','NPix', 'NPixStrips', 'MinDPhiMhtJets', 'NElectrons', 'NMuons', 'TrkPt','TrkEta','BinNumber']
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),        (0.5,inf))] = 1
-binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.5,inf))] = 2
-binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.5,inf))] = 3
-binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),        (0.5,inf))] = 4
-binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),        (0.5,inf))] = 5
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 6
-binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 7
-binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 8
-binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 9
-binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 10
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 11
-binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 12
-binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 13
-binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (0,0),  (1,1),        (0.3,inf))] = 14
-binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (0,0),  (1,1),        (0.3,inf))] = 15
-binnumbers[((0,inf),(250,400),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),        (0.5,inf))] = 16
-binnumbers[((0,inf),(250,400),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.5,inf))] = 17
-binnumbers[((0,inf),(250,400),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.5,inf))] = 18
-binnumbers[((0,inf),(250,400),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),        (0.5,inf))] = 19
-binnumbers[((0,inf),(250,400),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),        (0.5,inf))] = 20
-binnumbers[((0,inf),(400,700),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 21
-binnumbers[((0,inf),(400,700),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 22
-binnumbers[((0,inf),(400,700),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 23
-binnumbers[((0,inf),(400,700),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 24
-binnumbers[((0,inf),(400,700),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 25
-binnumbers[((0,inf),(700,inf),(1,1),  (0,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 26
-binnumbers[((0,inf),(700,inf),(2,5),  (0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 27
-binnumbers[((0,inf),(700,inf),(2,5),  (1,5),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 28
-binnumbers[((0,inf),(700,inf),(6,inf),(0,0),  (1,1),  (1,1),  (0,0),        (0.3,inf))] = 29
-binnumbers[((0,inf),(700,inf),(6,inf),(1,inf),(1,1),  (1,1),  (0,0),        (0.3,inf))] = 30
-binnumbers[((0,inf),(250,400),(1,inf),(0,inf),(2,inf),(0,inf),(0,inf),      (0.0,inf))] = 31
-binnumbers[((0,inf),(400,inf),(1,inf),(0,inf),(2,inf),(0,inf),(0,inf),      (0.0,inf))] = 32
 
 def getBinNumber(fv):
     for binkey in binnumbers:
@@ -65,18 +27,10 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	    tree.Add(filename.strip())
 	    print 'adding', filename
 
-    nentries = min(10000000,tree.GetEntries())
+    nentries = min(100,tree.GetEntries())
     print 'will analyze', nentries
 
-    csv_b = 0.6324
-    '''Must integrate these:
-            CSV      DeepCSV
-    2016   0.8484    0.6324
-    
-    2017  0.8838     0.4941
-    
-    2018  0.8838     0.4941
-    '''
+    csv_b = 0.6324  #DeepCSVM
 
     if 'Fall17' in inputfile or 'Run2017' in inputfile : phase = 1
     else : phase = 0
@@ -92,118 +46,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
     hNev_passAllSel = TH1D('Nev_passAllSel','Number of events passed all selection',1,0,1)
     hAnalysisBins = TH1F('hAnalysisBins','Each bin : Signal Region',32,1,33)
 
-    ########################################
-    # create data containers for the trees #
-    ########################################
-    import numpy as np
-    var_NVtx                = np.zeros(1,dtype=float)
-    var_Met                 = np.zeros(1,dtype=float)
-    var_Mht                 = np.zeros(1,dtype=float)
-    var_Ht                  = np.zeros(1,dtype=float)
-    var_MinDeltaPhiMhtJets  = np.zeros(1,dtype=float)
-    var_NJets               = np.zeros(1,dtype=int)
-    var_BTags               = np.zeros(1,dtype=int)
-    var_Mht_DTcleaned       = np.zeros(1,dtype=float)
-    var_Ht_DTcleaned        = np.zeros(1,dtype=float)
-    var_MinDeltaPhiMhtJets_DTcleaned  = np.zeros(1,dtype=float)
-    var_NJets_DTcleaned     = np.zeros(1,dtype=int)
-    var_BTags_DTcleaned     = np.zeros(1,dtype=int)
-    var_NLeptons            = np.zeros(1,dtype=int)
-    var_NPhotons            = np.zeros(1,dtype=int)
-    var_NTags               = np.zeros(1,dtype=int)
-    var_NShortTags          = np.zeros(1,dtype=int)
-    var_NLongTags           = np.zeros(1,dtype=int)
-    var_DPhiMhtSumTags      = np.zeros(1,dtype=float)
-    var_Track1BdtScore      = np.zeros(1,dtype=float)
-    var_Track1Dedx          = np.zeros(1,dtype=float)
-    var_Track1Dxy           = np.zeros(1,dtype=float)
-    var_Track1Chisquare     = np.zeros(1,dtype=float)
-    var_Track1Pt            = np.zeros(1,dtype=float)
-    var_Track1Eta           = np.zeros(1,dtype=float)
-    var_Track1Phi           = np.zeros(1,dtype=float)
-    var_Track2Phi           = np.zeros(1,dtype=float)
-    var_Track2BdtScore      = np.zeros(1,dtype=float)
-    var_Track1Dedx          = np.zeros(1,dtype=float)
-    var_Track2Dedx          = np.zeros(1,dtype=float)
-    var_Track1MassFromDedx  = np.zeros(1,dtype=float)
-    var_Track2MassFromDedx  = np.zeros(1,dtype=float)
-    var_Track2Dxy           = np.zeros(1,dtype=float)
-    var_Track2Chisquare     = np.zeros(1,dtype=float)
-    var_Track2Pt            = np.zeros(1,dtype=float)
-    var_Track2Eta           = np.zeros(1,dtype=float)
-    var_Track1IsLong        = np.zeros(1,dtype=int)
-    var_Track2IsLong        = np.zeros(1,dtype=int)
-    var_Track1IsGenMatched  = np.zeros(1,dtype=int)
-    var_Track2IsGenMatched  = np.zeros(1,dtype=int)
-    var_SearchBin           = np.zeros(1,dtype=int)
-    var_SumTagPtOverMht     = np.zeros(1,dtype=float)
-    var_CrossSection        = np.zeros(1,dtype=float)
-    var_weight              = np.zeros(1,dtype=float)
-    var_weight_btag         = np.zeros(1,dtype=float)
-    var_weight_ISR          = np.zeros(1,dtype=float)
-
-    #####################################################
-    # declare tree and associate branches to containers #
-    #####################################################
-    tEvent = TTree('tEvent','tEvent')
-    tEvent.Branch('NVtx', var_NVtx,'NVtx/D')
-    tEvent.Branch('Met', var_Met,'Met/D')
-    tEvent.Branch('Mht', var_Mht,'Mht/D')
-    tEvent.Branch('Ht', var_Ht,'Ht/D')
-    tEvent.Branch('NJets', var_NJets,'NJets/I')
-    tEvent.Branch('BTags', var_BTags,'BTags/I')
-    tEvent.Branch('MinDeltaPhiMhtJets', var_MinDeltaPhiMhtJets,'MinDeltaPhiMhtJets/D')
-    tEvent.Branch('Mht_DTcleaned', var_Mht_DTcleaned,'Mht_DTcleaned/D')
-    tEvent.Branch('Ht_DTcleaned', var_Ht_DTcleaned,'Ht_DTcleaned/D')
-    tEvent.Branch('MinDeltaPhiMhtJets_DTcleaned', var_MinDeltaPhiMhtJets_DTcleaned,'MinDeltaPhiMhtJets_DTcleaned/D')
-    tEvent.Branch('NJets_DTcleaned', var_NJets_DTcleaned,'NJets_DTcleaned/I')
-    tEvent.Branch('BTags_DTcleaned', var_BTags_DTcleaned,'BTags_DTcleaned/I')
-    tEvent.Branch('NLeptons', var_NLeptons,'NLeptons/I')
-    tEvent.Branch('NPhotons', var_NPhotons,'NPhotons/I')
-    tEvent.Branch('NTags', var_NTags,'NTags/I')
-    tEvent.Branch('NShortTags', var_NShortTags,'NShortTags/I')
-    tEvent.Branch('NLongTags', var_NLongTags,'NLongTags/I')
-    tEvent.Branch('Track1Pt', var_Track1Pt,'Track1Pt/D')
-    tEvent.Branch('Track2Pt', var_Track2Pt,'Track2Pt/D')
-    tEvent.Branch('Track1Eta', var_Track1Eta,'Track1Eta/D')
-    tEvent.Branch('Track2Eta', var_Track2Eta,'Track2Eta/D')
-    tEvent.Branch('Track1Phi', var_Track1Phi,'Track1Phi/D')
-    tEvent.Branch('Track2Phi', var_Track1Phi,'Track2Phi/D')
-    tEvent.Branch('Track1BdtScore', var_Track1BdtScore,'Track1BdtScore/D')
-    tEvent.Branch('Track2BdtScore', var_Track2BdtScore,'Track2BdtScore/D')
-    tEvent.Branch('Track1Chisquare', var_Track1Chisquare,'Track1Chisquare/D')
-    tEvent.Branch('Track2Chisquare', var_Track2Chisquare,'Track2Chisquare/D')
-    tEvent.Branch('Track1Dxy', var_Track1Dxy,'Track1Dxy/D')
-    tEvent.Branch('Track2Dxy', var_Track2Dxy,'Track2Dxy/D')
-    tEvent.Branch('Track1Dedx', var_Track1Dedx,'Track1Dedx/D')
-    tEvent.Branch('Track2Dedx', var_Track2Dedx,'Track2Dedx/D')
-    tEvent.Branch('Track1MassFromDedx', var_Track1MassFromDedx,'Track1MassFromDedx/D')
-    tEvent.Branch('Track2MassFromDedx', var_Track2MassFromDedx,'Track2MassFromDedx/D')
-    tEvent.Branch('Track1IsLong', var_Track1IsLong,'Track1IsLong/I')
-    tEvent.Branch('Track2IsLong', var_Track2IsLong,'Track2IsLong/I')
-    tEvent.Branch('Track1IsGenMatched', var_Track1IsGenMatched,'Track1IsGenMatched/I')
-    tEvent.Branch('Track2IsGenMatched', var_Track2IsGenMatched,'Track2IsGenMatched/I')
-    tEvent.Branch('SumTagPtOverMht', var_SumTagPtOverMht,'SumTagPtOverMht/D')
-    tEvent.Branch('CrossSection', var_CrossSection,'CrossSection/D')
-    tEvent.Branch('SearchBin', var_SearchBin,'SearchBin/I')
-    tEvent.Branch('weight', var_weight,'weight/D')
-    tEvent.Branch('weight_btag', var_weight_btag,'weight_btag/D')
-    tEvent.Branch('weight_ISR', var_weight_ISR,'weight_ISR/D')
-
-    ##############################################
-    # declare readers and selection code for BDT #
-    ##############################################
-    if phase==0:
-        pixelXml = '../disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml'
-        LongXml = '../disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml'
-    else:   
-        pixelXml = '../disappearing-track-tag/2017-short-tracks/weights/TMVAClassification_BDT.weights.xml'
-        LongXml = '../disappearing-track-tag/2017-long-tracks/weights/TMVAClassification_BDT.weights.xml'
-    readerShort = TMVA.Reader()
-    readerLong = TMVA.Reader()
-    prepareReaderShort(readerShort, pixelXml)
-    prepareReaderLong(readerLong, LongXml)
-    prepareReaderBtagSF()
+    #prepareReaderBtagSF()
     
     # Event Loop
     for ientry in range(nentries) :
@@ -219,7 +62,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	
 	sigmaBtagFastSim = 1.0
 	isFastSim = False
-	weight_btag = calc_btag_weight(tree,sigmaBtag,sigmaBtagFastSim,isFastSim)
+	weight_btag = get_btag_weight(tree,sigmaBtag,sigmaBtagFastSim,isFastSim)
 	weight_ISR = get_isr_weight(tree, sigmaISR)
 	weight *= weight_btag * weight_ISR 
 	print 'weight:%.2f, weight_btag:%.2f, weight_ISR:%.2f'%(weight,weight_btag,weight_ISR)
@@ -228,7 +71,8 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	if applysmearing : 
 	    Jets = jets_rescale_smear(tree,applysmearing,sigmaJES,sigmaJER)
 	else : Jets = tree.Jets
-
+	
+	'''
 	# Start Selection
 	if not (tree.MET>120) : continue
 	if not (tree.NJets>0) : continue
@@ -374,10 +218,11 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	hNev_passAllSel.Fill(0,var_weight[0])
 
 	#print 'MHT:%f\t NJets:%f \t BTags:%f \t N_DT:%f \t NPix:%f \t NPixStrips:%f \t MinDPhiMhtJets:%f \t SR:%d'%(adjustedMht.Pt(), adjustedNJets,adjustedBTags, ntags,nshort,nlong, adjustedMinDeltaPhiMhtJets, binnumber)
-   
+    '''
+
     # Save to root file
     fout.cd()
-    tEvent.Write()
+    #tEvent.Write()
     hNev.Write()
     hNev_passAllSel.Write()
     hAnalysisBins.Write()
