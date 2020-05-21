@@ -28,15 +28,15 @@ def exoandmt2(sg_file):
     h_cutflow_mt2.SetTitle(";cut stage;unweighted tracks")    
     
     h_cutflow_exo.Draw("hist")
-    canvas.Print("cutflow_exo.pdf")
+    canvas.Print("cutflow_exo_sg.pdf")
     
     h_cutflow_mt2.Draw("hist")
     h_cutflow_mt2.GetXaxis().SetRangeUser(100,120)
-    canvas.Print("cutflow_mt2_short.pdf")
+    canvas.Print("cutflow_mt2_short_sg.pdf")
     h_cutflow_mt2.GetXaxis().SetRangeUser(200,220)
-    canvas.Print("cutflow_mt2_medium.pdf")
+    canvas.Print("cutflow_mt2_medium_sg.pdf")
     h_cutflow_mt2.GetXaxis().SetRangeUser(300,320)
-    canvas.Print("cutflow_mt2_long.pdf")
+    canvas.Print("cutflow_mt2_long_sg.pdf")
     
     
 def bdttag(files, is_signal=True):
@@ -70,7 +70,7 @@ def bdttag(files, is_signal=True):
         "tracks_chi2perNdof<2.88",                                                         # 13
         "tracks_pixelLayersWithMeasurement>2",                                             # 14
         "tracks_passmask==1",                                                              # 15
-                    ]                                                                      
+                         ]                                                                      
                                                                                            
     vetoes = [                                                                             
         "tracks_pass_reco_lepton==1",                                                      # 16
@@ -94,26 +94,11 @@ def bdttag(files, is_signal=True):
         "tracks_pt>=0",                                                                    # 0
         "tracks_is_pixel_track==0",                                                        # 1
         special_cutstring,                                                                 # 2
-                 ] + baseline_selection + vetoes + [                                            
+                ] + baseline_selection + vetoes + [                                            
         "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01)-0.05)",                                # 21
         "tracks_trkRelIso<0.01",                                                           # 22
         "tracks_matchedCaloEnergy<10"                                                      # 23
            ]
-
-    #cuts_short = ["tracks_is_pixel_track>=0"] + [
-    #        "tracks_is_pixel_track==1",
-    #        "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01)-0.5)",
-    #        "tracks_trkRelIso<0.01",
-    #        "tracks_matchedCaloEnergy<10"
-    #       ] + baseline_selection + vetoes
-    #
-    #cuts_long = ["tracks_is_pixel_track>=0"] + [
-    #        "tracks_is_pixel_track==0",
-    #        "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01)-0.05)",
-    #        "tracks_trkRelIso<0.01",
-    #        "tracks_matchedCaloEnergy<10"
-    #       ] + baseline_selection + vetoes
-
 
     xmax = 30
 

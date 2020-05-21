@@ -123,8 +123,7 @@ def main(quick_mode = False):
     basecuts = "tracks_basecuts==1 && tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits[iCand]>=3"
     
     vetoes = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits>=3"
-    baseline_nomiddle = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_ptErrOverPt2<10 && tracks_dxyVtx<0.1 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_chi2perNdof<2.88 && tracks_pixelLayersWithMeasurement>2"
-    baseline = baseline_nomiddle + " && tracks_nMissingMiddleHits==0"
+    baseline_nomiddle = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_ptErrOverPt2<10 && tracks_dxyVtx<0.1 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_chi2perNdof<2.88 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0"
     baseline_check = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_ptErrOverPt2<10 && tracks_dxyVtx<0.1 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_chi2perNdof<2.88 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0"
 
     
@@ -341,8 +340,8 @@ def main(quick_mode = False):
         legend.Draw()
         
         shared_utils.stamp()
-        canvas.Print(category + ".pdf")
-        canvas.Print(category + ".root")
+        canvas.Print("roc_%s_tracks.pdf" % category)
+        canvas.Print("roc_%s_tracks.root" % category)
         
 
 if __name__ == "__main__":
