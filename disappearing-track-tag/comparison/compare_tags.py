@@ -31,7 +31,7 @@ def graphStyler(h,color=kBlack):
 
 def main(quick_mode = False):
 
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_18"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_19"
         
     labels = collections.OrderedDict()
 
@@ -118,10 +118,21 @@ def main(quick_mode = False):
     #tags = {}
     #tags["SR_short"] = "tracks_basecuts && tracks_is_pixel_track==1 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
     #tags["SR_long"] = "tracks_basecuts && tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+    #base_cuts = shared_utils.isBaselineTrack(track, iCand, event, hMask) and passrecolepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=3 and passpionveto and passjetveto
+
+    basecuts = "tracks_basecuts==1 && tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits[iCand]>=3"
+    
+    vetoes = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits>=3"
+    baseline_nomiddle = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_ptErrOverPt2<10 && tracks_dxyVtx<0.1 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_chi2perNdof<2.88 && tracks_pixelLayersWithMeasurement>2"
+    baseline = baseline_nomiddle + " && tracks_nMissingMiddleHits==0"
+    baseline_check = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_ptErrOverPt2<10 && tracks_dxyVtx<0.1 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_chi2perNdof<2.88 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0"
+
     
     for i_score in numpy.arange(-1,1,0.1): 
-        cutstrings["tight_%s" % i_score] = "tracks_basecuts==1 && tracks_mva_tight>=%s" % i_score
-        cutstrings["loose_%s" % i_score] = "tracks_basecuts==1 && tracks_mva_loose>=%s" % i_score
+        cutstrings["tightBase_%s" % i_score] = "tracks_basecuts==1 && tracks_mva_tight>=%s" % i_score
+        cutstrings["looseBase_%s" % i_score] = "tracks_basecuts==1 && tracks_mva_loose>=%s" % i_score
+        cutstrings["tightSimple_%s" % i_score] = "tracks_mva_tight>=%s" % i_score
+        cutstrings["looseSimple_%s" % i_score] = "tracks_mva_loose>=%s" % i_score
 
     cutstrings["nocuts_short"]              = "tracks_is_pixel_track>=0"
     cutstrings["nocuts_long"]               = "tracks_is_pixel_track>=0 && tracks_nMissingOuterHits>=2"
@@ -129,13 +140,20 @@ def main(quick_mode = False):
     cutstrings["stripstrack_bdtEDep10tag"]  = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<10"
     cutstrings["pixeltrack_bdtEDep20tag"]   = "tracks_SR_short>=1 && tracks_matchedCaloEnergy<20"
     cutstrings["stripstrack_bdtEDep20tag"]  = "tracks_SR_long>=1 && tracks_matchedCaloEnergy<20"
-    cutstrings["pixeltrack_exotag"]         = "tracks_is_pixel_track==1 && tracks_passexotag>=18"
-    cutstrings["stripstrack_exotag"]        = "tracks_is_pixel_track==0 && tracks_passexotag>=18"
+    cutstrings["pixeltrack_exotag"]         = "tracks_passexotag==18"
+    cutstrings["stripstrack_exotag"]        = "tracks_passexotag==18"
     cutstrings["pixeltrack_mt2tag"]         = "tracks_passmt2tag==115"
     cutstrings["stripstrack_mt2tag"]        = "tracks_passmt2tag==215 || tracks_passmt2tag==316"
-    cutstrings["pixeltrack_test"]           = "tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    cutstrings["stripstrack_test"]          = "tracks_basecuts==1 && tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
-    cutstrings["stripstrack_test2"]         = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_test1"]          = "tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test1"]         = "tracks_basecuts==1 && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_test2"]          = baseline + " && " + vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test2"]         = baseline + " && " + vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_test3"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test3"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_test4"]          = "tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test4"]         = "tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_test5"]          = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0 && " + vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test5"]         = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0 && " + vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
     
     histos = {}
     for cut in cutstrings:
@@ -162,7 +180,7 @@ def main(quick_mode = False):
                     histos[label].Add(currenthisto.Clone())
             
     graphs = {}
-    graph_list = ["tight", "loose", "bdtEDep10", "bdtEDep20", "mt2", "exo", "test", "test2"]
+    graph_list = ["tightBase", "looseBase", "tightSimple", "looseSimple", "bdtEDep10", "bdtEDep20", "mt2", "exo", "test1", "test2", "test3", "test4", "test5"]
     
     for is_pixel_track, category in enumerate(["long", "short"]): 
         
@@ -195,10 +213,14 @@ def main(quick_mode = False):
 
             print label, eff_sg, 1 - eff_bg
               
-            if "tight" in label:
-                graphs["tight"].SetPoint(graphs["tight"].GetN(), eff_sg, 1 - eff_bg)
-            if "loose" in label:
-                graphs["loose"].SetPoint(graphs["loose"].GetN(), eff_sg, 1 - eff_bg)
+            if "tightBase" in label:
+                graphs["tightBase"].SetPoint(graphs["tightBase"].GetN(), eff_sg, 1 - eff_bg)
+            elif "looseBase" in label:
+                graphs["looseBase"].SetPoint(graphs["looseBase"].GetN(), eff_sg, 1 - eff_bg)
+            elif "tightSimple" in label:
+                graphs["tightSimple"].SetPoint(graphs["tightSimple"].GetN(), eff_sg, 1 - eff_bg)
+            elif "looseSimple" in label:
+                graphs["looseSimple"].SetPoint(graphs["looseSimple"].GetN(), eff_sg, 1 - eff_bg)
             
             if (category == "short" and "pixeltrack" in label) \
                 or (category == "long" and "stripstrack" in label):
@@ -208,24 +230,44 @@ def main(quick_mode = False):
                         if g_label in label:
                             graphs[g_label].SetPoint(graphs[g_label].GetN(), eff_sg, 1 - eff_bg)
                     
-        graphs["tight"].Sort()
-        graphs["tight"].SetLineWidth(2)
-        graphs["tight"].SetLineColor(kRed-4)
-        graphs["tight"].SetTitle(";#epsilon_{  sg};1 - #epsilon_{  bg}")
-        graphs["tight"].GetXaxis().SetRangeUser(0,1)
-        graphs["tight"].GetXaxis().SetLimits(0,1)
-        graphs["tight"].GetYaxis().SetRangeUser(0.95,1)
-        graphs["tight"].GetYaxis().SetLimits(0.95,1)
-        graphs["tight"].SetFillColor(kWhite)
-        graphs["tight"].Draw("")
-        legend.AddEntry(graphs["tight"], "d_{xy}-informed BDT")
+        graphs["tightSimple"].Sort()
+        graphs["tightSimple"].SetLineWidth(2)
+        graphs["tightSimple"].SetLineStyle(2)
+        graphs["tightSimple"].SetLineColor(kRed-4)
+        graphs["tightSimple"].SetTitle(";#epsilon_{  sg};1 - #epsilon_{  bg}")
+        graphs["tightSimple"].GetXaxis().SetRangeUser(0,1)
+        graphs["tightSimple"].GetXaxis().SetLimits(0,1)
+        if category == "short":
+            graphs["tightSimple"].GetYaxis().SetRangeUser(0.95,1)
+            graphs["tightSimple"].GetYaxis().SetLimits(0.95,1)
+        else:
+            graphs["tightSimple"].GetYaxis().SetRangeUser(0.95,1)
+            graphs["tightSimple"].GetYaxis().SetLimits(0.95,1)        
+        graphs["tightSimple"].SetFillColor(kWhite)
+        graphs["tightSimple"].Draw("")
+        legend.AddEntry(graphs["tightSimple"], "fully informed BDT")
 
-        graphs["loose"].Sort()
-        graphs["loose"].SetLineWidth(2)
-        graphs["loose"].SetLineColor(kAzure-3)
-        graphs["loose"].Draw("same")
-        graphs["loose"].SetFillColor(kWhite)
-        legend.AddEntry(graphs["loose"], "BDT")
+        graphs["looseSimple"].Sort()
+        graphs["looseSimple"].SetLineWidth(2)
+        graphs["looseSimple"].SetLineStyle(2)
+        graphs["looseSimple"].SetLineColor(kAzure-3)
+        graphs["looseSimple"].Draw("same")
+        graphs["looseSimple"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["looseSimple"], "d_{xy}-uninformed BDT")
+
+        graphs["tightBase"].Sort()
+        graphs["tightBase"].SetLineWidth(2)
+        graphs["tightBase"].SetLineColor(kRed-4)
+        graphs["tightBase"].Draw("same")
+        graphs["tightBase"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["tightBase"], "fully informed BDT + basel. sel. + vetoes")
+
+        graphs["looseBase"].Sort()
+        graphs["looseBase"].SetLineWidth(2)
+        graphs["looseBase"].SetLineColor(kAzure-3)
+        graphs["looseBase"].Draw("same")
+        graphs["looseBase"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["looseBase"], "d_{xy}-uninformed BDT + basel. sel. + vetoes")
 
         graphs["bdtEDep10"].SetMarkerStyle(20)
         graphs["bdtEDep10"].SetMarkerColor(kOrange)
@@ -241,20 +283,40 @@ def main(quick_mode = False):
         graphs["bdtEDep20"].SetFillColor(kWhite)
         legend.AddEntry(graphs["bdtEDep20"], "Full tag (E_{matched}^{calo}<20 GeV)")
 
-        graphs["test"].SetMarkerStyle(20)
-        graphs["test"].SetMarkerColor(kGreen)
-        graphs["test"].Draw("same p")
-        graphs["test"].SetLineColor(kWhite)
-        graphs["test"].SetFillColor(kWhite)
-        legend.AddEntry(graphs["test"], "Full tag (changed)")
+        graphs["test1"].SetMarkerStyle(20)
+        graphs["test1"].SetMarkerColor(kGreen)
+        graphs["test1"].Draw("same p")
+        graphs["test1"].SetLineColor(kWhite)
+        graphs["test1"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["test1"], "test 1")
         
-        if category == "long":
-            graphs["test2"].SetMarkerStyle(20)
-            graphs["test2"].SetMarkerColor(kGreen+2)
-            graphs["test2"].Draw("same p")
-            graphs["test2"].SetLineColor(kWhite)
-            graphs["test2"].SetFillColor(kWhite)
-            legend.AddEntry(graphs["test2"], "Full tag (changed, no baseline)")
+        graphs["test2"].SetMarkerStyle(20)
+        graphs["test2"].SetMarkerColor(kGreen+2)
+        graphs["test2"].Draw("same p")
+        graphs["test2"].SetLineColor(kWhite)
+        graphs["test2"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["test2"], "test 2")
+
+        graphs["test3"].SetMarkerStyle(22)
+        graphs["test3"].SetMarkerColor(kGreen+4)
+        graphs["test3"].Draw("same p")
+        graphs["test3"].SetLineColor(kWhite)
+        graphs["test3"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["test3"], "test 3")
+
+        graphs["test4"].SetMarkerStyle(22)
+        graphs["test4"].SetMarkerColor(kMagenta)
+        graphs["test4"].Draw("same p")
+        graphs["test4"].SetLineColor(kWhite)
+        graphs["test4"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["test4"], "test 4")
+
+        graphs["test5"].SetMarkerStyle(23)
+        graphs["test5"].SetMarkerColor(kMagenta-1)
+        graphs["test5"].Draw("same p")
+        graphs["test5"].SetLineColor(kWhite)
+        graphs["test5"].SetFillColor(kWhite)
+        legend.AddEntry(graphs["test5"], "test 5")
 
 
         graphs["exo"].SetMarkerStyle(20)
