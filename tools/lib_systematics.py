@@ -1,6 +1,8 @@
+import os, sys
 from ROOT import *
 
-def prepareReaderBtagSF():
+def get_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
+    
     # load b tag sf from csv file
     import ROOT
     
@@ -21,36 +23,38 @@ def prepareReaderBtagSF():
     v_sys.push_back('down')
     
     # make a reader instance and load the sf data
-    global readerBtag
     readerBtag = ROOT.BTagCalibrationReader(
         1,              # 0 is for loose op, 1: medium, 2: tight, 3: discr. reshaping
         "central",      # central systematic type
         v_sys,          # vector of other sys. types
     ) 
+    
     readerBtag.load(
         calib, 
         0,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
         "comb"      # measurement type
     )
+    
     readerBtag.load(
         calib, 
         1,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
         "comb"      # measurement type
     )
+    
     readerBtag.load(
         calib, 
         2,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
         "incl"      # measurement type
     )
-    print 'Loaded readerBtag : ', readerBtag
-
-def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
+    
+    
+    ## Get Btagging efficiency map for signal sample
     if 'T1qqqq' in tree.GetFile().GetName() : 
-	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps_mLSP_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200.root")
+	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_merged.root")
     elif 'T2bt' in tree.GetFile().GetName() :
-	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps_mLSP_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200.root")
+	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_merged.root")
     else : 
-	print 'Cannot choose Btagging efficiency map for this sample, quit'
+	print 'Cannot choose efficiency map for this sample, quit'
 	quit()
 
     pMC = 1.0
@@ -81,13 +85,14 @@ def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
 	    eff = heff.GetBinContent(binx,biny)
 	    FLAV = 1
 	    #print 'c jetpt : ', JetPt, "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-        else : # truth udsg particle
+	elif tree.Jets_hadronFlavor[ijet]== 0: # truth udsg particle
 	    heff = fbeff.Get("efficiency_udsg")
 	    binx = heff.GetXaxis().FindBin(JetPt)
 	    biny = heff.GetYaxis().FindBin(jet.Eta())
 	    eff = heff.GetBinContent(binx,biny)
 	    FLAV = 2
 	    #print 'udsg jetpt : ', JetPt, "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+	else : print 'wired Jets_hadronFlavor : ', tree.Jets_hadronFlavor[ijet]
 	    
 	sf_cen = readerBtag.eval_auto_bounds(
 	    'central',      # systematic (here also 'up'/'down' possible)
