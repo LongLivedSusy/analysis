@@ -12,7 +12,7 @@ def prepareReaderBtagSF():
     #ROOT.gROOT.ProcessLine('.L ./BTagCalibrationStandalone.cpp+')
     
     # get the sf data loaded 
-    calib = ROOT.BTagCalibration('deepcsv', './DeepCSV_Moriond17_B_H.csv')
+    calib = ROOT.BTagCalibration('deepcsv', os.environ['CMSSW_BASE']+'/src/analysis/systematics/DeepCSV_Moriond17_B_H.csv')
 
     # making a std::vector<std::string>> in python is a bit awkward, 
     # but works with root (needed to load other sys types):
@@ -42,12 +42,21 @@ def prepareReaderBtagSF():
         2,          # 0 is for b flavour, 1: FLAV_C, 2: FLAV_UDSG 
         "incl"      # measurement type
     )
+    print 'Loaded readerBtag : ', readerBtag
 
 def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
-    #fbeff = TFile("./BTagEfficiency_Summer16_TTJets.root")
-    fbeff = TFile("./g1800_chi1400_27_200970_step4_100_DeepCSVM_bTaggingEfficiencyMap.root")
+    if 'T1qqqq' in tree.GetFile().GetName() : 
+	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps_mLSP_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200.root")
+    elif 'T2bt' in tree.GetFile().GetName() :
+	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps_mLSP_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200.root")
+    else : 
+	print 'Cannot choose Btagging efficiency map for this sample, quit'
+	quit()
+
     pMC = 1.0
     pData = 1.0
+
+    csv_b = 0.6324 # 2016 DeepCSVM
     
     # jet loop start here
     for ijet, jet in enumerate(tree.Jets):
@@ -59,21 +68,21 @@ def calc_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim):
         eff = 1.0
 	# b tag efficiency
 	if tree.Jets_hadronFlavor[ijet]== 5: # truth b particle
-	    heff = fbeff.Get("eff_b")
+	    heff = fbeff.Get("efficiency_b")
 	    binx = heff.GetXaxis().FindBin(JetPt)
 	    biny = heff.GetYaxis().FindBin(jet.Eta())
 	    eff = heff.GetBinContent(binx,biny)
 	    FLAV = 0
 	    #print 'b jetpt : ', JetPt, "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
         elif tree.Jets_hadronFlavor[ijet]== 4: # truth c particle
-	    heff = fbeff.Get("eff_c")
+	    heff = fbeff.Get("efficiency_c")
 	    binx = heff.GetXaxis().FindBin(JetPt)
             biny = heff.GetYaxis().FindBin(jet.Eta())
 	    eff = heff.GetBinContent(binx,biny)
 	    FLAV = 1
 	    #print 'c jetpt : ', JetPt, "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
         else : # truth udsg particle
-	    heff = fbeff.Get("eff_udsg")
+	    heff = fbeff.Get("efficiency_udsg")
 	    binx = heff.GetXaxis().FindBin(JetPt)
 	    biny = heff.GetYaxis().FindBin(jet.Eta())
 	    eff = heff.GetBinContent(binx,biny)
