@@ -21,15 +21,6 @@ binning = {
 }
 
 datasets = [
-  # Background
-  #[
-  #  '/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/jpilot-TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola-Summer12_DR53X-PU_S10-fe5dcf8cf2a24180bf030f68a7d97dda/USER', # dataset name
-  #  {'b':    [[0., 40., 60., 80., 100., 150., 200., 300., 1000.],[0., 0.6, 1.2, 2.4]],  # jet Pt and |eta| bins for b jets
-  #   'c':    [[0., 40., 60., 80., 100., 150., 200., 1000.],[0., 0.6, 1.2, 2.4]],  # jet Pt and |eta| bins for c jets
-  #   'udsg': [[0., 40., 60., 80., 100., 150., 200., 1000.],[0., 0.6, 1.2, 2.4]]},  # jet Pt and |eta| bins for udsg jets
-  #  'AK4PF_DeepCSVM'
-  #],
-  
   # Signal - T1qqqq
   ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1_', binning, 'DeepCSVM'], 
   ['RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-25_', binning, 'DeepCSVM'], 
@@ -218,6 +209,67 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, outputDir, suffix):
     print ''
 
 
+def MergeBtagEffMaps(samplename, outputDir, outputDir_merged):
+    if not os.path.exists(outputDir_merged):
+	os.system('mkdir -p ' + outputDir_merged)
+	print 'Making Merge Dir : ', outputDir_merged
+    else : 
+	print 'Merge Dir : ', outputDir_merged
+    
+    samplelist = glob(outputDir+'/'+samplename)
+
+    f={}
+    for i, sample in enumerate(samplelist) :
+	f[i] = TFile(sample)
+	if i==0 :
+	    denominator_b_total = f[i].Get("denominator_b").Clone()
+	    numerator_b_total = f[i].Get("numerator_b").Clone()
+	    denominator_c_total = f[i].Get("denominator_c").Clone()
+	    numerator_c_total = f[i].Get("numerator_c").Clone()
+	    denominator_udsg_total = f[i].Get("denominator_udsg").Clone()
+	    numerator_udsg_total = f[i].Get("numerator_udsg").Clone()
+	else : 
+	    denominator_b_total.Add(f[i].Get("denominator_b").Clone())
+	    numerator_b_total.Add(f[i].Get("numerator_b").Clone())
+	    denominator_c_total.Add(f[i].Get("denominator_c").Clone())
+	    numerator_c_total.Add(f[i].Get("numerator_c").Clone())
+	    denominator_udsg_total.Add(f[i].Get("denominator_udsg").Clone())
+	    numerator_udsg_total.Add(f[i].Get("numerator_udsg").Clone())
+
+    efficiency_b = numerator_b_total.Clone()
+    efficiency_b.Divide(denominator_b_total.Clone())
+    efficiency_b.SetNameTitle('efficiency_b','')
+    efficiency_b.SetOption("COLZ")
+    
+    efficiency_c = numerator_c_total.Clone()
+    efficiency_c.Divide(denominator_c_total.Clone())
+    efficiency_c.SetNameTitle('efficiency_c','')
+    efficiency_c.SetOption("COLZ")
+
+    efficiency_udsg = numerator_udsg_total.Clone()
+    efficiency_udsg.Divide(denominator_udsg_total.Clone())
+    efficiency_udsg.SetNameTitle('efficiency_udsg','')
+    efficiency_udsg.SetOption("COLZ")
+    
+    outputFile = TFile(outputDir_merged+'/'+samplename.replace('*','')+'.root','recreate')
+    outputFile.cd()
+    
+    denominator_b_total.Write()
+    numerator_b_total.Write()
+    efficiency_b.Write()
+    
+    denominator_c_total.Write()
+    numerator_c_total.Write()
+    efficiency_c.Write()
+    
+    denominator_udsg_total.Write()
+    numerator_udsg_total.Write()
+    efficiency_udsg.Write()
+    
+    outputFile.Close()
+    print 'output :', samplename.replace('*','')+'.root'
+
+
 if __name__ == "__main__":
     
     outputDir = './BtagEffMaps/'
@@ -227,5 +279,17 @@ if __name__ == "__main__":
 	os.system('mkdir -p '+ outputDir)
     else : print 'outputDir {} exists'.format(outputDir)
 
+    # produce efficiency map
     for dataset in datasets:
 	produceEfficiencyMaps(dataset, pathToInputFiles, inputFileSubdirectory, outputDir, outputFileSuffix)
+    
+    ## merge each sample's denominator and numerator to calculate merged efficiency 
+    sample_to_merge =[
+	    'RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200*',
+	    'RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200*',
+	    ]
+    
+    outputDir_merged = './BtagEffMaps_mLSP_merged/'
+
+    for samplename in sample_to_merge : 
+	MergeBtagEffMaps(samplename, outputDir, outputDir_merged)
