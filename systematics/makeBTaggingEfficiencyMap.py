@@ -209,12 +209,10 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, outputDir, suffix):
     print ''
 
 
-def MergeBtagEffMaps(samplename, outputDir, outputDir_merged):
-    if not os.path.exists(outputDir_merged):
-	os.system('mkdir -p ' + outputDir_merged)
-	print 'Making Merge Dir : ', outputDir_merged
-    else : 
-	print 'Merge Dir : ', outputDir_merged
+def MergeBtagEffMaps(samplename, outputDir):
+    if not os.path.exists(outputDir):
+	print 'outputDir doesn\'t exist'
+	quit()
     
     samplelist = glob(outputDir+'/'+samplename)
 
@@ -251,7 +249,7 @@ def MergeBtagEffMaps(samplename, outputDir, outputDir_merged):
     efficiency_udsg.SetNameTitle('efficiency_udsg','')
     efficiency_udsg.SetOption("COLZ")
     
-    outputFile = TFile(outputDir_merged+'/'+samplename.replace('*','')+'.root','recreate')
+    outputFile = TFile(outputDir+'/'+samplename.replace('*','')+'_merged.root','recreate')
     outputFile.cd()
     
     denominator_b_total.Write()
@@ -267,7 +265,7 @@ def MergeBtagEffMaps(samplename, outputDir, outputDir_merged):
     efficiency_udsg.Write()
     
     outputFile.Close()
-    print 'output :', samplename.replace('*','')+'.root'
+    print 'output :', samplename.replace('*','')+'_merged.root'
 
 
 if __name__ == "__main__":
@@ -289,7 +287,5 @@ if __name__ == "__main__":
 	    'RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200*',
 	    ]
     
-    outputDir_merged = './BtagEffMaps_mLSP_merged/'
-
     for samplename in sample_to_merge : 
-	MergeBtagEffMaps(samplename, outputDir, outputDir_merged)
+	MergeBtagEffMaps(samplename, outputDir)

@@ -27,7 +27,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	    tree.Add(filename.strip())
 	    print 'adding', filename
 
-    nentries = min(10000000,tree.GetEntries())
+    nentries = min(100,tree.GetEntries())
     print 'will analyze', nentries
 
     csv_b = 0.6324  #DeepCSVM
@@ -46,7 +46,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
     hNev_passAllSel = TH1D('Nev_passAllSel','Number of events passed all selection',1,0,1)
     hAnalysisBins = TH1F('hAnalysisBins','Each bin : Signal Region',32,1,33)
 
-    prepareReaderBtagSF()
+    #prepareReaderBtagSF()
     
     # Event Loop
     for ientry in range(nentries) :
@@ -62,7 +62,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	
 	sigmaBtagFastSim = 1.0
 	isFastSim = False
-	weight_btag = calc_btag_weight(tree,sigmaBtag,sigmaBtagFastSim,isFastSim)
+	weight_btag = get_btag_weight(tree,sigmaBtag,sigmaBtagFastSim,isFastSim)
 	weight_ISR = get_isr_weight(tree, sigmaISR)
 	weight *= weight_btag * weight_ISR 
 	print 'weight:%.2f, weight_btag:%.2f, weight_ISR:%.2f'%(weight,weight_btag,weight_ISR)
@@ -71,6 +71,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 	if applysmearing : 
 	    Jets = jets_rescale_smear(tree,applysmearing,sigmaJES,sigmaJER)
 	else : Jets = tree.Jets
+	
 	'''
 	# Start Selection
 	if not (tree.MET>120) : continue
@@ -221,7 +222,7 @@ def main(inputfile, outputdir, sigmaBtag, sigmaJES, sigmaJER, sigmaISR) :
 
     # Save to root file
     fout.cd()
-    tEvent.Write()
+    #tEvent.Write()
     hNev.Write()
     hNev_passAllSel.Write()
     hAnalysisBins.Write()

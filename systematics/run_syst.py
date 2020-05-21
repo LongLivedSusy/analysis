@@ -18,7 +18,7 @@ def read_syst(txt) :
 
 if __name__ == '__main__' :
     
-    inputfiles = glob("/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.txt")
+    inputfiles = glob("../dedx/inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.txt")
     
     systs = read_syst("./Sigma_systematics.txt")
 
