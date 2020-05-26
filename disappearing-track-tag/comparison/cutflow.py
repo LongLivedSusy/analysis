@@ -56,7 +56,7 @@ def bdttag(files, is_signal=True):
     else:
         special_cutstring = "tracks_pt>=0"
         
-    baseline_selection = [                                                                 
+    baseline_selection = [
         "abs(tracks_eta)<2.4",                                                             # 3
         "!(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566)",                              # 4
         "tracks_highpurity==1",                                                            # 5
@@ -72,7 +72,7 @@ def bdttag(files, is_signal=True):
         "tracks_passmask==1",                                                              # 15
                          ]                                                                      
                                                                                            
-    vetoes = [                                                                             
+    vetoes = [
         "tracks_pass_reco_lepton==1",                                                      # 16
         "tracks_passPFCandVeto==1",                                                        # 17
         "tracks_nValidPixelHits>=3",                                                       # 18
@@ -140,10 +140,7 @@ def bdttag(files, is_signal=True):
         
     h_short.Draw("hist")
     h_long.Draw("same hist")
-    
-    #h_short.GetYaxis().SetRangeUser(1e-1,1e6)
-    #h_long.GetYaxis().SetRangeUser(1e-1,1e6)
-    
+        
     legend.Draw()
     shared_utils.stamp()
     if is_signal:
@@ -160,8 +157,11 @@ if __name__ == "__main__":
     bg_file = "../../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2AOD_100000-0034ACBB-B9D5-E611-B27B-0CC47A78A436_skim.root"
     exoandmt2(sg_file)
     
-    sg_files = glob.glob("../../ntupleanalyzer/skim_19/RunIISummer16MiniAODv3.SMS-T2*.root")    
-    bg_files = glob.glob("../../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root")    
+    #sg_files = glob.glob("../../ntupleanalyzer/skim_19/RunIISummer16MiniAODv3.SMS-T2*.root")    
+    #bg_files = glob.glob("../../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root")    
+
+    sg_files = [sg_file]
+    bg_files = [bg_file]
     
     bdttag(sg_files, is_signal = True)
     bdttag(bg_files, is_signal = False)
