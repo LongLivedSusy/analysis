@@ -92,26 +92,6 @@ datasets = [
 ]
 #----------------------------------------------------------------------------------
 
-def FillHisto(hist, valx, valy): 
-    nbinsx=hist.GetNbinsX();
-    minvalx=hist.GetXaxis().GetBinCenter(1);
-    maxvalx=hist.GetXaxis().GetBinCenter(nbinsx);
-    
-    nbinsy=hist.GetNbinsY();
-    minvaly=hist.GetYaxis().GetBinCenter(1);
-    maxvaly=hist.GetYaxis().GetBinCenter(nbinsy);
-    
-    newvalx=valx;
-    newvaly=valy;
-    
-    if(valx< minvalx) : newvalx=minvalx;
-    elif(valx>maxvalx): newvalx=maxvalx;
-    
-    if(valy< minvaly) : newvaly=minvaly;
-    elif(valy>maxvaly): newvaly=maxvaly;
-    
-    hist.Fill(newvalx, newvaly);
-
 def produceEfficiencyMaps(dataset, inputPath, subdirectory, outputDir, suffix):
     
     inputFilename = os.path.join(inputPath, dataset[0] + '*.root')
@@ -155,30 +135,25 @@ def produceEfficiencyMaps(dataset, inputPath, subdirectory, outputDir, suffix):
     
     # Loop events
     for ientry in range(nentries):
-    #for ientry in range(10):
         if ientry %verbosity==0: print ientry, 'events passing'
         t.GetEntry(ientry)
 
-	if not (bool(t.JetID) and  t.NVtx>0): continue
-	
-	if 'T1qqqq' in inputFilename :  
-	    if not t.MHT  > 150: continue
-	
 	for ijet, jet in enumerate(t.Jets):
-	    if jet.Pt()	< 30: continue
+	    if not t.Jets_ID[ijet] : continue
+	    if not (abs(jet.Eta()) < 2.4 and jet.Pt()>30) : continue
 	    if t.Jets_hadronFlavor[ijet]==5:
-	        FillHisto(denominatorHisto[0], jet.Pt(), jet.Eta())
+	        denominatorHisto[0].Fill(jet.Pt(), jet.Eta())
 	        if t.Jets_bDiscriminatorCSV[ijet]>CSV :
-		   FillHisto(numeratorHisto[0], jet.Pt(), jet.Eta())
+		   numeratorHisto[0].Fill(jet.Pt(), jet.Eta())
 	    elif t.Jets_hadronFlavor[ijet]==4:
-	        FillHisto(denominatorHisto[1], jet.Pt(), jet.Eta())
+	        denominatorHisto[1].Fill(jet.Pt(), jet.Eta())
 	        if t.Jets_bDiscriminatorCSV[ijet]>CSV :
-		   FillHisto(numeratorHisto[1], jet.Pt(), jet.Eta())
+		   numeratorHisto[1].Fill(jet.Pt(), jet.Eta())
 	    elif t.Jets_hadronFlavor[ijet]==0:
-	        FillHisto(denominatorHisto[2], jet.Pt(), jet.Eta())
+	        denominatorHisto[2].Fill(jet.Pt(), jet.Eta())
 	        if t.Jets_bDiscriminatorCSV[ijet]>CSV :
-		   FillHisto(numeratorHisto[2], jet.Pt(), jet.Eta())
-   
+		   numeratorHisto[2].Fill(jet.Pt(), jet.Eta())
+
     # Efficiency histogram
     for key, value in dict_partonFlavor.iteritems():
 	efficiencyHisto[key] = numeratorHisto[key].Clone()
