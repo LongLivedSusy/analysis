@@ -1,8 +1,7 @@
+import os, sys
 from ROOT import *
 from shared_utils import *
 gROOT.SetBatch(1)
-#fdata = TFile('vertex_plots_SingleEl.root')
-#fdata.ls()
 
 fdata = TFile('./EDM_output/vertex_Run2016GC8DC13E5-2297-E711-B519-0090FAA597B4SVstuff.root')
 #fsim = TFile('vertex_RunIISummer16DR80PremixB64B10BA-6BA5-E911-B5B2-AC1F6B0DE348SVstuff.root')
@@ -12,7 +11,11 @@ fdata.ls()
 
 rebin = 5
 
-fnew = TFile('ProtonResults.root', 'recreate')
+plotDir = 'plots'
+if not os.path.exists(plotDir) :
+    os.system('mkdir -p '+plotDir)
+
+fnew = TFile('rootfiles/ProtonResults.root', 'recreate')
 
 plots = [
 	['massdedx_to1p5_Proton','mass(p,de/dx | proton) [GeV]'],
@@ -20,6 +23,7 @@ plots = [
 	['massdedxCalib_to1p5_Proton','mass(p,de/dx | proton) [GeV]'],
 	['dedxCalib_to1p5_Proton','de/dx | proton [GeV]']
 	]
+
 for plot in plots:
     histname, xtitle = plot
     c1 = mkcanvas('c_'+histname)
@@ -52,7 +56,7 @@ for plot in plots:
     c1.Update()
     fnew.cd()
     c1.Write()
-    c1.Print('./plots/'+histname+'.png')
+    c1.Print(plotDir+'/'histname+'.png')
 print 'just created', fnew.GetName()
 fnew.Close()
 exit()
