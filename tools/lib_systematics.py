@@ -174,12 +174,14 @@ def jets_rescale_smear(tree,applySmearing,nSigmaJES,nSigmaJER):
     return jets_syst
 
 def get_isr_weight(tree,nSigmaISR):
+    # Ana's talk : https://indico.cern.ch/event/592621/contributions/2398559/attachments/1383909/2105089/16-12-05_ana_manuelf_isr.pdf
+
     w = 1
     fname = tree.GetFile().GetName()
     #d = 1.0	# Before determine D value
-    #d = 1.121	# T2tt
     if 'g1800_chi1400' in fname : d = 1.15598 # g1800_chi1400
     elif 'T1qqqq' in fname : d = 1.123 # T1qqqq
+    elif 'T2' in fname : d = 1.121 # T2tt
     else : d = 1.0
     n = tree.NJetsISR
     w_nom = 0.0
@@ -191,7 +193,8 @@ def get_isr_weight(tree,nSigmaISR):
     elif n==4 : w_nom = d * 0.662
     elif n==5 : w_nom = d * 0.561
     elif n>=6 : w_nom = d * 0.511
-    else : print 'what is n?' 
+    else : print 'Invalid NISR?' 
+
     err = (1-w_nom)/2
     w_isr_up   = w_nom + err
     w_isr      = w_nom
