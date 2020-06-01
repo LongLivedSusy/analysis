@@ -1,0 +1,1 @@
+/pnfs/desy.de/cms/tier2/store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_Zpt-150toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/110000/0A5698C7-26B3-E611-9EDA-B8CA3A70A5E8.root

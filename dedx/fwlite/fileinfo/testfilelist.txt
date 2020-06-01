@@ -1,0 +1,2 @@
+/store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/260000/BEDE428C-62A5-E911-9CD4-B026283DA2A0.root
+/store/data/Run2016G/SingleElectron/AOD/07Aug17-v1/70000/FC62F22C-0197-E711-B4BB-48FD8E282975.root
