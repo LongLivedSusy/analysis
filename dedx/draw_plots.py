@@ -56,13 +56,23 @@ if __name__=="__main__":
     
     # Samples
     samples = {
-        "WJetsToLNu":	{"select": "Summer16.WJetsToLNu_Tune|Summer16.WJetsToLNu_HT", "type": "bg", "color": 85},
-        "DYJetsToLL":	{"select": "Summer16.DYJetsToLL_M-50_Tune|Summer16.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
-        "TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
-        "QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
-        "ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
-        "Diboson":	{"select": "Summer16.WW|Summer16.WZ|Summer16.ZZ", "type": "bg", "color": 51},
+        #"WJetsToLNu":	{"select": "Summer16.WJetsToLNu_Tune|Summer16.WJetsToLNu_HT", "type": "bg", "color": 85},
+        #"DYJetsToLL":	{"select": "Summer16.DYJetsToLL_M-50_Tune|Summer16.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
+        #"TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
+        #"QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
+        #"ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
+        #"Diboson":	{"select": "Summer16.WW|Summer16.WZ|Summer16.ZZ", "type": "bg", "color": 51},
         #"rare":		{"select": "Summer16.ST|Summer16.GJets|RunIIFall17MiniAODv2.ST", "type": "bg", "color": 15},
+	
+	## Fall17 Bkgs
+	"WJetsToLNu":	{"select": "RunIIFall17MiniAODv2.WJetsToLNu_HT", "type": "bg", "color": 85},
+        "DYJetsToLL":	{"select": "RunIIFall17MiniAODv2.DYJetsToLL_M-50_Tune|RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
+        "TT":		{"select": "RunIIFall17MiniAODv2.TTJets_Tune|RunIIFall17MiniAODv2.TTJets_HT", "type": "bg", "color": 8}, 
+        "QCD":		{"select": "RunIIFall17MiniAODv2.QCD_HT", "type": "bg", "color": 97},
+        "ZJetsToNuNu":	{"select": "RunIIFall17MiniAODv2.ZJetsToNuNu_HT", "type": "bg", "color": 67},
+        "Diboson":	{"select": "RunIIFall17MiniAODv2.WW|RunIIFall17MiniAODv2.WZ|RunIIFall17MiniAODv2.ZZ", "type": "bg", "color": 51},
+	
+	## signals
 	#"SMS-T2bt-mLSP1": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-1_", "type": "sg", "color": kYellow},
 	#"SMS-T2bt-mLSP150": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-150_", "type": "sg", "color": kBlue},
 	#"SMS-T2bt-mLSP400": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-400_", "type": "sg", "color": kMagenta},
@@ -158,10 +168,11 @@ if __name__=="__main__":
 	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
 	del samples["SingleMuon"]
     
-#    for variable in variables_ele:
+    for variable in variables_ele:
 #	samples["SingleElectron"]={"select": "Run2016B-SingleElectron|Run2016C-SingleElectron|Run2016D-SingleElectron|Run2016E-SingleElectron|Run2016F-SingleElectron|Run2016G-SingleElectron|Run2016H-SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
-#	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
-#	del samples["SingleElectron"]
+	samples["SingleElectron"]={"select": "Run2017B-SingleElectron|Run2017C-SingleElectron|Run2017D-SingleElectron|Run2017E-SingleElectron|Run2017F-SingleElectron", "type": "data", "color": kBlack, "lumi": 40805.1454}
+	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
+	del samples["SingleElectron"]
     
 #    for variable in variables_met:
 #	samples["MET"]={"select": "Run2016B_MET|Run2016C_MET|Run2016D_MET|Run2016E_MET|Run2016F_MET|Run2016G_MET|Run2016H_MET", "type": "data", "color": kBlack, "lumi": 35767.77446}

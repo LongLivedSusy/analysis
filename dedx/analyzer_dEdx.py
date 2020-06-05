@@ -69,7 +69,7 @@ def get_tmva_info(path):
 
 def pass_background_stitching(current_file_name, madHT, phase):
     if (madHT>0) and \
-       ("DYJetsToLL_M-50_TuneCUETP8M1" in current_file_name and madHT>100) or \
+       ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
        ("WJetsToLNu_TuneCUETP8M1" in current_file_name and madHT>100) or \
        (phase == 1 and "TTJets_Tune" in current_file_name and madHT>600) or \
        ("HT-100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
@@ -314,10 +314,10 @@ def main(inputfiles,output_dir,output,nev):
     	pixelXml = '../disappearing-track-tag/2017-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
     	pixelstripsXml = '../disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
 
-    readerPixelOnly = TMVA.Reader()
-    readerPixelStrips = TMVA.Reader()
-    prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
-    prepareReaderPixel_loose(readerPixelOnly, pixelXml)
+    #readerPixelOnly = TMVA.Reader()
+    #readerPixelStrips = TMVA.Reader()
+    #prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
+    #prepareReaderPixel_loose(readerPixelOnly, pixelXml)
     
     # load and configure data mask:
     #fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
@@ -349,12 +349,18 @@ def main(inputfiles,output_dir,output,nev):
     hTrkP_tightgenmumatch =	TH1F('hTrkP_tightgenmumatch','P of track matched with gen-matched muon',100,0,10000)
     hTrkP_tightgenmumatch_barrel =  TH1F('hTrkP_tightgenmumatch_barrel','P of track matched with gen-matched muon in barrel region',100,0,10000)
     hTrkP_tightgenmumatch_endcap =  TH1F('hTrkP_tightgenmumatch_endcap','P of track matched with gen-matched muon in endcap region',100,0,10000)
+    hTrkP_tightmumatch_fromZ =	TH1F('hTrkP_tightmumatch_fromZ','P of track matched with tight muon',100,0,10000)
+    hTrkP_tightmumatch_fromZ_barrel = TH1F('hTrkP_tightmumatch_fromZ_barrel','P of track matched with tight muon in barrel region',100,0,10000)
+    hTrkP_tightmumatch_fromZ_endcap = TH1F('hTrkP_tightmumatch_fromZ_endcap','P of track matched with tight muon in endcap region',100,0,10000)
     hTrkP_tightelematch =	TH1F('hTrkP_tightelematch','P of track matched with tight electron',100,0,10000)
     hTrkP_tightelematch_barrel = TH1F('hTrkP_tightelematch_barrel','P of track matched with tight electron in barrel region',100,0,10000)
     hTrkP_tightelematch_endcap = TH1F('hTrkP_tightelematch_endcap','P of track matched with tight electron in endcap region',100,0,10000)
     hTrkP_tightgenelematch = TH1F('hTrkP_tightgenelematch','P of track matched with gen-matched electron',100,0,10000)
     hTrkP_tightgenelematch_barrel = TH1F('hTrkP_tightgenelematch_barrel','P of track matched with gen-matched electron in barrel region',100,0,10000)
     hTrkP_tightgenelematch_endcap = TH1F('hTrkP_tightgenelematch_endcap','P of track matched with gen-matched electron in endcap region',100,0,10000)
+    hTrkP_tightelematch_fromZ =	TH1F('hTrkP_tightelematch_fromZ','P of track matched with tight electron',100,0,10000)
+    hTrkP_tightelematch_fromZ_barrel = TH1F('hTrkP_tightelematch_fromZ_barrel','P of track matched with tight electron in barrel region',100,0,10000)
+    hTrkP_tightelematch_fromZ_endcap = TH1F('hTrkP_tightelematch_fromZ_endcap','P of track matched with tight electron in endcap region',100,0,10000)
     
     hTrkPt = TH1F('hTrkPt','pT of track',100,0,1000)
     hTrkPt_mumatch = TH1F('hTrkPt_mumatch','pT of track matched with muon',100,0,1000)
@@ -364,6 +370,9 @@ def main(inputfiles,output_dir,output,nev):
     hTrkPt_tightgenmumatch = TH1F('hTrkPt_tightgenmumatch','hTrkPt_tightgenmumatch',100,0,1000)
     hTrkPt_tightgenmumatch_barrel = TH1F('hTrkPt_tightgenmumatch_barrel','hTrkPt_tightgenmumatch_barrel',100,0,1000)
     hTrkPt_tightgenmumatch_endcap = TH1F('hTrkPt_tightgenmumatch_endcap','hTrkPt_tightgenmumatch_endcap',100,0,1000)
+    hTrkPt_tightmumatch_fromZ = TH1F('hTrkPt_tightmumatch_fromZ','pT of track matched with tight muon',100,0,1000)
+    hTrkPt_tightmumatch_fromZ_barrel = TH1F('hTrkPt_tightmumatch_fromZ_barrel','pT of track matched with tight muon in barrel region',100,0,1000)
+    hTrkPt_tightmumatch_fromZ_endcap = TH1F('hTrkPt_tightmumatch_fromZ_endcap','hTrkPt_tightmumatch_endcap',100,0,1000)
     
     hTrkEta_tightmumatch = TH1F('hTrkEta_tightmumatch','hTrkEta_tightmumatch',100,0,1000)
     hTrkEta_tightmumatch_barrel = TH1F('hTrkEta_tightmumatch_barrel','hTrkEta_tightmumatch_barrel',100,0,1000)
@@ -379,6 +388,9 @@ def main(inputfiles,output_dir,output,nev):
     hTrkPt_tightgenelematch = TH1F('hTrkPt_tightgenelematch','hTrkPt_tightgenelematch',100,0,1000)
     hTrkPt_tightgenelematch_barrel = TH1F('hTrkPt_tightgenelematch_barrel','hTrkPt_tightgenelematch_barrel',100,0,1000)
     hTrkPt_tightgenelematch_endcap = TH1F('hTrkPt_tightgenelematch_endcap','hTrkPt_tightgenelematch_endcap',100,0,1000)
+    hTrkPt_tightelematch_fromZ = TH1F('hTrkPt_tightelematch_fromZ','hTrkPt_tightelematch',100,0,1000)
+    hTrkPt_tightelematch_fromZ_barrel = TH1F('hTrkPt_tightelematch_fromZ_barrel','hTrkPt_tightelematch_barrel',100,0,1000)
+    hTrkPt_tightelematch_fromZ_endcap = TH1F('hTrkPt_tightelematch_fromZ_endcap','hTrkPt_tightelematch_endcap',100,0,1000)
     hTrkEta_tightelematch = TH1F('hTrkEta_tightelematch','hTrkEta_tightelematch',100,0,1000)
     hTrkEta_tightelematch_barrel = TH1F('hTrkEta_tightelematch_barrel','hTrkEta_tightelematch_barrel',100,0,1000)
     hTrkEta_tightelematch_endcap = TH1F('hTrkEta_tightelematch_endcap','hTrkEta_tightelematch_endcap',100,0,1000)
@@ -393,6 +405,9 @@ def main(inputfiles,output_dir,output,nev):
     hTrkPixelDedx_tightgenmumatch = TH1F('hTrkPixelDedx_tightgenmumatch','hTrkPixelDedx_tightgenmumatch',100,0,10)
     hTrkPixelDedx_tightgenmumatch_barrel = TH1F('hTrkPixelDedx_tightgenmumatch_barrel','hTrkPixelDedx_tightgenmumatch_barrel',100,0,10)
     hTrkPixelDedx_tightgenmumatch_endcap = TH1F('hTrkPixelDedx_tightgenmumatch_endcap','hTrkPixelDedx_tightgenmumatch_endcap',100,0,10)
+    hTrkPixelDedx_tightmumatch_fromZ = TH1F('hTrkPixelDedx_tightmumatch_fromZ','hTrkPixelDedx_tightmumatch',100,0,10)
+    hTrkPixelDedx_tightmumatch_fromZ_barrel = TH1F('hTrkPixelDedx_tightmumatch_fromZ_barrel','hTrkPixelDedx_tightmumatch_barrel',100,0,10)
+    hTrkPixelDedx_tightmumatch_fromZ_endcap = TH1F('hTrkPixelDedx_tightmumatch_fromZ_endcap','hTrkPixelDedx_tightmumatch_endcap',100,0,10)
     hTrkPixelDedxCalib_tightmumatch = TH1F('hTrkPixelDedxCalib_tightmumatch','hTrkPixelDedxCalib_tightmumatch',100,0,10)
     hTrkPixelDedxCalib_tightmumatch_barrel = TH1F('hTrkPixelDedxCalib_tightmumatch_barrel','hTrkPixelDedxCalib_tightmumatch_barrel',100,0,10)
     hTrkPixelDedxCalib_tightmumatch_endcap = TH1F('hTrkPixelDedxCalib_tightmumatch_endcap','hTrkPixelDedxCalib_tightmumatch_endcap',100,0,10)
@@ -404,6 +419,9 @@ def main(inputfiles,output_dir,output,nev):
     hTrkPixelDedx_tightgenelematch = TH1F('hTrkPixelDedx_tightgenelematch','hTrkPixelDedx_tightgenelematch',100,0,10)
     hTrkPixelDedx_tightgenelematch_barrel = TH1F('hTrkPixelDedx_tightgenelematch_barrel','hTrkPixelDedx_tightgenelematch_barrel',100,0,10)
     hTrkPixelDedx_tightgenelematch_endcap = TH1F('hTrkPixelDedx_tightgenelematch_endcap','hTrkPixelDedx_tightgenelematch_endcap',100,0,10)
+    hTrkPixelDedx_tightelematch_fromZ = TH1F('hTrkPixelDedx_tightelematch_fromZ','hTrkPixelDedx_tightelematch',100,0,10)
+    hTrkPixelDedx_tightelematch_fromZ_barrel = TH1F('hTrkPixelDedx_tightelematch_fromZ_barrel','hTrkPixelDedx_tightelematch_barrel',100,0,10)
+    hTrkPixelDedx_tightelematch_fromZ_endcap = TH1F('hTrkPixelDedx_tightelematch_fromZ_endcap','hTrkPixelDedx_tightelematch_endcap',100,0,10)
     hTrkPixelDedxCalib_tightelematch = TH1F('hTrkPixelDedxCalib_tightelematch','hTrkPixelDedxCalib_tightelematch',100,0,10)
     hTrkPixelDedxCalib_tightelematch_barrel = TH1F('hTrkPixelDedxCalib_tightelematch_barrel','hTrkPixelDedxCalib_tightelematch_barrel',100,0,10)
     hTrkPixelDedxCalib_tightelematch_endcap = TH1F('hTrkPixelDedxCalib_tightelematch_endcap','hTrkPixelDedxCalib_tightelematch_endcap',100,0,10)
@@ -415,6 +433,9 @@ def main(inputfiles,output_dir,output,nev):
     hTrkStripsDedx_tightgenmumatch = TH1F('hTrkStripsDedx_tightgenmumatch','hTrkStripsDedx_tightgenmumatch',100,0,10)
     hTrkStripsDedx_tightgenmumatch_barrel = TH1F('hTrkStripsDedx_tightgenmumatch_barrel','hTrkStripsDedx_tightgenmumatch_barrel',100,0,10)
     hTrkStripsDedx_tightgenmumatch_endcap = TH1F('hTrkStripsDedx_tightgenmumatch_endcap','hTrkStripsDedx_tightgenmumatch_endcap',100,0,10)
+    hTrkStripsDedx_tightmumatch_fromZ = TH1F('hTrkStripsDedx_tightmumatch_fromZ','hTrkStripsDedx_tightmumatch',100,0,10)
+    hTrkStripsDedx_tightmumatch_fromZ_barrel = TH1F('hTrkStripsDedx_tightmumatch_fromZ_barrel','hTrkStripsDedx_tightmumatch_barrel',100,0,10)
+    hTrkStripsDedx_tightmumatch_fromZ_endcap = TH1F('hTrkStripsDedx_tightmumatch_fromZ_endcap','hTrkStripsDedx_tightmumatch_endcap',100,0,10)
     hTrkStripsDedxCalib_tightmumatch = TH1F('hTrkStripsDedxCalib_tightmumatch','hTrkStripsDedxCalib_tightmumatch',100,0,10)
     hTrkStripsDedxCalib_tightmumatch_barrel = TH1F('hTrkStripsDedxCalib_tightmumatch_barrel','hTrkStripsDedxCalib_tightmumatch_barrel',100,0,10)
     hTrkStripsDedxCalib_tightmumatch_endcap = TH1F('hTrkStripsDedxCalib_tightmumatch_endcap','hTrkStripsDedxCalib_tightmumatch_endcap',100,0,10)
@@ -426,6 +447,9 @@ def main(inputfiles,output_dir,output,nev):
     hTrkStripsDedx_tightgenelematch = TH1F('hTrkStripsDedx_tightgenelematch','hTrkStripsDedx_tightgenelematch',100,0,10)
     hTrkStripsDedx_tightgenelematch_barrel = TH1F('hTrkStripsDedx_tightgenelematch_barrel','hTrkStripsDedx_tightgenelematch_barrel',100,0,10)
     hTrkStripsDedx_tightgenelematch_endcap = TH1F('hTrkStripsDedx_tightgenelematch_endcap','hTrkStripsDedx_tightgenelematch_endcap',100,0,10)
+    hTrkStripsDedx_tightelematch_fromZ = TH1F('hTrkStripsDedx_tightelematch_fromZ','hTrkStripsDedx_tightelematch',100,0,10)
+    hTrkStripsDedx_tightelematch_fromZ_barrel = TH1F('hTrkStripsDedx_tightelematch_fromZ_barrel','hTrkStripsDedx_tightelematch_barrel',100,0,10)
+    hTrkStripsDedx_tightelematch_fromZ_endcap = TH1F('hTrkStripsDedx_tightelematch_fromZ_endcap','hTrkStripsDedx_tightelematch_endcap',100,0,10)
     hTrkStripsDedxCalib_tightelematch = TH1F('hTrkStripsDedxCalib_tightelematch','hTrkStripsDedxCalib_tightelematch',100,0,10)
     hTrkStripsDedxCalib_tightelematch_barrel = TH1F('hTrkStripsDedxCalib_tightelematch_barrel','hTrkStripsDedxCalib_tightelematch_barrel',100,0,10)
     hTrkStripsDedxCalib_tightelematch_endcap = TH1F('hTrkStripsDedxCalib_tightelematch_endcap','hTrkStripsDedxCalib_tightelematch_endcap',100,0,10)
@@ -433,6 +457,8 @@ def main(inputfiles,output_dir,output,nev):
     hMuP = TH1F('hMuP','hMuP',100,0,10000)
     hMuPt = TH1F('hMuPt','hMuPt',100,0,1000)
     hMuPt_genmatch = TH1F('hMuPt_genmatch','hMuPt_genmatch',100,0,1000)
+    hMuPt_fromZ_leading = TH1F('hMuPt_fromZ_leading','Leading muon from Z decay',100,0,1000)
+    hMuPt_fromZ_trailing = TH1F('hMuPt_fromZ_trailing','Trailing muon from Z decay',100,0,1000)
     hMuEta = TH1F('hMuEta','hMuEta',100,-3,3)
     hMuPhi = TH1F('hMuPhi','hMuPhi',100,-3.14,3.14)
     hGamma_mu = TH1F('hGamma_mu','hGamma_mu',100,0,10000)
@@ -440,6 +466,8 @@ def main(inputfiles,output_dir,output,nev):
     hEleP = TH1F('hEleP','hEleP',100,0,10000)
     hElePt = TH1F('hElePt','hElePt',100,0,1000)
     hElePt_genmatch = TH1F('hElePt_genmatch','hElePt_genmatch',100,0,1000)
+    hElePt_fromZ_leading = TH1F('hElePt_fromZ_leading','Leading electron from Z decay',100,0,1000)
+    hElePt_fromZ_trailing = TH1F('hElePt_fromZ_trailing','Trailing electron from Z decay',100,0,1000)
     hEleEta = TH1F('hEleEta','hEleEta',100,-3,3)
     hElePhi = TH1F('hElePhi','hElePhi',100,-3.14,3.14)
     hGamma_ele = TH1F('hGamma_ele','hGamma_ele',100,0,200000)
@@ -496,7 +524,7 @@ def main(inputfiles,output_dir,output,nev):
 	if not passesUniversalSelection(c): continue
 
 	# some preselection on event
-	if not c.MET>50 : continue
+	#if not c.MET>50 : continue
 
 	FillHisto(hMET,c.MET,weight)
 	FillHisto(hMHT,c.MHT,weight)
@@ -506,6 +534,7 @@ def main(inputfiles,output_dir,output,nev):
 	n_tightelectron =0
 	tightelectrons=[]
 	tightelectrons_genmatch=[]
+	n_electron = len(c.Electrons)
 	for iele, ele in enumerate(c.Electrons):
 	    if not (ele.Pt()>30): continue
 	    if not abs(ele.Eta())<2.4: continue
@@ -533,6 +562,20 @@ def main(inputfiles,output_dir,output,nev):
 			FillHisto(hElePt_genmatch,ele.Pt(),weight)
 			tightelectrons_genmatch.append(ele)
 			break
+	
+	# Electrons from Z
+	tightelectrons_fromZ=[]
+	if n_tightelectron == 2:  
+	    ele1 = c.Electrons[0]
+	    ele2 = c.Electrons[1]
+	    if not c.Electrons_charge[0] * c.Electrons_charge[1] == -1 : continue
+	    invmass = (ele1+ele2).M()
+	    if not (invmass >= 70 and invmass <= 110) : continue 
+	    #print '{}th event Z invmass:{}, ele1 pT:{}, ele2 pT:{}, {}'.format(ientry, invmass,ele1.Pt(),ele2.Pt(), True if ele1.Pt()>ele2.Pt() else False)
+	    FillHisto(hElePt_fromZ_leading,ele1.Pt(),weight)
+	    FillHisto(hElePt_fromZ_trailing,ele2.Pt(),weight)
+	    tightelectrons_fromZ.append(ele1)
+	    tightelectrons_fromZ.append(ele2)
 
 	# Muons
 	n_tightmuon = 0
@@ -565,6 +608,20 @@ def main(inputfiles,output_dir,output,nev):
 			FillHisto(hMuPt_genmatch,mu.Pt(),weight)
 			tightmuons_genmatch.append(mu)
 			break
+
+	# Muons from Z
+	tightmuons_fromZ=[]
+	if n_tightmuon == 2:  
+	    mu1 = c.Muons[0]
+	    mu2 = c.Muons[1]
+	    if not c.Muons_charge[0] * c.Muons_charge[1] == -1 : continue
+	    invmass = (mu1+mu2).M()
+	    if not (invmass >= 70 and invmass <= 110) : continue 
+	    #print '{}th event Z invmass:{}, mu1 pT:{}, mu2 pT:{}, {}'.format(ientry, invmass,mu1.Pt(),mu2.Pt(), True if mu1.Pt()>mu2.Pt() else False)
+	    FillHisto(hMuPt_fromZ_leading,mu1.Pt(),weight)
+	    FillHisto(hMuPt_fromZ_trailing,mu2.Pt(),weight)
+	    tightmuons_fromZ.append(mu1)
+	    tightmuons_fromZ.append(mu2)
 
 
 	# JETS
@@ -666,6 +723,35 @@ def main(inputfiles,output_dir,output,nev):
 		    
 		    break
 	
+	    # Muon from Z matching
+	    dr = 99
+	    for imu, mu in enumerate(tightmuons_fromZ):
+                dr = min(dr, mu.DeltaR(track))
+		pTdiff_rel = abs(mu.Pt()-track.Pt())/mu.Pt()
+                if dr<0.01 and pTdiff_rel<0.1: 
+		    #print 'track - muon from Z matching'
+		    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
+		    FillHisto(hTrkP_tightmumatch_fromZ,track.P(),weight)
+		    FillHisto(hTrkPt_tightmumatch_fromZ,track.Pt(),weight)
+		    FillHisto(hTrkPixelDedx_tightmumatch_fromZ,dedx_pixel,weight)
+		    FillHisto(hTrkStripsDedx_tightmumatch_fromZ,dedx_strips,weight)
+		    
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(mu_fromZ matching)'
+			FillHisto(hTrkP_tightmumatch_fromZ_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightmumatch_fromZ_barrel,track.Pt(),weight)
+		    	FillHisto(hTrkPixelDedx_tightmumatch_fromZ_barrel,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightmumatch_fromZ_barrel,dedx_strips,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(mu_fromZ matching)'
+			FillHisto(hTrkP_tightmumatch_fromZ_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightmumatch_fromZ_endcap,track.Pt(),weight)
+		    	FillHisto(hTrkPixelDedx_tightmumatch_fromZ_endcap,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightmumatch_fromZ_endcap,dedx_strips,weight)
+		    else : print 'should not see this'
+		    
+		    break
 	    
 	    # Electron-track matching
 	    drele = 99
@@ -744,6 +830,37 @@ def main(inputfiles,output_dir,output,nev):
 		    
 		    break
 	    
+	    # Electron from Z matching
+	    dr = 99
+	    for iele, ele in enumerate(tightelectrons_fromZ):
+                dr = min(dr, ele.DeltaR(track))
+		pTdiff_rel = abs(ele.Pt()-track.Pt())/ele.Pt()
+                if dr<0.01 and pTdiff_rel<0.1: 
+		    #print 'track - electron from Z matching'
+		    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
+		    FillHisto(hTrkP_tightelematch_fromZ,track.P(),weight)
+		    FillHisto(hTrkPt_tightelematch_fromZ,track.Pt(),weight)
+		    FillHisto(hTrkPixelDedx_tightelematch_fromZ,dedx_pixel,weight)
+		    FillHisto(hTrkStripsDedx_tightelematch_fromZ,dedx_strips,weight)
+		    
+		    if abs(track.Eta())<=1.5 : 
+			#print 'barrel region(ele_fromZ matching)'
+			FillHisto(hTrkP_tightelematch_fromZ_barrel,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_fromZ_barrel,track.Pt(),weight)
+		    	FillHisto(hTrkPixelDedx_tightelematch_fromZ_barrel,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightelematch_fromZ_barrel,dedx_strips,weight)
+		    elif abs(track.Eta())>1.5 : 
+			#print 'endcap region(ele_fromZ matching)'
+			FillHisto(hTrkP_tightelematch_fromZ_endcap,track.P(),weight)
+			FillHisto(hTrkPt_tightelematch_fromZ_endcap,track.Pt(),weight)
+		    	FillHisto(hTrkPixelDedx_tightelematch_fromZ_endcap,dedx_pixel,weight)
+		    	FillHisto(hTrkStripsDedx_tightelematch_fromZ_endcap,dedx_strips,weight)
+		    else : print 'should not see this'
+		    
+		    break
+	    
+	    
 	    # Gen-chargino matching
 	    if not is_data:
 	        drchi_gen=99
@@ -760,36 +877,12 @@ def main(inputfiles,output_dir,output,nev):
 	        	break
 
 
-	    dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
-	    #if not dtstatus>0: continue
-            #drlep = 99
-            #passeslep = True
-            #for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
-            #        drlep = min(drlep, lep.DeltaR(track))
-            #        if drlep<0.1: 
-            #                passeslep = False
-            #                break    
-            #if not passeslep: continue
-            #isjet = False
-            #for jet in c.Jets:
-            #        if jet.DeltaR(track)<0.4: 
-            #                isjet = True
-            #                break
-            #if isjet:  continue    
-            #dedx = -1
-            #if dtstatus==1: 
-            #        nShort+=1
-            #        dedx = c.tracks_deDxHarmonic2pixel[itrack]
-            #if dtstatus==2: 
-            #        nLong+=1    
-            #        dedx = c.tracks_deDxHarmonic2pixel[itrack]
-            #disappearingTracks.append([track,dtstatus,dedx, itrack])
-
 
     fout.Write()
     fout.Close()
     print("DONE")
     
+    #FIXME
     # write JSON containing lumisections:
     if len(runs) > 0:
         runs_compacted = {}
