@@ -490,6 +490,7 @@ def isMatched_(obj, col, dR=0.02, verbose = False):
 	return False
 
 def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', LinearScale=False, fractionthing='(bkg-obs)/obs'):
+	print 'datamc in FabDraw'
 	cGold.cd()
 	pad1 = TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
 	pad1.SetBottomMargin(0.0)
@@ -1153,7 +1154,7 @@ Dedxcalibdict_Electron_barrel = {
 	'Run2018A' : 1.14433246845,
 	'Run2018B' : 1.18837716859,
 	'Run2018C' : 1.20391423501,
-	#'Run2018D' : 1.0,   # not yet
+	'Run2018D' : 1.0,   # not yet
 	# Summer16 MC
 	'Summer16' : 1.0,
 	# Fall17 MC
@@ -1179,7 +1180,7 @@ Dedxcalibdict_Electron_endcap = {
 	'Run2018A' : 1.22167930566,
 	'Run2018B' : 1.26678309764,
 	'Run2018C' : 1.29334118935,
-	#'Run2018D' : 1.0,   # not yet
+	'Run2018D' : 1.0,   # not yet
 	# Summer16 MC
 	'Summer16' : 0.950670487473,
 	# Fall17 MC
