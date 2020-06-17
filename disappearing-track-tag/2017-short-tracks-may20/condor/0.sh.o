@@ -1,0 +1,352 @@
+  
+/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_1_7
+./trainBDT.py --category short
+weights[Signal_ctau-200_mLSP-1000]=9.04910988883e-07
+weights[Signal_ctau-200_mLSP-1075]=1.07154793281e-05
+weights[Signal_ctau-200_mLSP-1175]=1.31580874452e-05
+weights[Signal_ctau-200_mLSP-1200]=3.40013235269e-09
+weights[Signal_ctau-200_mLSP-1275]=3.67648236256e-05
+weights[Signal_ctau-200_mLSP-1300]=1.47999898033e-06
+weights[Signal_ctau-200_mLSP-1375]=4.18782653791e-05
+weights[Signal_ctau-200_mLSP-1475]=4.7402175954e-06
+weights[Signal_ctau-200_mLSP-1500]=5.15294485999e-07
+weights[Signal_ctau-200_mLSP-150]=1.34719369023e-06
+weights[Signal_ctau-200_mLSP-1575]=1.8957196873e-07
+weights[Signal_ctau-200_mLSP-1600]=2.77547792203e-06
+weights[Signal_ctau-200_mLSP-1675]=3.47283341801e-05
+weights[Signal_ctau-200_mLSP-1700]=2.35857891199e-06
+weights[Signal_ctau-200_mLSP-1775]=3.85517067741e-05
+weights[Signal_ctau-200_mLSP-1800]=2.00235694742e-06
+weights[Signal_ctau-200_mLSP-1875]=3.75531099185e-05
+weights[Signal_ctau-200_mLSP-1900]=7.75219811558e-07
+weights[Signal_ctau-200_mLSP-1975]=1.92232662475e-05
+weights[Signal_ctau-200_mLSP-1]=1.21048612653e-10
+weights[Signal_ctau-200_mLSP-2000]=3.34853173064e-06
+weights[Signal_ctau-200_mLSP-200]=2.88418301145e-07
+weights[Signal_ctau-200_mLSP-2075]=4.51536438677e-05
+weights[Signal_ctau-200_mLSP-2100]=3.48925200834e-06
+weights[Signal_ctau-200_mLSP-2175]=1.32287518029e-08
+weights[Signal_ctau-200_mLSP-2275]=3.59402145058e-05
+weights[Signal_ctau-200_mLSP-2300]=7.16708656751e-06
+weights[Signal_ctau-200_mLSP-2375]=2.45266455285e-05
+weights[Signal_ctau-200_mLSP-2400]=6.07078866379e-06
+weights[Signal_ctau-200_mLSP-2475]=1.44916065404e-05
+weights[Signal_ctau-200_mLSP-2575]=2.24690769223e-05
+weights[Signal_ctau-200_mLSP-25]=0.0
+weights[Signal_ctau-200_mLSP-2600]=5.01975390674e-10
+weights[Signal_ctau-200_mLSP-2675]=3.75278263324e-05
+weights[Signal_ctau-200_mLSP-2700]=7.74963786825e-10
+weights[Signal_ctau-200_mLSP-2775]=2.96417963502e-06
+weights[Signal_ctau-200_mLSP-400]=2.87256001245e-06
+weights[Signal_ctau-200_mLSP-50]=3.32840018998e-06
+weights[Signal_ctau-200_mLSP-600]=2.70620170768e-06
+weights[Signal_ctau-200_mLSP-75]=2.34373742933e-06
+weights[Signal_ctau-200_mLSP-800]=7.78588567227e-07
+weights[Signal_ctau-200_mLSP-900]=3.06094210498e-07
+weights[Signal_ctau-200_mLSP-975]=3.78988002107e-06
+weights[Signal_ctau-200_mLSP-1000]=1.28942620685e-06
+weights[Signal_ctau-200_mLSP-1100]=4.13960105622e-09
+weights[Signal_ctau-200_mLSP-1200]=1.28472095402e-06
+weights[Signal_ctau-200_mLSP-1300]=1.88109095771e-06
+weights[Signal_ctau-200_mLSP-1400]=5.46781188752e-12
+weights[Signal_ctau-200_mLSP-1500]=2.94999983427e-06
+weights[Signal_ctau-200_mLSP-150]=6.29992916201e-07
+weights[Signal_ctau-200_mLSP-1600]=3.75011682916e-06
+weights[Signal_ctau-200_mLSP-1700]=2.44842563629e-06
+weights[Signal_ctau-200_mLSP-1800]=6.71544063539e-07
+weights[Signal_ctau-200_mLSP-1900]=7.57540382287e-06
+weights[Signal_ctau-200_mLSP-1]=2.79691666872e-12
+weights[Signal_ctau-200_mLSP-2000]=4.2114248041e-06
+weights[Signal_ctau-200_mLSP-200]=3.71765732058e-07
+weights[Signal_ctau-200_mLSP-50]=6.23976933277e-07
+weights[Signal_ctau-200_mLSP-600]=5.89767569192e-07
+weights[Signal_ctau-200_mLSP-800]=1.29263928144e-06
+weights[Signal_ctau-200_mLSP-900]=7.21905970044e-07
+weights[WJetsToLNu_TuneCUETP8M1]=0.0014548646143
+weights[WJetsToLNu_HT-200To400_TuneCUETP8M1]=4.08816041443e-05
+weights[WJetsToLNu_HT-600To800_TuneCUETP8M1]=6.33511154626e-07
+weights[WJetsToLNu_HT-800To1200_TuneCUETP8M1]=1.88520228426e-06
+weights[WJetsToLNu_HT-1200To2500_TuneCUETP8M1]=4.10179455856e-07
+weights[WJetsToLNu_HT-2500ToInf_TuneCUETP8M1]=1.28629358877e-08
+weights[DYJetsToLL_M-50_TuneCUETP8M1]=9.44646217689e-05
+weights[DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1]=1.93934657488e-05
+weights[DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1]=6.02653833675e-06
+weights[DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1]=1.01767123364e-06
+weights[DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1]=7.00601212689e-08
+weights[DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1]=5.39346168987e-08
+weights[DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1]=1.74242324957e-07
+weights[DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1]=2.27844398349e-09
+weights[TTJets_DiLept]=6.15767641785e-06
+weights[TTJets_SingleLeptFromT]=1.49138787123e-06
+weights[TTJets_SingleLeptFromTbar]=3.21622228995e-06
+weights[ZZ_TuneCUETP8M1]=1.49728537891e-05
+weights[WW_TuneCUETP8M1]=1.77294673843e-05
+weights[WZ_TuneCUETP8M1]=2.13920295589e-05
+DataSetInfo              : [dataset] : Added class "Signal"
+                         : Add Tree Events of type Signal with 144385 events
+                         : Add Tree Events of type Signal with 202529 events
+                         : Add Tree Events of type Signal with 50527 events
+                         : Add Tree Events of type Signal with 22750 events
+                         : Add Tree Events of type Signal with 80173 events
+DataSetInfo              : [dataset] : Added class "Background"
+                         : Add Tree Events of type Background with 2591378 events
+                         : Add Tree Events of type Background with 730738 events
+                         : Add Tree Events of type Signal with 25378 events
+                         : Add Tree Events of type Signal with 25952 events
+                         : Add Tree Events of type Signal with 43295 events
+                         : Add Tree Events of type Signal with 24516 events
+                         : Add Tree Events of type Background with 4766447 events
+                         : Add Tree Events of type Signal with 25408 events
+                         : Add Tree Events of type Signal with 22356 events
+                         : Add Tree Events of type Signal with 124383 events
+                         : Add Tree Events of type Signal with 20029 events
+                         : Add Tree Events of type Signal with 154788 events
+                         : Add Tree Events of type Signal with 24221 events
+                         : Add Tree Events of type Background with 3262503 events
+                         : Add Tree Events of type Signal with 140236 events
+                         : Add Tree Events of type Signal with 24134 events
+                         : Add Tree Events of type Background with 3241563 events
+                         : Add Tree Events of type Background with 276767 events
+                         : Add Tree Events of type Signal with 203067 events
+                         : Add Tree Events of type Background with 3857241 events
+                         : Add Tree Events of type Background with 4751348 events
+                         : Add Tree Events of type Background with 3822665 events
+                         : Add Tree Events of type Signal with 174802 events
+                         : Add Tree Events of type Signal with 165409 events
+                         : Add Tree Events of type Signal with 144715 events
+                         : Add Tree Events of type Signal with 7581 events
+                         : Add Tree Events of type Background with 3739573 events
+                         : Add Tree Events of type Signal with 110094 events
+                         : Add Tree Events of type Background with 200313 events
+                         : Add Tree Events of type Signal with 25394 events
+                         : Add Tree Events of type Background with 2408788 events
+                         : Add Tree Events of type Signal with 171956 events
+                         : Add Tree Events of type Background with 4002988 events
+                         : Add Tree Events of type Signal with 154319 events
+                         : Add Tree Events of type Signal with 184316 events
+                         : Add Tree Events of type Signal with 24786 events
+                         : Add Tree Events of type Signal with 24721 events
+                         : Add Tree Events of type Signal with 185374 events
+                         : Add Tree Events of type Signal with 135685 events
+                         : Add Tree Events of type Signal with 164555 events
+                         : Add Tree Events of type Signal with 128327 events
+                         : Add Tree Events of type Signal with 24697 events
+                         : Add Tree Events of type Signal with 22527 events
+                         : Add Tree Events of type Signal with 12925 events
+                         : Add Tree Events of type Signal with 26724 events
+                         : Add Tree Events of type Signal with 179876 events
+                         : Add Tree Events of type Signal with 24628 events
+                         : Add Tree Events of type Background with 756203 events
+                         : Add Tree Events of type Background with 3880539 events
+                         : Add Tree Events of type Signal with 220067 events
+                         : Add Tree Events of type Background with 1601943 events
+                         : Add Tree Events of type Signal with 237849 events
+                         : Add Tree Events of type Background with 404988 events
+                         : Add Tree Events of type Signal with 25532 events
+                         : Add Tree Events of type Background with 3467086 events
+                         : Add Tree Events of type Signal with 24425 events
+                         : Add Tree Events of type Signal with 95565 events
+                         : Add Tree Events of type Background with 1727102 events
+                         : Add Tree Events of type Background with 468285 events
+                         : Add Tree Events of type Signal with 23625 events
+Factory                  : Booking method: [1mBDT[0m
+                         : 
+DataSetFactory           : [dataset] : Number of events in input trees
+                         : Dataset[dataset] :     Signal     requirement: "tracks_chiCandGenMatchingDR<0.01 && tracks_is_pixel_track==1 && abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_highpurity==1 && tracks_ptErrOverPt2<10 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_nValidPixelHits>=3 && tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1"
+                         : Dataset[dataset] :     Signal          -- number of events passed: 209540  / sum of weights: 1.26922
+                         : Dataset[dataset] :     Signal          -- efficiency             : 0.0509762
+                         : Dataset[dataset] :     Background requirement: "tracks_is_pixel_track==1 && abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_highpurity==1 && tracks_ptErrOverPt2<10 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_nValidPixelHits>=3 && tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1"
+                         : Dataset[dataset] :     Background      -- number of events passed: 567797  / sum of weights: 27.7732
+                         : Dataset[dataset] :     Background      -- efficiency             : 0.00921593
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Number of training and testing events
+                         : ---------------------------------------------------------------------------
+                         : Signal     -- training events            : 104770
+                         : Signal     -- testing events             : 104770
+                         : Signal     -- training and testing events: 209540
+                         : Dataset[dataset] : Signal     -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.0361472
+                         : Background -- training events            : 283898
+                         : Background -- testing events             : 283898
+                         : Background -- training and testing events: 567796
+                         : Dataset[dataset] : Background -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.00908535
+                         : 
+DataSetInfo              : Correlation matrix (Signal):
+                         : ---------------------------------------------------------------------------------------------------------------------------
+                         :                           tracks_dzVtx tracks_matchedCaloEnergy tracks_trkRelIso tracks_nValidPixelHits tracks_ptErrOverPt2
+                         :             tracks_dzVtx:       +1.000                   -0.010           -0.034                 +0.029              -0.038
+                         : tracks_matchedCaloEnergy:       -0.010                   +1.000           +0.160                 -0.007              +0.002
+                         :         tracks_trkRelIso:       -0.034                   +0.160           +1.000                 -0.051              +0.042
+                         :   tracks_nValidPixelHits:       +0.029                   -0.007           -0.051                 +1.000              -0.229
+                         :      tracks_ptErrOverPt2:       -0.038                   +0.002           +0.042                 -0.229              +1.000
+                         : ---------------------------------------------------------------------------------------------------------------------------
+DataSetInfo              : Correlation matrix (Background):
+                         : ---------------------------------------------------------------------------------------------------------------------------
+                         :                           tracks_dzVtx tracks_matchedCaloEnergy tracks_trkRelIso tracks_nValidPixelHits tracks_ptErrOverPt2
+                         :             tracks_dzVtx:       +1.000                   -0.097           -0.137                 -0.020              +0.073
+                         : tracks_matchedCaloEnergy:       -0.097                   +1.000           +0.182                 +0.151              -0.031
+                         :         tracks_trkRelIso:       -0.137                   +0.182           +1.000                 -0.024              -0.026
+                         :   tracks_nValidPixelHits:       -0.020                   +0.151           -0.024                 +1.000              -0.056
+                         :      tracks_ptErrOverPt2:       +0.073                   -0.031           -0.026                 -0.056              +1.000
+                         : ---------------------------------------------------------------------------------------------------------------------------
+DataSetFactory           : [dataset] :  
+                         : 
+Factory                  : [1mTrain all methods[0m
+Factory                  : [dataset] : Create Transformation "I" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+Factory                  : [dataset] : Create Transformation "P" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+Factory                  : [dataset] : Create Transformation "G" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                  0.016012                  0.019477   [                1.1556e-08                  0.099999 ]
+                         : tracks_matchedCaloEnergy:                    26.500                    57.302   [                    0.0000                    3597.2 ]
+                         :         tracks_trkRelIso:                  0.028098                  0.046476   [                    0.0000                   0.20000 ]
+                         :   tracks_nValidPixelHits:                    3.0238                   0.18075   [                    3.0000                    8.0000 ]
+                         :      tracks_ptErrOverPt2:                  0.055451                  0.047620   [                 0.0039782                    4.9344 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                    1.5181                    1.0000   [                   0.63095                    6.9368 ]
+                         : tracks_matchedCaloEnergy:                   0.45911                    1.0000   [                -0.0076657                    62.776 ]
+                         :         tracks_trkRelIso:                    1.5202                    1.0000   [                   -10.976                    5.6189 ]
+                         :   tracks_nValidPixelHits:                    16.810                    1.0000   [                    12.738                    44.368 ]
+                         :      tracks_ptErrOverPt2:                    2.4801                    1.0000   [                    1.3515                    107.13 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Principle Component (PCA) transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                    71.434                    57.302   [                   -3499.3                    97.934 ]
+                         : tracks_matchedCaloEnergy:                 0.0026971                   0.18072   [                  -0.18863                    4.9739 ]
+                         :         tracks_trkRelIso:                 -0.014464                  0.047330   [                   -2.2790                   0.16820 ]
+                         :   tracks_nValidPixelHits:                 0.0044893                  0.045701   [                   -4.3382                   0.12658 ]
+                         :      tracks_ptErrOverPt2:                -0.0028257                  0.019448   [                 -0.092306                  0.013629 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Gaussian transformation...
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                 -0.035624                    1.0000   [                   -3.2197                    5.8517 ]
+                         : tracks_matchedCaloEnergy:                   0.15022                    1.0000   [                   -2.5902                    6.3918 ]
+                         :         tracks_trkRelIso:                  -0.90406                    1.0000   [                   -2.5771                    3.5195 ]
+                         :   tracks_nValidPixelHits:                   -2.2766                    1.0000   [                   -3.0765                    28.786 ]
+                         :      tracks_ptErrOverPt2:                 -0.092302                    1.0000   [                   -3.4491                    5.9814 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Ranking input variables (method unspecific)...
+IdTransformation         : Ranking result (top variable is best ranked)
+                         : -------------------------------------------------
+                         : Rank : Variable                 : Separation
+                         : -------------------------------------------------
+                         :    1 : tracks_ptErrOverPt2      : 2.497e-01
+                         :    2 : tracks_dzVtx             : 1.755e-01
+                         :    3 : tracks_matchedCaloEnergy : 1.176e-01
+                         :    4 : tracks_trkRelIso         : 1.044e-01
+                         :    5 : tracks_nValidPixelHits   : 1.267e-02
+                         : -------------------------------------------------
+Factory                  : Train method: BDT for Classification
+                         : 
+                         : Events with weight == 0 are going to be simply ignored 
+BDT                      : #events: (reweighted) sig: 194318 bkg: 194318
+                         : #events: (unweighted) sig: 104737 bkg: 283898
+                         : Training 200 Decision Trees ... patience please
+                         : Elapsed time for training with 388668 events: 72 sec         
+BDT                      : [dataset] : Evaluation of BDT on training sample (388668 events)
+                         : Elapsed time for evaluation of 388668 events: 5.26 sec       
+                         : Creating xml weight file: [0;36mdataset/weights/TMVAClassification_BDT.weights.xml[0m
+                         : Creating standalone class: [0;36mdataset/weights/TMVAClassification_BDT.class.C[0m
+Factory                  : Training finished
+                         : 
+                         : Ranking input variables (method specific)...
+BDT                      : Ranking result (top variable is best ranked)
+                         : ----------------------------------------------------------
+                         : Rank : Variable                 : Variable Importance
+                         : ----------------------------------------------------------
+                         :    1 : tracks_dzVtx             : 5.679e-01
+                         :    2 : tracks_trkRelIso         : 2.570e-01
+                         :    3 : tracks_ptErrOverPt2      : 1.751e-01
+                         :    4 : tracks_matchedCaloEnergy : 0.000e+00
+                         :    5 : tracks_nValidPixelHits   : 0.000e+00
+                         : ----------------------------------------------------------
+Factory                  : === Destroy and recreate all methods via weight files for testing ===
+                         : 
+Factory                  : [1mTest all methods[0m
+Factory                  : Test method: BDT for Classification performance
+                         : 
+BDT                      : [dataset] : Evaluation of BDT on testing sample (388668 events)
+                         : Elapsed time for evaluation of 388668 events: 4.57 sec       
+Factory                  : [1mEvaluate all methods[0m
+Factory                  : Evaluate classifier: BDT
+                         : 
+BDT                      : [dataset] : Loop over test events and fill histograms with classifier response...
+                         : 
+TFHandler_BDT            :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                  0.019394                  0.021399   [                4.0839e-09                  0.099998 ]
+                         : tracks_matchedCaloEnergy:                    30.030                    57.612   [                    0.0000                    3631.6 ]
+                         :         tracks_trkRelIso:                  0.033924                  0.049829   [                    0.0000                   0.20000 ]
+                         :   tracks_nValidPixelHits:                    3.0134                   0.13750   [                    3.0000                    8.0000 ]
+                         :      tracks_ptErrOverPt2:                  0.048018                  0.044291   [                 0.0039219                    3.5456 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Evaluation results ranked by best signal efficiency and purity (area)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet       MVA                       
+                         : Name:         Method:          ROC-integ
+                         : dataset       BDT            : 0.806
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Testing efficiency compared to training efficiency (overtraining check)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet              MVA              Signal efficiency: from test sample (from training sample) 
+                         : Name:                Method:          @B=0.01             @B=0.10            @B=0.30   
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : dataset              BDT            : 0.042 (0.047)       0.384 (0.383)      0.780 (0.776)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+Dataset:dataset          : Created tree 'TestTree' with 388668 events
+                         : 
+Dataset:dataset          : Created tree 'TrainTree' with 388668 events
+                         : 
+Factory                  : [1mThank you for using TMVA![0m
+                         : [1mFor citation information, please visit: http://tmva.sf.net/citeTMVA.html[0m
+Success

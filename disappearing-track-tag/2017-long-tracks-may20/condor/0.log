@@ -1,0 +1,151 @@
+035 (46946610.-01.000) 05/25 00:27:38 Factory submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+000 (46946610.000.000) 05/25 00:27:38 Job submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+001 (46946610.000.000) 05/25 00:28:46 Job executing on host: <131.169.76.34:43644?addrs=131.169.76.34-43644>
+...
+006 (46946610.000.000) 05/25 00:28:58 Image size of job updated: 1000
+	1  -  MemoryUsage of job (MB)
+	240  -  ResidentSetSize of job (KB)
+...
+006 (46946610.000.000) 05/25 00:34:00 Image size of job updated: 37148
+	26  -  MemoryUsage of job (MB)
+	26620  -  ResidentSetSize of job (KB)
+...
+006 (46946610.000.000) 05/25 00:39:00 Image size of job updated: 263972
+	239  -  MemoryUsage of job (MB)
+	244028  -  ResidentSetSize of job (KB)
+...
+006 (46946610.000.000) 05/25 00:44:01 Image size of job updated: 1262500
+	1231  -  MemoryUsage of job (MB)
+	1260368  -  ResidentSetSize of job (KB)
+...
+006 (46946610.000.000) 05/25 00:49:02 Image size of job updated: 1791544
+	1386  -  MemoryUsage of job (MB)
+	1419212  -  ResidentSetSize of job (KB)
+...
+006 (46946610.000.000) 05/25 00:53:35 Image size of job updated: 3255072
+	1386  -  MemoryUsage of job (MB)
+	1419212  -  ResidentSetSize of job (KB)
+...
+005 (46946610.000.000) 05/25 00:53:35 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:05:51, Sys 0 00:00:06  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:05:51, Sys 0 00:00:06  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.00        1         1 
+	   Disk (KB)            :  1000      512000    776448 
+	   Memory (MB)          :  1386        1536      1536 
+...
+036 (46946610.-01.000) 05/25 00:53:35 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+035 (46946653.-01.000) 05/25 01:13:07 Factory submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+000 (46946653.000.000) 05/25 01:13:07 Job submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+035 (46946654.-01.000) 05/25 01:13:20 Factory submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+000 (46946654.000.000) 05/25 01:13:20 Job submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+009 (46946653.000.000) 05/25 01:13:26 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (46946653.-01.000) 05/25 01:13:26 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...
+009 (46946654.000.000) 05/25 01:13:26 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (46946654.-01.000) 05/25 01:13:26 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...
+035 (46946655.-01.000) 05/25 01:13:33 Factory submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+000 (46946655.000.000) 05/25 01:13:33 Job submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+001 (46946655.000.000) 05/25 01:13:51 Job executing on host: <131.169.77.79:35586?addrs=131.169.77.79-35586>
+...
+006 (46946655.000.000) 05/25 01:14:00 Image size of job updated: 186176
+	117  -  MemoryUsage of job (MB)
+	119260  -  ResidentSetSize of job (KB)
+...
+006 (46946655.000.000) 05/25 01:14:42 Image size of job updated: 222704
+	153  -  MemoryUsage of job (MB)
+	155784  -  ResidentSetSize of job (KB)
+...
+004 (46946655.000.000) 05/25 01:14:42 Job was evicted.
+	(0) CPU times
+		Usr 0 00:00:03, Sys 0 00:00:01  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.20        1         1 
+	   Disk (KB)            :  1000      512000    635931 
+	   Memory (MB)          :   153        1536      1536 
+...
+009 (46946655.000.000) 05/25 01:14:42 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (46946655.-01.000) 05/25 01:14:42 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...
+035 (46946656.-01.000) 05/25 01:14:50 Factory submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+000 (46946656.000.000) 05/25 01:14:50 Job submitted from host: <131.169.223.41:9618?addrs=131.169.223.41-9618+[2001-638-700-10df--1-29]-9618&noUDP&sock=schedd_2006168_f5e8_3>
+...
+001 (46946656.000.000) 05/25 01:15:24 Job executing on host: <131.169.76.40:45486?addrs=131.169.76.40-45486>
+...
+006 (46946656.000.000) 05/25 01:15:33 Image size of job updated: 3432
+	3  -  MemoryUsage of job (MB)
+	2460  -  ResidentSetSize of job (KB)
+...
+006 (46946656.000.000) 05/25 01:20:34 Image size of job updated: 1182616
+	1086  -  MemoryUsage of job (MB)
+	1111524  -  ResidentSetSize of job (KB)
+...
+006 (46946656.000.000) 05/25 01:25:34 Image size of job updated: 1346468
+	1086  -  MemoryUsage of job (MB)
+	1111524  -  ResidentSetSize of job (KB)
+...
+006 (46946656.000.000) 05/25 01:30:34 Image size of job updated: 1495588
+	1086  -  MemoryUsage of job (MB)
+	1111524  -  ResidentSetSize of job (KB)
+...
+006 (46946656.000.000) 05/25 01:35:35 Image size of job updated: 1730440
+	1086  -  MemoryUsage of job (MB)
+	1111524  -  ResidentSetSize of job (KB)
+...
+006 (46946656.000.000) 05/25 01:40:35 Image size of job updated: 2168120
+	1126  -  MemoryUsage of job (MB)
+	1152104  -  ResidentSetSize of job (KB)
+...
+006 (46946656.000.000) 05/25 01:42:13 Image size of job updated: 2171440
+	1126  -  MemoryUsage of job (MB)
+	1152104  -  ResidentSetSize of job (KB)
+...
+005 (46946656.000.000) 05/25 01:42:13 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:20:34, Sys 0 00:00:15  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:20:34, Sys 0 00:00:15  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.83        1         1 
+	   Disk (KB)            :  1000      512000    780628 
+	   Memory (MB)          :  1126        1536      1536 
+...
+036 (46946656.-01.000) 05/25 01:42:13 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
