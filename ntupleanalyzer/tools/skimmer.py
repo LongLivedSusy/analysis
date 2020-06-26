@@ -174,7 +174,7 @@ def getBinContent_with_overflow(histo, xval, yval = False):
             value = histo.GetBinContent(histo.GetXaxis().FindBin(xval), histo.GetYaxis().FindBin(yval))
         return value
 
-    
+
 def check_exo_tag(event, track, iCand, h_cutflow_exo):
 
     # Disappearing track tag from EXO-19-010 search ("EXO tag"):
@@ -381,6 +381,27 @@ def check_mt2_tag(event, track, iCand, h_cutflow_mt2):
         return 0
         
 
+def get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2, sideband = False):
+    
+    if is_pixel_track:
+        category = "short"
+    else:
+        category = "long"
+    
+    for var in readers[label + "_" + category]["tmva_variables"]:
+        
+        if sideband and "matchedCaloEnergy" in var:
+            readers[label + "_" + category]["tmva_variables"][var][0] = 0
+        elif "ptErrOverPt2" in var:
+            readers[label + "_" + category]["tmva_variables"][var][0] = ptErrOverPt2
+        elif "tracks_" in var:
+            readers[label + "_" + category]["tmva_variables"][var][0] = eval("event.%s[%s]" % (var, iCand))
+        else:
+            readers[label + "_" + category]["tmva_variables"][var][0] = eval("event.tracks_%s[%s]" % (var, iCand))
+    
+    return readers[label + "_" + category]["reader"].EvaluateMVA("BDT")
+        
+
 def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "TreeMaker2/PreSelection", only_tagged_events = False, save_cleaned_variables = True, only_json = False, fakerate_filename = "", overwrite = False):
 
     print "Input:  %s" % event_tree_filenames
@@ -466,8 +487,16 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
     tags = {
         "SR_short": "",
         "SR_long": "",
+        "SREC_short": "",
+        "SREC_long": "",
         "CR_short": "",
         "CR_long": "",
+        "SR2_short": "",
+        "SR2_long": "",
+        "SREC2_short": "",
+        "SREC2_long": "",
+        "CR2_short": "",
+        "CR2_long": "",
            }
 
     # load BDTs and fetch list of DT tag labels
@@ -550,7 +579,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         if "tracks_" in label:
             track_variables.append(label)
 
-    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_pass_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_passpionveto', 'tracks_passjetveto', 'tracks_basecuts', 'tracks_baseline', 'tracks_passmask', 'tracks_highpurity', 'tracks_passexotag', 'tracks_passmt2tag']
+    vector_int_branches = ['tracks_is_pixel_track', 'tracks_pixelLayersWithMeasurement', 'tracks_trackerLayersWithMeasurement', 'tracks_nMissingInnerHits', 'tracks_nMissingMiddleHits', 'tracks_nMissingOuterHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_nValidPixelHits', 'tracks_nValidTrackerHits', 'tracks_fake', 'tracks_prompt_electron', 'tracks_prompt_muon', 'tracks_prompt_tau', 'tracks_prompt_tau_widecone', 'tracks_prompt_tau_leadtrk', 'tracks_prompt_tau_hadronic', 'tracks_pass_reco_lepton', 'tracks_passPFCandVeto', 'tracks_charge', 'leptons_id', 'tracks_passpionveto', 'tracks_passjetveto', 'tracks_basecuts', 'tracks_baseline', 'tracks_passmask', 'tracks_highpurity', 'tracks_region', 'tracks_passexotag', 'tracks_passmt2tag']
 
     for tag in tags:
         vector_int_branches += ["tracks_%s" % tag]
@@ -767,10 +796,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             tree_branch_values["MinDeltaPhiMhtJets_cleaned"][0] = MinDeltaPhiMhtJets_cleaned
         
 
-        # FIXME: keep only single-electron events or dielectron events:
-        #if not ( n_goodelectrons==1 or (dilepton_leptontype==11 and dilepton_invariant_mass>71 and dilepton_invariant_mass<111) ):
-        #    continue
-
         # get T2bt and T1qqqq xsections:
         if is_signal:
             chargino_parent_mass = -1.0
@@ -847,10 +872,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
             pass_exo_tag = check_exo_tag(event, track, iCand, h_cutflow_exo)
             pass_mt2_tag = check_mt2_tag(event, track, iCand, h_cutflow_mt2)
-            
+                        
             if not pass_exo_tag:
                 pass_exo_tag = 0
-            
+            if not pass_mt2_tag:
+                pass_mt2_tag = 0
+                        
             # basic track selection:
             if track.Pt() < 30:
                 continue
@@ -868,7 +895,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 deltaR = jet.DeltaR(track)
                 if deltaR < track_jet_mindeltaR:
                     track_jet_mindeltaR = deltaR
-            if track_jet_mindeltaR<0.4:
+            if track_jet_mindeltaR < 0.4:
                 passjetveto = False
             else:
                 passjetveto = True
@@ -885,59 +912,58 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
             elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
 
-            base_cuts = shared_utils.isBaselineTrack(track, iCand, event, hMask) and passrecolepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=3 and passpionveto and passjetveto
-            pass_baseline = shared_utils.isBaselineTrack(track, iCand, event, hMask)
+            #base_cuts = shared_utils.isBaselineTrack(track, iCand, event, hMask) and passrecolepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=2 and passpionveto and passjetveto
+            #base_cuts =  passrecolepton and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_nValidPixelHits[iCand]>=2 and passpionveto and passjetveto
+
+            base_cuts = abs(track.Eta())<2.4 and \
+                        bool(event.tracks_trackQualityHighPurity[iCand]) and \
+                        ptErrOverPt2<10 and \
+                        event.tracks_dzVtx[iCand]<0.1 and \
+                        event.tracks_trkRelIso[iCand]<0.2 and \
+                        event.tracks_trackerLayersWithMeasurement[iCand]>=2 and \
+                        event.tracks_nValidTrackerHits[iCand]>=2 and \
+                        event.tracks_nMissingInnerHits[iCand]==0 and \
+                        event.tracks_nValidPixelHits[iCand]>=2 and \
+                        bool(event.tracks_passPFCandVeto[iCand]) and \
+                        passrecolepton
+            
+            # keep only candidate tracks:
+            if not base_cuts:
+                continue
+
+            #pass_baseline = shared_utils.isBaselineTrack(track, iCand, event, hMask)
             pass_mask = True
             if hMask!='':
         		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
         		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
         		if hMask.GetBinContent(ibinx, ibiny)==0: 
         			pass_mask = False
-
-            # keep only candidate tracks:
-            #if not base_cuts and not pass_exo_tag and not pass_mt2_tag: #and not base_cuts_NoChi:
-            #    continue
                     
-            def get_BDT_score(label, event, iCand, readers, sideband = False):
-
-                if "tight" in label and event.tracks_dxyVtx[iCand]>0.1:
-                    return -10
-                
-                if abs(track.Eta())<2.4 and bool(event.tracks_trackQualityHighPurity[iCand]) and ptErrOverPt2<10 and event.tracks_dzVtx[iCand]<0.1 and bool(event.tracks_passPFCandVeto[iCand]) and event.tracks_trkRelIso[iCand]<0.2:
-
-                    if is_pixel_track:
-                        category = "short"
-                    else:
-                        category = "long"
-                    
-                    for var in readers[label + "_" + category]["tmva_variables"]:
-                        
-                        if sideband and "matchedCaloEnergy" in var:
-                            readers[label + "_" + category]["tmva_variables"][var][0] = 0
-                        elif "ptErrOverPt2" in var:
-                            readers[label + "_" + category]["tmva_variables"][var][0] = ptErrOverPt2
-                        elif "tracks_" in var:
-                            readers[label + "_" + category]["tmva_variables"][var][0] = eval("event.%s[%s]" % (var, iCand))
-                        else:
-                            readers[label + "_" + category]["tmva_variables"][var][0] = eval("event.tracks_%s[%s]" % (var, iCand))
-                    
-                    return readers[label + "_" + category]["reader"].EvaluateMVA("BDT")
-                    
-                else:
-                    return -10
-                    
-                
             for label in bdts:
-                mva_scores[label] = get_BDT_score(label, event, iCand, readers)
-                mva_scores[label + "_sideband"] = get_BDT_score(label, event, iCand, readers, sideband = True)
-                                                                   
+                mva_scores[label] = get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2)
+                mva_scores[label + "_sideband"] = get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2, sideband = True)
+                                      
             tags["SR_short"] = base_cuts and is_pixel_track and mva_scores["loose"]>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_trkRelIso[iCand]<0.01
             tags["SR_long"] = base_cuts and not is_pixel_track and mva_scores["loose"]>(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.05) and event.tracks_trkRelIso[iCand]<0.01
-            #tags["CR_short"] = base_cuts and is_pixel_track and mva_scores["loose"]<(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
-            #tags["CR_long"] = base_cuts and not is_pixel_track and mva_scores["loose"]<(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
-            tags["CR_short"] = base_cuts and event.tracks_dxyVtx[iCand]>0.02 and is_pixel_track
-            tags["CR_long"] = base_cuts and event.tracks_dxyVtx[iCand]>0.02 and not is_pixel_track
-                            
+            tags["SR2_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2"]>-0.05 and event.tracks_dxyVtx[iCand]<0.02
+            tags["SR2_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2"]>-0.15 and event.tracks_dxyVtx[iCand]<0.02
+
+            tags["SREC_short"] = base_cuts and is_pixel_track and mva_scores["loose_sideband"]>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_trkRelIso[iCand]<0.01
+            tags["SREC_long"] = base_cuts and not is_pixel_track and mva_scores["loose_sideband"]>(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.05) and event.tracks_trkRelIso[iCand]<0.01
+            tags["SREC2_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>-0.05 and event.tracks_dxyVtx[iCand]<0.02
+            tags["SREC2_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>-0.15 and event.tracks_dxyVtx[iCand]<0.02
+            
+            tags["CR_short"] = base_cuts and is_pixel_track and mva_scores["loose"]<(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR_long"] = base_cuts and not is_pixel_track and mva_scores["loose"]<(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR2_short"] = base_cuts and is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR2_long"] = base_cuts and not is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
+            
+            track_is_tagged = False
+            for label in tags:
+                if tags[label]: track_is_tagged = True
+            if not track_is_tagged:
+                continue
+            
             # check if actual fake track (no genparticle in cone around track):
             is_prompt_electron = False
             is_prompt_muon = False
@@ -998,9 +1024,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         if deltaR < min_deltaR:
                             chiCandGenMatchingDR = deltaR
             
-            #if chiCandGenMatchingDR<0.01:
-            #    print "Chargino found"
-
             #if tags["SR_short"] or tags["SR_long"]:
                 #print "iEv, iCand, SR_short, SR_long", iEv, iCand, tags["SR_short"], tags["SR_long"]
                 #print "  \_tags", tags
@@ -1008,6 +1031,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                 #print "  \_mva_tight, mva_loose", mva_tight, mva_loose
                 #print "  \_is_fake_track", is_fake_track
                 #print "  \_weight = event.puWeight * event.CrossSection =", weight
+
+            DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name)
+            current_region = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, 1, is_pixel_track, DeDxCorrected, n_goodelectrons, n_goodmuons, event_tree_filenames[0])
             
             tagged_tracks.append(
                                    {
@@ -1044,15 +1070,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_minDrLepton": event.tracks_minDrLepton[iCand],
                                      "tracks_matchedCaloEnergyJets": event.tracks_matchedCaloEnergyJets[iCand],
                                      "tracks_deDxHarmonic2pixel": event.tracks_deDxHarmonic2pixel[iCand],
-                                     "tracks_deDxHarmonic2pixelCorrected": correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name),
+                                     "tracks_deDxHarmonic2pixelCorrected": DeDxCorrected,
                                      "tracks_deDxHarmonic2strips": event.tracks_deDxHarmonic2strips[iCand],
                                      "tracks_massfromdeDxPixel": tracks_massfromdeDxPixel,
                                      "tracks_massfromdeDxStrips": tracks_massfromdeDxStrips,
                                      "tracks_chi2perNdof": event.tracks_chi2perNdof[iCand],
                                      "tracks_mt": event.tracks[iCand].Mt(),
-                                     #"tracks_mva_tight": mva_tight,
-                                     #"tracks_mva_loose": mva_loose,
-                                     #"tracks_mva_looseNoDep": mva_looseNoDep,
                                      "tracks_chargedPtSum": event.tracks_chargedPtSum[iCand],
                                      "tracks_charge": event.tracks_charge[iCand],
                                      "tracks_invmass": invariant_mass,
@@ -1062,9 +1085,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                      "tracks_basecuts": base_cuts,
                                      "tracks_passexotag": pass_exo_tag,
                                      "tracks_passmt2tag": pass_mt2_tag,
-                                     "tracks_baseline": pass_baseline,
+                                     #"tracks_baseline": pass_baseline,
                                      "tracks_passmask": pass_mask,
                                      "tracks_highpurity": bool(event.tracks_trackQualityHighPurity[iCand]),
+                                     "tracks_region": current_region,
                                    }
                                   )
                                        
