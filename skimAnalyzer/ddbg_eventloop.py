@@ -4,111 +4,50 @@ import __main__ as main
 from ROOT import *
 from optparse import OptionParser
 import math, os, glob
-import GridEngineTools 
+import GridEngineTools
 import re
+import math
 import shared_utils
-#import random
 import collections
-#import plotting
-#import more_itertools
 
 def calculate_fakerate(rootfile, samples, variables, event_selections, path):
     
     os.system("rm " + rootfile)
-        
+    
     h_fakerates = {}
     for variable in variables:
         for run_period in samples:
             for event_selection in event_selections:
                 for category in ["short", "long"]:
-    
+                    
                     tfile_merged = TFile(path + "/merged_%s.root" % run_period, "update")
                         
                     fakes_numerator = tfile_merged.Get(run_period + "_" + variable + "_" + event_selection + "_sr_" + category)
                     fakes_numerator.SetDirectory(0)
                     fakes_denominator = tfile_merged.Get(run_period + "_" + variable + "_" + event_selection + "_fakecr_" + category)
                     fakes_denominator.SetDirectory(0)
+                    fakes_numeratorECSB = tfile_merged.Get(run_period + "_" + variable + "_" + event_selection + "_srECSB_" + category)
+                    fakes_numeratorECSB.SetDirectory(0)
+                    
                     tfile_merged.Close()
 
                     tfile_fakerate = TFile(rootfile, "update")
                     fakes_numerator.Write()
                     fakes_denominator.Write()
+                    fakes_numeratorECSB.Write()
+
                     fakerate = fakes_numerator.Clone()
                     fakerate.SetName(fakerate.GetName().replace("_sr_", "_fakerate_"))
                     fakerate.Divide(fakes_denominator)
                     fakerate.Write()
-                    tfile_fakerate.Close()
-                    
+                                        
+                    fakerateECSB = fakes_numeratorECSB.Clone()
+                    fakerateECSB.SetName(fakerateECSB.GetName().replace("_srECSB_", "_fakerateECSB_"))
+                    fakerateECSB.Divide(fakes_denominator)
+                    fakerateECSB.Write()
 
-#def measure_fakerate(rootfile, samples, variables, binnings, tags, event_selections, path):
-#
-#    os.system("rm " + rootfile)
-#
-#    h_fakerates = {}
-#    for variable in variables:
-#        for run_period in samples:
-#            for event_selection in event_selections:
-#            
-#                for category in ["short", "long"]:
-#                    
-#                    fakes_numerator = 0
-#                    fakes_denominator = 0
-#                    
-#                    for selected_sample in samples[run_period]:
-#                
-#                        nBinsX = binnings["fakerate"][variable][0]
-#                        xmin = binnings["fakerate"][variable][1]
-#                        xmax = binnings["fakerate"][variable][2]
-#                        
-#                        if "Run201" in run_period:
-#                            cuts = "triggered_ht==1 && " + event_selections["fakerate"][event_selection]
-#                        else:
-#                            cuts = event_selections["fakerate"][event_selection]
-#                            
-#                        numerator_cuts = tags["SR_" + category]
-#                        denominator_cuts = tags["CR_" + category]
-#                
-#                        if ":" not in variable:
-#                            this_fakes_numerator = plotting.get_histogram(variable, cuts + " && " + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
-#                            this_fakes_denominator = plotting.get_histogram(variable, cuts + " && " + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, path=path, selected_sample=selected_sample)
-#                        else:
-#                            nBinsY = binnings["fakerate"][variable][3]
-#                            ymin = binnings["fakerate"][variable][4]
-#                            ymax = binnings["fakerate"][variable][5]
-#                            this_fakes_numerator = plotting.get_histogram(variable, cuts + numerator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample)
-#                            this_fakes_denominator = plotting.get_histogram(variable, cuts + denominator_cuts, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, path=path, selected_sample=selected_sample)
-#                        
-#                        if fakes_numerator == 0:
-#                            fakes_numerator = this_fakes_numerator
-#                        else:
-#                            fakes_numerator.Add(this_fakes_numerator)
-#                        
-#                        if fakes_denominator == 0:
-#                            fakes_denominator = this_fakes_denominator
-#                        else:
-#                            fakes_denominator.Add(this_fakes_denominator)
-#                        
-#                    fout = TFile(rootfile, "update")
-#                    
-#                    shared_utils.histoStyler(fakes_numerator)
-#                    shared_utils.stamp()
-#                    fakes_numerator.SetName("%s_numerator_%s_%s_%s" % (run_period, event_selection, variable, category))
-#                    fakes_numerator.Write()
-#                    
-#                    shared_utils.histoStyler(fakes_denominator)
-#                    shared_utils.stamp()
-#                    fakes_denominator.SetName("%s_denominator_%s_%s_%s" % (run_period, event_selection, variable, category))
-#                    fakes_denominator.Write()
-#                    
-#                    fake_rate = fakes_numerator.Clone()
-#                    fake_rate.Divide(fakes_denominator)
-#                    fake_rate.SetName("%s_fakerate_%s_%s_%s" % (run_period, event_selection, variable, category))
-#                    
-#                    shared_utils.histoStyler(fake_rate)
-#                    shared_utils.stamp()
-#                    fake_rate.Write()
-#                    
-#                    fout.Close()
+                    # close file
+                    tfile_fakerate.Close()
                 
 
 def getBinContent_with_overflow(histo, xval, yval = False):
@@ -211,7 +150,7 @@ def fill_histogram(event, variable, histograms, event_selection, data_period, zo
             value = eval("event.%s" % variable)
         histograms[h_name].Fill(value, weight*scaling)
     
-    else:
+    elif "regionCorrected" not in variable:
         if "tracks_" in variable.split(":")[0]:
             xvalue = eval("event.%s[%s]" % (variable.split(":")[0], i_track))
         else:
@@ -221,68 +160,73 @@ def fill_histogram(event, variable, histograms, event_selection, data_period, zo
         else:
             yvalue = eval("event.%s" % variable.split(":")[1])
         histograms[h_name].Fill(xvalue, yvalue, weight*scaling)
+    
+        #if "sideband" in variable :
+        #    sideband = True
+        #
+        #DeDx = event.tracks_deDxHarmonic2pixelCorrected[i_track]
+        #n_DTs = 1
+        #is_pixel_track = event.tracks_is_pixel_track[i_track]
+        #value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, n_DTs, is_pixel_track, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = False)
+        ##histograms[h_name].Fill(value, weight*scaling)
+        #return value
+    
+        #    # recalculate region number, signal region:
+        #    if "sr" in zone and event.n_tracks_SR_short==1 and event.n_tracks_SR_long==0:
+        #        DeDx = -1
+        #        for i in range(len(event.tracks_ptError)):
+        #            if event.tracks_SR_short[i] == 1:
+        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
+        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_short, True, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
+        #        
+        #    elif "sr" in zone and event.n_tracks_SR_long==1 and event.n_tracks_SR_short==0:
+        #        DeDx = -1
+        #        for i in range(len(event.tracks_ptError)):
+        #            if event.tracks_SR_long[i] == 1:
+        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
+        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
+        #        
+        #    elif "sr" in zone and event.n_tracks_SR_long>1 or event.n_tracks_SR_short>1:
+        #        # in this case, take highest DeDx of both DTs:
+        #        DeDx = -1
+        #        for i in range(len(event.tracks_ptError)):
+        #            if (event.tracks_SR_long[i] + event.tracks_SR_short[i])>0:
+        #                if event.tracks_deDxHarmonic2pixelCorrected[i] > DeDx:
+        #                    DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
+        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_short + event.n_tracks_SR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)            
+        #                    
+        #    # recalculate region number, fake control region:
+        #    elif "fake" in zone and event.n_tracks_CR_short==1 and event.n_tracks_CR_long==0:
+        #        DeDx = -1
+        #        for i in range(len(event.tracks_ptError)):
+        #            if event.tracks_CR_short[i] == 1:
+        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
+        #                break
+        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_short, True, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
+        #        
+        #    elif "fake" in zone and event.n_tracks_CR_long==1 and event.n_tracks_CR_short==0:
+        #        DeDx = -1
+        #        for i in range(len(event.tracks_ptError)):
+        #            if event.tracks_CR_long[i] == 1:
+        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
+        #                break
+        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
+        #        
+        #    elif "fake" in zone and event.n_tracks_CR_long>1 or event.n_tracks_CR_short>1:
+        #        # in this case, take highest DeDx of both DTs:
+        #        DeDx = -1
+        #        for i in range(len(event.tracks_ptError)):
+        #            if (event.tracks_CR_long[i] + event.tracks_CR_short[i])>0:
+        #                if event.tracks_deDxHarmonic2pixelCorrected[i] > DeDx:
+        #                    DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
+        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_short + event.n_tracks_CR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)            
+        #                    
+        #    else:
+        #        value = 0
             
-    #elif "region" in variable:
-    #    
-    #    if "sideband" in variable:
-    #        sideband = True
-    #    
-    #    # recalculate region number, signal region:
-    #    if "sr" in zone and event.n_tracks_SR_short==1 and event.n_tracks_SR_long==0:
-    #        DeDx = -1
-    #        for i in range(len(event.tracks_ptError)):
-    #            if event.tracks_SR_short[i] == 1:
-    #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-    #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_short, True, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-    #        
-    #    elif "sr" in zone and event.n_tracks_SR_long==1 and event.n_tracks_SR_short==0:
-    #        DeDx = -1
-    #        for i in range(len(event.tracks_ptError)):
-    #            if event.tracks_SR_long[i] == 1:
-    #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-    #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-    #        
-    #    elif "sr" in zone and event.n_tracks_SR_long>1 or event.n_tracks_SR_short>1:
-    #        # in this case, take highest DeDx of both DTs:
-    #        DeDx = -1
-    #        for i in range(len(event.tracks_ptError)):
-    #            if (event.tracks_SR_long[i] + event.tracks_SR_short[i])>0:
-    #                if event.tracks_deDxHarmonic2pixelCorrected[i] > DeDx:
-    #                    DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-    #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_short + event.n_tracks_SR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)            
-    #                    
-    #    # recalculate region number, fake control region:
-    #    elif "fake" in zone and event.n_tracks_CR_short==1 and event.n_tracks_CR_long==0:
-    #        DeDx = -1
-    #        for i in range(len(event.tracks_ptError)):
-    #            if event.tracks_CR_short[i] == 1:
-    #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-    #                break
-    #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_short, True, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-    #        
-    #    elif "fake" in zone and event.n_tracks_CR_long==1 and event.n_tracks_CR_short==0:
-    #        DeDx = -1
-    #        for i in range(len(event.tracks_ptError)):
-    #            if event.tracks_CR_long[i] == 1:
-    #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-    #                break
-    #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-    #        
-    #    elif "fake" in zone and event.n_tracks_CR_long>1 or event.n_tracks_CR_short>1:
-    #        # in this case, take highest DeDx of both DTs:
-    #        DeDx = -1
-    #        for i in range(len(event.tracks_ptError)):
-    #            if (event.tracks_CR_long[i] + event.tracks_CR_short[i])>0:
-    #                if event.tracks_deDxHarmonic2pixelCorrected[i] > DeDx:
-    #                    DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-    #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_short + event.n_tracks_CR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)            
-    #                    
-    #    else:
-    #        value = 0
-        
-    ## if filling the sideband region histogram, fill also the following bin:
-    #if sideband and "region" in variable and value > 0:
-    #    histograms[h_name].Fill(value+1, weight*scaling)
+        ## if filling the sideband region histogram, fill also the following bin:
+        #if sideband and "region" in variable and value > 0:
+        #    histograms[h_name].Fill(value+1, weight*scaling)
     
 
 def event_loop(input_filenames, output_file, tags, variables, binnings, event_selections, zones, fakerate_filename, mode, nevents=-1, treename="Events", event_start=0, check_overwrite=False):
@@ -351,21 +295,28 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
 
     event_selections_converted_notracks = {}
     for event_selection in event_selections_converted:
-        cutstring = event_selections_converted[event_selection]
         
-        # remove tracks variables:
-        cutstring_parts = cutstring.split()
-        new_cutstring = ""
-        for cutstring_part in cutstring_parts:
-            if "tracks_" not in cutstring_part:
-                new_cutstring += cutstring_part + " "
-        for i in range(10):
-            new_cutstring = new_cutstring.replace("and and", "and")
+        if event_selection == "Baseline":
+            
+            event_selections_converted_notracks[event_selection] = "(event.n_goodleptons==0 or event.leadinglepton_mt>90)"
         
-        if new_cutstring.split()[-1] == "and":
-            new_cutstring = " ".join(new_cutstring.split()[:-1])
+        else:
         
-        event_selections_converted_notracks[event_selection] = new_cutstring
+            cutstring = event_selections_converted[event_selection]
+            
+            # remove tracks variables:
+            cutstring_parts = cutstring.split()
+            new_cutstring = ""
+            for cutstring_part in cutstring_parts:
+                if "tracks_" not in cutstring_part:
+                    new_cutstring += cutstring_part + " "
+            for i in range(10):
+                new_cutstring = new_cutstring.replace("and and", "and")
+            
+            if new_cutstring.split()[-1] == "and":
+                new_cutstring = " ".join(new_cutstring.split()[:-1])
+            
+            event_selections_converted_notracks[event_selection] = new_cutstring
 
     zones_converted = {}
     for zone in zones:
@@ -430,10 +381,10 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
         # loop over all event selections:
         for event_selection in event_selections:
             for zone in zones:
-
+                
                 if "gen" in zone and is_data:
                     continue
-                                             
+
                 # this is to speed things up       
                 if not eval(event_selections_converted_notracks[event_selection]):
                     continue
@@ -447,18 +398,27 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
                 cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone]
                                                                                                                      
                 for variable in variables:
+                    
+                    if "region" in variable and event_selection != "Baseline":
+                        continue
+                    
+                    regionCorrected_list = []
+                    
                     if "tracks_" in cut_converted:
                         # cutstring with tracks in it
                         if "tracks_" in variable:
                             for i_track in xrange(len(event.tracks_ptError)):
                                 if eval(cut_converted):
                                     fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
-                                    #FIXME
-                                    break
                         else:
                             for i_track in xrange(len(event.tracks_ptError)):
                                 if eval(cut_converted):
-                                    fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
+                                    
+                                    if variable == "regionCorrected":
+                                        params = [event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, 1, event.tracks_is_pixel_track[i_track], event.tracks_deDxHarmonic2pixelCorrected[i_track], event.n_goodelectrons, event.n_goodmuons, first_filename]
+                                        regionCorrected_list.append(params)
+                                    else:
+                                        fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
                                     break
                     
                     elif eval(cut_converted):
@@ -468,6 +428,20 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
                                 fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
                         else:
                             fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
+                    
+                    # after looping on all tracks, fill region bins:
+                    if variable == "regionCorrected" and len(regionCorrected_list) > 0:
+                        h_name = data_period + "_" + variable + "_" + event_selection + "_" + zone
+                        value = get_signal_region(*regionCorrected_list[0])
+                        #value = -1
+                        #if len(regionCorrected_list) == 1:
+                        #    value = get_signal_region(*params)
+                        #else:
+                        #    params[5] = len(regionCorrected_list)
+                        #    value = get_signal_region(*params)
+                            
+                        histograms[h_name].Fill(value, weight * scaling)
+                        
             
     if event_start>0:
         output_file = output_file.replace(".root", "_%s.root" % event_start)
@@ -497,11 +471,12 @@ if __name__ == "__main__":
     parser.add_option("--inputfile", dest = "inputfile")
     parser.add_option("--outputfile", dest = "outputfile")
     parser.add_option("--mode", dest="mode")
-    parser.add_option("--outputfolder", dest="outputfolder")
+    parser.add_option("--outputfolder", dest="outputfolder", default = "evlp96")
     parser.add_option("--fakeratefile", dest="fakeratefile", default = "fakerate.root")
-    parser.add_option("--skimfolder", dest="skimfolder")
+    parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_26_baseline")
     parser.add_option("--nev", dest = "nev", default = -1)
-    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 4)
+    parser.add_option("--tag", dest = "tag", default = 1)
+    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 1)
     parser.add_option("--event_start", dest = "event_start", default = 0)
     parser.add_option("--runmode", dest="runmode", default="multi")
     (options, args) = parser.parse_args()
@@ -510,16 +485,109 @@ if __name__ == "__main__":
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
         
-    # configure
+    baseline_selection = [
+        #"abs(tracks_eta)<2.4",   
+        "tracks_eta>-2.4",
+        "tracks_eta<2.4",
+        #"!(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566)",                              
+        "tracks_highpurity==1",
+        "tracks_ptErrOverPt2<10",
+        "tracks_dzVtx<0.1",
+        "tracks_trkRelIso<0.2",  
+        "tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2",           
+        "tracks_nMissingInnerHits==0",                                                     
+        "tracks_nValidPixelHits>=3",    
+        #"tracks_nMissingMiddleHits==0",
+        #"tracks_chi2perNdof<2.88",
+        #"tracks_pixelLayersWithMeasurement>=2",
+        "tracks_passmask==1",
+        "tracks_pass_reco_lepton==1",
+        "tracks_passPFCandVeto==1",                                   
+        #"tracks_passpionveto==1",
+        #"tracks_passjetveto==1",
+             ]
+    
+    baseline_long = "tracks_is_pixel_track==1 && " + " && ".join(baseline_selection)
+    baseline_short = "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + " && ".join(baseline_selection)
 
+    #old tag:
     tags = collections.OrderedDict()
-    tags["SR_short"] = "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
-    tags["SR_long"] = "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
-    tags["CR_short"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
-    tags["CR_long"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
-    tags["SREC_short"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
-    tags["SREC_long"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
-                    
+    #tags["SR_short"] = "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+    #tags["SR_long"] = "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+    #tags["CR_short"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
+    #tags["CR_long"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
+    #tags["SREC_short"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+    #collections["SREC_long"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+    
+    #new tag:
+    #tags["SR_short"] = baseline_short + " && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
+    #tags["SR_long"] = baseline_long + " && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
+    #tags["CR_short"] = baseline_short + " && tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
+    #tags["CR_long"] = baseline_long + " && tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
+    #tags["SREC_short"] = baseline_short + " && tracks_mva_loose_may20_chi2_sideband>-0.05 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
+    #tags["SREC_long"] = baseline_long + " && tracks_mva_loose_may20_chi2_sideband>-0.15 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
+
+    if int(options.tag) == 1:
+        print "using tag #1"
+        tags["SR_short"] =  "tracks_is_pixel_track==1 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+        tags["SR_long"] = "tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = tags["SR_short"].replace("_chi2", "_chi2_sideband")
+        tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
+        tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
+        tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        EDepMax = 10
+        EDepSideBandMin = 13
+        EDepSideBandMax = 27
+
+    elif int(options.tag) == 2:
+        print "using tag #2"
+        tags["SR_short"] =  "tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
+        tags["SR_long"] = "tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = tags["SR_short"].replace("_chi2", "_chi2_sideband")
+        tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
+        tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
+        tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        EDepMax = 15
+        EDepSideBandMin = 17
+        EDepSideBandMax = 35
+
+    elif int(options.tag) == 3:
+        print "using tag #3"
+        tags["SR_short"] =  "tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+        tags["SR_long"] = "tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = tags["SR_short"].replace("_chi2", "_chi2_sideband")
+        tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
+        tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
+        tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        EDepMax = 15
+        EDepSideBandMin = 17
+        EDepSideBandMax = 35
+
+    elif int(options.tag) == 4:
+        print "using tag #4"
+        tags["SR_short"] =  "tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+        tags["SR_long"] = "tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = tags["SR_short"].replace("_chi2", "_chi2_sideband")
+        tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
+        tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
+        tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        EDepMax = 10
+        EDepSideBandMin = 13
+        EDepSideBandMax = 27
+    
+    elif int(options.tag) == 5:
+        print "using tag #5"
+        tags["SR_short"] =  "tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
+        tags["SR_long"] = "tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.7/0.01) - 0.2) && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = tags["SR_short"].replace("_chi2", "_chi2_sideband")
+        tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
+        tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
+        tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        EDepMax = 15
+        EDepSideBandMin = 17
+        EDepSideBandMax = 35
+    
+    
     variables = {}
     variables["analysis"] = [
                               #"HT",
@@ -528,6 +596,7 @@ if __name__ == "__main__":
                               #"n_btags",
                               "leadinglepton_mt",
                               "tracks_invmass",
+                              "tracks_region",
                               #"tracks_is_pixel_track",
                               #"tracks_pt",
                               #"tracks_eta",
@@ -588,6 +657,7 @@ if __name__ == "__main__":
     binnings["analysis"]["region"] = binnings["analysis"]["regionCorrected"]
     binnings["analysis"]["tracks_matchedCaloEnergy"] = [25, 0, 50]
     binnings["analysis"]["tracks_trkRelIso"] = [20, 0, 0.2]
+    binnings["analysis"]["tracks_region"] = [54, 1, 55]
 
     binnings["fakerate"] = {}
     binnings["fakerate"]["tracks_pt"] = [20, 0, 1000]
@@ -608,7 +678,7 @@ if __name__ == "__main__":
 
     # construct all histograms:
     zones = collections.OrderedDict()
-    for dedx in ["", "_MidHighDeDx"]: 
+    for dedx in ["", "_MidHighDeDx"]:                    
         if dedx == "_SidebandDeDx":
             lower = dEdxSidebandLow; upper = dEdxLow
         elif dedx == "_MidDeDx":
@@ -625,19 +695,18 @@ if __name__ == "__main__":
         for is_pixel_track, category in enumerate(["long", "short"]):
 
             # for prompt bg:
-            if options.mode == "analysis":
-                if dedx != "":
-                    morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
-                else:
-                    morecutsEC = " && tracks_is_pixel_track==%s" % (is_pixel_track)
-                    
-                zones["srEC%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<10" % (tags["SREC_" + category], morecutsEC), ""]
-                zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>13 && tracks_matchedCaloEnergy<27" % (tags["SREC_" + category], morecutsEC), ""]
+            if dedx != "":
+                morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+            else:
+                morecutsEC = " && tracks_is_pixel_track==%s" % (is_pixel_track)
+                
+            zones["srEC%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), ""]
+            zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), ""]
 
             if dedx != "":
-                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
+                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, EDepMax, lower, upper)
             else:
-                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<10" % (is_pixel_track)
+                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s" % (is_pixel_track, EDepMax)
                 
             for syst in [""]:
                 zones["sr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["SR%s_" % syst + category], morecuts), ""]
@@ -645,14 +714,16 @@ if __name__ == "__main__":
                 zones["srgenprompt%s_%s%s" % (dedx, category, syst)] = [" && %s && tracks_fake==0 %s" % (tags["SR%s_" % syst + category], morecuts), ""]
                 zones["fakecr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), ""]
                 if options.mode == "analysis":
-                    zones["fakeprediction-QCDLowHT%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerate_%s%s" % (category, syst)]
-                    zones["fakeprediction-QCDLow2D%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s%s" % (category, syst)]
+                    zones["fakeprediction-QCDLowMHT%s_%s%s" % (dedx, category, syst)] =       [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerate_%s%s" % (category, syst)]
+                    zones["fakeprediction-QCDLowMHT2D%s_%s%s" % (dedx, category, syst)] =     [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s%s" % (category, syst)]
+                    #zones["fakepredictionECSB-QCDLowMHT%s_%s%s" % (dedx, category, syst)] =   [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerateECSB_%s%s" % (category, syst)]
+                    #zones["fakepredictionECSB-QCDLowMHT2D%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerateECSB_%s%s" % (category, syst)]
    
     #n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90 && leadinglepton_id==13 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01 && tracks_is_pixel_track==1 && tracks_matchedCaloEnergy<10 && tracks_deDxHarmonic2pixelCorrected>2.0 && tracks_deDxHarmonic2pixelCorrected<9999
    
     event_selections = {}
     event_selections["analysis"] = collections.OrderedDict()
-    #event_selections["analysis"]["Baseline"] =           "(n_goodleptons==0 || (tracks_invmass>110 && leadinglepton_mt>90))"
+    event_selections["analysis"]["Baseline"] =           "(n_goodleptons==0 || (leadinglepton_mt>90 && tracks_invmass>110))"
     #event_selections["analysis"]["HadBaseline"] =        "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0"
     #event_selections["analysis"]["SMuBaseline"] =        "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
     #event_selections["analysis"]["SMuValidationZLL"] =   "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
@@ -662,7 +733,8 @@ if __name__ == "__main__":
     #event_selections["analysis"]["SElValidationZLL"] =   "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
     event_selections["analysis"]["SElValidationMT"] =     "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<90"
     #event_selections["analysis"]["PromptDY"] =           "n_goodelectrons>0 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110"
-    event_selections["analysis"]["PromptDY"] =            "leadinglepton_id==11 && tracks_invmass>65 && tracks_invmass<110"
+    event_selections["analysis"]["PromptDY"] =            "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110"
+    #event_selections["analysis"]["PromptDY"] =            "leadinglepton_id==11"
 
     event_selections["fakerate"] = collections.OrderedDict()
     #event_selections["fakerate"]["QCDLowMHT"] =          "n_goodleptons==0 && MHT<150"
@@ -684,7 +756,7 @@ if __name__ == "__main__":
                 #"Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
                 "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
                 "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
-                #"Run2016MET": ["Run2016*MET*root"],
+                "Run2016MET": ["Run2016*MET*root"],
                 #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
                 #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
                 #"Run2017MET": ["Run2017*MET*root"],
@@ -717,7 +789,9 @@ if __name__ == "__main__":
         inputfiles = []
         for data_period in fakeratesamples:
             for sample in fakeratesamples[data_period]:
-                inputfiles += glob.glob(options.skimfolder + "/" + sample)
+                #FIXME
+                #inputfiles += glob.glob(options.skimfolder + "/" + sample)[0:20]
+                inputfiles += glob.glob(options.skimfolder + "/" + sample)[:]
         commands = []
         for i, inputfile in enumerate(inputfiles):            
             if options.jobs_per_file>1:
@@ -726,17 +800,17 @@ if __name__ == "__main__":
                 nev = tree.GetEntries()
                 fin.Close()
                 for iStart in range(0, nev, int(nev/options.jobs_per_file)):
-                    cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate --event_start %s --nev %s; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file))
+                    cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate --event_start %s --nev %s --tag %s; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file), options.tag)
                     commands.append(cmd)
             else:
-                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1])
+                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode fakerate  --tag %s; " % (outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], options.tag)
                 commands.append(cmd)
                 
         print "Running %s jobs" % len(commands)        
         print "@@@@@@@@@"
-        print commands 
+        print commands
         print "@@@@@@@@@"        
-        GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % outputfolder_fakerate + "_fakerate", confirm=True)
+        GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % outputfolder_fakerate + "_fakerate", confirm=False)
                 
         # 2) hadd everything:
         print "\n@@@@@@@@\nstep 2\n@@@@@@@@\n"
@@ -748,13 +822,15 @@ if __name__ == "__main__":
             calculate_fakerate(options.outputfolder + "/" + options.fakeratefile, fakeratesamples, variables["fakerate"], event_selections["fakerate"], outputfolder_fakerate)
         except Exception as e:
             print str(e)
-            
+                        
         # 4) run parallel to get histograms / predicitons in event loop
         print "\n@@@@@@@@\nstep 4\n@@@@@@@@\n"
         inputfiles = []
         for data_period in samples:
             for sample in samples[data_period]:
-                inputfiles += glob.glob(options.skimfolder + "/" + sample)
+                #FIXME
+                #inputfiles += glob.glob(options.skimfolder + "/" + sample)[0:10]
+                inputfiles += glob.glob(options.skimfolder + "/" + sample)[:]
         commands = []      
         for i, inputfile in enumerate(inputfiles):
             if options.jobs_per_file>1:         
@@ -764,18 +840,20 @@ if __name__ == "__main__":
                 fin.Close()
                 for iStart in range(0, nev, int(nev/options.jobs_per_file)):
                     print "iStart, ev in intervall, nev", iStart, int(nev/options.jobs_per_file), nev
-                    cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis --event_start %s --nev %s; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file))
+                    cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis --event_start %s --nev %s  --tag %s; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file), options.tag)
                     commands.append(cmd)
             else:
-                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1])
+                cmd = "./ddbg_eventloop.py --outputfolder %s --inputfile %s --outputfile %s --mode analysis --tag %s; " % (options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], options.tag)
                 commands.append(cmd)
             
         print "Running %s jobs" % len(commands)        
-        GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % options.outputfolder, confirm=True)
+        GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % options.outputfolder, confirm=False)
         
         # 5) hadd
         print "\n@@@@@@@@\nstep 5\n@@@@@@@@\n"
         hadd_everything(samples, options.outputfolder)
+        
+        
         
     
     

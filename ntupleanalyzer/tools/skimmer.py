@@ -497,6 +497,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
         "SREC2_long": "",
         "CR2_short": "",
         "CR2_long": "",
+        "SR3_short": "",
+        "SR3_long": "",
+        "SREC3_short": "",
+        "SREC3_long": "",
+        "CR3_short": "",
+        "CR3_long": "",
            }
 
     # load BDTs and fetch list of DT tag labels
@@ -870,13 +876,16 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
 
         for iCand, track in enumerate(event.tracks):
 
-            pass_exo_tag = check_exo_tag(event, track, iCand, h_cutflow_exo)
-            pass_mt2_tag = check_mt2_tag(event, track, iCand, h_cutflow_mt2)
-                        
-            if not pass_exo_tag:
-                pass_exo_tag = 0
-            if not pass_mt2_tag:
-                pass_mt2_tag = 0
+            #pass_exo_tag = check_exo_tag(event, track, iCand, h_cutflow_exo)
+            #pass_mt2_tag = check_mt2_tag(event, track, iCand, h_cutflow_mt2)
+            #            
+            #if not pass_exo_tag:
+            #    pass_exo_tag = 0
+            #if not pass_mt2_tag:
+            #    pass_mt2_tag = 0
+             
+            pass_exo_tag = 0
+            pass_mt2_tag = 0
                         
             # basic track selection:
             if track.Pt() < 30:
@@ -927,7 +936,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                         bool(event.tracks_passPFCandVeto[iCand]) and \
                         passrecolepton
             
-            # keep only candidate tracks:
+            if not is_pixel_track:
+                base_cuts = base_cuts and event.tracks_nMissingOuterHits[iCand]>=2 
+            
+            # keep only baseline tracks:
             if not base_cuts:
                 continue
 
@@ -945,24 +957,30 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, treename = "Tree
                                       
             tags["SR_short"] = base_cuts and is_pixel_track and mva_scores["loose"]>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_trkRelIso[iCand]<0.01
             tags["SR_long"] = base_cuts and not is_pixel_track and mva_scores["loose"]>(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.05) and event.tracks_trkRelIso[iCand]<0.01
-            tags["SR2_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2"]>-0.05 and event.tracks_dxyVtx[iCand]<0.02
-            tags["SR2_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2"]>-0.15 and event.tracks_dxyVtx[iCand]<0.02
+            tags["SR2_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2"]>-0.05 and event.tracks_dxyVtx[iCand]<0.02 and event.tracks_trkRelIso[iCand]<0.01
+            tags["SR2_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2"]>-0.15 and event.tracks_dxyVtx[iCand]<0.02 and event.tracks_trkRelIso[iCand]<0.01
+            tags["SR3_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2"]>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_trkRelIso[iCand]<0.01
+            tags["SR3_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2"]>(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.05) and event.tracks_trkRelIso[iCand]<0.01
 
             tags["SREC_short"] = base_cuts and is_pixel_track and mva_scores["loose_sideband"]>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_trkRelIso[iCand]<0.01
             tags["SREC_long"] = base_cuts and not is_pixel_track and mva_scores["loose_sideband"]>(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.05) and event.tracks_trkRelIso[iCand]<0.01
-            tags["SREC2_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>-0.05 and event.tracks_dxyVtx[iCand]<0.02
-            tags["SREC2_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>-0.15 and event.tracks_dxyVtx[iCand]<0.02
+            tags["SREC2_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>-0.05 and event.tracks_dxyVtx[iCand]<0.02 and event.tracks_trkRelIso[iCand]<0.01
+            tags["SREC2_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>-0.15 and event.tracks_dxyVtx[iCand]<0.02 and event.tracks_trkRelIso[iCand]<0.01
+            tags["SREC3_short"] = base_cuts and is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_trkRelIso[iCand]<0.01
+            tags["SREC3_long"] = base_cuts and not is_pixel_track and mva_scores["loose_may20_chi2_sideband"]>(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.05) and event.tracks_trkRelIso[iCand]<0.01
             
-            tags["CR_short"] = base_cuts and is_pixel_track and mva_scores["loose"]<(event.tracks_dxyVtx[iCand]*(0.65/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
-            tags["CR_long"] = base_cuts and not is_pixel_track and mva_scores["loose"]<(event.tracks_dxyVtx[iCand]*(0.7/0.01) - 0.5) and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR_short"] = base_cuts and is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR_long"] = base_cuts and not is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
             tags["CR2_short"] = base_cuts and is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
             tags["CR2_long"] = base_cuts and not is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR3_short"] = base_cuts and is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
+            tags["CR3_long"] = base_cuts and not is_pixel_track and event.tracks_dxyVtx[iCand]>0.02
             
-            track_is_tagged = False
-            for label in tags:
-                if tags[label]: track_is_tagged = True
-            if not track_is_tagged:
-                continue
+            #track_is_tagged = False
+            #for label in tags:
+            #    if tags[label]: track_is_tagged = True
+            #if not track_is_tagged:
+            #    continue
             
             # check if actual fake track (no genparticle in cone around track):
             is_prompt_electron = False

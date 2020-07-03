@@ -144,7 +144,7 @@ if __name__ == "__main__":
         #options.dataset = "Run2016*,Run2017*"
         #options.dataset = "Run2016*"
     if not options.output_folder:
-        options.output_folder = "../skim_25"
+        options.output_folder = "../skim_26_baseline"
     ######## defaults ########
 
     commands = []
