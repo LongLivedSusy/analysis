@@ -12,30 +12,28 @@ if __name__ == "__main__":
     TH1D.SetDefaultSumw2()
 
     variables = [
-                 "tracks_pt",
+                 #"tracks_pt",
                  "HT",
-                 "MHT",
-                 "n_goodjets",
-                 "n_allvertices",
-                 "n_btags",
-                 "HT:n_allvertices",
-                 "tracks_is_pixel_track",
+                 #"MHT",
+                 #"n_goodjets",
+                 #"n_allvertices",
+                 #"n_btags",
+                 #"HT:n_allvertices",
+                 #"tracks_is_pixel_track",
                 ]
    
     histos = collections.OrderedDict()
-   
-    fin = TFile("new28/fakerate.root", "read")
-    region = "QCDLowMHT"
-    fakeratetype = "fakerate"
-    
+       
     for variable in variables:
-        for category in ["combined", "short", "long"]:
+   
+        fin = TFile("new56/fakerate.root", "read")
+        region = "QCDLowMHT"
+        fakeratetype = "fakerate"
+   
+        for category in ["", "_short", "_long"]:
             for dataset in ["Summer16", "Run2016"]:
 
-                if category == "combined":
-                    label = "%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype)
-                else:
-                    label = "%s_%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype, category)
+                label = "%s_%s_%s_%s%s" % (dataset, variable.replace(":", "_"), region, fakeratetype, category)
 
                 print label
 

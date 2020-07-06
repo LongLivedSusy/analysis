@@ -48,7 +48,7 @@ def calculate_fakerate(rootfile, samples, variables, event_selections, path):
 
                     # close file
                     tfile_fakerate.Close()
-                
+
 
 def getBinContent_with_overflow(histo, xval, yval = False):
     
@@ -136,21 +136,17 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
     else:
         return region
 
-
-def fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, filename):
-                    
-    h_name = data_period + "_" + variable + "_" + event_selection + "_" + zone
-    sideband = False
-    value = -1
-    
+ 
+def get_value(event, variable, i_track):
+                        
     if ":" not in variable:
         if "tracks_" in variable:
             value = eval("event.%s[%s]" % (variable, i_track))
         else:
             value = eval("event.%s" % variable)
-        histograms[h_name].Fill(value, weight*scaling)
+        return value
     
-    elif "regionCorrected" not in variable:
+    else:
         if "tracks_" in variable.split(":")[0]:
             xvalue = eval("event.%s[%s]" % (variable.split(":")[0], i_track))
         else:
@@ -159,74 +155,15 @@ def fill_histogram(event, variable, histograms, event_selection, data_period, zo
             yvalue = eval("event.%s[%s]" % (variable.split(":")[1], i_track))
         else:
             yvalue = eval("event.%s" % variable.split(":")[1])
-        histograms[h_name].Fill(xvalue, yvalue, weight*scaling)
-    
-        #if "sideband" in variable :
-        #    sideband = True
-        #
-        #DeDx = event.tracks_deDxHarmonic2pixelCorrected[i_track]
-        #n_DTs = 1
-        #is_pixel_track = event.tracks_is_pixel_track[i_track]
-        #value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, n_DTs, is_pixel_track, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = False)
-        ##histograms[h_name].Fill(value, weight*scaling)
-        #return value
-    
-        #    # recalculate region number, signal region:
-        #    if "sr" in zone and event.n_tracks_SR_short==1 and event.n_tracks_SR_long==0:
-        #        DeDx = -1
-        #        for i in range(len(event.tracks_ptError)):
-        #            if event.tracks_SR_short[i] == 1:
-        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_short, True, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-        #        
-        #    elif "sr" in zone and event.n_tracks_SR_long==1 and event.n_tracks_SR_short==0:
-        #        DeDx = -1
-        #        for i in range(len(event.tracks_ptError)):
-        #            if event.tracks_SR_long[i] == 1:
-        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-        #        
-        #    elif "sr" in zone and event.n_tracks_SR_long>1 or event.n_tracks_SR_short>1:
-        #        # in this case, take highest DeDx of both DTs:
-        #        DeDx = -1
-        #        for i in range(len(event.tracks_ptError)):
-        #            if (event.tracks_SR_long[i] + event.tracks_SR_short[i])>0:
-        #                if event.tracks_deDxHarmonic2pixelCorrected[i] > DeDx:
-        #                    DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_SR_short + event.n_tracks_SR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)            
-        #                    
-        #    # recalculate region number, fake control region:
-        #    elif "fake" in zone and event.n_tracks_CR_short==1 and event.n_tracks_CR_long==0:
-        #        DeDx = -1
-        #        for i in range(len(event.tracks_ptError)):
-        #            if event.tracks_CR_short[i] == 1:
-        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-        #                break
-        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_short, True, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-        #        
-        #    elif "fake" in zone and event.n_tracks_CR_long==1 and event.n_tracks_CR_short==0:
-        #        DeDx = -1
-        #        for i in range(len(event.tracks_ptError)):
-        #            if event.tracks_CR_long[i] == 1:
-        #                DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-        #                break
-        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)
-        #        
-        #    elif "fake" in zone and event.n_tracks_CR_long>1 or event.n_tracks_CR_short>1:
-        #        # in this case, take highest DeDx of both DTs:
-        #        DeDx = -1
-        #        for i in range(len(event.tracks_ptError)):
-        #            if (event.tracks_CR_long[i] + event.tracks_CR_short[i])>0:
-        #                if event.tracks_deDxHarmonic2pixelCorrected[i] > DeDx:
-        #                    DeDx = event.tracks_deDxHarmonic2pixelCorrected[i]
-        #        value = get_signal_region(event.HT, event.MHT, event.n_jets, event.n_btags, event.MinDeltaPhiMhtJets, event.n_tracks_CR_short + event.n_tracks_CR_long, False, DeDx, event.n_goodelectrons, event.n_goodmuons, filename, sideband = sideband)            
-        #                    
-        #    else:
-        #        value = 0
-            
-        ## if filling the sideband region histogram, fill also the following bin:
-        #if sideband and "region" in variable and value > 0:
-        #    histograms[h_name].Fill(value+1, weight*scaling)
+        return (xvalue, yvalue)
+
+
+def fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling):
+    h_name = data_period + "_" + variable + "_" + event_selection + "_" + zone
+    if ":" not in variable:
+        histograms[h_name].Fill(value, weight*scaling)    
+    else:
+        histograms[h_name].Fill(value[0], yvalue[1], weight*scaling)
     
 
 def event_loop(input_filenames, output_file, tags, variables, binnings, event_selections, zones, fakerate_filename, mode, nevents=-1, treename="Events", event_start=0, check_overwrite=False):
@@ -285,8 +222,6 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
                 else:
                     histograms[h_name] = TH2F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2], binnings[mode][variable][3], binnings[mode][variable][4], binnings[mode][variable][5])
                     
-    
-    #print "# of histograms:", len(histograms)
     
     # convert ROOT cutstrings to python statements:
     event_selections_converted = {}
@@ -394,55 +329,111 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
                     scaling = 1.0
                 else:                        
                     scaling = fakerates[scaling_by_hlabel]
-                
-                cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone]
-                                                                                                                     
+
+                if len(zones[zone])>=3:
+                    selected_nDT = zones[zone][2]
+                else:
+                    selected_nDT = "any"
+
+                cuts_converted = []
+                if "+++" not in zones_converted[zone]:
+                    cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone]
+                    cuts_converted.append(cut_converted) 
+                else:
+                    cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone].split("+++")[0]
+                    cuts_converted.append(cut_converted) 
+                    cut_converted = event_selections_converted[event_selection] + " and " + zones_converted[zone].split("+++")[1]
+                    cuts_converted.append(cut_converted) 
+
                 for variable in variables:
-                    
+                        
                     if "region" in variable and event_selection != "Baseline":
                         continue
-                    
-                    regionCorrected_list = []
-                    
-                    if "tracks_" in cut_converted:
-                        # cutstring with tracks in it
-                        if "tracks_" in variable:
-                            for i_track in xrange(len(event.tracks_ptError)):
-                                if eval(cut_converted):
-                                    fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
-                        else:
-                            for i_track in xrange(len(event.tracks_ptError)):
-                                if eval(cut_converted):
-                                    
-                                    if variable == "regionCorrected":
-                                        params = [event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, 1, event.tracks_is_pixel_track[i_track], event.tracks_deDxHarmonic2pixelCorrected[i_track], event.n_goodelectrons, event.n_goodmuons, first_filename]
-                                        regionCorrected_list.append(params)
-                                    else:
-                                        fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
-                                    break
-                    
-                    elif eval(cut_converted):
-                        # cutstring without tracks in it                       
-                        if "tracks_" in variable:
-                            for i_track in xrange(len(event.tracks_ptError)):
-                                fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, i_track, first_filename)
-                        else:
-                            fill_histogram(event, variable, histograms, event_selection, data_period, zone, variables, weight, scaling, -1, first_filename)
-                    
-                    # after looping on all tracks, fill region bins:
-                    if variable == "regionCorrected" and len(regionCorrected_list) > 0:
-                        h_name = data_period + "_" + variable + "_" + event_selection + "_" + zone
-                        value = get_signal_region(*regionCorrected_list[0])
-                        #value = -1
-                        #if len(regionCorrected_list) == 1:
-                        #    value = get_signal_region(*params)
-                        #else:
-                        #    params[5] = len(regionCorrected_list)
-                        #    value = get_signal_region(*params)
-                            
-                        histograms[h_name].Fill(value, weight * scaling)
                         
-            
+                    values = []
+                    track_index = -1
+                    
+                    for cut_converted in cuts_converted:
+                        
+                        if "tracks_" in cut_converted:
+                            # cutstring with tracks in it
+                            if "tracks_" in variable:
+                                for i_track in xrange(len(event.tracks_ptError)):
+                                    if eval(cut_converted):
+                                        values.append(get_value(event, variable, i_track))
+                                        track_index = i_track
+                            else:
+                                for i_track in xrange(len(event.tracks_ptError)):
+                                    if eval(cut_converted):
+                                        if variable == "regionCorrected":
+                                            params = [event.HT, event.MHT, event.n_goodjets, event.n_btags, event.MinDeltaPhiMhtJets, 1, event.tracks_is_pixel_track[i_track], event.tracks_deDxHarmonic2pixelCorrected[i_track], event.n_goodelectrons, event.n_goodmuons, first_filename]
+                                            values.append(params)
+                                        else:
+                                            values.append(get_value(event, variable, i_track))
+                                        track_index = i_track
+                                        break
+                        
+                        elif eval(cut_converted):
+                            # cutstring without tracks in it                       
+                            if "tracks_" in variable:
+                                for i_track in xrange(len(event.tracks_ptError)):
+                                    values.append(get_value(event, variable, i_track))
+                                    track_index = i_track
+                                    
+                            else:
+                                values.append(get_value(event, variable, -1))
+                    
+                    # count number of tagged tracks
+                    n_tag = len(values)
+                        
+                    # fill histograms:
+                    if variable == "regionCorrected" and len(values)>0:
+                                                
+                        if "sr" in zone:
+                            
+                            # get region number for signal region - depending on n(DT):
+                            if n_tag==1:  
+                                value = get_signal_region(*regionCorrected_list[0])
+                            elif n_tag>1:
+                                regionCorrected_list[0][5] = n_tag
+                                value = get_signal_region(*regionCorrected_list[0])
+                            fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling)
+                    
+                        elif "cr" in zone:
+                            
+                            # fill CR region bins for n(DT)=1 and n(DT)>1:
+                            regionCorrected_list[0][5] = 1
+                            value = get_signal_region(*regionCorrected_list[0])
+                            fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling)
+                            
+                            regionCorrected_list[0][5] = 2
+                            value = get_signal_region(*regionCorrected_list[0])
+                            fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling)
+                            
+                        elif "prediction" in zone:
+                    
+                            regionCorrected_list[0][5] = 1
+                            value = get_signal_region(*regionCorrected_list[0])
+                            fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling)
+                            
+                            # apply fake rate twice to account for n(DT)>1:
+                            regionCorrected_list[0][5] = 2
+                            value = get_signal_region(*regionCorrected_list[0])
+                            fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling*scaling)
+                            
+                    else:
+                        
+                        if selected_nDT == "any":
+                            for value in values:
+                                fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling)                    
+                        elif selected_nDT == "single" and len(values) == 1:
+                            fill_histogram(variable, values[0], histograms, event_selection, data_period, zone, weight, scaling)                    
+                        elif selected_nDT == "multi" and len(values) > 1:
+                            for value in values:
+                                fill_histogram(variable, value, histograms, event_selection, data_period, zone, weight, scaling)                    
+                            
+                    
+                            
     if event_start>0:
         output_file = output_file.replace(".root", "_%s.root" % event_start)
     
@@ -510,22 +501,7 @@ if __name__ == "__main__":
     baseline_long = "tracks_is_pixel_track==1 && " + " && ".join(baseline_selection)
     baseline_short = "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + " && ".join(baseline_selection)
 
-    #old tag:
     tags = collections.OrderedDict()
-    #tags["SR_short"] = "tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
-    #tags["SR_long"] = "tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
-    #tags["CR_short"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
-    #tags["CR_long"] = "tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
-    #tags["SREC_short"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
-    #collections["SREC_long"] = "tracks_mva_looseNoDep>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
-    
-    #new tag:
-    #tags["SR_short"] = baseline_short + " && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
-    #tags["SR_long"] = baseline_long + " && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
-    #tags["CR_short"] = baseline_short + " && tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
-    #tags["CR_long"] = baseline_long + " && tracks_dxyVtx>0.02 && tracks_trkRelIso<0.01"
-    #tags["SREC_short"] = baseline_short + " && tracks_mva_loose_may20_chi2_sideband>-0.05 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
-    #tags["SREC_long"] = baseline_long + " && tracks_mva_loose_may20_chi2_sideband>-0.15 && tracks_dxyVtx<0.02 && tracks_trkRelIso<0.01"
 
     if int(options.tag) == 1:
         print "using tag #1"
@@ -603,13 +579,13 @@ if __name__ == "__main__":
                               #"tracks_deDxHarmonic2pixelCorrected",
                               #"tracks_matchedCaloEnergy",
                               #"tracks_trkRelIso",
-                              #"regionCorrected",
+                              "regionCorrected",
                               #"regionCorrected_sideband",
                             ]
     variables["fakerate"] = [
                               #"tracks_pt",
                               #"tracks_is_pixel_track",
-                              "HT",
+                              #"HT",
                               #"MHT",
                               #"n_goodjets",
                               #"n_allvertices",
@@ -696,25 +672,28 @@ if __name__ == "__main__":
 
             # for prompt bg:
             if dedx != "":
+                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, EDepMax, lower, upper)
                 morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, lower, upper)
             else:
-                morecutsEC = " && tracks_is_pixel_track==%s" % (is_pixel_track)
-                
-            zones["srEC%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), ""]
-            zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), ""]
-
-            if dedx != "":
-                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s && tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s" % (is_pixel_track, EDepMax, lower, upper)
-            else:
                 morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s" % (is_pixel_track, EDepMax)
+                morecutsEC = " && tracks_is_pixel_track==%s" % (is_pixel_track)
+            
+            # zones[label] = [cut, weight, nDT]
+            zones["srEC%s_%s_single" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "single"]
+            zones["srECSB%s_%s_single" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
+            zones["srEC%s_%s_multi" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "multi"]
+            zones["srECSB%s_%s_multi" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
                 
             for syst in [""]:
-                zones["sr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["SR%s_" % syst + category], morecuts), ""]
-                zones["srgenfake%s_%s%s" % (dedx, category, syst)] = [" && %s && tracks_fake==1 %s" % (tags["SR%s_" % syst + category], morecuts), ""]
-                zones["srgenprompt%s_%s%s" % (dedx, category, syst)] = [" && %s && tracks_fake==0 %s" % (tags["SR%s_" % syst + category], morecuts), ""]
+                zones["sr%s_%s%s_single" % (dedx, category, syst)] = [" && %s %s" % (tags["SR%s_" % syst + category], morecuts), "", "single"]
+                zones["sr%s_%s%s_multi" % (dedx, category, syst)] = [" && %s %s" % (tags["SR%s_" % syst + category], morecuts), "", "multi"]
+                zones["srgenfake%s_%s%s_single" % (dedx, category, syst)] = [" && %s && tracks_fake==1 %s" % (tags["SR%s_" % syst + category], morecuts), "", "single"]
+                zones["srgenfake%s_%s%s_multi" % (dedx, category, syst)] = [" && %s && tracks_fake==1 %s" % (tags["SR%s_" % syst + category], morecuts), "", "multi"]
+                zones["srgenprompt%s_%s%s_single" % (dedx, category, syst)] = [" && %s && tracks_fake==0 %s" % (tags["SR%s_" % syst + category], morecuts), "single"]
+                zones["srgenprompt%s_%s%s_multi" % (dedx, category, syst)] = [" && %s && tracks_fake==0 %s" % (tags["SR%s_" % syst + category], morecuts), "multi"]
                 zones["fakecr%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), ""]
                 if options.mode == "analysis":
-                    zones["fakeprediction-QCDLowMHT%s_%s%s" % (dedx, category, syst)] =       [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerate_%s%s" % (category, syst)]
+                    #zones["fakeprediction-QCDLowMHT%s_%s%s" % (dedx, category, syst)] =       [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerate_%s%s" % (category, syst)]
                     zones["fakeprediction-QCDLowMHT2D%s_%s%s" % (dedx, category, syst)] =     [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s%s" % (category, syst)]
                     #zones["fakepredictionECSB-QCDLowMHT%s_%s%s" % (dedx, category, syst)] =   [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT_QCDLowMHT_fakerateECSB_%s%s" % (category, syst)]
                     #zones["fakepredictionECSB-QCDLowMHT2D%s_%s%s" % (dedx, category, syst)] = [" && %s %s" % (tags["CR%s_" % syst + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerateECSB_%s%s" % (category, syst)]
@@ -823,7 +802,7 @@ if __name__ == "__main__":
         except Exception as e:
             print str(e)
                         
-        # 4) run parallel to get histograms / predicitons in event loop
+        # 4) run parallel to get histograms / predictions in event loop
         print "\n@@@@@@@@\nstep 4\n@@@@@@@@\n"
         inputfiles = []
         for data_period in samples:
