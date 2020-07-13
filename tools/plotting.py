@@ -90,7 +90,7 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     return histo
 
 
-def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, numevents=-1):
+def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, numevents=-1, unweighted=False):
     
     is_data = False
     if "Run201" in tree_files[0]:
@@ -113,8 +113,12 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
         if not is_data:
             #fin = TFile(tree_file)
             h_nev = fin.Get("nev")
-            nev += h_nev.GetBinContent(1)
+            try:
+                nev += h_nev.GetBinContent(1)
+            except:
+                pass
             fin.Close()
+
 
     tree = TChain(tree_folder_name)       
     for i, tree_file in enumerate(tree_files):
@@ -122,7 +126,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
             tree.Add(tree_file)
 
     ## xsection and puweight scaling:
-    if not is_data:
+    if not is_data and not unweighted:
         # MC
         if scaling != "":
             cutstring = "(%s)*CrossSection*puWeight*%s" % (cutstring, scaling)
@@ -142,7 +146,7 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
 
     #print "cutstring:", cutstring
-    if not is_data:
+    if not is_data and not unweighted:
         histo.Scale(1.0/nev)
         #print "Scaled with nev = ", nev
     return histo

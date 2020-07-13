@@ -12,7 +12,7 @@ import math
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
-def graphStyler(h,color=kBlack):
+def graphStyler(h, color=kBlack):
 	h.SetLineWidth(2)
 	h.SetLineColor(color)
 	h.SetMarkerColor(color)
@@ -33,14 +33,11 @@ def graphStyler(h,color=kBlack):
 def main(labels):
 
     folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_21"
+    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_26_baseline"
     
     cutstrings = {}
     
-    SR_short = "tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
-    SR_long = "tracks_basecuts==1 && tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01"
-
     basecuts = "tracks_basecuts==1 && tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits[iCand]>=3"
-    #vetoes = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits>=3"
     vetoes = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits>=2"
     baseline = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_ptErrOverPt2<10 && tracks_dxyVtx<0.1 && tracks_dzVtx<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_chi2perNdof<2.88 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0"
     
@@ -76,8 +73,8 @@ def main(labels):
         "tracks_trkRelIso<0.2",  
         "tracks_trackerLayersWithMeasurement>=2",
         "tracks_nValidTrackerHits>=2",           
-        "tracks_nMissingInnerHits==0",                                                     
-        "tracks_nValidPixelHits>=2",    
+        "tracks_nMissingInnerHits==0",
+        "tracks_nValidPixelHits>=2",
         "tracks_pass_reco_lepton==1",
         "tracks_passPFCandVeto==1",                                   
         ##"tracks_passpionveto==1",
@@ -104,109 +101,40 @@ def main(labels):
         #"tracks_passPFCandVeto==1",                                                        
              ]
     
-    # short:
     oldbaseline_short_loose = "tracks_is_pixel_track==1 && " + " && ".join(oldbaseline)
     oldbaseline_short_tight = oldbaseline_short_loose + " && tracks_dxyVtx<0.1 "
-    
-    # long:
     oldbaseline_long_loose = "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + " && ".join(oldbaseline)
     oldbaseline_long_tight = oldbaseline_long_loose + " && tracks_dxyVtx<0.1 "
     
     for i_score in numpy.arange(-1.0, 1.0, 0.1): 
-        
         use_score = i_score
         if i_score == -1.0:
             use_score = -10
         elif i_score == 1.0:
             use_score = 10
         
-        #cutstrings["pixeltrack_tightBase_%s" % i_score] = oldbaseline_short_tight + "  && tracks_basecuts==1 && tracks_mva_tight>=%s" % i_score
-        #cutstrings["pixeltrack_looseBase_%s" % i_score] = oldbaseline_short_loose + " && tracks_basecuts==1 && tracks_mva_loose>=%s" % i_score
-        #cutstrings["stripstrack_tightBase_%s" % i_score] = "tracks_nMissingOuterHits>=2 && tracks_mva_tight>=%s" % i_score
-        #cutstrings["stripstrack_looseBase_%s" % i_score] = "tracks_nMissingOuterHits>=2 && tracks_mva_loose>=%s" % i_score
-        #cutstrings["pixeltrack_tightSimple_%s" % i_score] = "tracks_mva_tight>=%s" % i_score
-        #cutstrings["pixeltrack_looseSimple_%s" % i_score] = "tracks_mva_loose>=%s" % i_score
-        ##cutstrings["pixeltrack_tight2_%s" % i_score] = baseline_tight + " && tracks_mva_tight_may20>=%s" % i_score
-        ##cutstrings["pixeltrack_loose2_%s" % i_score] = baseline_loose + " && tracks_mva_loose_may20>=%s" % i_score
-        ##cutstrings["pixeltrack_tight3_%s" % i_score] = baseline_tight + " && tracks_mva_tight_may20_chi2>=%s" % i_score
-        ##cutstrings["pixeltrack_loose3_%s" % i_score] = baseline_loose + " && tracks_mva_loose_may20_chi2>=%s" % i_score
-        #cutstrings["pixeltrack_tight2_%s" % i_score] = baseline_tight_short + " && tracks_mva_tight_may20>=%s" % i_score
-        #cutstrings["pixeltrack_loose2_%s" % i_score] = baseline_loose_short + " && tracks_mva_loose_may20>=%s" % i_score
-        #cutstrings["pixeltrack_tight3_%s" % i_score] = baseline_tight_short + " && tracks_mva_tight_may20_chi2>=%s" % i_score
+        cutstrings["pixeltrack_tight3_%s" % i_score] = baseline_loose_short + " && tracks_mva_tight_may20_chi2>=%s" % use_score
+        cutstrings["stripstrack_tight3_%s" % i_score] = baseline_loose_long + " && tracks_nMissingOuterHits>=2 && tracks_mva_tight_may20_chi2>=%s" % use_score
         cutstrings["pixeltrack_loose3_%s" % i_score] = baseline_loose_short + " && tracks_mva_loose_may20_chi2>=%s" % use_score
-        #cutstrings["stripstrack_tightSimple_%s" % i_score] = "tracks_nMissingOuterHits>=2 && tracks_mva_tight>=%s" % i_score
-        #cutstrings["stripstrack_looseSimple_%s" % i_score] = "tracks_nMissingOuterHits>=2 && tracks_mva_loose>=%s" % i_score
-        ##cutstrings["stripstrack_tight2_%s" % i_score] = baseline_tight + " && tracks_nMissingOuterHits>=2 && tracks_mva_tight_may20>=%s" % i_score
-        ##cutstrings["stripstrack_loose2_%s" % i_score] = baseline_loose + " && tracks_nMissingOuterHits>=2 && tracks_mva_loose_may20>=%s" % i_score
-        ##cutstrings["stripstrack_tight3_%s" % i_score] = baseline_tight + " && tracks_nMissingOuterHits>=2 && tracks_mva_tight_may20_chi2>=%s" % i_score
-        ##cutstrings["stripstrack_loose3_%s" % i_score] = baseline_loose + " && tracks_nMissingOuterHits>=2 && tracks_mva_loose_may20_chi2>=%s" % i_score
-        #cutstrings["stripstrack_tight2_%s" % i_score] = baseline_loose_long + " && tracks_nMissingOuterHits>=2 && tracks_mva_tight_may20>=%s" % i_score
-        #cutstrings["stripstrack_loose2_%s" % i_score] = baseline_loose_long + " && tracks_nMissingOuterHits>=2 && tracks_mva_loose_may20>=%s" % i_score
-        #cutstrings["stripstrack_tight3_%s" % i_score] = baseline_loose_long + " && tracks_nMissingOuterHits>=2 && tracks_mva_tight_may20_chi2>=%s" % i_score
         cutstrings["stripstrack_loose3_%s" % i_score] = baseline_loose_long + " && tracks_nMissingOuterHits>=2 && tracks_mva_loose_may20_chi2>=%s" % use_score
 
-    #cutstrings["nocuts_short"]              = baseline_loose + " && tracks_is_pixel_track==1"
-    #cutstrings["nocuts_long"]               = baseline_loose + " && tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2"
     cutstrings["nocuts_short"]              = "tracks_is_pixel_track==1"
     cutstrings["nocuts_long"]               = "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_bdtEDep10tag"]   = SR_short + " && tracks_matchedCaloEnergy<10"
-    #cutstrings["stripstrack_bdtEDep10tag"]  = SR_long + " && tracks_matchedCaloEnergy<10 && tracks_nMissingOuterHits>=2 "
-    cutstrings["pixeltrack_bdtEDep15tag"]   = SR_short + " && tracks_matchedCaloEnergy<15"
-    cutstrings["stripstrack_bdtEDep15tag"]  = SR_long + " && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 "
-    #cutstrings["pixeltrack_bdtEDep20tag"]   = SR_short + " && tracks_matchedCaloEnergy<20"
-    #cutstrings["stripstrack_bdtEDep20tag"]  = SR_long + " && tracks_matchedCaloEnergy<20 && tracks_nMissingOuterHits>=2 "
-    #cutstrings["pixeltrack_exotag"]         = "tracks_passexotag==17"
-    #cutstrings["stripstrack_exotag"]        = "tracks_passexotag==17 && tracks_nMissingOuterHits>=2"
+    cutstrings["pixeltrack_bdtEDep15tag"]   = "tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01 && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_bdtEDep15tag"]  = "tracks_basecuts==1 && tracks_is_pixel_track==0 && tracks_mva_loose>(tracks_dxyVtx*(0.7/0.01) - 0.05) && tracks_trkRelIso<0.01 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 "
     cutstrings["pixeltrack_mt2tag"]         = "tracks_passmt2tag==115"
     cutstrings["stripstrack_mt2tag"]        = "(tracks_passmt2tag==215 || tracks_passmt2tag==316) && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test1"]          = "tracks_basecuts==1 && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test1"]         = "tracks_basecuts==1 && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
-    #cutstrings["pixeltrack_test2"]          = baseline + " && " + vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test2"]         = baseline + " && " + vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
-    #cutstrings["pixeltrack_test3"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test3"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test3b"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<20"
-    #cutstrings["stripstrack_test3b"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<20 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test4"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test4"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test5"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<10"
-    #cutstrings["stripstrack_test5"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<10 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test5"]          = " tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test5"]         = " tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>0 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test6"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test6"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>0 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test7"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test7"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>0 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test8"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_trkRelIso<0.01"
-    #cutstrings["stripstrack_test8"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test9"]          = " tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test9"]         = " tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test9"]           = "tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test9"]          = "tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test10"]          = "tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_trkRelIso<0.01"
-    #cutstrings["stripstrack_test10"]         = "tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test11"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_trkRelIso<0.01"
-    #cutstrings["stripstrack_test11"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2 && tracks_trkRelIso<0.01"
-    #cutstrings["pixeltrack_test12"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test12"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test13"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<10"
-    #cutstrings["stripstrack_test13"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<10 && tracks_nMissingOuterHits>=2"
     cutstrings["pixeltrack_test14"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
     cutstrings["stripstrack_test14"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test15"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<20"
-    #cutstrings["stripstrack_test15"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.15 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<20 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test7"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<20"
-    #cutstrings["stripstrack_test7"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.05 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<20 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test8"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>-0.3 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<40"
-    #cutstrings["stripstrack_test8"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>-0.3 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<40 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test9"]          = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits>=3" + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>=-10"
-    #cutstrings["stripstrack_test9"]         = "tracks_pass_reco_lepton==1 && tracks_passPFCandVeto==1 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_nValidPixelHits>=3" + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>=-10 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test10"]          = vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>=-10"
-    #cutstrings["stripstrack_test10"]         = vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>=-10 && tracks_nMissingOuterHits>=2"
-    #cutstrings["pixeltrack_test4"]          = "tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test4"]         = "tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
-    #cutstrings["pixeltrack_test5"]          = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0 && " + vetoes + " && tracks_is_pixel_track==1 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.02 && tracks_matchedCaloEnergy<15"
-    #cutstrings["stripstrack_test5"]         = "abs(tracks_eta)<2.4 && !(abs(tracks_eta)>1.4442 && abs(tracks_eta)<1.566) && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_pixelLayersWithMeasurement>2 && tracks_nMissingMiddleHits==0 && " + vetoes + " && tracks_is_pixel_track==0 && tracks_mva_loose>0.1 && tracks_dxyVtx<0.04 && tracks_matchedCaloEnergy<15"
+    cutstrings["pixeltrack_test15"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test15"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.05) && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
+    cutstrings["pixeltrack_test16"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<15"
+    cutstrings["stripstrack_test16"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<15 && tracks_nMissingOuterHits>=2"
+    cutstrings["pixeltrack_test17"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<10"
+    cutstrings["stripstrack_test17"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<10 && tracks_nMissingOuterHits>=2"
+    cutstrings["pixeltrack_test18"]          = baseline_loose_short + " && tracks_is_pixel_track==1 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<20"
+    cutstrings["stripstrack_test18"]         = baseline_loose_long + " && tracks_is_pixel_track==0 && tracks_mva_loose_may20_chi2>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_matchedCaloEnergy<20 && tracks_nMissingOuterHits>=2"
+    
     
     histos = {}
     for cut in cutstrings:
@@ -247,14 +175,18 @@ def main(labels):
         
         #graph_list["tight2"] =      [1, kAzure-4, "fully informed BDT"]
         #graph_list["loose2"] =      [2, kAzure-4, "d_{xy}-uninformed BDT"]
-        #graph_list["tight3"] =      [1, kRed-4, "fully informed BDT"]
+        graph_list["tight3"] =      [1, kRed-4, "fully informed BDT"]
         graph_list["loose3"] =      [2, kRed-4, "d_{xy}-uninformed BDT"]
         #graph_list["bdtEDep10"] =   [20, kGreen+2, "Full tag (E_{matched}^{calo}<10 GeV)"]
         graph_list["bdtEDep15"] =   [21, kGreen+2, "Full tag (E_{matched}^{calo}<15 GeV)"]
+        #graph_list["bdtEDepNEW15"] =   [23, kGreen+3, "Full tag (E_{matched}^{calo}<15 GeV) new"]
         #graph_list["bdtEDep20"] =   [22, kGreen+2, "Full tag (E_{matched}^{calo}<20 GeV)"]
         #graph_list["test13"] =       [20, kOrange+7, "Modified tag (E_{matched}^{calo}<10 GeV)"]
-        graph_list["test14"] =       [21, kOrange+7, "Modified tag (E_{matched}^{calo}<15 GeV)"]
-        #graph_list["test15"] =       [22, kOrange+7, "Modified tag (E_{matched}^{calo}<20 GeV)"]
+        graph_list["test14"] =       [21, kOrange+7, "test14 (rect. cuts, E_{matched}^{calo}<15 GeV)"]
+        graph_list["test15"] =       [22, kOrange+6, "test15 (diag. cut, E_{matched}^{calo}<15 GeV)"]
+        graph_list["test16"] =       [23, kOrange+5, "test16 (mod. diag. cut, E_{matched}^{calo}<15 GeV)"]
+        graph_list["test17"] =       [24, kOrange+4, "test16 (mod. diag. cut, E_{matched}^{calo}<10 GeV)"]
+        graph_list["test18"] =       [25, kOrange+3, "test16 (mod. diag. cut, E_{matched}^{calo}<20 GeV)"]
         graph_list["mt2"] =         [20, kCyan+1, "SUS-19-005 tag"]
                       
         canvas = shared_utils.mkcanvas()
@@ -481,20 +413,19 @@ if __name__ == "__main__":
                 ]
                 
     # speed things up
-    
-    labels["Background"] = [
-        #"Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1AOD_120000-389A0510-B8BD-E611-8546-008CFAFBF0BA",
-        "Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-02067A2D-48BB-E611-BE1E-001E67E71C95",
-                           ]
-    labels["Signal"] = [
-        "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-00D93B88-C0A7-E911-9163-001F29087EE8",
-        "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-0270362B-FBA4-E911-AA6B-FA163E3F6D58",
-        #"Summer16.g1800_chi1400_27_200970_step4_10AODSIM",
-        #"Summer16.g1800_chi1400_27_200970_step4_30AODSIM",
-        #"Summer16.g1800_chi1400_27_200970_step4_50AODSIM",
-        #"Summer16.g1800_chi1400_27_200970_step4_100AODSIM",
-                       ]        
-    
+    if True:
+        labels["Background"] = [
+            #"Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext1AOD_120000-389A0510-B8BD-E611-8546-008CFAFBF0BA",
+            "Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-02067A2D-48BB-E611-BE1E-001E67E71C95",
+                               ]
+        labels["Signal"] = [
+            "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-00D93B88-C0A7-E911-9163-001F29087EE8",
+            "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-0270362B-FBA4-E911-AA6B-FA163E3F6D58",
+            #"Summer16.g1800_chi1400_27_200970_step4_10AODSIM",
+            #"Summer16.g1800_chi1400_27_200970_step4_30AODSIM",
+            #"Summer16.g1800_chi1400_27_200970_step4_50AODSIM",
+            #"Summer16.g1800_chi1400_27_200970_step4_100AODSIM",
+                           ]        
 
     main(labels)
     
