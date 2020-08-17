@@ -67,7 +67,7 @@ calm = 15
 calh = 25
 
 calm = 15
-calh = 22
+calh = 27
 
 #calm = 20
 #calh = 30

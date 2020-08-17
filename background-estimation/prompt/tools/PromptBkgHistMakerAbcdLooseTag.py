@@ -221,8 +221,8 @@ calh = 25
 calm = 15
 calh = 22
 
-calm = 15
-calh = 22
+calm = 17
+calh = 27
 
 
 lowht = 0
