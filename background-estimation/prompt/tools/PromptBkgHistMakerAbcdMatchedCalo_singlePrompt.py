@@ -19,8 +19,6 @@ debugmode = False
 binning['DtStatus'] = [6,-3,3]
 
 
-turnoffpred = False
-
 maketree = True
 
 codeproduct = sys.argv[0].split('/')[-1].split('With')[0].split('Maker')[0]
@@ -70,11 +68,11 @@ verbose = False
 
 isdata = 'Run201' in inputFileNames
 if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames or 'aksingh' in inputFileNames: 
-	is2016, is2017, is2018, year = True, False, False, '2016'
+	is2016, is2017, is2018 = True, False, False
 elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames: 
-	is2016, is2017, is2018, year = False, True, False, '2017'
+	is2016, is2017, is2018 = False, True, False
 elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or other' in inputFileNames: 
-	is2016, is2017, is2018, year = False, True, True, '2018'
+	is2016, is2017, is2018 = False, True, True
 
 if is2016: phase = 0
 else: phase = 1
@@ -92,58 +90,40 @@ print 'phase', phase
 
 if isdata: ClosureMode = False
 
+if isdata: 
+	if is2016: ffakerate = TFile('usefulthings/fakerateInfo_year2016_cute.root')
+	if is2017: ffakerate = TFile('usefulthings/fakerateInfo_year2017_cute.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')
+	if is2018: ffakerate = TFile('usefulthings/fakerateInfo_year2018_cute.root')#####ffakerate = TFile('usefulthings/promptDataDrivenRun2017-forfr.root')	
+else:
+	if is2016: ffakerate = TFile('usefulthings/fakerateInfo_year2016.root')
+	if is2017: ffakerate = TFile('usefulthings/fakerateInfo_year2017.root')
+hnum = ffakerate.Get('hFakeShortHadMhtSideband_HtTruth')
+hden = ffakerate.Get('hFakeShortHadMhtSidebandFakeCr_HtTruth')
+if not isdata:
+	#hnum.Add(ffakerate.Get('hPromptShortHadMhtSideband_HtTruth'))
+	#hden.Add(ffakerate.Get('hPromptShortHadMhtSidebandFakeCr_HtTruth'))
+	a=2
+hfrshort = hnum.Clone('hfrshort')
+hfrshort.Divide(hden)
 
-if not turnoffpred:
-	if isdata:  ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_cute.root')
-	else: ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'.root')
+ffakerate.ls()
+hnum = ffakerate.Get('hFakeLongHadMhtSideband_HtTruth')
+hden = ffakerate.Get('hFakeLongHadMhtSidebandFakeCr_HtTruth')
+if not isdata:
+	#hnum.Add(ffakerate.Get('hPromptLongHadMhtSideband_HtTruth'))
+	#hden.Add(ffakerate.Get('hPromptLongHadMhtSidebandFakeCr_HtTruth'))	
+	a = 2
+hfrlong = hnum.Clone('hfrlong')
+hfrlong.Divide(hden)
 
-	hnum = ffakerate.Get('hFakeShortHadMhtSideband_HtTruth')
-	hden = ffakerate.Get('hFakeShortHadMhtSidebandFakeCr_HtTruth')
-	if not isdata:
-		#hnum.Add(ffakerate.Get('hPromptShortHadMhtSideband_HtTruth'))
-		#hden.Add(ffakerate.Get('hPromptShortHadMhtSidebandFakeCr_HtTruth'))
-		a=2
-	hfrshort = hnum.Clone('hfrshort')
-	hfrshort.Divide(hden)
-	hnum = ffakerate.Get('hFakeLongHadMhtSideband_HtTruth')
-	hden = ffakerate.Get('hFakeLongHadMhtSidebandFakeCr_HtTruth')
-	if not isdata:
-		#hnum.Add(ffakerate.Get('hPromptLongHadMhtSideband_HtTruth'))
-		#hden.Add(ffakerate.Get('hPromptLongHadMhtSidebandFakeCr_HtTruth'))	
-		a = 2
-	hfrlong = hnum.Clone('hfrlong')
-	hfrlong.Divide(hden)
-
-
-	if isdata:  fpromptrate = TFile('usefulthings/promptrateInfo_year'+year+'_cute.root')
-	else: fpromptrate = TFile('usefulthings/promptrateInfo_year'+year+'.root')
-
-	fpromptrate.ls()
-	hnum = fpromptrate.Get('hPromptShortSElValidationZLL_TrkEtaTruth')
-	hden = fpromptrate.Get('hPromptShortSElValidationZLLCaloSideband_TrkEtaTruth')
-	if not isdata:
-		#hnum.Add(fpromptrate.Get('hPromptShortSElValidationZLL_HtTruth'))
-		#hden.Add(fpromptrate.Get('hPromptShortSElValidationZLLCaloSideband_HtTruth'))
-		a=2
-	hprshort = hnum.Clone('hprshort')
-	hprshort.Divide(hden)
-	hnum = fpromptrate.Get('hPromptLongSElValidationZLL_TrkEtaTruth')
-	hden = fpromptrate.Get('hPromptLongSElValidationZLLCaloSideband_TrkEtaTruth')
-	if not isdata:
-		#hnum.Add(fpromptrate.Get('hPromptLongSElValidationZLL_HtTruth'))
-		#hden.Add(fpromptrate.Get('hPromptLongSElValidationZLLPromptCr_HtTruth'))	
-		a = 2
-	hprlong = hnum.Clone('hprlong')
-	hprlong.Divide(hden)
-
-	fakeax = hfrlong.GetXaxis()
-	promptax = hprlong.GetXaxis()
 	
+hfrlong = hnum.Clone('hfrlong')
+hfrlong.Divide(hden)
+
+
+fakeax = hnum.GetXaxis()
 def getfakerate(ht, hfr):
 	return hfr.GetBinContent(fakeax.FindBin(ht))
-	
-def getpromptrate(eta, hpr):
-	return hpr.GetBinContent(promptax.FindBin(abs(eta)))
 
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
@@ -201,12 +181,6 @@ calh = 27
 
 calm = 13
 calh = 35
-
-calm = 15
-calh = 25
-
-calm = 20
-calh = 30
 
 lowht = 0
 regionCuts = {}
@@ -706,14 +680,8 @@ for ientry in range(nentries):
 	#print 'once things are stable, I suggest consolodating the nshort, nlong into the dtstatus thingy'
 	fv.append(getBinNumber(fv))
 	fv.extend([c.MET, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht)])
-	if not turnoffpred:
-		if abs(disappearingTracks[0][1])==1: 
-			FR = getfakerate(fv[0], hfrshort)
-			PR = getpromptrate(fv[14], hprshort)
-		if abs(disappearingTracks[0][1])==2: 
-			FR = getfakerate(fv[0], hfrlong)
-			PR = getpromptrate(fv[14], hprlong)
-		
+	if abs(disappearingTracks[0][1])==1: FR = getfakerate(fv[0], hfrshort)
+	if abs(disappearingTracks[0][1])==2: FR = getfakerate(fv[0], hfrlong)	
 	for regionkey in regionCuts:
 		if 'MhtSideband' in regionkey and (not isdata): weight_ = weight/gtrig.Eval(c.MHT)
 		else: weight_ = weight
@@ -722,15 +690,11 @@ for ientry in range(nentries):
 				if selectionFeatureVector(fv,regionkey,varname):
 						if (isPromptEl or isPromptMu or isPromptPi): 
 							fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Truth, fv[ivar], weight_)
-							if not turnoffpred: 
-								fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method2,fv[ivar], PR*weight_)							
-								fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method1,fv[ivar], FR*weight_)
+							fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method,fv[ivar], FR*weight_)							
 						if isfake:
 							#print 'filling something with weight', weight_, 'Fake'+regionkey+'_'+varname
 							fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Truth,   fv[ivar], weight_)
-							if not turnoffpred: 
-								fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method2,  fv[ivar], PR*weight_)
-								fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method1,  fv[ivar], FR*weight_)
+							fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method,  fv[ivar], FR*weight_)
 
 
 
@@ -738,7 +702,7 @@ fnew.cd()
 hHt.Write()
 hHtWeighted.Write()
 
-writeHistoStruct(histoStructDict, 'truthmethod1method2')
+writeHistoStruct(histoStructDict, 'truthmethod')
 for key_ in hEtaVsPhiDT: hEtaVsPhiDT[key_].Write()
 	
 if maketree and not processskims:

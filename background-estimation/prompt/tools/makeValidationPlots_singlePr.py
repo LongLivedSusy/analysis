@@ -79,12 +79,6 @@ calh = 27
 calm = 13
 calh = 35
 
-calm = 15
-calh = 25
-
-calm = 20
-calh = 30
-
 
 if year=='2017': lumi = 41.8
 if year=='2018': lumi = 55.0
@@ -134,7 +128,7 @@ for key in sorted(keys):#[:241]:
 	if 'Short' in name: low_over_high = low_over_high_short
 	else: low_over_high = low_over_high_long
 	
-	kinvar = name.replace('Control','').replace('Truth','').replace('Method1','').replace('Method2','')
+	kinvar = name.replace('Control','').replace('Truth','').replace('Method','')
 	kinvar = kinvar[kinvar.find('_')+1:]
 	print 'got kinvar', kinvar, 'name', name
 	
@@ -156,27 +150,20 @@ for key in sorted(keys):#[:241]:
 			
 			
 	
-	hSidebandFakePrediction = infile.Get(name.replace('hPrompt','hFake').replace('Truth','Method1').replace('_','FakeCr_')).Clone()
-	fakemethod2sub_name = name.replace('hPrompt','hFake').replace('Truth','Method1').replace('_','FakeCr_')	
-
-	hfakemethod2sub = infile.Get(fakemethod2sub_name).Clone()
+	hSidebandFakePrediction = infile.Get(name.replace('hPrompt','hFake').replace('Truth','Method').replace('_','FakeCr_')).Clone()
 	if dofakesidebandsubtraction: 
+		print 'gonna subtract this thing', name.replace('hPrompt','hFake').replace('Truth','Method').replace('_','FakeCr_')
 		hsideband.Add(hSidebandFakePrediction,-1)
 		for ibin in range(1,hsideband.GetXaxis().GetNbins()+1):
 			if hsideband.GetBinContent(ibin)<0: hsideband.SetBinContent(ibin, 0) ## needs a systematic?
 	
 				
-	#hmethod = hsideband.Clone(hsideband.GetName().replace('Truth','PrMethod'))
-	
-	hmethod = infile.Get(name.replace('Truth','Method2')).Clone()
-	if dofakesidebandsubtraction: 
-		hmethod.Add(hfakemethod2sub,-1)			
+	hmethod = hsideband.Clone(hsideband.GetName().replace('Truth','PrMethod'))
+
 	
 
-	hfakemethod = infile.Get(name.replace('hPrompt','hFake').replace('Truth','Method1').replace('CaloSideband','').replace('_','FakeCr_')) ###
-	histoStyler(hfakemethod,kRed+2) ###
-	hfakemethod.SetFillColor(kRed+2)
-	hfakemethod.SetFillStyle(1001)
+	hfakemethod = infile.Get(name.replace('hPrompt','hFake').replace('Truth','Method').replace('CaloSideband','').replace('_','FakeCr_')) ###
+	#histoStyler(hfakemethod,kRed) ###
 		
 	if 'BinNumber' in name:
 		hmethod = merge2dtbins(hmethod)
@@ -185,7 +172,7 @@ for key in sorted(keys):#[:241]:
 		htruth = merge2dtbins(htruth)
 		
 
-	if 'MatchedCalo' in name and False:
+	if 'MatchedCalo' in name:
 		dintHigh, dintLow = Double(), Double()
 		integ_high = hmethod.IntegralAndError(binm,binh-1,dintHigh)
 		hspecialAux = TH1F('hspecialMethod','hspecialMethod',1,0,1)
@@ -210,7 +197,21 @@ for key in sorted(keys):#[:241]:
 	hfakemethod = hfakemethod.Rebin(nbins,'',newxs)####
 				
 			
-
+			
+	if 'MatchedCalo' in name:
+		shax2 = hspecialAux.GetXaxis() # this is the rebinned matchedcalo axis
+		for ibin in range(1,shax2.GetNbins()+1):
+			mcvalue = shax2.GetBinLowEdge(ibin)
+			if mcvalue<10:
+				oldcontent, olderror = hmethod.GetBinContent(ibin), hmethod.GetBinError(ibin)
+				hspecialMethod = hspecialAux.Clone()
+				hspecialMethod.Scale(low_over_high)
+				print dintHigh, 'just scaled this puppy:', ibin, hspecialMethod.GetBinContent(ibin), hspecialMethod.GetBinError(ibin)
+				hmethod.SetBinContent(ibin, hspecialMethod.GetBinContent(ibin))
+				hmethod.SetBinError(ibin, hspecialMethod.GetBinError(ibin))
+				
+	else:
+		hmethod.Scale(low_over_high)
 		
 	if year=='2016':
 		if datamc=='MC': 
@@ -243,7 +244,7 @@ for key in sorted(keys):#[:241]:
 
 	
 	c1 = mkcanvas('c1')
-	shortname = name.replace('Control','').replace('Truth','').replace('Method1','').replace('Method2','')
+	shortname = name.replace('Control','').replace('Truth','').replace('Method','')
 
 	varname = shortname.split('_')[-1]
 	htruth.GetXaxis().SetTitle(namewizard(varname))
@@ -300,7 +301,7 @@ for key in sorted(keys):#[:241]:
 		
 	shortname = shortname.replace('CaloSideband','')
 	pdfname = 'pdfs/validation/year'+str(year)+'_'+shortname.replace('_','')+'.pdf'
-	#c1.Print(pdfname)
+	c1.Print(pdfname)
 	
 	#clist.append(c1)
 	c1.Delete()

@@ -10,11 +10,15 @@ lumi = 35.9 #just for labeling. this weightw as already applied
 #must agree with lumi in merged...py!
 lumi = 137.
 
+'''
+rm -rf pdfs/closure/prompt-bkg/MatchedCalo/*
+python tools/closureMatchedCalo2methods.py
+'''
 
 
 datamc = 'MC'
-dofakesidebandsubtraction = False
-
+includefakecontam = False
+dofakesidebandsubtraction = False # only try true if includefakecontam is also true
 
 binning['MatchedCalo'] = [120,0,60]
 binning['DtStatus'] = [6,-3,3]
@@ -24,7 +28,7 @@ binning['FakeCrNr'] = [6,-3,3]
 redoBinning = binning
 redoBinning['Met'] = [20,0,600]
 redoBinning['Mht'] = redoBinning['Met']
-redoBinning['InvMass'] = [15,50,170]
+redoBinning['InvMass'] = [20,50,170]
 redoBinning['ElPt'] = [5,0,300]
 redoBinning['TrkEta'] = [5,0,3]
 redoBinning['MuPt'] = redoBinning['ElPt']
@@ -40,23 +44,41 @@ makefolders = False
 mycutedatatest = bool(datamc=='data')
 
 
+calm = 20
+calh = 25
+
+calm = 10
+calh = 15
+
+calm = 15
+calh = 25
+
+#calm = 20
+#calh = 30
+
+
 phase = 1
 phase = 0
-
 if phase==0:	
 	fCentralMC = 'test.root'
 	fCentralMC = 'output/promptDataDrivenMCSummer16.root'
 	#fCentralMC = 'PromptBkgHist_Summer16WJets.root'
 	#fCentralMC = 'test.root'
-	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal20to30.root'
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal15to20.root'
-if phase==1: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal15to20.root'
+	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
+	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
+if phase==1: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+str(calm)+'to'+calh+'.root'
 	
 
+#hack!
+#fCentralMC = 'PromptBkgTree_Summer16DYJetsPrompt-processskimsTrue.root'
 
 infile = TFile(fCentralMC)
 infile.ls()
 keys = infile.GetListOfKeys()
+
+
+
+calSRcut = calm
 
 hShapeShort = infile.Get('hPromptShortSElValidationZLL_MatchedCaloTruth').Clone('hShapeShort')##
 if not mycutedatatest: hShapeShort.Add(infile.Get('hFakeShortSElValidationZLL_MatchedCaloTruth'))
@@ -65,28 +87,10 @@ hShapeLong = infile.Get('hPromptLongSElValidationZLL_MatchedCaloTruth').Clone('h
 if not mycutedatatest: hShapeLong.Add(infile.Get('hFakeLongSElValidationZLL_MatchedCaloTruth'))
 
 shax = hShapeShort.GetXaxis()
-
-calm = 20
-calh = 25
-
-calm = 10
-calh = 15
-
-calm = 15
-calh = 20
-
-calm = 20
-calh = 30
-
-calSRcut = 20
-
 binm = shax.FindBin(calm)
 binh = shax.FindBin(calh)
 
-low_over_high_short = hShapeShort.Integral(shax.FindBin(0),shax.FindBin(calSRcut)-1)/hShapeShort.Integral(binm,binh-1)
-low_over_high_long = hShapeLong.Integral(shax.FindBin(0),shax.FindBin(calSRcut)-1)/hShapeLong.Integral(binm,binh-1)
-
-fout = 'closureMatchedCalo_phase'+str(phase)+'.root'
+fout = 'closureMatchedCalo2methods_phase'+str(phase)+'.root'
 if mycutedatatest: fout = fout.replace('.root','_cute.root')
 fnew = TFile(fout,'recreate')
 
@@ -94,6 +98,7 @@ fnew = TFile(fout,'recreate')
 searchbinresults = {}
 hratios = []
 clist = []
+directories = []
 print 'len(keys)', len(keys)
 for key in sorted(keys):#[:241]:
 	infile.cd()
@@ -102,24 +107,23 @@ for key in sorted(keys):#[:241]:
 	if 'hFake' in name: continue
 	
 	
-	if not 'Truth' in name: continue
+	#if not 'Truth' in name: continue
+	if not 'Method2' in name: continue	
 	#if not 'Baseline' in name: continue
 	if not 'CaloSideband' in name: continue
 	if not 'hPrompt' in name: continue
 	if 'FakeCr' in name: continue
 	
-	if 'Short' in name: low_over_high = low_over_high_short
-	else: low_over_high = low_over_high_long
-	
-	kinvar = name.replace('Control','').replace('Truth','').replace('Method','')
+
+	kinvar = name.replace('Truth','').replace('Method2','').replace('Method1','')
 	kinvar = kinvar[kinvar.find('_')+1:]
 	print 'got kinvar', kinvar, 'name', name
 	
 	hsideband =   infile.Get(name).Clone()
 	hsidebandfake=infile.Get(name.replace('hPrompt','hFake')).Clone()
-	if not mycutedatatest: hsideband.Add(hsidebandfake)
+	if (not mycutedatatest) and includefakecontam: hsideband.Add(hsidebandfake)
 	
-	htruth = infile.Get(name.replace('CaloSideband','')).Clone()
+	htruth = infile.Get(name.replace('CaloSideband','').replace('Method2','Truth')).Clone()
 	if mycutedatatest: 
 		if kinvar=='InvMass':
 			xaxt = htruth.GetXaxis()
@@ -134,7 +138,7 @@ for key in sorted(keys):#[:241]:
 	if dofakesidebandsubtraction: 	
 		print 'gonna subtract this thing', name.replace('hPrompt','hFake').replace('Truth','Method').replace('_','FakeCr_')
 		hSidebandFakePrediction = infile.Get(name.replace('hPrompt','hFake').replace('Truth','Method').replace('_','FakeCr_')).Clone()
-		if not mycutedatatest: hSidebandFakePrediction.Add(infile.Get(name.replace('Truth','Method').replace('_','FakeCr_')))
+		if (not mycutedatatest) and includefakecontam: hSidebandFakePrediction.Add(infile.Get(name.replace('Truth','Method').replace('_','FakeCr_')))
 		hsideband.Add(hSidebandFakePrediction,-1)
 	
 				
@@ -187,13 +191,13 @@ for key in sorted(keys):#[:241]:
 			if mcvalue<calSRcut:
 				oldcontent, olderror = hmethod.GetBinContent(ibin), hmethod.GetBinError(ibin)
 				hspecialMethod = hspecialAux.Clone()
-				hspecialMethod.Scale(low_over_high)
+				#hspecialMethod.Scale(low_over_high)
 				print dintHigh, 'just scaled this puppy:', ibin, hspecialMethod.GetBinContent(ibin), hspecialMethod.GetBinError(ibin)
 				hmethod.SetBinContent(ibin, hspecialMethod.GetBinContent(ibin))
 				hmethod.SetBinError(ibin, hspecialMethod.GetBinError(ibin))
 				
 				hspecialMethod = hspecialContamAux.Clone()
-				hspecialMethod.Scale(low_over_high)
+				#hspecialMethod.Scale(low_over_high)
 				hmethod_fakecontam.SetBinContent(ibin, hspecialMethod.GetBinContent(ibin))
 				hmethod_fakecontam.SetBinError(ibin, hspecialMethod.GetBinError(ibin))	
 	else:
@@ -220,10 +224,11 @@ for key in sorted(keys):#[:241]:
 
 	
 	c1 = mkcanvas('c1')
-	shortname = name.replace('Control','').replace('Truth','').replace('Method','')
+	shortname = name.replace('Control','').replace('Truth','').replace('Method2','')
 
 	varname = shortname.split('_')[-1]
 	htruth.GetXaxis().SetTitle(namewizard(varname))
+	
 	hmethod.GetXaxis().SetTitle(namewizard(varname))    
 	#leg = mklegend(x1=.5, y1=.6, x2=.92, y2=.8, color=kWhite)
 	leg = mklegend(x1=.49, y1=.54, x2=.91, y2=.78, color=kWhite)
@@ -236,7 +241,14 @@ for key in sorted(keys):#[:241]:
 	hmethod.SetFillColor(hmethod.GetLineColor()-1)	
 	htruth.GetYaxis().SetRangeUser(0.02,themax)
 	fnew.cd()
-	plotname = shortname.replace('_','').replace('CaloSideband','')
+	
+	print 'going to try to make a folder name from', shortname
+	directory = shortname.split('_')[0].replace('hPrompt','').replace('CaloSideband','')
+	if not directory in directories:
+		directories.append(directory)
+		if not os.path.exists('pdfs/closure/prompt-bkg/MatchedCalo/'+directory):
+			os.system('mkdir pdfs/closure/prompt-bkg/MatchedCalo/'+directory)
+	plotname = shortname.replace('_','').replace('CaloSideband','').replace('hPrompt','')
 	hratio, hmethodsyst = FabDrawSystyRatio(c1,leg,htruth,[hmethod],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
 	pad1, pad2 = hmethodsyst[-2:]
 	hratio.GetYaxis().SetRangeUser(0.0,2.125)	
@@ -252,17 +264,19 @@ for key in sorted(keys):#[:241]:
 	hfakeratio.Divide(hmethod)
 
 	pad2.cd()
-	leg2 = mklegend(x1=.68, y1=.85, x2=.94, y2=.965, color=kWhite)
-	leg2.AddEntry(hfakeratio, 'CR fake contam.')
-	leg2.Draw()	
-	hfakeratio.Draw('hist same')
+	if includefakecontam: 
+		leg2 = mklegend(x1=.68, y1=.85, x2=.94, y2=.965, color=kWhite)
+		leg2.AddEntry(hfakeratio, 'CR fake contam.')
+		leg2.Draw()	
+		hfakeratio.Draw('hist same')
 
 	pad1.cd()
 	hmethod.SetTitle('')
 	htruth.SetTitle('')	
 	hmethod.SetLineWidth(3)
-	hmethod_fakecontam.Draw('hist same')
-	leg.AddEntry(hmethod_fakecontam, 'fake contrib. to pred.')
+	if includefakecontam: 
+		hmethod_fakecontam.Draw('hist same')
+		leg.AddEntry(hmethod_fakecontam, 'fake contrib. to pred.')
 						
 	c1.Update()
 	fnew.cd()
@@ -280,7 +294,7 @@ for key in sorted(keys):#[:241]:
 			if 'Short' in name: searchbinresults[regionkey]['Short'] = [htruth.Clone(), hmethod.Clone(),hmethod_fakecontam.Clone()]		
 		
 	shortname = shortname.replace('CaloSideband','')
-	pdfname = 'pdfs/closure/prompt-bkg/MatchedCalo/phase'+str(phase)+'_'+shortname.replace('_','')+'.pdf'
+	pdfname = 'pdfs/closure/prompt-bkg/MatchedCalo/'+directory+'/phase'+str(phase)+'_'+shortname.replace('_','')+'.png'
 	if mycutedatatest: pdfname = pdfname.replace('.','_cute.')
 	c1.Print(pdfname)
 	
@@ -345,8 +359,9 @@ for regionkey in searchbinresults:
 	hmethod.SetTitle('')
 	htruth.SetTitle('')	
 	hmethod.SetLineWidth(3)
-	hmethodLongContam.Draw('hist same')
-	leg.AddEntry(hmethod_fakecontam, 'fake contribution to pred.')
+	if includefakecontam:
+		hmethodLongContam.Draw('hist same')
+		leg.AddEntry(hmethod_fakecontam, 'fake contribution to pred.')
 			
 			
 
@@ -355,19 +370,28 @@ for regionkey in searchbinresults:
 	hmethodLong.GetYaxis().SetRangeUser(0,600)
 	hmethodLong.Write('h'+plotname+'BinNumber_merged')
 	c1.Write('c_'+plotname+'BinNumber_merged')
-	
-	pdfname = 'pdfs/closure/prompt-bkg/MatchedCalo/phase'+str(phase)+'_'+plotname+'BinNumber_merged'+'.pdf'
+	if not os.path.exists('pdfs/closure/prompt-bkg/MatchedCalo/'+'SearchBins/'):
+		os.system('mkdir pdfs/closure/prompt-bkg/MatchedCalo/'+'SearchBins/')
+	pdfname = 'pdfs/closure/prompt-bkg/MatchedCalo/SearchBins/phase'+str(phase)+'_'+plotname+'BinNumber_merged'+'.png'
 	if mycutedatatest: pdfname = pdfname.replace('.','_cute.')
 	c1.Print(pdfname)
 		
 	c1.Delete()
 	
-	
 import os, sys
-print 'test b'
+os.system('echo echo hello > htmlwhippy.sh')
+pipe = '>'
+print 'reached the end of things'
+for directory_ in directories:
+	os.system('echo python tools/whiphtml.py \\"pdfs/closure/prompt-bkg/MatchedCalo/'+directory_+'/*.png\\" '+pipe+' htmlwhippy.sh')
+	pipe = '>>'
+os.system('bash htmlwhippy.sh')
 print 'just created', os.getcwd()+'/'+fnew.GetName()
 fnew.Close()
-print 'test c'
+print 'now do'
+print 'cp -r pdfs/closure/prompt-bkg/MatchedCalo /afs/desy.de/user/b/beinsam/www/DisappearingTracks/closure/'
+print 'could also have done'
+print 'rm -rf pdfs/closure/prompt-bkg/MatchedCalo/*'
 
 
 

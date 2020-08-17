@@ -8,7 +8,7 @@ gROOT.SetBatch(1)
 from time import sleep
 lumi = 35.6 #just for labeling. this weightw as already applied
 #lumi = 5.746 # for 2016 B tests
-#lumi = 2.572 # 2016C tests
+lumi = 2.572 # 2016C tests
 #must agree with lumi in merged...py!
 
 ######Ok, I need to track down, event by event, which are getting filled in NoCuts mode for a control region muon
@@ -22,6 +22,7 @@ redoBinning['ElPt'] = [30,0,300]
 redoBinning['TrkEta'] = [15,0,3]
 redoBinning['MuPt'] = redoBinning['ElPt']
 redoBinning['DeDxAverage'] = [35,0,7]
+redoBinning['Mht'] = [10,200,500]
 makefolders = False
 
 basezone = '0p0to2p1'
@@ -31,7 +32,7 @@ drawhists = True
 
 
 if phase==0:
-	fMCs = ['output/bigchunks/Summer16ZJetsToNuNu.root','output/bigchunks/Summer16QCD.root','output/bigchunks/Summer16WJets.root','output/bigchunks/Summer16TTJets.root','output/bigchunks/Summer16VV.root','output/bigchunks/Summer16DYJets.root']
+	fMCs = ['output/bigchunks/Summer16QCD.root','output/bigchunks/Summer16WJets.root','output/bigchunks/Summer16TTJets.root','output/bigchunks/Summer16VV.root','output/bigchunks/Summer16DYJets.root','output/bigchunks/Summer16ZJetsToNuNu.root']
 	fData = 'output/promptDataDrivenSingleElData2016.root'
 	#fData = 'output/totalweightedbkgsDataDrivenSingleMuDataNoSmear.root'	
 	#fData = 'output/totalweightedbkgsDataDrivenDataNoSmear.root'
@@ -45,9 +46,13 @@ testscale = 1# = lumi*1000
 
 if simple:
 	#for fn in fMCs: fn = fn.replace('.root','_simple.root')
-	fData = fData.replace('.root','_simple.root')	
+	fData = fData.replace('.root','_simple.root')
+	fData = 'output/totalweightedRun2016CMET_simple.root'
+	for i in range(len(fMCs)): fMCs[i] = fMCs[i].replace('bigchunks','bigsimple').replace('.root','Simple.root').replace('Summer16','')
+	
 
 print 'fData' , fData
+print 'mcfiles', fMCs
 
 mcfile = TFile(fMCs[0])
 mcfile.ls()
@@ -63,13 +68,14 @@ colors = [kBlue+1, kOrange+1, kGreen+1, kViolet+1, kTeal, kRed+1]
 		
 keys = mcfile.GetListOfKeys()
 names = []
-for key in keys: names.append(key.GetName())
+for key in keys: 
+	names.append(key.GetName())
 	
 mcfile.Close()
 
 hratios = []
 clist = []
-print 'len(keys)', len(keys)
+print 'len(keys)', len(names)
 for name in sorted(names):#[:241]:
 	mcfile.cd()
 	if simple:
@@ -77,7 +83,7 @@ for name in sorted(names):#[:241]:
 	else:
 		if not 'Control' in name: continue
 	
-	if not 'Validation' in name: continue
+	#if not 'Validation' in name: continue
 		
 	print 'going for', name, 'from', datfile.GetName()
 	hData = datfile.Get(name)
@@ -116,6 +122,10 @@ for name in sorted(names):#[:241]:
 	hData.SetMarkerStyle(22)
 	hData.SetDirectory(0)
 	
+	if 'Mht' in name:
+			fnew.cd()
+			hData.Write()
+			
 	hmcs = []
 	for imc, fMC in enumerate(fMCs):
 		mcfile = TFile(fMC)
@@ -137,12 +147,16 @@ for name in sorted(names):#[:241]:
 		
 		hMC.SetLineColor(colors[imc]+1)
 		hMC.SetFillColor(hMC.GetLineColor()-1)
-		hMC.SetTitle(mcfile.GetName().replace('output/bigchunks/','').split('Smear')[0].replace('Summer16',''))
-		mcfile.Close()
+		hMC.SetTitle(mcfile.GetName().replace('output/bigchunks/','').split('Smear')[0].replace('Summer16','').replace('bigsimple',''))
+		if 'Mht' in name:
+			fnew.cd()
+			if len(redoBinning[kinvar])!=3: hMC = hMC.Rebin(nbins,'',newxs)
+			else: hMC = hMC.Rebin(nbins,'',newxs)			
+			hMC.Write(hMC.GetName()+mcfile.GetName().replace('output/','').replace('bigchunks/','').replace('bigsimple','').split('Smear')[0].replace('Summer16','').replace('/','_').replace('.root',''))
+
 		
-		if len(redoBinning[kinvar])!=3: hMC = hMC.Rebin(nbins,'',newxs)
-		else: hMC = hMC.Rebin(nbins,'',newxs)
-				
+		hMC.SetDirectory(0)
+		mcfile.Close()				
 		hmcs.append(hMC)
 
 	fnew.cd()
@@ -150,7 +164,8 @@ for name in sorted(names):#[:241]:
 	c1 = mkcanvas('c_'+plotname)
 
 	#hratio = FabDraw(c1,leg,hVarTruth,[hVarMethod],datamc='MC',lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
-	hratio, pad1, pad2 = FabDraw(c1,leg,hData,hmcs,datamc='data',lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+	hratio, pads = FabDraw(c1,leg,hData,hmcs,datamc='data',lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+	pad1, pad2 = pads
 	
 	hMC.GetYaxis().SetRangeUser(1.,themax)
 	hData.GetYaxis().SetRangeUser(1.,themax)	
@@ -216,4 +231,12 @@ print 'just created', os.getcwd()+'/'+fnew.GetName()
 fnew.Close()
 
 
+'''
+  KEY: TH1F	hNoLBaseline_MhtTruth;1	data
+  KEY: TH1F	hNoLBaseline_MhtTruth0_QCDSimple;1	output//QCDSimple.root
+  KEY: TH1F	hNoLBaseline_MhtTruth1_WJetsSimple;1	output//WJetsSimple.root
+  KEY: TH1F	hNoLBaseline_MhtTruth2_TTJetsSimple;1	output//TTJetsSimple.root
+  KEY: TH1F	hNoLBaseline_MhtTruth3_VVSimple;1	output//VVSimple.root
+  KEY: TH1F	hNoLBaseline_MhtTruth4_DYJetsSimple;1	output//DYJetsSimple.root
+'''
 

@@ -33,7 +33,7 @@ redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
 redoBinning['TrkPt']=[4,0,400]
 redoBinning['LepMT'] = [4,0,160]
-redoBinning['Ht']=[4,0,1200]
+redoBinning['Ht']=[5,0,2000]
 redoBinning['NJets']=[-0.00000001,0,4,10]
 redoBinning['NJets']=[5,0,10]
 redoBinning['MatchedCalo'] = [0,10,15,20,25,30,60]
@@ -42,9 +42,14 @@ redoBinning['BTags'] = [-0.000000000001,0,1,4]
 
 makefolders = False
 
-year = '2016'
 year = '2017'
 year = '2018'
+year = '2016'
+
+
+calm = 20
+calh = 30
+
 
 if datamc=='MC': mycutedatatest = False
 else: mycutedatatest = True
@@ -61,15 +66,15 @@ normzone = zoneOfDedx[0]
 if year=='2016':	
 	fCentralMC = 'test.root'
 	fCentralMC = 'output/promptDataDrivenMCSummer16.root'
-	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal15to20.root'
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal15to20.root'
+	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+calm+'to'+calh+'.root'
+	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+calm+'to'+calh+'.root'
 
 if year=='2017': 
-	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal15to20.root'
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal15to20.root'
+	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+calm+'to'+calh+'.root'
+	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+calm+'to'+calh+'.root'
 	
 if year=='2018': 
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal15to20.root'	
+	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+calm+'to'+calh+'.root'	
 	
 
 print 'going to use', fCentralMC
@@ -93,14 +98,14 @@ for key in sorted(keys):#[:241]:
 	
 
 	
-	if not 'Method' in name: continue
+	if not 'Method1' in name: continue
 	#if not 'Baseline' in name: continue
 	if not 'FakeCr_' in name: continue
 	if not 'hFake' in name: continue
 	
 
 	
-	kinvar = name.replace('Control','').replace('Truth','').replace('Method','')
+	kinvar = name.replace('Control','').replace('Truth','').replace('Method1','')
 	kinvar = kinvar[kinvar.find('_')+1:]
 	print 'got kinvar', kinvar, 'name', name
 	
@@ -109,11 +114,11 @@ for key in sorted(keys):#[:241]:
 	
 	if not mycutedatatest: 
 		hmethod_promptcontam = infile.Get(name.replace('hFake','hPrompt'))
-		htruth_promptcontam = infile.Get(name.replace('FakeCr_','_').replace('Method','Truth').replace('hFake','hPrompt'))
+		htruth_promptcontam = infile.Get(name.replace('FakeCr_','_').replace('Method1','Truth').replace('hFake','hPrompt'))
 		histoStyler(hmethod_promptcontam, kTeal-5)
 		hmethod_promptcontam.SetFillStyle(0)
 	
-	htruth = infile.Get(name.replace('FakeCr_','_').replace('Method','Truth'))
+	htruth = infile.Get(name.replace('FakeCr_','_').replace('Method1','Truth'))
 	
 
 	#if hmethod.Integral()>0: hmethod.Scale(htruth.Integral()/hmethod.Integral())
@@ -166,7 +171,7 @@ for key in sorted(keys):#[:241]:
 			for ibin in range(1,xaxt.GetNbins()+1):
 				if xaxt.GetBinLowEdge(ibin)>=90: htruth.SetBinContent(ibin, 0)		
 	
-	shortname = name.replace('Control','').replace('Truth','').replace('Method','')
+	shortname = name.replace('Control','').replace('Truth','').replace('Method1','')
 
 	varname = shortname.split('_')[-1]
 	xax = hmethod.GetXaxis()
@@ -180,7 +185,7 @@ for key in sorted(keys):#[:241]:
 	leg = mklegend(x1=.49, y1=.54, x2=.91, y2=.78, color=kWhite)
 
 
-	#hMethod.Scale()
+	#hMethod1.Scale()
 	themax = 10000*max([hmethod.GetMaximum(),htruth.GetMaximum()])
 	hmethod.GetYaxis().SetRangeUser(0.01,themax)
 	hmethod.SetLineColor(kRed+2)
@@ -236,14 +241,14 @@ for key in sorted(keys):#[:241]:
 		hfake.Write()
 	if 'Ht' in name:
 		htruth.Write()
-		hfakecrtruth = infile.Get(name.replace('Method', 'Truth'))
+		hfakecrtruth = infile.Get(name.replace('Method1', 'Truth'))
 		hfakecrtruth = hfakecrtruth.Rebin(nbins,'',newxs)
 		hfakecrtruth.Write()
 		if not mycutedatatest:
 			hmethod_promptcontam.Write()
 			print 'writing', htruth_promptcontam.GetName()
 			htruth_promptcontam.Write()
-			hpromptcrtruth = infile.Get(name.replace('Method', 'Truth').replace('hFake','hPrompt'))
+			hpromptcrtruth = infile.Get(name.replace('Method1', 'Truth').replace('hFake','hPrompt'))
 			hpromptcrtruth = hpromptcrtruth.Rebin(nbins,'',newxs)
 			hpromptcrtruth.Write()			
 		

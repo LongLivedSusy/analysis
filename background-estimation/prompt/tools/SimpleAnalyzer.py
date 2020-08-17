@@ -123,7 +123,7 @@ inf = 999999
 regionCuts = {}
 varlist_                     = ['Ht',     'Mht',     'NJets', 'BTags','MinDPhiMhtJets','NElectrons','NMuons', 'InvMass', 'LepMT', 'ElPt',     'ElEta',   'MuPt',      'MuEta']
 #regionCuts['NoMetBaseline']  = [(0,inf),  (0,inf),   (1,inf), (0,inf),(0.4,inf),        (-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf)]
-regionCuts['NoLBaseline']    = [(200,inf),(280,inf),   (1,inf), (0,inf),(0.4,inf),        (0,0),     (0,0),    (-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf)]
+regionCuts['NoLBaseline']    = [(200,inf),(250,inf),   (1,inf), (0,inf),(0.4,inf),        (0,0),     (0,0),    (-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf)]
 regionCuts['SElBaseline']    = [(200,inf),(0,inf),     (1,inf), (0,inf),(-inf,inf),       (1,1),     (0,inf),  (-inf,inf),(-inf,inf),(30,inf),  (-inf,inf),(-inf,inf),(-inf,inf)]
 regionCuts['SMuBaseline']    = [(200,inf),(0,inf),     (1,inf), (0,inf),(-inf,inf),       (0,inf),   (1,1),    (-inf,inf),(-inf,inf),(-inf,inf),(-inf,inf),(30,inf),  (-inf,inf)]
 regionCuts['DiElBaseline']   = [(200,inf),(0,inf),     (1,inf), (0,inf),(-inf,inf),       (2,2),     (0,inf),  (50,inf),(-inf,inf),(30,inf),  (-inf,inf),(-inf,inf),(-inf,inf)]
@@ -239,8 +239,10 @@ for ientry in range(nentries):
 
 
 	#if not c.MHT>150: continue
-
-	if not passesUniversalSelection(c): continue
+	if isdata:
+		if not passesUniversalDataSelection(c): continue
+	else:
+		if not passesUniversalSelection(c): continue
 	
 	if isdata:
 		fillth1(hHtWeighted,c.HTOnline,weight)	
