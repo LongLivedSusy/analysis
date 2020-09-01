@@ -140,11 +140,12 @@ if __name__ == "__main__":
         #options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
         #options.dataset = mc_summer16 + ",Run2016*"
         options.dataset = mc_summer16 + ",RunIISummer16MiniAODv3.SMS*,Run2016*"
+        #options.dataset = "RunIISummer16MiniAODv3.SMS*"
         #options.dataset = mc_fall17
         #options.dataset = "Run2016*,Run2017*"
         #options.dataset = "Run2016*"
     if not options.output_folder:
-        options.output_folder = "../skim_26_baseline"
+        options.output_folder = "../skim_42"
     ######## defaults ########
 
     commands = []

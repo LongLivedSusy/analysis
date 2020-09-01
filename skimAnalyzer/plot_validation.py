@@ -116,9 +116,13 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
             ULowHigh = 0
         
         h_ipromptprediction = h_caloSB.Clone()
-        #TODO: Substract fake background
-        
-        h_ipromptprediction.Add(h_ifakeprediction, -1)
+
+        if "regionCorrected" in dataid:
+            h_ipromptprediction_multi = histos[dataid + "_srECSB" + dedx + i_category + "_multi"].Clone()
+            h_ipromptprediction.Add(h_ipromptprediction_multi)    
+
+        # subtract fake background:
+        h_ipromptprediction.Add(h_ifakeprediction, -1)            
         
         # check for negative entries:
         for ibin in range(1, h_ipromptprediction.GetXaxis().GetNbins()+1):
@@ -274,8 +278,8 @@ def run(index, histograms_folder = ""):
     #regions = ["SElValidationMT", "SMuValidationMT" ]#, "HadBaseline", "SMuBaseline", "SElBaseline"]
     #regions = ["HadBaseline", "SMuBaseline", "SElBaseline", "SMuValidationMT", "SElValidationMT"]#, "SElValidationMT" "Baseline", "HadBaseline", "SMuBaseline", "SElBaseline"]
     regions = [
-                "SMuValidationMT",
-                "SElValidationMT",
+                #"SMuValidationMT",
+                #"SElValidationMT",
                 "Baseline",
               ]
     
@@ -285,9 +289,10 @@ def run(index, histograms_folder = ""):
                  #"MHT",
                  #"n_goodjets",
                  ##"n_btags",
-                 "leadinglepton_mt",
-                 "tracks_invmass",
+                 #"leadinglepton_mt",
+                 #"tracks_invmass",
                  "tracks_region",
+                 "regionCorrected",
                  ##"tracks_is_pixel_track",
                  ##"tracks_pt",
                  ##"tracks_eta",
@@ -297,7 +302,7 @@ def run(index, histograms_folder = ""):
                  ##"tracks_trkRelIso",
                 ]
     dedexids = ["_MidHighDeDx"] #  "_MidDeDx", "_HighDeDx"
-    fakerateregions = ["QCDLowMHT", "QCDLowMHT2D"] # "QCDLowMHT",,"QCDLowMHTSimple", "QCDLowMHTHT"] 
+    fakerateregions = ["QCDLowMHT2D"] # "QCDLowMHT",,"QCDLowMHTSimple", "QCDLowMHTHT"] 
     #fakerateregions = ["QCDLowMHT"]
     categories = ["_short", "_long"]
 
