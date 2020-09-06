@@ -73,14 +73,16 @@ binning['NPixStrips']=binning['NTags']
 binning['BTags']=[4,0,4]
 binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
-binning['InvMass'] = [100,0,200]
-binning['LepMT'] = [100,0,500]
+binning['DPhiMhtDt'] = [32,0,3.2]
+binning['InvMass'] = [20,60,180]
+binning['LepMT'] = [20,0,160]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [58,0,58]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [100,0,10]
 binning['MinDPhiMhtHemJet'] = [16,0,3.2]
-binning['MatchedCalo'] = [120,0,60]
+binning['MatchedCalo'] = [30,0,150]
+binning['LeadTrkMva'] = [44,-1.1,1.1]
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
@@ -89,8 +91,9 @@ binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [49,1,50]
 binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
-binningAnalysis['InvMass'] = [25,0,200]
+#binningAnalysis['InvMass'] = [25,0,200]
 binningAnalysis['LepMT'] = [16,0,160]
+binningAnalysis['DPhiMhtDt'] = [32,0,3.2]
 
 '''
 binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
@@ -322,7 +325,7 @@ def Struct(*args, **kwargs):
 def mkHistoStruct(hname, binning=binning):
 	if '_' in hname: var = hname[hname.find('_')+1:]
 	else: var =  hname
-	histoStruct = Struct('Truth','Control','Method')
+	histoStruct = Struct('Truth','Control','Method1','Method2','Method3')
 	if len(binning[var])==3:
 		nbins = binning[var][0]
 		low = binning[var][1]
@@ -330,7 +333,8 @@ def mkHistoStruct(hname, binning=binning):
 		histoStruct.Truth = TH1F('h'+hname+'Truth',hname+'Truth',nbins,low,high)
 		histoStruct.Control = TH1F('h'+hname+'Control',hname+'Control',nbins,low,high)
 		histoStruct.Method1 = TH1F('h'+hname+'Method1',hname+'Method1',nbins,low,high)
-		histoStruct.Method2 = TH1F('h'+hname+'Method2',hname+'Method2',nbins,low,high)		
+		histoStruct.Method2 = TH1F('h'+hname+'Method2',hname+'Method2',nbins,low,high)
+		histoStruct.Method3 = TH1F('h'+hname+'Method3',hname+'Method3',nbins,low,high)		
 
 	else:
 		nBin = len(binning[var])-1
@@ -338,7 +342,8 @@ def mkHistoStruct(hname, binning=binning):
 		histoStruct.Truth = TH1F('h'+hname+'Truth',hname+'Truth',nBin,binArr)
 		histoStruct.Control = TH1F('h'+hname+'Control',hname+'Control',nBin,binArr)
 		histoStruct.Method1 = TH1F('h'+hname+'Method1',hname+'Method1',nBin,binArr)
-		histoStruct.Method2 = TH1F('h'+hname+'Method2',hname+'Method2',nBin,binArr)		
+		histoStruct.Method2 = TH1F('h'+hname+'Method2',hname+'Method2',nBin,binArr)	
+		histoStruct.Method3 = TH1F('h'+hname+'Method3',hname+'Method3',nBin,binArr)				
 	histoStyler(histoStruct.Truth,kBlack)
 	histoStyler(histoStruct.Control,kTeal-1)
 	histoStyler(histoStruct.Method1,kAzure-2)
@@ -347,6 +352,8 @@ def mkHistoStruct(hname, binning=binning):
 	histoStruct.Method1.SetFillColor(histoStruct.Method1.GetLineColor()+1)
 	histoStruct.Method2.SetFillStyle(1001)
 	histoStruct.Method2.SetFillColor(histoStruct.Method2.GetLineColor()+1)	
+	histoStruct.Method3.SetFillStyle(1001)
+	histoStruct.Method3.SetFillColor(histoStruct.Method2.GetLineColor()+2)		
 	return histoStruct
 
 
@@ -358,7 +365,8 @@ def writeHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
 		if 'control' in opt: hStructDict[key].Control.Write()
 		if 'method1' in opt: hStructDict[key].Method1.Write()
 		if 'method2' in opt: hStructDict[key].Method2.Write()
-		
+		if 'method3' in opt: hStructDict[key].Method3.Write()		
+	
 def mkEfficiencyRatio(hPassList, hAllList,hName = 'hRatio'):#for weighted MC, you need TEfficiency!
 	hEffList = []
 	for i in range(len(hPassList)):
@@ -776,10 +784,9 @@ _chargedPtSum_ = array('f',[0])
 _pixelLayersWithMeasurement_ = array('f',[0])
 _trackerLayersWithMeasurement_ = array('f',[0])
 _nMissingMiddleHits_ = array('f',[0])
-
+_chi2perNdof_ = array('f',[0])
 
 def prepareReaderPixelStrips(reader, xmlfilename):
-		reader.AddVariable("dxyVtx",_dxyVtx_)      
 		reader.AddVariable("dzVtx",_dzVtx_)          
 		reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
 		reader.AddVariable("trkRelIso",_trkRelIso_)
@@ -790,14 +797,13 @@ def prepareReaderPixelStrips(reader, xmlfilename):
 		reader.BookMVA("BDT", xmlfilename)
 
 def prepareReaderPixel(reader, xmlfilename):
-		reader.AddVariable("dxyVtx",_dxyVtx_)     
 		reader.AddVariable("dzVtx",_dzVtx_)           
 		reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
 		reader.AddVariable("trkRelIso",_trkRelIso_)
 		reader.AddVariable("nValidPixelHits",_nValidPixelHits_)
 		reader.AddVariable("nValidTrackerHits",_nValidTrackerHits_)
 		reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
-		reader.BookMVA("BDT", xmlfilename)    
+		reader.BookMVA("BDT", xmlfilename)      
 
 def evaluateBDT(reader, trackfv):
 		_dxyVtx_[0] = trackfv[0]
@@ -808,25 +814,50 @@ def evaluateBDT(reader, trackfv):
 		_nValidTrackerHits_[0] = trackfv[5]
 		_nMissingOuterHits_[0] = trackfv[6]
 		_ptErrOverPt2_[0] = trackfv[7]
+		_chi2perNdof_[0] = trackfv[8]
 		return  reader.EvaluateMVA("BDT")
 
 def prepareReaderPixelStrips_loose(reader, xmlfilename):
-		reader.AddVariable("dzVtx",_dzVtx_)          
-		reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
-		reader.AddVariable("trkRelIso",_trkRelIso_)
-		reader.AddVariable("nValidPixelHits",_nValidPixelHits_)
-		reader.AddVariable("nValidTrackerHits",_nValidTrackerHits_)
-		reader.AddVariable("nMissingOuterHits",_nMissingOuterHits_)
-		reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
+		reader.AddVariable("tracks_dzVtx",_dzVtx_)          
+		reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+		reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
+		reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
+		reader.AddVariable("tracks_nValidTrackerHits",_nValidTrackerHits_)
+		reader.AddVariable("tracks_nMissingOuterHits",_nMissingOuterHits_)
+		reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
+		reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)		
 		reader.BookMVA("BDT", xmlfilename)
 
 def prepareReaderPixel_loose(reader, xmlfilename):
-		reader.AddVariable("dzVtx",_dzVtx_)           
-		reader.AddVariable("matchedCaloEnergy",_matchedCaloEnergy_)
-		reader.AddVariable("trkRelIso",_trkRelIso_)
-		reader.AddVariable("nValidPixelHits",_nValidPixelHits_)
-		reader.AddVariable("nValidTrackerHits",_nValidTrackerHits_)
-		reader.AddVariable("ptErrOverPt2",_ptErrOverPt2_)
+		reader.AddVariable("tracks_dzVtx",_dzVtx_)           
+		reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+		reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
+		reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
+		reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
+		reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
+		reader.BookMVA("BDT", xmlfilename)  
+		
+		
+def prepareReaderPixelStrips_fullyinformed(reader, xmlfilename):
+		reader.AddVariable("tracks_dxyVtx",_dxyVtx_)
+		reader.AddVariable("tracks_dzVtx",_dzVtx_)		       
+		reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+		reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
+		reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
+		reader.AddVariable("tracks_nValidTrackerHits",_nValidTrackerHits_)
+		reader.AddVariable("tracks_nMissingOuterHits",_nMissingOuterHits_)
+		reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
+		reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)		
+		reader.BookMVA("BDT", xmlfilename)
+
+def prepareReaderPixel_fullyinformed(reader, xmlfilename):
+		reader.AddVariable("tracks_dxyVtx",_dxyVtx_)
+		reader.AddVariable("tracks_dzVtx",_dzVtx_)		        
+		reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+		reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
+		reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
+		reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
+		reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
 		reader.BookMVA("BDT", xmlfilename)        
 
 
@@ -860,7 +891,7 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 		if not c.tracks_chi2perNdof[itrack]<2.88: 
 			#print 'loss to chi2'
 			return 0,-11
-			
+		
 		if not dxyVtx < 0.1: return 0,-11
 		if not c.tracks_trkRelIso[itrack]<0.1: 
 			return 0,-11
@@ -880,9 +911,91 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 					return 0, mva_
 		else:
 				return 0, mva_
-			
+				
+				
+def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
+		moh_ = c.tracks_nMissingOuterHits[itrack]
+		phits = c.tracks_nValidPixelHits[itrack]
+		thits = c.tracks_nValidTrackerHits[itrack]
+		tlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+		pixelOnly = phits>0 and thits==phits
+		medium = tlayers< 7 and (thits-phits)>0
+		long   = tlayers>=7 and (thits-phits)>0
+		pixelStrips = medium or long
+		if pixelStrips:
+			if not moh_>=2: return 0, -11
+
+		if not (pixelOnly or pixelStrips): return 0, -11                                                                                                    
+		if not c.tracks_passPFCandVeto[itrack]: return 0, -11
+		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
+		dxyVtx = abs(c.tracks_dxyVtx[itrack])
+		dzVtx = abs(c.tracks_dzVtx[itrack])                        
+		
+		nhits = c.tracks_nValidTrackerHits[itrack]
+		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+		if not (nlayers>=2 and nhits>=2): return 0,-11
+		matchedCalo = c.tracks_matchedCaloEnergy[itrack]
+		chi2  = c.tracks_chi2perNdof[itrack]
+		
+		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
+
+		if pixelOnly:
+				mva_ = evaluateBDT(readerPixelOnly, trackfv)
+				if mva_ > (dxyVtx*0.65/0.01-0.5): return 1, mva_      #tightening if not mva_ > dxyVtx*0.5/0.01-0.3: return 0 in any fashion tended to kill the electron and pion, but only with dphileps
+				elif dxyVtx>0.05: return -1, mva_
+				else: 	
+					return 0, mva_
+		elif pixelStrips:
+				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
+				if mva_>(dxyVtx*0.7/0.01-0.2): return 2, mva_# this made the MC "happy": if not (mva_>dxyVtx*0.6/0.01+0.05): return 0					
+				elif dxyVtx>0.05: return -2, mva_
+				else: ##17July changed this from -0.05
+					return 0, mva_
+		else:
+				return 0, mva_
+				
+				
+def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
+		moh_ = c.tracks_nMissingOuterHits[itrack]
+		phits = c.tracks_nValidPixelHits[itrack]
+		thits = c.tracks_nValidTrackerHits[itrack]
+		tlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+		pixelOnly = phits>0 and thits==phits
+		medium = tlayers< 7 and (thits-phits)>0
+		long   = tlayers>=7 and (thits-phits)>0
+		pixelStrips = medium or long
+		if pixelStrips:
+			if not moh_>=2: return 0, -11
+
+		if not (pixelOnly or pixelStrips): return 0, -11                                                                                                    
+		if not c.tracks_passPFCandVeto[itrack]: return 0, -11
+		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
+		dxyVtx = abs(c.tracks_dxyVtx[itrack])
+		dzVtx = abs(c.tracks_dzVtx[itrack])                        
+		
+		nhits = c.tracks_nValidTrackerHits[itrack]
+		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+		if not (nlayers>=2 and nhits>=2): return 0,-11
+		matchedCalo = c.tracks_matchedCaloEnergy[itrack]
+		chi2  = c.tracks_chi2perNdof[itrack]
+		
+		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
+
+		if pixelOnly:
+				mva_ = evaluateBDT(readerPixelOnly, trackfv)
+				if mva_ > -0.05: return 1, mva_      #tightening if not mva_ > dxyVtx*0.5/0.01-0.3: return 0 in any fashion tended to kill the electron and pion, but only with dphileps
+				elif dxyVtx>0.05: return -1, mva_
+				else: return 0, mva_
+		elif pixelStrips:
+				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
+				if mva_>-0.05: return 2, mva_# this made the MC "happy": if not (mva_>dxyVtx*0.6/0.01+0.05): return 0					
+				elif dxyVtx>0.05: return -2, mva_
+				else: return 0, mva_
+		else:
+				return 0, mva_								
+		
 #just changed a couple of lines above to loosen the tag
-			
+		
 def isBaselineTrack(track, itrack, c, hMask=''):
 	if not abs(track.Eta())< 2.4: return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
@@ -904,78 +1017,93 @@ def isBaselineTrack(track, itrack, c, hMask=''):
 			return False
 	return True
 
-			
+
+def isBaselineTrackLoosetag(track, itrack, c, hMask=''):
+	base_cuts = abs(track.Eta())<2.4 and \
+		bool(c.tracks_trackQualityHighPurity[itrack]) and \
+		c.tracks_ptError[itrack]/c.tracks[itrack].Pt()<10 and \
+		c.tracks_dzVtx[itrack]<0.1 and \
+		c.tracks_trkRelIso[itrack]<0.2 and \
+		c.tracks_trkRelIso[itrack]<0.01 and \
+		c.tracks_trackerLayersWithMeasurement[itrack]>=2 and \
+		c.tracks_nValidTrackerHits[itrack]>=2 and \
+		c.tracks_nMissingInnerHits[itrack]==0 and \
+		c.tracks_nValidPixelHits[itrack]>=2 and \
+		bool(c.tracks_passPFCandVeto[itrack])
+	return base_cuts
+		
 def overflow(h):
 	bin = h.GetNbinsX()+1
 	c = h.GetBinContent(bin)
 	h.AddBinContent((bin-1),c)
 
 def mkmet(metPt, metPhi):
-    met = TLorentzVector()
-    met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
-    return met
-    
+	met = TLorentzVector()
+	met.SetPtEtaPhiE(metPt, 0, metPhi, metPt)
+	return met
+
 def passQCDHighMETFilter(t):
-    metvec = mkmet(t.MET, t.METPhi)
-    for ijet, jet in enumerate(t.Jets):
-        if not (jet.Pt() > 200): continue
-        if not (t.Jets_muonEnergyFraction[ijet]>0.5):continue 
-        if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
-    return True
+	metvec = mkmet(t.MET, t.METPhi)
+	for ijet, jet in enumerate(t.Jets):
+		if not (jet.Pt() > 200): continue
+		if not (t.Jets_muonEnergyFraction[ijet]>0.5):continue 
+		if (abs(jet.DeltaPhi(metvec)) > (3.14159 - 0.4)): return False
+	return True
 
 
 def passQCDHighMETFilter2(t):
-    if len(t.Jets)>0:
-        metvec = TLorentzVector()
-        metvec.SetPtEtaPhiE(t.MET, 0, t.METPhi,0)
-        if abs(t.Jets[0].DeltaPhi(metvec))>(3.14159-0.4) and t.Jets_neutralEmEnergyFraction[0]<0.03:
-            return False
-    return True
+	if len(t.Jets)>0:
+		metvec = TLorentzVector()
+		metvec.SetPtEtaPhiE(t.MET, 0, t.METPhi,0)
+		if abs(t.Jets[0].DeltaPhi(metvec))>(3.14159-0.4) and t.Jets_neutralEmEnergyFraction[0]<0.03:
+			return False
+	return True
 
 def passesUniversalSelection(t):
-    #if not bool(t.JetID): return False
-    if not t.NVtx>0: return False
-    #print 'made a'
-    if not  passQCDHighMETFilter(t): return False
-    if not passQCDHighMETFilter2(t): return False
-    #print 'made b'    
-    #if not t.PFCaloMETRatio<5: return False # turned off now that we use muons
-    ###if not t.globalSuperTightHalo2016Filter: return False
-    #print 'made c'    
-    if not t.HBHENoiseFilter: return False    
-    if not t.HBHEIsoNoiseFilter: return False
-    if not t.eeBadScFilter: return False      
-    #print 'made d'    
-    if not t.BadChargedCandidateFilter: return False
-    if not t.BadPFMuonFilter: return False
-    #print 'made e'    
-    if not t.CSCTightHaloFilter: return False
-    #print 'made f'        
-    if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
-    ##if not t.ecalBadCalibReducedExtraFilter: return False
-    ##if not t.ecalBadCalibReducedFilter: return False         
-    return True
+	#if not bool(t.JetID): return False
+	if not t.NVtx>0: return False
+	#print 'made a'
+	if not  passQCDHighMETFilter(t): return False
+	if not passQCDHighMETFilter2(t): return False
+	#print 'made b'    
+	#if not t.PFCaloMETRatio<5: return False # turned off now that we use muons
+	###if not t.globalSuperTightHalo2016Filter: return False
+	#print 'made c'    
+	if not t.HBHENoiseFilter: return False    
+	if not t.HBHEIsoNoiseFilter: return False
+	if not t.eeBadScFilter: return False      
+	#print 'made d'    
+	if not t.BadChargedCandidateFilter: return False
+	if not t.BadPFMuonFilter: return False
+	#print 'made e'    
+	if not t.CSCTightHaloFilter: return False
+	#print 'made f'        
+	if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
+	##if not t.ecalBadCalibReducedExtraFilter: return False
+	##if not t.ecalBadCalibReducedFilter: return False         
+	return True
 
 
 
 def passesUniversalDataSelection(t):
-    if not (bool(t.JetID) and  t.NVtx>0): return False
-    if not  passQCDHighMETFilter(t): return False
-    if not passQCDHighMETFilter2(t): return False
-    if not t.PFCaloMETRatio<5: return False
-    if not t.globalSuperTightHalo2016Filter: return False
-    if not t.HBHENoiseFilter: return False    
-    if not t.HBHEIsoNoiseFilter: return False
-    if not t.eeBadScFilter: return False      
-    if not t.BadChargedCandidateFilter: return False
-    if not t.BadPFMuonFilter: return False
-    if not t.CSCTightHaloFilter: return False
-    if not t.EcalDeadCellTriggerPrimitiveFilter: return False                         
-    return True
-    
+	if not (bool(t.JetID) and  t.NVtx>0): return False
+	if not  passQCDHighMETFilter(t): return False
+	if not passQCDHighMETFilter2(t): return False
+	if not t.PFCaloMETRatio<5: return False
+	if not t.globalSuperTightHalo2016Filter: return False
+	if not t.HBHENoiseFilter: return False    
+	if not t.HBHEIsoNoiseFilter: return False
+	if not t.eeBadScFilter: return False      
+	if not t.BadChargedCandidateFilter: return False
+	if not t.BadPFMuonFilter: return False
+	if not t.CSCTightHaloFilter: return False
+	if not t.EcalDeadCellTriggerPrimitiveFilter: return False                         
+	return True
+
 
 binnumbers = collections.OrderedDict()
-listagain = ['Ht',    'Mht',     'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets', 'DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'FakeCrNr', 'Log10DedxMass','BinNumber', 'Met']
+#varlist_  = ['Ht',   'Mht',     'NJets', 'BTags', 'NTags','NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+listagain = ['Ht',    'Mht',     'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets', 'DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
 binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 3
@@ -1009,10 +1137,10 @@ binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
 #listagain =  ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 37
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
@@ -1022,10 +1150,10 @@ binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
 #listagain =  ['Ht',  'Mht',      'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),  (0,0),   (0,0))]   = 49
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),  (0,0),   (1,inf))] = 50
@@ -1033,14 +1161,14 @@ binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0
 
 
 def GetMinDeltaPhiMhtHemJets(jets, mht):
-    lowestDPhi = 10
-    for jet in jets:
-        if not jet.Pt()>30: continue
-        if -3.2<jet.Eta() and jet.Eta()<-1.2 and -1.77<jet.Phi() and jet.Phi()<-0.67:
-            if abs(jet.DeltaPhi(mht))<lowestDPhi:
-                lowestDPhi = abs(jet.DeltaPhi(mht))
-    if lowestDPhi<0: return 10
-    else: return lowestDPhi
+	lowestDPhi = 10
+	for jet in jets:
+		if not jet.Pt()>30: continue
+		if -3.2<jet.Eta() and jet.Eta()<-1.2 and -1.77<jet.Phi() and jet.Phi()<-0.67:
+			if abs(jet.DeltaPhi(mht))<lowestDPhi:
+				lowestDPhi = abs(jet.DeltaPhi(mht))
+	if lowestDPhi<0: return 10
+	else: return lowestDPhi
 
 
 susybypdg = {}
