@@ -12,7 +12,7 @@ import collections
 
 event_selections = {}
 event_selections["analysis"] = collections.OrderedDict()
-#event_selections["analysis"]["Baseline"] =             "((n_goodelectrons==0 && n_goodmuons==0) || (leadinglepton_mt>90 && tracks_invmass>110))"
+event_selections["analysis"]["Baseline"] =             "((n_goodelectrons==0 && n_goodmuons==0) || (leadinglepton_mt>90 && tracks_invmass>110))"
 event_selections["analysis"]["QCDLowMHT50"] =          "(n_goodelectrons==0 && n_goodmuons==0) && MHT<50 && n_goodjets>=1"
 event_selections["analysis"]["QCDLowMHTFakerateDet"] = "(n_goodelectrons==0 && n_goodmuons==0) && MHT<100"
 event_selections["analysis"]["HadBaseline"] =          "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodelectrons==0 && n_goodmuons==0)"
@@ -161,13 +161,18 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
 def get_value(event, variable, i_track):
                         
     if ":" not in variable:
+        # for filling a 1D histogram
         if "tracks_" in variable:
-            value = eval("event.%s[%s]" % (variable, i_track))
+            if variable == "tracks_ECaloPt":
+                value = event.tracks_matchedCaloEnergy[i_track] / event.tracks_pt[i_track]
+            else:
+                value = eval("event.%s[%s]" % (variable, i_track))
         else:
             value = eval("event.%s" % variable)
         return value
     
     else:
+        # for filling a 2D histogram
         if "tracks_" in variable.split(":")[0]:
             xvalue = eval("event.%s[%s]" % (variable.split(":")[0], i_track))
         else:
@@ -516,7 +521,7 @@ if __name__ == "__main__":
     do_fakerate = 1
     do_predictions = 1
     do_hadd = 1
-    debug_maxfiles = 20
+    debug_maxfiles = 10
     
     gROOT.SetBatch(True)
     gStyle.SetOptStat(0)
@@ -526,6 +531,8 @@ if __name__ == "__main__":
     baseline_long = "tracks_is_pixel_track==0"
 
     tags = collections.OrderedDict()
+
+    use_ratio = False
 
     if int(options.tag) == 1:
         print "using tag #1"
@@ -619,17 +626,15 @@ if __name__ == "__main__":
         EDepSideBandMin = 17
         EDepSideBandMax = 35
 
-    # changed def.:
-    # -0.05 -> 0.13 for prompt method
-    #Ecalo/pt        0->12%, 15%-80%
-
+    # changed definition to ECalo/pt ratio and using BDT score sideband:
     elif int(options.tag) == 9:
         tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
         tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
-        tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01"
-        tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01"
-        tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2<0.1 && tracks_MinDeltaPhiTrackMht>1.0"
-        tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2<0.1 && tracks_MinDeltaPhiTrackMht>1.0"
+        tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>1.0"
+        tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>1.0"
+        use_ratio = True
         EDepMax = 0.12
         EDepSideBandMin = 0.15
         EDepSideBandMax = 0.80
@@ -661,6 +666,7 @@ if __name__ == "__main__":
                               "ptRatioMhtJets",
                               "ptRatioLeptonMht",
                               "ptRatioLeptonJets",
+                              "tracks_ECaloPt",
                               "region",
                             ]
     variables["fakerate"] = [
@@ -712,6 +718,7 @@ if __name__ == "__main__":
     binnings["analysis"]["tracks_matchedCaloEnergy"] = [25, 0, 50]
     binnings["analysis"]["tracks_trkRelIso"] = [20, 0, 0.2]
     binnings["analysis"]["tracks_region"] = [54, 1, 55]
+    binnings["analysis"]["tracks_ECaloPt"] = [25, 0, 1]
 
     binnings["analysis"]["tracks_MinDeltaPhiTrackMht"] = [32, 0, 3.2]
     binnings["analysis"]["tracks_MinDeltaPhiTrackLepton"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
@@ -765,10 +772,16 @@ if __name__ == "__main__":
         
             # for prompt bg:
             if dedx != "":
-                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, EDepMax, lower, upper)
+                if use_ratio:
+                    morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy/tracks_pt<%s && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, EDepMax, lower, upper)
+                else:
+                    morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, EDepMax, lower, upper)
                 morecutsEC = " && tracks_is_pixel_track==%s && tracks_deDxHarmonic2pixel>%s && tracks_deDxHarmonic2pixel<%s" % (is_pixel_track, lower, upper)
             else:
-                morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s" % (is_pixel_track, EDepMax)
+                if use_ratio:
+                    morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy/tracks_pt<%s" % (is_pixel_track, EDepMax)
+                else:
+                    morecuts = " && tracks_is_pixel_track==%s && tracks_matchedCaloEnergy<%s" % (is_pixel_track, EDepMax)
                 morecutsEC = " && tracks_is_pixel_track==%s" % (is_pixel_track)
             
             zones["sr%s_%s" % (dedx, category)] = [" && %s %s" % (tags["SR_" + category], morecuts), "", "single"]
@@ -779,15 +792,23 @@ if __name__ == "__main__":
             zones["srgenprompt%s_%s_multi" % (dedx, category)] = [" && %s && tracks_fake==0 %s" % (tags["SR_" + category], morecuts), "", "multi"]
             zones["fakecr%s_%s" % (dedx, category)] = [" && %s %s" % (tags["CR_" + category], morecuts), ""]
             if options.mode == "analysis":
-                zones["srEC%s_%s" % (dedx, category)] =   [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "single"]
-                zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
-                zones["srECSBenhanced%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
-                zones["srEC%s_%s_multi" % (dedx, category)] =    [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "multi"]
-                zones["srECSB%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
-                zones["srECSBenhanced%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
-                #zones["fakeprediction-QCDLowMHT%s_%s"   % (dedx, category)] =     [" && %s %s" % (tags["CR_" + category], morecuts), "HT_QCDLowMHT_fakerate_%s" % (category)]
+                if use_ratio:
+                    # use ECalo/pT ratio:
+                    zones["srEC%s_%s" % (dedx, category)] =   [" && %s %s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "single"]
+                    zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
+                    zones["srECSBenhanced%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
+                    zones["srEC%s_%s_multi" % (dedx, category)] =    [" && %s %s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "multi"]
+                    zones["srECSB%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
+                    zones["srECSBenhanced%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
+                else:
+                    # classic def:
+                    zones["srEC%s_%s" % (dedx, category)] =   [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "single"]
+                    zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
+                    zones["srECSBenhanced%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
+                    zones["srEC%s_%s_multi" % (dedx, category)] =    [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "multi"]
+                    zones["srECSB%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
+                    zones["srECSBenhanced%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
                 zones["fakeprediction-QCDLowMHT2D%s_%s" % (dedx, category)] =     [" && %s %s" % (tags["CR_" + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s" % category]
-                #zones["fakeprediction-QCDLowMHT2Denhanced%s_%s" % (dedx, category)] =     [" && %s %s" % (tags["CR_" + category], morecuts), "HT:n_allvertices_QCDLowMHTenhanced_fakerate_%s" % category]
                     
     fakeratesamples = {
                 "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],

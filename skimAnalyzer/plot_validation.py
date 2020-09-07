@@ -155,8 +155,12 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
                 datahist.Add(histos[dataid + "_sr" + dedx + "_long"])                
             else:    
                 datahist = histos[dataid + "_sr" + dedx + category]
+                print "loading", dataid + "_sr" + dedx + category
             datahist.SetLineColor(kBlack)
             datahist.SetTitle("Data")        
+
+
+
 
 
         if plot == "mc-with-data":
@@ -335,44 +339,45 @@ def run(index, histograms_folder = ""):
     regions = [
                 #"Baseline",
                 #"QCDLowMHT50",
-                "HadBaseline",
-                "SMuBaseline",
-                "SElBaseline",
-                "SMuValidationMT",
-                "SElValidationMT",
+                #"HadBaseline",
+                #"SMuBaseline",
+                #"SElBaseline",
+                #"SMuValidationMT",
+                #"SElValidationMT",
                 "SElValidationZLL",
-                "SMuValidationZLL",
-                "PromptDY",
-                "PromptDYenhanced",
-                "QCDLowMHTFakerateDet",
+                #"SMuValidationZLL",
+                #"PromptDY",
+                #"PromptDYenhanced",
+                #"QCDLowMHTFakerateDet",
               ]
     
     variables = [
-                  "HT",
-                  "MHT",
-                  "n_goodjets",
-                  "n_btags",
-                  "leadinglepton_mt",
+                  #"HT",
+                  #"MHT",
+                  #"n_goodjets",
+                  #"n_btags",
+                  #"leadinglepton_mt",
                   "tracks_invmass",
-                  "tracks_is_pixel_track",
-                  "tracks_pt",
-                  "tracks_eta",
-                  "tracks_deDxHarmonic2pixel",
-                  "tracks_matchedCaloEnergy",
-                  "tracks_trkRelIso",
-                  "tracks_MinDeltaPhiTrackMht",
-                  "tracks_MinDeltaPhiTrackLepton",
-                  "tracks_MinDeltaPhiTrackJets",
-                  "tracks_ptRatioTrackMht",
-                  "tracks_ptRatioTrackLepton",
-                  "tracks_ptRatioTrackJets",
-                  "MinDeltaPhiMhtJets",
-                  "MinDeltaPhiLeptonMht",
-                  "MinDeltaPhiLeptonJets",
-                  "ptRatioMhtJets",
-                  "ptRatioLeptonMht",
-                  "ptRatioLeptonJets",
-                  "region",
+                  #"tracks_is_pixel_track",
+                  #"tracks_pt",
+                  #"tracks_eta",
+                  #"tracks_deDxHarmonic2pixel",
+                  #"tracks_matchedCaloEnergy",
+                  #"tracks_trkRelIso",
+                  #"tracks_MinDeltaPhiTrackMht",
+                  #"tracks_MinDeltaPhiTrackLepton",
+                  #"tracks_MinDeltaPhiTrackJets",
+                  #"tracks_ptRatioTrackMht",
+                  #"tracks_ptRatioTrackLepton",
+                  #"tracks_ptRatioTrackJets",
+                  #"MinDeltaPhiMhtJets",
+                  #"MinDeltaPhiLeptonMht",
+                  #"MinDeltaPhiLeptonJets",
+                  #"ptRatioMhtJets",
+                  #"ptRatioLeptonMht",
+                  #"ptRatioLeptonJets",
+                  #"tracks_ECaloPt",
+                  #"region",
                 ]
 
     dedexids = [
@@ -388,13 +393,13 @@ def run(index, histograms_folder = ""):
                       ]
 
     categories = [
-                  "",
-                  "_short",
+                  #"",
+                  #"_short",
                   "_long",
                  ]
 
     data_periods = [
-                     "Summer16",
+                     #"Summer16",
                      "Run2016",
                      #"Run2017",
                      #"Run2018",
