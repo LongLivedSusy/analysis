@@ -12,28 +12,32 @@ import collections
 
 event_selections = {}
 event_selections["analysis"] = collections.OrderedDict()
-event_selections["analysis"]["Baseline"] =             "((n_goodelectrons==0 && n_goodmuons==0) || (leadinglepton_mt>90 && tracks_invmass>110))"
-event_selections["analysis"]["QCDLowMHT50"] =          "(n_goodelectrons==0 && n_goodmuons==0) && MHT<50 && n_goodjets>=1"
-event_selections["analysis"]["QCDLowMHTFakerateDet"] = "(n_goodelectrons==0 && n_goodmuons==0) && MHT<100"
-event_selections["analysis"]["HadBaseline"] =          "HT>150 && MHT>150 && n_goodjets>=1 && (n_goodelectrons==0 && n_goodmuons==0)"
-event_selections["analysis"]["SMuBaseline"] =          "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
-event_selections["analysis"]["SMuValidationZLL"] =     "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-event_selections["analysis"]["SMuValidationMT"] =      "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90"
-event_selections["analysis"]["SElBaseline"] =          "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
-event_selections["analysis"]["SElValidationZLL"] =     "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-event_selections["analysis"]["SElValidationMT"] =      "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<90"
-event_selections["analysis"]["PromptDY"] =             "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110"
-event_selections["analysis"]["PromptDYenhanced"] =     "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110 && tracks_MinDeltaPhiTrackMht<1.0"
+event_selections["analysis"]["Baseline"] =              "((n_goodelectrons==0 && n_goodmuons==0) || (leadinglepton_mt>90 && tracks_invmass>110))"
+event_selections["analysis"]["QCDLowMHT50"] =           "n_goodelectrons==0 && n_goodmuons==0 && MHT>50 && MHT<100 && n_goodjets>=1"
+event_selections["analysis"]["QCDLowMHTFakerateDet"] =  "n_goodelectrons==0 && n_goodmuons==0 && MHT<50"
+event_selections["analysis"]["HadBaseline"] =           "HT>150 && MHT>150 && n_goodjets>=1 && n_goodelectrons==0 && n_goodmuons==0"
+event_selections["analysis"]["SMuBaseline"] =           "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+event_selections["analysis"]["SMuValidationZLL"] =      "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
+event_selections["analysis"]["SMuValidationZLLnoMT"] =  "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110"
+event_selections["analysis"]["SMuValidationZLLRevMT"] = "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt<90"
+event_selections["analysis"]["SMuValidationMT"] =       "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90"
+event_selections["analysis"]["SElBaseline"] =           "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+event_selections["analysis"]["SElValidationZLL"] =      "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
+event_selections["analysis"]["SElValidationZLLnoMT"] =  "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110"
+event_selections["analysis"]["SElValidationZLLRevMT"] = "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt<90"
+event_selections["analysis"]["SElValidationMT"] =       "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<90"
+event_selections["analysis"]["PromptDY"] =              "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110"
+event_selections["analysis"]["PromptDYenhanced"] =      "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110 && tracks_MinDeltaPhiTrackMht<1.0"
 
 event_selections["fakerate"] = collections.OrderedDict()
-event_selections["fakerate"]["QCDLowMHT"] =            "(n_goodelectrons==0 && n_goodmuons==0) && MHT<100"
-#event_selections["fakerate"]["QCDLowMHT"] =           "(n_goodelectrons==0 && n_goodmuons==0) && MHT<150"
-#event_selections["fakerate"]["QCDLowMHTenhanced"] =   "(n_goodelectrons==0 && n_goodmuons==0) && MHT<100 && tracks_MinDeltaPhiTrackMht>1.0"
-#event_selections["fakerate"]["QCDLowMHT"] =           "n_goodleptons==0 && MHT<50"
-#event_selections["fakerate"]["Dilepton"] =            "dilepton_invmass>60 && dilepton_invmass<120"
-#event_selections["fakerate"]["DileptonLowMHT"] =      "dilepton_invmass>70 && dilepton_invmass<110 && MHT<150"
-#event_selections["fakerate"]["DileptonEl"] =          "dilepton_leptontype==11 && dilepton_invmass>70 && dilepton_invmass<110"
-#event_selections["fakerate"]["DileptonMu"] =          "dilepton_leptontype==13 && dilepton_invmass>70 && dilepton_invmass<110"
+event_selections["fakerate"]["QCDLowMHT"] =             "(n_goodelectrons==0 && n_goodmuons==0) && MHT<50"
+#event_selections["fakerate"]["QCDLowMHT"] =            "(n_goodelectrons==0 && n_goodmuons==0) && MHT<150"
+#event_selections["fakerate"]["QCDLowMHTenhanced"] =    "(n_goodelectrons==0 && n_goodmuons==0) && MHT<100 && tracks_MinDeltaPhiTrackMht>1.0"
+#event_selections["fakerate"]["QCDLowMHT"] =            "n_goodleptons==0 && MHT<50"
+#event_selections["fakerate"]["Dilepton"] =             "dilepton_invmass>60 && dilepton_invmass<120"
+#event_selections["fakerate"]["DileptonLowMHT"] =       "dilepton_invmass>70 && dilepton_invmass<110 && MHT<150"
+#event_selections["fakerate"]["DileptonEl"] =           "dilepton_leptontype==11 && dilepton_invmass>70 && dilepton_invmass<110"
+#event_selections["fakerate"]["DileptonMu"] =           "dilepton_leptontype==13 && dilepton_invmass>70 && dilepton_invmass<110"
 
 def chunks(lst, n):
     for i in range(0, len(lst), n):
@@ -532,8 +536,6 @@ if __name__ == "__main__":
 
     tags = collections.OrderedDict()
 
-    use_ratio = False
-
     if int(options.tag) == 1:
         print "using tag #1"
         tags["SR_short"] =  baseline_short + " && tracks_mva_loose>(tracks_dxyVtx*(0.65/0.01) - 0.5) && tracks_trkRelIso<0.01"
@@ -542,6 +544,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = baseline_short + " && tracks_dxyVtx>0.02"
         tags["CR_long"] = baseline_long + " && tracks_dxyVtx>0.02"
+        use_ratio = False
         EDepMax = 10
         EDepSideBandMin = 13
         EDepSideBandMax = 27
@@ -554,6 +557,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
         tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        use_ratio = False
         EDepMax = 15
         EDepSideBandMin = 17
         EDepSideBandMax = 35
@@ -566,6 +570,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
         tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        use_ratio = False
         EDepMax = 15
         EDepSideBandMin = 17
         EDepSideBandMax = 35
@@ -578,6 +583,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
         tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        use_ratio = False
         EDepMax = 10
         EDepSideBandMin = 13
         EDepSideBandMax = 27
@@ -589,6 +595,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = "tracks_is_pixel_track==1 && tracks_dxyVtx>0.02"
         tags["CR_long"] = "tracks_is_pixel_track==0 && tracks_dxyVtx>0.02"
+        use_ratio = False
         EDepMax = 15
         EDepSideBandMin = 17
         EDepSideBandMax = 35
@@ -600,6 +607,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = baseline_short + " && tracks_dxyVtx>0.02"
         tags["CR_long"] = baseline_long + " && tracks_dxyVtx>0.02"
+        use_ratio = False
         EDepMax = 15
         EDepSideBandMin = 17
         EDepSideBandMax = 35
@@ -611,6 +619,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = baseline_short + " && tracks_dxyVtx>0.02 && tracks_MinDeltaPhiTrackMht>1.0"
         tags["CR_long"] = baseline_long + " && tracks_dxyVtx>0.02 && tracks_MinDeltaPhiTrackMht>1.0"
+        use_ratio = False
         EDepMax = 15
         EDepSideBandMin = 17
         EDepSideBandMax = 35
@@ -622,6 +631,7 @@ if __name__ == "__main__":
         tags["SREC_long"] = tags["SR_long"].replace("_chi2", "_chi2_sideband")
         tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2<0.1 && tracks_MinDeltaPhiTrackMht>1.0"
         tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2<0.1 && tracks_MinDeltaPhiTrackMht>1.0"
+        use_ratio = False
         EDepMax = 15
         EDepSideBandMin = 17
         EDepSideBandMax = 35
@@ -638,8 +648,31 @@ if __name__ == "__main__":
         EDepMax = 0.12
         EDepSideBandMin = 0.15
         EDepSideBandMax = 0.80
-
-
+        
+    elif int(options.tag) == 9:
+        tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>1.0"
+        tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>1.0"
+        use_ratio = True
+        EDepMax = 0.12
+        EDepSideBandMin = 0.15
+        EDepSideBandMax = 0.80
+        
+    elif int(options.tag) == 10:
+        tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+        tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+        tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+        tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+        use_ratio = True
+        EDepMax = 0.12
+        EDepSideBandMin = 0.15
+        EDepSideBandMax = 0.80
+    
     variables = {}
     variables["analysis"] = [
                               "HT",

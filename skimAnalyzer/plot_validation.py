@@ -7,8 +7,8 @@ import os
 import shared_utils
 from optparse import OptionParser
 
-color_fakebg = 207
-color_promptbg = 216
+color_fakebg = kSpring - 1
+color_promptbg = kAzure + 1
 
 #flags:
 use_prompt_fakesubtraction = True
@@ -34,11 +34,13 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
         histos[label].SetDirectory(0)
         histos[label].SetLineWidth(2)
         shared_utils.histoStyler(histos[label])
-        if "Run201" not in label:
-            histos[label].Scale(lumi)
-        else:
-            histos[label].Scale(2.5693430654)                               # scale to full Run-2 lumi
+        if "Run201" in label:
+            # this is data, scale up to Run-2 lumi....:
+            #histos[label].Scale(3.8)
             histos[label].SetTitle("Data (2016)")
+        else:
+            # this is MC, scale with lumi:
+            histos[label].Scale(lumi)
                
     fin.Close()
 
@@ -337,47 +339,51 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
 def run(index, histograms_folder = ""):
     
     regions = [
-                #"Baseline",
-                #"QCDLowMHT50",
-                #"HadBaseline",
-                #"SMuBaseline",
-                #"SElBaseline",
-                #"SMuValidationMT",
-                #"SElValidationMT",
+                "Baseline",
+                "QCDLowMHT50",
+                "HadBaseline",
+                "SMuBaseline",
+                "SElBaseline",
+                "SMuValidationMT",
+                "SElValidationMT",
                 "SElValidationZLL",
-                #"SMuValidationZLL",
-                #"PromptDY",
-                #"PromptDYenhanced",
-                #"QCDLowMHTFakerateDet",
+                "SMuValidationZLL",
+                "SElValidationZLLnoMT",
+                "SMuValidationZLLnoMT",
+                "SElValidationZLLRevMT",
+                "SMuValidationZLLRevMT",
+                "PromptDY",
+                "PromptDYenhanced",
+                "QCDLowMHTFakerateDet",
               ]
     
     variables = [
-                  #"HT",
-                  #"MHT",
-                  #"n_goodjets",
-                  #"n_btags",
-                  #"leadinglepton_mt",
+                  "HT",
+                  "MHT",
+                  "n_goodjets",
+                  "n_btags",
+                  "leadinglepton_mt",
                   "tracks_invmass",
-                  #"tracks_is_pixel_track",
-                  #"tracks_pt",
-                  #"tracks_eta",
-                  #"tracks_deDxHarmonic2pixel",
-                  #"tracks_matchedCaloEnergy",
-                  #"tracks_trkRelIso",
-                  #"tracks_MinDeltaPhiTrackMht",
-                  #"tracks_MinDeltaPhiTrackLepton",
-                  #"tracks_MinDeltaPhiTrackJets",
-                  #"tracks_ptRatioTrackMht",
-                  #"tracks_ptRatioTrackLepton",
-                  #"tracks_ptRatioTrackJets",
-                  #"MinDeltaPhiMhtJets",
-                  #"MinDeltaPhiLeptonMht",
-                  #"MinDeltaPhiLeptonJets",
-                  #"ptRatioMhtJets",
-                  #"ptRatioLeptonMht",
-                  #"ptRatioLeptonJets",
-                  #"tracks_ECaloPt",
-                  #"region",
+                  "tracks_is_pixel_track",
+                  "tracks_pt",
+                  "tracks_eta",
+                  "tracks_deDxHarmonic2pixel",
+                  "tracks_matchedCaloEnergy",
+                  "tracks_trkRelIso",
+                  "tracks_MinDeltaPhiTrackMht",
+                  "tracks_MinDeltaPhiTrackLepton",
+                  "tracks_MinDeltaPhiTrackJets",
+                  "tracks_ptRatioTrackMht",
+                  "tracks_ptRatioTrackLepton",
+                  "tracks_ptRatioTrackJets",
+                  "MinDeltaPhiMhtJets",
+                  "MinDeltaPhiLeptonMht",
+                  "MinDeltaPhiLeptonJets",
+                  "ptRatioMhtJets",
+                  "ptRatioLeptonMht",
+                  "ptRatioLeptonJets",
+                  "tracks_ECaloPt",
+                  "region",
                 ]
 
     dedexids = [
@@ -393,8 +399,8 @@ def run(index, histograms_folder = ""):
                       ]
 
     categories = [
-                  #"",
-                  #"_short",
+                  "",
+                  "_short",
                   "_long",
                  ]
 
@@ -428,9 +434,9 @@ def run(index, histograms_folder = ""):
                             
                             counter += 1
                             if counter != index: continue
-                                
-                            #lumi = 35200
-                            lumi = 137000
+
+                            #lumi = 137000
+                            lumi = 35900
                                                                                        
                             if "Run201" in data_period:
                                 if "SEl" in region:
