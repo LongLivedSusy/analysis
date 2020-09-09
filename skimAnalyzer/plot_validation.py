@@ -3,29 +3,19 @@ from __future__ import division
 import __main__ as main
 from ROOT import *
 import collections
-import glob
 import os
 import shared_utils
 from optparse import OptionParser
-import time
 
-color_fakebg = 207
-color_promptbg = 216
+color_fakebg = kSpring - 1
+color_promptbg = kAzure + 1
 
-def rebin_histo(histogram, nbins, xmin, xmax):
-    h_name = histogram.GetName()
-    h_rebinned = TH1F(h_name + "_rebin", h_name + "_rebin", nbins, xmin, xmax)
-    for ibin in range(1, histogram.GetXaxis().GetNbins()+1):
-        xvalue = histogram.GetBinLowEdge(ibin)
-        value = histogram.GetBinContent(ibin)
-        valueErr = histogram.GetBinError(ibin)
-        h_rebinned.SetBinContent(h_rebinned.GetXaxis().FindBin(xvalue), value)
-        h_rebinned.SetBinError(h_rebinned.GetXaxis().FindBin(xvalue), valueErr)
-    shared_utils.histoStyler(h_rebinned)
-    return h_rebinned
+#flags:
+use_prompt_fakesubtraction = True
+use_prompt_DeltaPhi = False
+use_fakes_DeltaPhi = False
 
-
-def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx, pdffile, outputfolder, frregion = "QCDLowMHT"):
+def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx, pdffile, outputfolder, frregion):
 
     os.system("mkdir -p " + outputfolder)
 
@@ -44,24 +34,17 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
         histos[label].SetDirectory(0)
         histos[label].SetLineWidth(2)
         shared_utils.histoStyler(histos[label])
-        if "Run201" not in label:
+        if "Run201" in label:
+            # this is data, scale up to Run-2 lumi....:
+            #histos[label].Scale(3.8)
+            histos[label].SetTitle("Data (2016)")
+        else:
+            # this is MC, scale with lumi:
             histos[label].Scale(lumi)
-    
-        # combine short and long tracks:
-        if category == "" and "_short" in label and label.replace("_short", "_long") in histos:
-            histos[label.replace("_short", "")] = histos[label].Clone()
-            histos[label.replace("_short", "")].SetDirectory(0)
-            histos[label.replace("_short", "")].Add(histos[label.replace("_short", "_long")])
-            
+               
     fin.Close()
 
-    for label in histos:
-        if "Run2016" in label:
-            easyname = "Data"
-            histos[label].SetTitle(easyname)
-
-
-    if "region" in variable:
+    if category == "":
         categories = ["_short", "_long"]
     else:
         categories = [category]
@@ -71,45 +54,36 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
     
     for i_category in categories:
 
-        print "i_category", i_category
-        print "category", category
-
         #################################
         # Fake background               #
         #################################
         
         h_ifakeprediction = histos[dataid + "_fakeprediction-" + frregion + dedx + i_category].Clone()
         h_ifakeprediction.SetTitle("Fake prediction")
-        
-        #h_ifakepredictionLeft = histos[dataid + "_fakeprediction-" + frregion + dedx + category + "Left"].Clone()
-        #h_ifakepredictionRight = histos[dataid + "_fakeprediction-" + frregion + dedx + category + "Right"].Clone()
-        
-        
+                
         #################################
         # prompt background             #
         #################################
         
         # method: EDep sideband
         
-        h_caloSB = histos[dataid + "_srECSB" + dedx + i_category]
+        if use_prompt_DeltaPhi:
+            h_caloSB = histos[dataid + "_srECSBenhanced" + dedx + i_category]
+        else:
+            h_caloSB = histos[dataid + "_srECSB" + dedx + i_category]
             
         if "Run201" in datalabel:
             # if running on data: high-low-factor from SingleElectron dataset:
-            print "open", root_file.replace("MET", "SingleElectron").replace("SingleMuon", "SingleElectron").replace("JetHT", "SingleElectron")
             fin = TFile(root_file.replace("MET", "SingleElectron").replace("SingleMuon", "SingleElectron").replace("JetHT", "SingleElectron"), "read")
-            #h_DY_low = fin.Get(datalabel + "_tracks_invmass_PromptDY_srECSB" + category)
-            #h_DY_high = fin.Get(datalabel + "_tracks_invmass_PromptDY_srECSB" + category)
             h_DY_low = fin.Get(datalabel + "_" + "tracks_invmass" + "_PromptDY_srEC" + i_category)
             h_DY_high = fin.Get(datalabel + "_" + "tracks_invmass" + "_PromptDY_srECSB" + i_category)
             h_DY_low.SetDirectory(0)
             h_DY_high.SetDirectory(0)
             fin.Close()
         else:
-            print "no"
             h_DY_low = histos[datalabel + "_tracks_invmass_PromptDY_srEC" + i_category]
             h_DY_high = histos[datalabel + "_tracks_invmass_PromptDY_srECSB" + i_category]
-        
-        print "h_DY_low.Integral() / h_DY_high.Integral()", h_DY_low.Integral(h_DY_low.GetXaxis().FindBin(70), h_DY_low.GetXaxis().FindBin(110)), "/", h_DY_high.Integral(h_DY_high.GetXaxis().FindBin(70), h_DY_high.GetXaxis().FindBin(110))
+                
         try:
             ULowHigh = h_DY_low.Integral(h_DY_low.GetXaxis().FindBin(70), h_DY_low.GetXaxis().FindBin(110)) / h_DY_high.Integral(h_DY_high.GetXaxis().FindBin(70), h_DY_high.GetXaxis().FindBin(110))
         except:
@@ -121,192 +95,317 @@ def plot_validation(variable, root_file, datalabel, category, lumi, region, dedx
             h_ipromptprediction_multi = histos[dataid + "_srECSB" + dedx + i_category + "_multi"].Clone()
             h_ipromptprediction.Add(h_ipromptprediction_multi)    
 
-        # subtract fake background:
-        h_ipromptprediction.Add(h_ifakeprediction, -1)            
-        
-        # check for negative entries:
-        for ibin in range(1, h_ipromptprediction.GetXaxis().GetNbins()+1):
-            if h_ipromptprediction.GetBinContent(ibin)<0:
-                h_ipromptprediction.SetBinContent(ibin, 0)
+        if use_prompt_fakesubtraction:
+            # subtract fake background:
+            h_ipromptprediction.Add(h_ifakeprediction, -1)            
             
+            # check for negative entries:
+            for ibin in range(1, h_ipromptprediction.GetXaxis().GetNbins()+1):
+                if h_ipromptprediction.GetBinContent(ibin)<0:
+                    h_ipromptprediction.SetBinContent(ibin, 0)
         
         h_ipromptprediction.SetDirectory(0)
         h_ipromptprediction.Scale(ULowHigh)
         h_ipromptprediction.SetTitle("Prompt prediction")
-
-
     
         # add short and long together:
-        if "region" in variable:
-            if h_fakeprediction == 0:
-                h_fakeprediction = h_ifakeprediction
-            else:
-                h_fakeprediction.Add(h_ifakeprediction)
-            
-            if h_promptprediction == 0:
-                h_promptprediction = h_ipromptprediction
-            else:
-                h_promptprediction.Add(h_ipromptprediction)
-        else:
+        if h_fakeprediction == 0:
             h_fakeprediction = h_ifakeprediction
+        else:
+            h_fakeprediction.Add(h_ifakeprediction)
+            
+        if h_promptprediction == 0:
             h_promptprediction = h_ipromptprediction
+        else:
+            h_promptprediction.Add(h_ipromptprediction)
     
     
     ####################
     # plot everything: #
     ####################
     
-    canvas = shared_utils.mkcanvas()
-    legend = shared_utils.mklegend(x1 = 0.6, y1 = 0.4, x2 = 0.9, y2 = 0.8)
-    #legend.SetHeader(region.replace("SMu", "Muon ").replace("SEl", "Electron ").replace("MT", "").replace("Validation", "validation") + " region, " + dedx.replace("_", "").replace("MidHighDeDx", "dE/dx>2.0 MeV/cm").replace("MidDeDx", "2.0>dE/dx>4.0 MeV/cm").replace("HighDeDx", "dE/dx>4.0 MeV/cm"))
-
-    lumi = float("%.2f" % (lumi/1e3))
-
-    ymin = 1e-3; ymax = 1e3
-    
-    if "Run201" in dataid:
-        
-        h_promptprediction.SetLineColor(color_promptbg)
-        h_fakeprediction.SetLineColor(color_fakebg)
-        
-        stacked_histograms = [
-                               h_fakeprediction.Clone(),
-                               h_promptprediction.Clone(),
-                             ]
-
-        if "Validation" in region:
-            print "Unblinding validation region..."
-            datahist = histos[dataid + "_sr" + dedx + category]
+    if "Run201" in datalabel:
+        if "Validation" in region or "LowMHT" in region:
+            plots = ["prediction-with-data"]
         else:
-            datahist = stacked_histograms[-1]
+            plots = ["prediction-without-data"]
     else:
-        # MC:
+        #plots = ["prediction-without-data", "prediction-prompt", "prediction-fake", "contamination-truefakes", "contamination-trueprompt"]
+        plots = ["prediction-without-data", "prediction-prompt", "prediction-fake"]
+        
+        
+    h_promptprediction.SetLineColor(color_promptbg)
+    h_fakeprediction.SetLineColor(color_fakebg)
+    h_promptprediction.SetFillColor(color_promptbg)
+    h_fakeprediction.SetFillColor(color_fakebg)
 
-        histos[dataid + "_srgenprompt" + dedx + category].SetTitle("MC Truth prompt")
-        histos[dataid + "_srgenprompt" + dedx + category].SetFillColor(color_promptbg)
-        
-        histos[dataid + "_srgenfake" + dedx + category].SetTitle("MC Truth fake")
-        histos[dataid + "_srgenfake" + dedx + category].SetFillColor(color_fakebg)
-        
-        stacked_histograms = [
-                               histos[dataid + "_srgenfake" + dedx + category].Clone(),
-                               histos[dataid + "_srgenprompt" + dedx + category].Clone(),
-                             ]
-        
-        datahist = h_fakeprediction
+    for plot in plots:
     
+        canvas = shared_utils.mkcanvas()
+        legend = shared_utils.mklegend(x1 = 0.6, y1 = 0.4, x2 = 0.9, y2 = 0.8)
+        ymin = 1e-1; ymax = 1e2
+        
+        if plot == "prediction-with-data":
+                    
+            stacked_histograms = [
+                                   h_fakeprediction.Clone(),
+                                   h_promptprediction.Clone(),
+                                 ]
 
-    for i_label, label in enumerate(histos):
-        histos[label].GetYaxis().SetRangeUser(ymin, ymax)
-    h_promptprediction.GetYaxis().SetRangeUser(ymin, ymax)
-    h_fakeprediction.GetYaxis().SetRangeUser(ymin, ymax)    
-    datahist.GetYaxis().SetRangeUser(ymin, ymax)
-    
-    for stacked_histogram in stacked_histograms:
-        stacked_histogram.GetYaxis().SetRangeUser(ymin, ymax)
-        stacked_histogram.GetYaxis().SetLimits(ymin, ymax)
+            if category == "":
+                datahist = histos[dataid + "_sr" + dedx + "_short"]                
+                datahist.Add(histos[dataid + "_sr" + dedx + "_long"])                
+            else:    
+                datahist = histos[dataid + "_sr" + dedx + category]
+                print "loading", dataid + "_sr" + dedx + category
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Data")        
 
-    #hratio, pads = shared_utils.FabDraw(canvas, legend, datahist, stacked_histograms, ymin, ymax, lumi = lumi, datamc = 'Data')
-    hratio, pads = shared_utils.FabDraw(canvas, legend, datahist, stacked_histograms, datamc = 'Data')
-    stacked_histograms[-1].SetTitle("")
-    
-    hratio.GetYaxis().SetRangeUser(-0.1,2.6)    
-    if "Run201" in dataid:
-        hratio.GetYaxis().SetTitle('Data/prediction')
-    else:
-        hratio.GetYaxis().SetTitle('Fake pred./truth')
-        
-    xlabel = variable
-    xlabel = xlabel.replace("leptons_mt", "m_{T}^{lepton} (GeV)")
-    xlabel = xlabel.replace("leadinglepton_mt", "m_{T}^{lepton} (GeV)")
-    hratio.GetXaxis().SetTitle(xlabel)
 
-    ## add fake CR:
-    #histos[dataid + "_fakecr" + dedx + category].SetLineColor(kTeal)
-    #histos[dataid + "_fakecr" + dedx + category].Draw("same")
-    #legend.AddEntry(histos[dataid + "_fakecr" + dedx + category], "Fake CR")
-    
-    ## add systematics:
-    #h_fakepredictionLeft.SetLineColor(kTeal)
-    #h_fakepredictionLeft.Draw("same")
-    #h_fakepredictionRight.SetLineColor(kTeal)
-    #h_fakepredictionRight.Draw("same")
-        
-    # recalculate ratio: FR pred / FR Truth
-    if not "Run201" in dataid:
-        
-        # MC:
-        hratio.GetYaxis().SetTitle('Fake pred./genFake')
-        new_ratio = h_fakeprediction.Clone()
-        new_ratio.Divide(histos[dataid + "_srgenfake" + dedx + category])
-        for ibin in range(1, hratio.GetXaxis().GetNbins()+1):
-            hratio.SetBinContent(ibin, new_ratio.GetBinContent(ibin))
-            hratio.SetBinError(ibin, new_ratio.GetBinError(ibin))
 
-    else:
-        
-        # Data:
-        pads[1].cd()
-                
-        #fullpredictionLeft = h_fakepredictionLeft.Clone()
-        #fullpredictionLeft.Add(h_promptprediction)        
-        #new_ratioLeft = histos[dataid + "_sr" + dedx + category].Clone()
-        #new_ratioLeft.Divide(fullpredictionLeft)
-        #new_ratioLeft.SetLineColor(kTeal)
-        #new_ratioLeft.SetMarkerSize(0)
-        #new_ratioLeft.Draw("same")
-        #
-        #fullpredictionRight = h_fakepredictionRight.Clone()
-        #fullpredictionRight.Add(h_promptprediction)        
-        #new_ratioRight = histos[dataid + "_sr" + dedx + category].Clone()
-        #new_ratioRight.Divide(fullpredictionRight)
-        #new_ratioRight.SetLineColor(kTeal)
-        #new_ratioRight.SetMarkerSize(0)
-        #new_ratioRight.Draw("same")
-        
-        
-    for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
-        if hratio.GetBinContent(ibin)==0:
-            hratio.SetBinContent(ibin,-999)
-    hratio.SetMarkerColor(kBlack)
 
-    canvas.SaveAs(outputfolder + "/" + pdffile + ".pdf")
+
+        if plot == "mc-with-data":
+            
+            mcdataid = "Summer16_" + variable + "_" + region
+            
+            if category == "":
+                datahist = histos[dataid + "_sr" + dedx + "_short"]                
+                datahist.Add(histos[dataid + "_sr" + dedx + "_long"])                
+                stacked_histograms = [
+                                       histos[mcdataid + "_srgenfake" + dedx + "_short"].Clone(),
+                                       histos[mcdataid + "_srgenfake" + dedx + "_long"].Clone(),
+                                       histos[mcdataid + "_srgenprompt" + dedx + "_short"].Clone(),
+                                       histos[mcdataid + "_srgenprompt" + dedx + "_long"].Clone(),
+                                     ]
+            else:    
+                datahist = histos[dataid + "_sr" + dedx + category]
+                stacked_histograms = [
+                                       histos[mcdataid + "_srgenfake" + dedx + category].Clone(),
+                                       histos[mcdataid + "_srgenprompt" + dedx + category].Clone(),
+                                     ]
+
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Data")        
+            
+            
+        elif plot == "prediction-without-data":
+            
+            stacked_histograms = [
+                                   h_fakeprediction.Clone(),
+                                   h_promptprediction.Clone(),
+                                 ]
+        
+            datahist = stacked_histograms[0].Clone()
+            for stacked_histogram in stacked_histograms[1:]:
+                datahist.Add(stacked_histogram.Clone())
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Added predictions")
+            
+        
+        elif plot == "prediction-with-mctruth":
+            
+            stacked_histograms = [
+                                   h_fakeprediction.Clone(),
+                                   h_promptprediction.Clone(),
+                                 ]
+                                
+            if category == "":
+                datahist = histos[dataid + "_srgenfake" + dedx + "_short"].Clone()
+                datahist.Add(histos[dataid + "_srgenprompt" + dedx + "_short"].Clone())
+                datahist.Add(histos[dataid + "_srgenfake" + dedx + "_long"].Clone())
+                datahist.Add(histos[dataid + "_srgenprompt" + dedx + "_long"].Clone())
+            else:    
+                datahist = histos[dataid + "_srgenfake" + dedx + category].Clone()
+                datahist.Add(histos[dataid + "_srgenprompt" + dedx + category].Clone())
+                datahist.SetLineColor(kBlack)
+                datahist.SetTitle("Obs. from MC")
+        
+        elif plot == "prediction-prompt":
+                    
+            stacked_histograms = [
+                                   #h_fakeprediction.Clone(),
+                                   h_promptprediction.Clone(),
+                                 ]
+        
+            if category == "":
+                datahist = histos[dataid + "_srgenprompt" + dedx + "_short"].Clone()
+                datahist.Add(histos[dataid + "_srgenprompt" + dedx + "_long"].Clone())
+            else:
+                datahist = histos[dataid + "_srgenprompt" + dedx + category].Clone()
+
+            #datahist.Add(histos[dataid + "_srgenprompt" + dedx + category].Clone())
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Prompt obs. from MC")
+        
+        elif plot == "prediction-fake":
+                    
+            stacked_histograms = [
+                                   h_fakeprediction.Clone(),
+                                   #h_promptprediction.Clone(),
+                                 ]
+                            
+            if category == "":
+                datahist = histos[dataid + "_srgenfake" + dedx + "_short"].Clone()
+                datahist.Add(histos[dataid + "_srgenfake" + dedx + "_long"].Clone())
+            else:
+                datahist = histos[dataid + "_srgenfake" + dedx + category].Clone()
+            #datahist.Add(histos[dataid + "_srgenprompt" + dedx + category].Clone())
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Fake obs. from MC")
+            
+        elif plot == "contamination-truefakes":
+                    
+            stacked_histograms = [
+                                   histos[dataid + "_srgenfake" + dedx + category].Clone(),
+                                   histos[dataid + "_srgenprompt" + dedx + category].Clone(),
+                                 ]
+                                 
+            histos[dataid + "_srgenfake" + dedx + category].SetLineColor(color_fakebg)
+            histos[dataid + "_srgenfake" + dedx + category].SetFillColor(color_fakebg)
+            histos[dataid + "_srgenprompt" + dedx + category].SetLineColor(color_promptbg)
+            histos[dataid + "_srgenprompt" + dedx + category].SetFillColor(color_promptbg)
+            
+            datahist = histos[dataid + "_srgenfake" + dedx + category].Clone()
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Fakes (MC Truth)")
+
+        elif plot == "contamination-trueprompt":
+                    
+            stacked_histograms = [
+                                   histos[dataid + "_srgenfake" + dedx + category].Clone(),
+                                   histos[dataid + "_srgenprompt" + dedx + category].Clone(),
+                                 ]
+                                 
+            histos[dataid + "_srgenfake" + dedx + category].SetLineColor(color_fakebg)
+            histos[dataid + "_srgenfake" + dedx + category].SetFillColor(color_fakebg)
+            histos[dataid + "_srgenprompt" + dedx + category].SetLineColor(color_promptbg)
+            histos[dataid + "_srgenprompt" + dedx + category].SetFillColor(color_promptbg)
+        
+            datahist = histos[dataid + "_srgenprompt" + dedx + category].Clone()
+            datahist.SetLineColor(kBlack)
+            datahist.SetTitle("Prompt (MC Truth)")
+        
+        
+        for i_label, label in enumerate(histos):
+            histos[label].GetYaxis().SetRangeUser(ymin, ymax)
+        h_promptprediction.GetYaxis().SetRangeUser(ymin, ymax)
+        h_fakeprediction.GetYaxis().SetRangeUser(ymin, ymax)    
+        datahist.GetYaxis().SetRangeUser(ymin, ymax)
+        
+        for stacked_histogram in stacked_histograms:
+            stacked_histogram.GetYaxis().SetRangeUser(ymin, ymax)
+            stacked_histogram.GetYaxis().SetLimits(ymin, ymax)
+        
+        hratio, pads = shared_utils.FabDraw(canvas, legend, datahist, stacked_histograms, datamc = 'Data', lumi = lumi/1e3)
+        stacked_histograms[-1].SetTitle("")
+        
+        hratio.GetYaxis().SetRangeUser(-0.1,2.6)    
+        if "Run201" in dataid:
+            hratio.GetYaxis().SetTitle('Data/prediction')
+        else:
+            hratio.GetYaxis().SetTitle('Fake pred./truth')
+            
+        xlabel = variable
+        xlabel = xlabel.replace("leptons_mt", "m_{T}^{lepton} (GeV)")
+        xlabel = xlabel.replace("leadinglepton_mt", "m_{T}^{lepton} (GeV)")
+        hratio.GetXaxis().SetTitle(xlabel)
+        
+        for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
+            if hratio.GetBinContent(ibin)==0:
+                hratio.SetBinContent(ibin,-999)
+        hratio.SetMarkerColor(kBlack)
+               
+        foldername = outputfolder + "/%s%s" % (category.replace("_short", "Short").replace("_long", "Long"), region)
+        if not use_prompt_fakesubtraction:
+            foldername += "WithoutSubtraction"
+        if use_prompt_DeltaPhi or use_fakes_DeltaPhi:
+            foldername += "DeltaPhiEnhanced"
+
+        os.system("mkdir -p " + foldername)
+
+        #canvas.SaveAs(foldername + "/" + pdffile + "_" + plot + ".pdf")
+        canvas.SaveAs(foldername + "/" + pdffile + "_" + plot + ".png")
+
+        # write out ROOT file:
+        #fout = TFile(foldername + "/" + pdffile + "_" + plot + ".root", "recreate")
+        #h_promptprediction.Write()
+        #h_fakeprediction.Write()
+        #fout.Close()
+        
+        
 
 
 def run(index, histograms_folder = ""):
     
-    #regions = ["SElValidationMT", "SMuValidationMT" ]#, "HadBaseline", "SMuBaseline", "SElBaseline"]
-    #regions = ["HadBaseline", "SMuBaseline", "SElBaseline", "SMuValidationMT", "SElValidationMT"]#, "SElValidationMT" "Baseline", "HadBaseline", "SMuBaseline", "SElBaseline"]
     regions = [
-                #"SMuValidationMT",
-                #"SElValidationMT",
                 "Baseline",
+                "QCDLowMHT50",
+                "HadBaseline",
+                "SMuBaseline",
+                "SElBaseline",
+                "SMuValidationMT",
+                "SElValidationMT",
+                "SElValidationZLL",
+                "SMuValidationZLL",
+                "SElValidationZLLnoMT",
+                "SMuValidationZLLnoMT",
+                "SElValidationZLLRevMT",
+                "SMuValidationZLLRevMT",
+                "PromptDY",
+                "PromptDYenhanced",
+                "QCDLowMHTFakerateDet",
               ]
     
     variables = [
-                 ##"regionCorrected",
-                 #"HT",
-                 #"MHT",
-                 #"n_goodjets",
-                 ##"n_btags",
-                 #"leadinglepton_mt",
-                 #"tracks_invmass",
-                 "tracks_region",
-                 "regionCorrected",
-                 ##"tracks_is_pixel_track",
-                 ##"tracks_pt",
-                 ##"tracks_eta",
-                 ##"tracks_deDxHarmonic2pixelCorrected",
-                 ##"tracks_matchedCaloEnergy",
-                 #"regionCorrected"
-                 ##"tracks_trkRelIso",
+                  "HT",
+                  "MHT",
+                  "n_goodjets",
+                  "n_btags",
+                  "leadinglepton_mt",
+                  "tracks_invmass",
+                  "tracks_is_pixel_track",
+                  "tracks_pt",
+                  "tracks_eta",
+                  "tracks_deDxHarmonic2pixel",
+                  "tracks_matchedCaloEnergy",
+                  "tracks_trkRelIso",
+                  "tracks_MinDeltaPhiTrackMht",
+                  "tracks_MinDeltaPhiTrackLepton",
+                  "tracks_MinDeltaPhiTrackJets",
+                  "tracks_ptRatioTrackMht",
+                  "tracks_ptRatioTrackLepton",
+                  "tracks_ptRatioTrackJets",
+                  "MinDeltaPhiMhtJets",
+                  "MinDeltaPhiLeptonMht",
+                  "MinDeltaPhiLeptonJets",
+                  "ptRatioMhtJets",
+                  "ptRatioLeptonMht",
+                  "ptRatioLeptonJets",
+                  "tracks_ECaloPt",
+                  "region",
                 ]
-    dedexids = ["_MidHighDeDx"] #  "_MidDeDx", "_HighDeDx"
-    fakerateregions = ["QCDLowMHT2D"] # "QCDLowMHT",,"QCDLowMHTSimple", "QCDLowMHTHT"] 
-    #fakerateregions = ["QCDLowMHT"]
-    categories = ["_short", "_long"]
+
+    dedexids = [
+                 #"",
+                 "_MidHighDeDx",
+                 #"_MidDeDx",
+                 #"_HighDeDx",
+               ]
+                  
+    fakerateregions = [
+                    "QCDLowMHT2D",
+                    #"QCDLowMHT",
+                      ]
+
+    categories = [
+                  "",
+                  "_short",
+                  "_long",
+                 ]
 
     data_periods = [
+                     #"Summer16",
                      "Run2016",
                      #"Run2017",
                      #"Run2018",
@@ -316,54 +415,46 @@ def run(index, histograms_folder = ""):
 
     counter = 0
     for region in regions:
+        for variable in variables:
+            for category in categories:
+                               
+                if (variable == "tracks_is_pixel_track" or "region" in variable):
+                    if category != "":
+                        continue
 
-        if "Validation" in region:
-            use_data_list = [True]
-        else:
-            use_data_list = [False]
+                if category == "" and not (variable == "tracks_is_pixel_track" or "region" in variable):
+                    continue
 
-        for use_data in use_data_list:
-            for variable in variables:
-                for category in categories:
-                    for dedx in dedexids:
-                        for frregion in fakerateregions:
-                            for data_period in data_periods:
-                                #if category == "" and variable != "tracks_is_pixel_track":
-                                #    continue
-                                #if category != "" and variable == "tracks_is_pixel_track":
-                                #    continue
-                                #if "region" in variable and region != "Baseline":
-                                #    continue
-                                
-                                counter += 1
-                                if counter != index: continue
-                                
-                                #if not use_data:
-                                #    plot_validation(variable, histograms_folder + "/FILE", "Summer16", category, 36000, region, dedx, "Summer16_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)
-                                #    #if "SMu" not in region and "SEl" not in region:
-                                #    #    plot_validation(variable, histograms_file, "Summer16QCDZJets", category, 36000, region, dedx, "Summer16QCDZJets_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)
-                                #
-                                #if "region" in variable:
-                                #    plot_validation(variable, histograms_folder + "/FILE", "Run2016", category, 35000, region, dedx, "Run2016_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)
-                                #
-                                #if "SElValidation" in region and use_data:
-                                #    #lumi = lumis["Run2016_SingleElectron"] * 1e3
-                                #    lumi = 34330
-                                #    plot_validation(variable, histograms_folder + "/FILE", "Run2016SingleElectron", category, lumi, region, dedx, "Run2016SingleElectron_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)
-                
-                                if "Baseline" in region:
-                                    lumi = 35200
-                                    plot_validation(variable, histograms_folder + "/merged_%s.root" % data_period, data_period, category, lumi, region, dedx, data_period + "_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)     
-                                                            
-                                if "SMuValidation" in region and use_data:
-                                    #lumi = lumis["Run2016_SingleMuon"] * 1e3
-                                    lumi = 35200
-                                    plot_validation(variable, histograms_folder + "/merged_%sSingleMuon.root" % data_period, data_period, category, lumi, region, dedx, data_period + "_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)     
+                if category == "" and region != "Baseline":
+                    continue
 
-                                elif "SElValidation" in region and use_data:
-                                    #lumi = lumis["Run2016_SingleMuon"] * 1e3
-                                    lumi = 35200
-                                    plot_validation(variable, histograms_folder + "/merged_%sSingleElectron.root" % data_period, data_period, category, lumi, region, dedx, data_period + "_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion = frregion)     
+                for dedx in dedexids:
+                    for frregion in fakerateregions:
+                        for data_period in data_periods:
+                            
+                            counter += 1
+                            if counter != index: continue
+
+                            #lumi = 137000
+                            lumi = 35900
+                                                                                       
+                            if "Run201" in data_period:
+                                if "SEl" in region:
+                                    merged_histograms_file = histograms_folder + "/merged_%sSingleElectron.root" % data_period
+                                elif "SMu" in region:
+                                    merged_histograms_file = histograms_folder + "/merged_%sSingleMuon.root" % data_period
+                                elif "QCD" in region:
+                                    merged_histograms_file = histograms_folder + "/merged_%sJetHT.root" % data_period
+                                else:
+                                    merged_histograms_file = histograms_folder + "/merged_%sMET.root" % data_period
+
+                                if "region" in variable and region == "Baseline":
+                                    merged_histograms_file = histograms_folder + "/merged_%sAll.root" % data_period
+
+                            else:
+                                merged_histograms_file = histograms_folder + "/merged_Summer16.root"
+
+                            plot_prediction(variable, merged_histograms_file, data_period, category, lumi, region, dedx, data_period + "_" + region + dedx + "_" + variable + category + frregion, outputfolder, frregion)     
 
     return counter
     
@@ -384,6 +475,6 @@ if __name__ == "__main__":
     if options.index:
         run(int(options.index), histograms_folder = options.histograms_folder)
     else:
-        for i in range(0, run(-1)+1):
+        for i in range(0, run(-1) + 1):
             os.system("./%s --index %s --histograms %s" % (this_scripts_name, i, options.histograms_folder))
             
