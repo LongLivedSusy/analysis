@@ -1108,6 +1108,15 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 tagged_tracks[-1]["tracks_mva_%s" % label] = mva_scores[label]
                 
             tagged_tracks[-1]["object"] = track
+            
+            # some synchronization info:
+  
+            if tagged_tracks[-1]["tracks_mva_tight_may20_chi2"]>-0.05 and tagged_tracks[-1]["tracks_trkRelIso"]<0.01:
+                print "****************"
+                print "track found in %s:%s:%s" % (event.RunNum, event.LumiBlockNum, event.EvtNum)
+                print tagged_tracks[-1]
+                print "****************"
+                
   
         # FIXME: keep only events with candidate tracks
         if len(tagged_tracks)==0:
@@ -1302,9 +1311,9 @@ if __name__ == "__main__":
     else:
 
         inputfiles = [
-                      "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh/Run2016H-17Jul2018-v1.JetHTAOD_110000-42B8998E-A97C-E711-A9DE-0242AC1C050B_RA2AnalysisTree.root",
-                      "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root",
                       "/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-562E92D6-37BB-E611-B964-001E674FC800_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh/Run2016H-17Jul2018-v1.JetHTAOD_110000-42B8998E-A97C-E711-A9DE-0242AC1C050B_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root",
                      ]
 
         for inputfile in inputfiles: 
@@ -1315,7 +1324,7 @@ if __name__ == "__main__":
             main(
                  [inputfile],
                  outputfile,
-                 nevents = 1000,
+                 nevents = -1,
                  overwrite = True,
                 )
 
