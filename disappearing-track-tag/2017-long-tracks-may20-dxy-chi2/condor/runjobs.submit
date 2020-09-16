@@ -5,7 +5,7 @@
             log = $INT(ModifiedProcess).log
             executable = /bin/bash
             arguments = runjobs.sh $INT(ModifiedProcess)
-            initialdir = /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-long-tracks-may20-dxy-chi2/condor
+            initialdir = /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-may20-dxy-chi2/condor
             error = $INT(ModifiedProcess).sh.e
             output = $INT(ModifiedProcess).sh.o
             notification = Never

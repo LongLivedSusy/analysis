@@ -1,0 +1,316 @@
+  
+/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_1_7
+./trainBDT.py --category short --use_chi2 --phase 1 --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged
+Training BDT for phase 1...
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8]=3.48999535844e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8]=2.81965093185e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8]=9.43314737076e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8]=3.17273285379e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8]=5.82666296132e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8]=5.45321862048e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8]=5.43241719106e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8]=2.45108667702e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8*.root
+weights[FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8]=4.94436299701e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8*.root
+weights[FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8]=2.57197484426e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*.root
+weights[FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8]=2.10805522832e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8]=2.98138993447e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8]=2.41811683051e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8]=6.03002728597e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8]=4.72183283207e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8]=1.06934642598e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8]=6.02836027019e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8]=2.70670357351e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8]=6.8791977564e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8]=3.11425397225e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8]=7.66531628031e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8]=2.13605656995e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_48_phase2_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+weights[WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8]=1.33985376491e-06
+adding background tree: DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8
+DataSetInfo              : [dataset] : Added class "Background"
+                         : Add Tree Events of type Background with 21590 events
+adding background tree: WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 8677 events
+adding background tree: DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 471 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8
+DataSetInfo              : [dataset] : Added class "Signal"
+                         : Add Tree Events of type Signal with 837732 events
+adding background tree: TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 4973 events
+adding background tree: DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 207 events
+adding background tree: DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 72777 events
+adding background tree: WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 11912 events
+adding background tree: TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 46713 events
+adding background tree: DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 8729 events
+adding background tree: DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 1736 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Signal with 2032106 events
+adding background tree: DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 13391 events
+adding background tree: WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 7063 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Signal with 66688 events
+adding background tree: TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 27906 events
+adding background tree: WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 6893 events
+adding background tree: TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 17031 events
+adding background tree: TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 12607 events
+adding background tree: DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 5302 events
+adding background tree: WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 10363 events
+adding background tree: WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 12445 events
+adding background tree: WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 45483 events
+Factory                  : Booking method: [1mBDT[0m
+                         : 
+<WARNING>                : Found events with NaN and/or +-inf values
+<WARNING>                : Dataset[dataset] : Input expression resolves to infinite value (+inf or -inf): tracks_chi2perNdof (7 times)
+<WARNING>                : These NaN and/or +-infs were all removed by the specified cut, continuing.
+                         : 
+DataSetFactory           : [dataset] : Number of events in input trees
+                         : Dataset[dataset] :     Background requirement: "tracks_is_pixel_track==1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999"
+                         : Dataset[dataset] :     Background      -- number of events passed: 177468  / sum of weights: 2.02897
+                         : Dataset[dataset] :     Background      -- efficiency             : 0.508819
+                         : Dataset[dataset] :     Signal     requirement: "tracks_chiCandGenMatchingDR<0.01 && tracks_is_pixel_track==1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999"
+                         : Dataset[dataset] :     Signal          -- number of events passed: 1115744  / sum of weights: 0.0478734
+                         : Dataset[dataset] :     Signal          -- efficiency             : 0.348904
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Number of training and testing events
+                         : ---------------------------------------------------------------------------
+                         : Background -- training events            : 88734
+                         : Background -- testing events             : 88734
+                         : Background -- training and testing events: 177468
+                         : Dataset[dataset] : Background -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.527198
+                         : Signal     -- training events            : 557872
+                         : Signal     -- testing events             : 557872
+                         : Signal     -- training and testing events: 1115744
+                         : Dataset[dataset] : Signal     -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.339781
+                         : 
+DataSetInfo              : Correlation matrix (Background):
+                         : ----------------------------------------------------------------------------------------------------------------------------------------------
+                         :                           tracks_dzVtx tracks_matchedCaloEnergy tracks_trkRelIso tracks_nValidPixelHits tracks_ptErrOverPt2 tracks_chi2perNdof
+                         :             tracks_dzVtx:       +1.000                   +0.049           -0.060                 +0.022              +0.094             +0.037
+                         : tracks_matchedCaloEnergy:       +0.049                   +1.000           +0.115                 +0.176              +0.073             +0.050
+                         :         tracks_trkRelIso:       -0.060                   +0.115           +1.000                 +0.088              +0.038             +0.057
+                         :   tracks_nValidPixelHits:       +0.022                   +0.176           +0.088                 +1.000              +0.094             +0.157
+                         :      tracks_ptErrOverPt2:       +0.094                   +0.073           +0.038                 +0.094              +1.000             +0.076
+                         :       tracks_chi2perNdof:       +0.037                   +0.050           +0.057                 +0.157              +0.076             +1.000
+                         : ----------------------------------------------------------------------------------------------------------------------------------------------
+DataSetInfo              : Correlation matrix (Signal):
+                         : ----------------------------------------------------------------------------------------------------------------------------------------------
+                         :                           tracks_dzVtx tracks_matchedCaloEnergy tracks_trkRelIso tracks_nValidPixelHits tracks_ptErrOverPt2 tracks_chi2perNdof
+                         :             tracks_dzVtx:       +1.000                   -0.003           +0.017                 -0.051              +0.091             +0.071
+                         : tracks_matchedCaloEnergy:       -0.003                   +1.000           +0.120                 +0.004              -0.005             +0.003
+                         :         tracks_trkRelIso:       +0.017                   +0.120           +1.000                 -0.093              +0.069             +0.006
+                         :   tracks_nValidPixelHits:       -0.051                   +0.004           -0.093                 +1.000              -0.348             +0.130
+                         :      tracks_ptErrOverPt2:       +0.091                   -0.005           +0.069                 -0.348              +1.000             -0.080
+                         :       tracks_chi2perNdof:       +0.071                   +0.003           +0.006                 +0.130              -0.080             +1.000
+                         : ----------------------------------------------------------------------------------------------------------------------------------------------
+DataSetFactory           : [dataset] :  
+                         : 
+Factory                  : [1mTrain all methods[0m
+Factory                  : [dataset] : Create Transformation "I" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "P" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "G" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_matchedCaloEnergy' <---> Output : variable 'tracks_matchedCaloEnergy'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                 0.0049615                  0.011468   [                7.0567e-09                  0.099978 ]
+                         : tracks_matchedCaloEnergy:                    21.446                    93.805   [                    0.0000                    3465.6 ]
+                         :         tracks_trkRelIso:                 0.0069437                  0.019780   [                    0.0000                   0.19995 ]
+                         :   tracks_nValidPixelHits:                    3.4785                   0.59408   [                    3.0000                    9.0000 ]
+                         :      tracks_ptErrOverPt2:                  0.012518                  0.025859   [                 0.0022764                    8.1814 ]
+                         :       tracks_chi2perNdof:                    1.0464                    1.5395   [                1.5540e-11                    101.79 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                   0.99762                    1.0000   [                   -29.296                    10.076 ]
+                         : tracks_matchedCaloEnergy:                   0.22793                    1.0000   [                -0.0024758                    36.944 ]
+                         :         tracks_trkRelIso:                   0.75696                    1.0000   [                   -11.820                    10.933 ]
+                         :   tracks_nValidPixelHits:                    5.8443                    1.0000   [                    3.9674                    15.229 ]
+                         :      tracks_ptErrOverPt2:                    1.2917                    1.0000   [                  0.031822                    323.84 ]
+                         :       tracks_chi2perNdof:                   0.50529                    1.0000   [                  -0.31841                    65.996 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Principle Component (PCA) transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                   -1.2750                    93.805   [                   -22.721                    3442.9 ]
+                         : tracks_matchedCaloEnergy:                -0.0076107                    1.5410   [                   -1.4728                    100.75 ]
+                         :         tracks_trkRelIso:                  0.015908                   0.59017   [                   -5.5240                    2.1208 ]
+                         :   tracks_nValidPixelHits:                0.00039631                  0.025708   [                   -8.0886                  0.027685 ]
+                         :      tracks_ptErrOverPt2:                0.00040144                  0.019501   [                  -0.19775                   0.96878 ]
+                         :       tracks_chi2perNdof:                4.5847e-05                  0.011057   [                 -0.098980                   0.56090 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Gaussian transformation...
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                  0.027440                    1.0000   [                   -3.4327                    6.0855 ]
+                         : tracks_matchedCaloEnergy:                 -0.086560                    1.0000   [                   -2.2369                    5.5680 ]
+                         :         tracks_trkRelIso:                  -0.97667                    1.0000   [                   -2.2611                    3.9677 ]
+                         :   tracks_nValidPixelHits:                   0.23397                    1.0000   [                   -3.2351                    10.229 ]
+                         :      tracks_ptErrOverPt2:                   0.14110                    1.0000   [                   -7.1588                    6.4940 ]
+                         :       tracks_chi2perNdof:                  0.011586                    1.0000   [                   -2.3124                    5.6854 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Ranking input variables (method unspecific)...
+IdTransformation         : Ranking result (top variable is best ranked)
+                         : -------------------------------------------------
+                         : Rank : Variable                 : Separation
+                         : -------------------------------------------------
+                         :    1 : tracks_dzVtx             : 5.277e-01
+                         :    2 : tracks_nValidPixelHits   : 1.846e-01
+                         :    3 : tracks_ptErrOverPt2      : 1.279e-01
+                         :    4 : tracks_trkRelIso         : 6.761e-02
+                         :    5 : tracks_matchedCaloEnergy : 3.666e-02
+                         :    6 : tracks_chi2perNdof       : 1.120e-02
+                         : -------------------------------------------------
+Factory                  : Train method: BDT for Classification
+                         : 
+BDT                      : #events: (reweighted) sig: 323303 bkg: 323303
+                         : #events: (unweighted) sig: 557872 bkg: 88734
+                         : Training 200 Decision Trees ... patience please
+                         : Elapsed time for training with 646606 events: 104 sec         
+BDT                      : [dataset] : Evaluation of BDT on training sample (646606 events)
+                         : Elapsed time for evaluation of 646606 events: 9.09 sec       
+                         : Creating xml weight file: [0;36mdataset/weights/TMVAClassification_BDT.weights.xml[0m
+                         : Creating standalone class: [0;36mdataset/weights/TMVAClassification_BDT.class.C[0m
+Factory                  : Training finished
+                         : 
+                         : Ranking input variables (method specific)...
+BDT                      : Ranking result (top variable is best ranked)
+                         : ----------------------------------------------------------
+                         : Rank : Variable                 : Variable Importance
+                         : ----------------------------------------------------------
+                         :    1 : tracks_dzVtx             : 5.252e-01
+                         :    2 : tracks_trkRelIso         : 2.184e-01
+                         :    3 : tracks_nValidPixelHits   : 1.414e-01
+                         :    4 : tracks_chi2perNdof       : 1.150e-01
+                         :    5 : tracks_matchedCaloEnergy : 0.000e+00
+                         :    6 : tracks_ptErrOverPt2      : 0.000e+00
+                         : ----------------------------------------------------------
+Factory                  : === Destroy and recreate all methods via weight files for testing ===
+                         : 
+Factory                  : [1mTest all methods[0m
+Factory                  : Test method: BDT for Classification performance
+                         : 
+BDT                      : [dataset] : Evaluation of BDT on testing sample (646606 events)
+                         : Elapsed time for evaluation of 646606 events: 7.86 sec       
+Factory                  : [1mEvaluate all methods[0m
+Factory                  : Evaluate classifier: BDT
+                         : 
+BDT                      : [dataset] : Loop over test events and fill histograms with classifier response...
+                         : 
+TFHandler_BDT            :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :             tracks_dzVtx:                  0.021465                  0.023270   [                2.6875e-09                  0.099999 ]
+                         : tracks_matchedCaloEnergy:                    14.737                    35.330   [                    0.0000                    4326.6 ]
+                         :         tracks_trkRelIso:                  0.018394                  0.036491   [                    0.0000                   0.19998 ]
+                         :   tracks_nValidPixelHits:                    3.1849                   0.54316   [                    3.0000                    10.000 ]
+                         :      tracks_ptErrOverPt2:                  0.025158                  0.062573   [                 0.0022625                    5.8339 ]
+                         :       tracks_chi2perNdof:                    1.4022                    2.6911   [                6.7651e-10                    126.63 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Evaluation results ranked by best signal efficiency and purity (area)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet       MVA                       
+                         : Name:         Method:          ROC-integ
+                         : dataset       BDT            : 0.940
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Testing efficiency compared to training efficiency (overtraining check)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet              MVA              Signal efficiency: from test sample (from training sample) 
+                         : Name:                Method:          @B=0.01             @B=0.10            @B=0.30   
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : dataset              BDT            : 0.355 (0.377)       0.791 (0.807)      0.975 (0.975)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+Dataset:dataset          : Created tree 'TestTree' with 646606 events
+                         : 
+Dataset:dataset          : Created tree 'TrainTree' with 646606 events
+                         : 
+Factory                  : [1mThank you for using TMVA![0m
+                         : [1mFor citation information, please visit: http://tmva.sf.net/citeTMVA.html[0m
+Success

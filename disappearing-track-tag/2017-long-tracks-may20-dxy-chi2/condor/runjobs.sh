@@ -5,7 +5,7 @@
     cd /afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_1_7
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
-    cd /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-long-tracks-may20-dxy-chi2
+    cd /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-may20-dxy-chi2
     export PYTHONDONTWRITEBYTECODE=1
     export PYTHONPATH=$PYTHONPATH:$(pwd)/../
     export PYTHONPATH=$PYTHONPATH:$(pwd)/../tools
