@@ -12,8 +12,6 @@ color_promptbg = kAzure + 1
 
 #flags:
 use_prompt_fakesubtraction = True
-use_prompt_DeltaPhi = False
-use_fakes_DeltaPhi = False
 
 def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx, pdffile, outputfolder, frregion):
 
@@ -36,8 +34,9 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
         shared_utils.histoStyler(histos[label])
         if "Run201" in label:
             # this is data, scale up to Run-2 lumi....:
-            #histos[label].Scale(3.8)
-            histos[label].SetTitle("Data (2016)")
+            histos[label].Scale(3.8)
+            #histos[label].SetTitle("Data (2016)")
+            histos[label].SetTitle("Data")
         else:
             # this is MC, scale with lumi:
             histos[label].Scale(lumi)
@@ -67,10 +66,7 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
         
         # method: EDep sideband
         
-        if use_prompt_DeltaPhi:
-            h_caloSB = histos[dataid + "_srECSBenhanced" + dedx + i_category]
-        else:
-            h_caloSB = histos[dataid + "_srECSB" + dedx + i_category]
+        h_caloSB = histos[dataid + "_srECSB" + dedx + i_category]
             
         if "Run201" in datalabel:
             # if running on data: high-low-factor from SingleElectron dataset:
@@ -319,13 +315,11 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
         foldername = outputfolder + "/%s%s" % (category.replace("_short", "Short").replace("_long", "Long"), region)
         if not use_prompt_fakesubtraction:
             foldername += "WithoutSubtraction"
-        if use_prompt_DeltaPhi or use_fakes_DeltaPhi:
-            foldername += "DeltaPhiEnhanced"
 
         os.system("mkdir -p " + foldername)
 
-        #canvas.SaveAs(foldername + "/" + pdffile + "_" + plot + ".pdf")
-        canvas.SaveAs(foldername + "/" + pdffile + "_" + plot + ".png")
+        canvas.SaveAs(foldername + "/" + pdffile + "_" + plot + ".pdf")
+        #canvas.SaveAs(foldername + "/" + pdffile + "_" + plot + ".png")
 
         # write out ROOT file:
         #fout = TFile(foldername + "/" + pdffile + "_" + plot + ".root", "recreate")
@@ -339,51 +333,49 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, dedx
 def run(index, histograms_folder = ""):
     
     regions = [
-                "Baseline",
-                "QCDLowMHT50",
-                "HadBaseline",
-                "SMuBaseline",
-                "SElBaseline",
-                "SMuValidationMT",
-                "SElValidationMT",
+                #"Baseline",
+                #"QCDLowMHT",
+                #"QCDLowMHTJets",
+                #"HadBaseline",
+                #"SMuBaseline",
+                #"SElBaseline",
+                #"SMuValidationMT",
+                #"SElValidationMT",
                 "SElValidationZLL",
-                "SMuValidationZLL",
-                "SElValidationZLLnoMT",
-                "SMuValidationZLLnoMT",
-                "SElValidationZLLRevMT",
-                "SMuValidationZLLRevMT",
-                "PromptDY",
-                "PromptDYenhanced",
-                "QCDLowMHTFakerateDet",
+                #"SMuValidationZLL",
+                #"PromptDY",
+                #"PromptDYenhanced",
+                #"QCDLowMHT",
+                #"QCDLowMHTJets",
               ]
     
     variables = [
-                  "HT",
-                  "MHT",
-                  "n_goodjets",
-                  "n_btags",
-                  "leadinglepton_mt",
-                  "tracks_invmass",
-                  "tracks_is_pixel_track",
-                  "tracks_pt",
-                  "tracks_eta",
-                  "tracks_deDxHarmonic2pixel",
-                  "tracks_matchedCaloEnergy",
-                  "tracks_trkRelIso",
+                  #"HT",
+                  #"MHT",
+                  #"n_goodjets",
+                  #"n_btags",
+                  #"leadinglepton_mt",
+                  #"tracks_invmass",
+                  #"tracks_is_pixel_track",
+                  #"tracks_pt",
+                  #"tracks_eta",
+                  #"tracks_deDxHarmonic2pixel",
+                  #"tracks_matchedCaloEnergy",
+                  #"tracks_trkRelIso",
                   "tracks_MinDeltaPhiTrackMht",
-                  "tracks_MinDeltaPhiTrackLepton",
-                  "tracks_MinDeltaPhiTrackJets",
-                  "tracks_ptRatioTrackMht",
-                  "tracks_ptRatioTrackLepton",
-                  "tracks_ptRatioTrackJets",
-                  "MinDeltaPhiMhtJets",
-                  "MinDeltaPhiLeptonMht",
-                  "MinDeltaPhiLeptonJets",
-                  "ptRatioMhtJets",
-                  "ptRatioLeptonMht",
-                  "ptRatioLeptonJets",
-                  "tracks_ECaloPt",
-                  "region",
+                  #"tracks_MinDeltaPhiTrackLepton",
+                  #"tracks_MinDeltaPhiTrackJets",
+                  #"tracks_ptRatioTrackMht",
+                  #"tracks_ptRatioTrackLepton",
+                  #"tracks_ptRatioTrackJets",
+                  #"MinDeltaPhiMhtJets",
+                  #"MinDeltaPhiLeptonMht",
+                  #"MinDeltaPhiLeptonJets",
+                  #"ptRatioMhtJets",
+                  #"ptRatioLeptonMht",
+                  #"ptRatioLeptonJets",
+                  #"tracks_ECaloPt",
+                  #"region",
                 ]
 
     dedexids = [
@@ -435,8 +427,8 @@ def run(index, histograms_folder = ""):
                             counter += 1
                             if counter != index: continue
 
-                            #lumi = 137000
-                            lumi = 35900
+                            lumi = 137000
+                            #lumi = 35900
                                                                                        
                             if "Run201" in data_period:
                                 if "SEl" in region:

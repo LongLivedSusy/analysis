@@ -12,32 +12,26 @@ import collections
 
 event_selections = {}
 event_selections["analysis"] = collections.OrderedDict()
-event_selections["analysis"]["Baseline"] =              "((n_goodelectrons==0 && n_goodmuons==0) || (leadinglepton_mt>90 && tracks_invmass>110))"
-event_selections["analysis"]["QCDLowMHT50"] =           "n_goodelectrons==0 && n_goodmuons==0 && MHT>50 && MHT<100 && n_goodjets>=1"
-event_selections["analysis"]["QCDLowMHTFakerateDet"] =  "n_goodelectrons==0 && n_goodmuons==0 && MHT<50"
-event_selections["analysis"]["HadBaseline"] =           "HT>150 && MHT>150 && n_goodjets>=1 && n_goodelectrons==0 && n_goodmuons==0"
-event_selections["analysis"]["SMuBaseline"] =           "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
-event_selections["analysis"]["SMuValidationZLL"] =      "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-event_selections["analysis"]["SMuValidationZLLnoMT"] =  "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110"
-event_selections["analysis"]["SMuValidationZLLRevMT"] = "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt<90"
-event_selections["analysis"]["SMuValidationMT"] =       "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90"
-event_selections["analysis"]["SElBaseline"] =           "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
-event_selections["analysis"]["SElValidationZLL"] =      "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90"
-event_selections["analysis"]["SElValidationZLLnoMT"] =  "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110"
-event_selections["analysis"]["SElValidationZLLRevMT"] = "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt<90"
-event_selections["analysis"]["SElValidationMT"] =       "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<90"
-event_selections["analysis"]["PromptDY"] =              "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110"
-event_selections["analysis"]["PromptDYenhanced"] =      "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110 && tracks_MinDeltaPhiTrackMht<1.0"
+#event_selections["analysis"]["Baseline"] =             "((n_goodelectrons==0 && n_goodmuons==0) || (leadinglepton_mt>90 && tracks_invmass>110))"
+#event_selections["analysis"]["QCDLowMHTJets"] =        "n_goodelectrons==0 && n_goodmuons==0 && MHT>50 && MHT<100 && n_goodjets>=1"
+#event_selections["analysis"]["QCDLowMHT"] =            "n_goodelectrons==0 && n_goodmuons==0 && MHT>50 && MHT<100"
+#event_selections["analysis"]["FakeDet"] =              "n_goodelectrons==0 && n_goodmuons==0 && MHT<50"
+#event_selections["analysis"]["HadBaseline"] =          "HT>150 && MHT>150 && n_goodjets>=1 && n_goodelectrons==0 && n_goodmuons==0"
+#event_selections["analysis"]["SMuBaseline"] =          "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+event_selections["analysis"]["SMuValidationZLL"] =     "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110"
+event_selections["analysis"]["SMuValidationMT"] =      "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<90"
+#event_selections["analysis"]["SElBaseline"] =          "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90"
+event_selections["analysis"]["SElValidationZLL"] =     "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110"
+event_selections["analysis"]["SElValidationMT"] =      "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<90"
+event_selections["analysis"]["PromptDY"] =             "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110"
+event_selections["analysis"]["PromptDet"] =             "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110"
 
 event_selections["fakerate"] = collections.OrderedDict()
-event_selections["fakerate"]["QCDLowMHT"] =             "(n_goodelectrons==0 && n_goodmuons==0) && MHT<50"
-#event_selections["fakerate"]["QCDLowMHT"] =            "(n_goodelectrons==0 && n_goodmuons==0) && MHT<150"
-#event_selections["fakerate"]["QCDLowMHTenhanced"] =    "(n_goodelectrons==0 && n_goodmuons==0) && MHT<100 && tracks_MinDeltaPhiTrackMht>1.0"
-#event_selections["fakerate"]["QCDLowMHT"] =            "n_goodleptons==0 && MHT<50"
-#event_selections["fakerate"]["Dilepton"] =             "dilepton_invmass>60 && dilepton_invmass<120"
-#event_selections["fakerate"]["DileptonLowMHT"] =       "dilepton_invmass>70 && dilepton_invmass<110 && MHT<150"
-#event_selections["fakerate"]["DileptonEl"] =           "dilepton_leptontype==11 && dilepton_invmass>70 && dilepton_invmass<110"
-#event_selections["fakerate"]["DileptonMu"] =           "dilepton_leptontype==13 && dilepton_invmass>70 && dilepton_invmass<110"
+event_selections["fakerate"]["QCDLowMHT"] =             "n_goodelectrons==0 && n_goodmuons==0 && MHT<50"
+
+event_selections["kappa"] = collections.OrderedDict()
+event_selections["kappa"]["PromptDY"] =                 "leadinglepton_id==11 && tracks_invmass>=70 && tracks_invmass<=110 && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+
 
 def chunks(lst, n):
     for i in range(0, len(lst), n):
@@ -123,7 +117,7 @@ def parse_root_cutstring(cut, tracks_increment_variable = "i"):
         output = " ".join(output.split()[1:])
 
     return output
-
+    
 
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename, sideband = False):
   
@@ -269,8 +263,8 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
     for event_selection in event_selections_converted:
         
         if event_selection == "Baseline":
-            
-            event_selections_converted_notracks[event_selection] = "((event.n_goodelectrons==0 and event.n_goodmuons==0) or event.leadinglepton_mt>90)"
+
+            event_selections_converted_notracks[event_selection] = "((event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.leadinglepton_mt>90 and event.tracks_invmass>110))"
         
         else:
         
@@ -378,7 +372,7 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
                     cuts_converted.append(cut_converted) 
 
                 for variable in variables:
-                    
+                                        
                     if "region" in variable and event_selection != "Baseline":
                         continue
                         
@@ -487,36 +481,33 @@ def event_loop(input_filenames, output_file, tags, variables, binnings, event_se
 
 def hadd_everything(samples, outputfolder):
     
-    try:
-        contains_data = False
-        for data_period in samples:
-            if "Run201" in data_period:
-                os.system("hadd -f %s/merged_%s.root %s/%s" % (outputfolder, data_period, outputfolder, samples[data_period][0]))
-                contains_data = True
-            elif data_period == "Summer16":
-                os.system("hadd -f %s/merged_Summer16.root %s/Summer16.*root" % (outputfolder, outputfolder))
+    contains_data = False
+    for data_period in samples:
+        command = "hadd -f %s/merged_%s.root " % (outputfolder, data_period)
+        for sample in samples[data_period]:
+            command += "%s/%s " % (outputfolder, sample)
+        os.system(command)
 
-        if contains_data:
-            os.system("hadd -f %s/merged_Run2016All.root %s/Run2016*root" % (outputfolder, outputfolder))
+        if "Run201" in data_period:
+            contains_data = True
 
-    except Exception as e:
-        print "hadd", str(e)
-        quit()
-    
+    if contains_data:
+        os.system("hadd -f %s/merged_Run2016All.root %s/Run2016*root" % (outputfolder, outputfolder))
 
+   
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--inputfile", dest = "inputfile")
+    parser.add_option("--inputfile", dest = "inputfile", default = "")
     parser.add_option("--outputfile", dest = "outputfile")
     parser.add_option("--mode", dest="mode")
     parser.add_option("--outputfolder", dest="outputfolder", default = "evlp96")
     parser.add_option("--fakeratefile", dest="fakeratefile", default = "fakerate.root")
-    parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_42")
+    parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_50_run2_merged")
     parser.add_option("--nev", dest = "nev", default = -1)
     parser.add_option("--tag", dest = "tag", default = 1)
-    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 1)
-    parser.add_option("--files_per_job", dest = "files_per_job", default = 4)
+    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 20)
+    parser.add_option("--files_per_job", dest = "files_per_job", default = 1)
     parser.add_option("--event_start", dest = "event_start", default = 0)
     parser.add_option("--runmode", dest="runmode", default="multi")
     parser.add_option("--debug", dest="debug", action="store_true")
@@ -525,6 +516,7 @@ if __name__ == "__main__":
     do_fakerate = 1
     do_predictions = 1
     do_hadd = 1
+    do_plotting = 1
     debug_maxfiles = 10
     
     gROOT.SetBatch(True)
@@ -662,6 +654,33 @@ if __name__ == "__main__":
         EDepSideBandMax = 0.80
         
     elif int(options.tag) == 10:
+       
+        if "Run2016" in options.inputfile or "Summer16" in options.inputfile:
+            tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+            tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+            tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+            tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+            tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+            tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+            use_ratio = True
+            EDepMax = 0.12
+            EDepSideBandMin = 0.15
+            EDepSideBandMax = 0.80
+
+        else:
+            tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0 && tracks_trkRelIso<0.01"
+            tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0 && tracks_trkRelIso<0.01"
+            tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+            tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+            tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.2 && tracks_mva_tight_may20_chi2<-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+            tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.2 && tracks_mva_tight_may20_chi2<-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+            use_ratio = True
+            EDepMax = 0.12
+            EDepSideBandMin = 0.15
+            EDepSideBandMax = 0.80
+
+    elif int(options.tag) == 11:
+       
         tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
         tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
         tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
@@ -672,35 +691,49 @@ if __name__ == "__main__":
         EDepMax = 0.12
         EDepSideBandMin = 0.15
         EDepSideBandMax = 0.80
+
+    elif int(options.tag) == 12:
+       
+        tags["SR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>0.15 && tracks_trkRelIso<0.01"
+        tags["SREC_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+        tags["SREC_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht<(3.14/3)"
+        tags["CR_short"] = baseline_short + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+        tags["CR_long"] = baseline_long + " && tracks_mva_tight_may20_chi2>-0.05 && tracks_mva_tight_may20_chi2<0.13 && tracks_trkRelIso<0.01 && tracks_MinDeltaPhiTrackMht>(2*3.14/3)"
+        use_ratio = True
+        EDepMax = 0.12
+        EDepSideBandMin = 0.15
+        EDepSideBandMax = 0.80
+
     
     variables = {}
     variables["analysis"] = [
-                              "HT",
-                              "MHT",
-                              "n_goodjets",
-                              "n_btags",
-                              "leadinglepton_mt",
+                              #"HT",
+                              #"MHT",
+                              #"n_goodjets",
+                              #"n_btags",
+                              #"leadinglepton_mt",
                               "tracks_invmass",
-                              "tracks_is_pixel_track",
-                              "tracks_pt",
-                              "tracks_eta",
-                              "tracks_deDxHarmonic2pixel",
-                              "tracks_matchedCaloEnergy",
-                              "tracks_trkRelIso",
+                              #"tracks_is_pixel_track",
+                              #"tracks_pt",
+                              #"tracks_eta",
+                              #"tracks_deDxHarmonic2pixel",
+                              #"tracks_matchedCaloEnergy",
+                              #"tracks_trkRelIso",
                               "tracks_MinDeltaPhiTrackMht",
-                              "tracks_MinDeltaPhiTrackLepton",
-                              "tracks_MinDeltaPhiTrackJets",
-                              "tracks_ptRatioTrackMht",
-                              "tracks_ptRatioTrackLepton",
-                              "tracks_ptRatioTrackJets",
-                              "MinDeltaPhiMhtJets",
-                              "MinDeltaPhiLeptonMht",
-                              "MinDeltaPhiLeptonJets",
-                              "ptRatioMhtJets",
-                              "ptRatioLeptonMht",
-                              "ptRatioLeptonJets",
-                              "tracks_ECaloPt",
-                              "region",
+                              #"tracks_MinDeltaPhiTrackLepton",
+                              #"tracks_MinDeltaPhiTrackJets",
+                              #"tracks_ptRatioTrackMht",
+                              #"tracks_ptRatioTrackLepton",
+                              #"tracks_ptRatioTrackJets",
+                              #"MinDeltaPhiMhtJets",
+                              #"MinDeltaPhiLeptonMht",
+                              #"MinDeltaPhiLeptonJets",
+                              #"ptRatioMhtJets",
+                              #"ptRatioLeptonMht",
+                              #"ptRatioLeptonJets",
+                              #"tracks_ECaloPt",
+                              #"region",
                             ]
     variables["fakerate"] = [
                               #"tracks_pt",
@@ -829,22 +862,19 @@ if __name__ == "__main__":
                     # use ECalo/pT ratio:
                     zones["srEC%s_%s" % (dedx, category)] =   [" && %s %s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "single"]
                     zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
-                    zones["srECSBenhanced%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
                     zones["srEC%s_%s_multi" % (dedx, category)] =    [" && %s %s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "multi"]
                     zones["srECSB%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
-                    zones["srECSBenhanced%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy/tracks_pt>%s && tracks_matchedCaloEnergy/tracks_pt<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
+
                 else:
                     # classic def:
                     zones["srEC%s_%s" % (dedx, category)] =   [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "single"]
                     zones["srECSB%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
-                    zones["srECSBenhanced%s_%s" % (dedx, category)] = [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax), "", "single"]
                     zones["srEC%s_%s_multi" % (dedx, category)] =    [" && %s %s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepMax), "", "multi"]
                     zones["srECSB%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
-                    zones["srECSBenhanced%s_%s_multi" % (dedx, category)] =  [" && %s %s && tracks_matchedCaloEnergy>%s && tracks_matchedCaloEnergy<%s && tracks_MinDeltaPhiTrackMht>-1.0 && tracks_MinDeltaPhiTrackMht<1.0" % (tags["SREC_" + category], morecutsEC, EDepSideBandMin, EDepSideBandMax) + " +++ " + " && %s %s" % (tags["SR_" + category], morecuts), "", "multi"]
                 zones["fakeprediction-QCDLowMHT2D%s_%s" % (dedx, category)] =     [" && %s %s" % (tags["CR_" + category], morecuts), "HT:n_allvertices_QCDLowMHT_fakerate_%s" % category]
                     
     fakeratesamples = {
-                "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
+                #"Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
                 "Run2016": ["Run2016*JetHT*root"],
                 #"Run2017": ["Run2017*JetHT*root"],
                 #"Run2018": ["Run2018*JetHT*root"],
@@ -852,6 +882,12 @@ if __name__ == "__main__":
               
     samples = {
                 "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
+                "T1qqqq-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+                "T1qqqq-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+                "T1qqqq-mLSP-2775": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+                "T2bt-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+                "T2bt-mLSP-1500": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+                "T2bt-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
                 "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
                 "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
                 "Run2016MET": ["Run2016*MET*root"],
@@ -859,7 +895,7 @@ if __name__ == "__main__":
                 #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
                 #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
                 #"Run2017MET": ["Run2017*MET*root"],
-                #"Run2018SingleElectron": ["Run2018*SingleElectron*root"],
+                #"Run2018SingleElectron": ["Run2018*EGamma*root"],
                 #"Run2018SingleMuon": ["Run2018*SingleMuon*root"],
                 #"Run2018MET": ["Run2018*MET*root"],
               }
@@ -911,24 +947,26 @@ if __name__ == "__main__":
                         inputfiles += glob.glob(options.skimfolder + "/" + sample)[:]
             commands = []
             for i, inputfile in enumerate(inputfiles):            
+                print inputfile
                 if options.jobs_per_file>1:
                     fin = TFile(inputfile)
                     tree = fin.Get("Events")
                     nev = tree.GetEntries()
                     fin.Close()
-                    for iStart in range(0, nev, int(nev/options.jobs_per_file)):
-                        cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode fakerate --event_start %s --nev %s --tag %s; " % (this_script_name, outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file), options.tag)
-                        commands.append(cmd)
+                    if nev>0:
+                        for iStart in range(0, nev, int(nev/options.jobs_per_file)):
+                            cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode fakerate --event_start %s --nev %s --tag %s; " % (this_script_name, outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file), options.tag)
+                            commands.append(cmd)
                 else:
                     cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode fakerate  --tag %s; " % (this_script_name, outputfolder_fakerate, inputfile, outputfolder_fakerate + "/" + inputfile.split("/")[-1], options.tag)
                     commands.append(cmd)
                     
-            if options.files_per_job:
+            if options.files_per_job > 1:
                 old_commands = list(commands)
                 commands = []
                 for chunk in chunks(old_commands, options.files_per_job):
                     commands.append(" ".join(chunk))
-                    
+
             print "Running %s jobs" % len(commands)        
             print "@@@@@@@@@"
             print commands
@@ -960,15 +998,16 @@ if __name__ == "__main__":
                     tree = fin.Get("Events")
                     nev = tree.GetEntries()
                     fin.Close()
-                    for iStart in range(0, nev, int(nev/options.jobs_per_file)):
-                        print "iStart, ev in intervall, nev", iStart, int(nev/options.jobs_per_file), nev
-                        cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode analysis --event_start %s --nev %s  --tag %s; " % (this_script_name, options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file), options.tag)
-                        commands.append(cmd)
+                    if nev>0:
+                        for iStart in range(0, nev, int(nev/options.jobs_per_file)):
+                            print "iStart, ev in intervall, nev", iStart, int(nev/options.jobs_per_file), nev
+                            cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode analysis --event_start %s --nev %s  --tag %s; " % (this_script_name, options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], iStart, int(nev/options.jobs_per_file), options.tag)
+                            commands.append(cmd)
                 else:
                     cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode analysis --tag %s; " % (this_script_name, options.outputfolder, inputfile, options.outputfolder + "/" + inputfile.split("/")[-1], options.tag)
                     commands.append(cmd)
 
-            if options.files_per_job:
+            if options.files_per_job > 1:
                 old_commands = list(commands)
                 commands = []
                 for chunk in chunks(old_commands, options.files_per_job):
@@ -982,6 +1021,11 @@ if __name__ == "__main__":
             # 5) hadd
             print "\n@@@@@@@@\nstep 5\n@@@@@@@@\n"
             hadd_everything(samples, options.outputfolder)
+        
+        if do_plotting:
+            
+            print "\n@@@@@@@@\nstep 6\n@@@@@@@@\n"
+            os.system("./plot_validation.py --histograms %s" % options.outputfolder)
         
         
     
