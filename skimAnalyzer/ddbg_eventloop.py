@@ -10,199 +10,198 @@ import math
 import shared_utils
 import collections
 
-if True:
+binnings = {}
+binnings["analysis"] = {}
+binnings["analysis"]["LepMT"] = [8, 0, 160]
+binnings["analysis"]["leptons_mt"] = binnings["analysis"]["LepMT"]
+binnings["analysis"]["leadinglepton_mt"] = binnings["analysis"]["LepMT"]
+binnings["analysis"]["InvMass"] = [20, 50, 170]
+binnings["analysis"]["tracks_invmass"] = binnings["analysis"]["InvMass"]
+binnings["analysis"]["Ht"] = [5, 0, 2000]
+binnings["analysis"]["HT"] = binnings["analysis"]["Ht"]
+binnings["analysis"]["Met"] = [20, 0, 600]
+binnings["analysis"]["MET"] = binnings["analysis"]["Met"]
+binnings["analysis"]["Mht"] = binnings["analysis"]["Met"]
+binnings["analysis"]["MHT"] = binnings["analysis"]["Met"]
+binnings["analysis"]["tracks_pt"] = binnings["analysis"]["Ht"]
+binnings["analysis"]["leadinglepton_pt"] = binnings["analysis"]["Ht"]
+binnings["analysis"]["leadinglepton_eta"] = [15, 0, 3]
+binnings["analysis"]["tracks_eta"] = [15, 0, 3]
+binnings["analysis"]["tracks_dxyVtx"] = [20, 0, 0.1]
+binnings["analysis"]["DeDxAverage"] = [5, 2, 7]
+binnings["analysis"]["tracks_massfromdeDxPixel"] = binnings["analysis"]["DeDxAverage"]
+binnings["analysis"]["tracks_deDxHarmonic2pixel"] = binnings["analysis"]["DeDxAverage"]
+binnings["analysis"]["BinNumber"] = [ 88, 1, 89]
+binnings["analysis"]["region"] = binnings["analysis"]["BinNumber"]
+binnings["analysis"]["n_tags"] = [ 3, 0, 3]
+binnings["analysis"]["n_goodjets"] = [ 10, 0, 10]
+binnings["analysis"]["n_btags"] = binnings["analysis"]["n_goodjets"]
+binnings["analysis"]["n_goodelectrons"] = [ 5, 0, 5]
+binnings["analysis"]["n_goodmuons"] = [ 5, 0, 5]
+binnings["analysis"]["BTags"] = [ 4, 0, 4]
+binnings["analysis"]["tracks_is_pixel_track"] = [ 2, 0, 2]
+binnings["analysis"]["Track1MassFromDedx"] = [ 25, 0, 1000]
+binnings["analysis"]["Log10DedxMass"] = [10, 0, 5]
+binnings["analysis"]["region"] = [54,1,55]
+binnings["analysis"]["region_sideband"] = binnings["analysis"]["region"]
+binnings["analysis"]["region"] = binnings["analysis"]["region"]
+binnings["analysis"]["tracks_matchedCaloEnergy"] = [25, 0, 50]
+binnings["analysis"]["tracks_trkRelIso"] = [20, 0, 0.2]
+binnings["analysis"]["tracks_region"] = [54, 1, 55]
+binnings["analysis"]["tracks_ECaloPt"] = [25, 0, 1]
+binnings["analysis"]["tracks_MinDeltaPhiTrackMht"] = [32, 0, 3.2]
+binnings["analysis"]["tracks_MinDeltaPhiTrackLepton"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
+binnings["analysis"]["tracks_MinDeltaPhiTrackJets"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
+binnings["analysis"]["tracks_ptRatioTrackMht"] = [20, 0, 10]
+binnings["analysis"]["tracks_ptRatioTrackLepton"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
+binnings["analysis"]["tracks_ptRatioTrackJets"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
+binnings["analysis"]["MinDeltaPhiMhtJets"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
+binnings["analysis"]["MinDeltaPhiLeptonMht"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
+binnings["analysis"]["MinDeltaPhiLeptonJets"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
+binnings["analysis"]["ptRatioMhtJets"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
+binnings["analysis"]["ptRatioLeptonMht"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
+binnings["analysis"]["ptRatioLeptonJets"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
+binnings["fakerate"] = {}
+binnings["fakerate"]["tracks_pt"] = [20, 0, 1000]
+binnings["fakerate"]["tracks_is_pixel_track"] = [2, 0, 2]
+binnings["fakerate"]["HT"] = [5, 0, 2000]
+binnings["fakerate"]["MHT"] = [10, 0, 2000]
+binnings["fakerate"]["n_allvertices"] = [25, 0, 50]
+binnings["fakerate"]["n_goodjets"] = [20, 0, 20]
+binnings["fakerate"]["n_btags"] = [10, 0, 10]
+binnings["fakerate"]["MinDeltaPhiMhtJets"] = [100, 0, 5]
+binnings["fakerate"]["tracks_eta"] = [12, -3, 3]
+binnings["fakerate"]["tracks_phi"] = [16, -4, 4]
+binnings["fakerate"]["HT:n_allvertices"] = [3, 0, 2000, 3, 0, 50]
+binnings["kappa"] = {}
+binnings["kappa"]["tracks_pt"] = [10, 0, 100]
 
-    binnings = {}
-    binnings["analysis"] = {}
-    binnings["analysis"]["LepMT"] = [8, 0, 160]
-    binnings["analysis"]["leptons_mt"] = binnings["analysis"]["LepMT"]
-    binnings["analysis"]["leadinglepton_mt"] = binnings["analysis"]["LepMT"]
-    binnings["analysis"]["InvMass"] = [20, 50, 170]
-    binnings["analysis"]["tracks_invmass"] = binnings["analysis"]["InvMass"]
-    binnings["analysis"]["Ht"] = [5, 0, 2000]
-    binnings["analysis"]["HT"] = binnings["analysis"]["Ht"]
-    binnings["analysis"]["Met"] = [20, 0, 600]
-    binnings["analysis"]["MET"] = binnings["analysis"]["Met"]
-    binnings["analysis"]["Mht"] = binnings["analysis"]["Met"]
-    binnings["analysis"]["MHT"] = binnings["analysis"]["Met"]
-    binnings["analysis"]["tracks_pt"] = binnings["analysis"]["Ht"]
-    binnings["analysis"]["leadinglepton_pt"] = binnings["analysis"]["Ht"]
-    binnings["analysis"]["leadinglepton_eta"] = [15, 0, 3]
-    binnings["analysis"]["tracks_eta"] = [15, 0, 3]
-    binnings["analysis"]["tracks_dxyVtx"] = [20, 0, 0.1]
-    binnings["analysis"]["DeDxAverage"] = [5, 2, 7]
-    binnings["analysis"]["tracks_massfromdeDxPixel"] = binnings["analysis"]["DeDxAverage"]
-    binnings["analysis"]["tracks_deDxHarmonic2pixel"] = binnings["analysis"]["DeDxAverage"]
-    binnings["analysis"]["BinNumber"] = [ 88, 1, 89]
-    binnings["analysis"]["region"] = binnings["analysis"]["BinNumber"]
-    binnings["analysis"]["n_tags"] = [ 3, 0, 3]
-    binnings["analysis"]["n_goodjets"] = [ 10, 0, 10]
-    binnings["analysis"]["n_btags"] = binnings["analysis"]["n_goodjets"]
-    binnings["analysis"]["n_goodelectrons"] = [ 5, 0, 5]
-    binnings["analysis"]["n_goodmuons"] = [ 5, 0, 5]
-    binnings["analysis"]["BTags"] = [ 4, 0, 4]
-    binnings["analysis"]["tracks_is_pixel_track"] = [ 2, 0, 2]
-    binnings["analysis"]["Track1MassFromDedx"] = [ 25, 0, 1000]
-    binnings["analysis"]["Log10DedxMass"] = [10, 0, 5]
-    binnings["analysis"]["region"] = [54,1,55]
-    binnings["analysis"]["region_sideband"] = binnings["analysis"]["region"]
-    binnings["analysis"]["region"] = binnings["analysis"]["region"]
-    binnings["analysis"]["tracks_matchedCaloEnergy"] = [25, 0, 50]
-    binnings["analysis"]["tracks_trkRelIso"] = [20, 0, 0.2]
-    binnings["analysis"]["tracks_region"] = [54, 1, 55]
-    binnings["analysis"]["tracks_ECaloPt"] = [25, 0, 1]
-    binnings["analysis"]["tracks_MinDeltaPhiTrackMht"] = [32, 0, 3.2]
-    binnings["analysis"]["tracks_MinDeltaPhiTrackLepton"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
-    binnings["analysis"]["tracks_MinDeltaPhiTrackJets"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
-    binnings["analysis"]["tracks_ptRatioTrackMht"] = [20, 0, 10]
-    binnings["analysis"]["tracks_ptRatioTrackLepton"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
-    binnings["analysis"]["tracks_ptRatioTrackJets"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
-    binnings["analysis"]["MinDeltaPhiMhtJets"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
-    binnings["analysis"]["MinDeltaPhiLeptonMht"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
-    binnings["analysis"]["MinDeltaPhiLeptonJets"] = binnings["analysis"]["tracks_MinDeltaPhiTrackMht"]
-    binnings["analysis"]["ptRatioMhtJets"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
-    binnings["analysis"]["ptRatioLeptonMht"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
-    binnings["analysis"]["ptRatioLeptonJets"] = binnings["analysis"]["tracks_ptRatioTrackMht"]
-    binnings["fakerate"] = {}
-    binnings["fakerate"]["tracks_pt"] = [20, 0, 1000]
-    binnings["fakerate"]["tracks_is_pixel_track"] = [2, 0, 2]
-    binnings["fakerate"]["HT"] = [5, 0, 2000]
-    binnings["fakerate"]["MHT"] = [10, 0, 2000]
-    binnings["fakerate"]["n_allvertices"] = [25, 0, 50]
-    binnings["fakerate"]["n_goodjets"] = [20, 0, 20]
-    binnings["fakerate"]["n_btags"] = [10, 0, 10]
-    binnings["fakerate"]["MinDeltaPhiMhtJets"] = [100, 0, 5]
-    binnings["fakerate"]["tracks_eta"] = [12, -3, 3]
-    binnings["fakerate"]["tracks_phi"] = [16, -4, 4]
-    binnings["fakerate"]["HT:n_allvertices"] = [3, 0, 2000, 3, 0, 50]
-    binnings["kappa"] = {}
-    binnings["kappa"]["tracks_pt"] = [10, 0, 100]
+variables = {}
+variables["analysis"] = [
+                          "HT",
+                          "MHT",
+                          "n_goodjets",
+                          "n_btags",
+                          "leadinglepton_mt",
+                          "tracks_invmass",
+                          "tracks_is_pixel_track",
+                          "tracks_pt",
+                          "tracks_eta",
+                          "tracks_deDxHarmonic2pixel",
+                          "tracks_matchedCaloEnergy",
+                          "tracks_trkRelIso",
+                          "tracks_MinDeltaPhiTrackMht",
+                          "tracks_ptRatioTrackMht",
+                          "n_tags",
+                          #"tracks_MinDeltaPhiTrackLepton",
+                          #"tracks_MinDeltaPhiTrackJets",
+                          #"tracks_ptRatioTrackLepton",
+                          #"tracks_ptRatioTrackJets",
+                          #"MinDeltaPhiMhtJets",
+                          #"MinDeltaPhiLeptonMht",
+                          #"MinDeltaPhiLeptonJets",
+                          #"ptRatioMhtJets",
+                          #"ptRatioLeptonMht",
+                          #"ptRatioLeptonJets",
+                          "tracks_ECaloPt",
+                          "region",
+                        ]
+variables["fakerate"] = [
+                          "HT:n_allvertices",
+                          #"tracks_pt",
+                          #"tracks_is_pixel_track",
+                          #"HT",
+                          #"MHT",
+                          #"n_goodjets",
+                          #"n_allvertices",
+                          #"n_btags",
+                        ]
+variables["kappa"] = [
+                          "tracks_pt",
+                        ]
 
-    variables = {}
-    variables["analysis"] = [
-                              "HT",
-                              "MHT",
-                              "n_goodjets",
-                              "n_btags",
-                              "leadinglepton_mt",
-                              "tracks_invmass",
-                              "tracks_is_pixel_track",
-                              "tracks_pt",
-                              "tracks_eta",
-                              "tracks_deDxHarmonic2pixel",
-                              "tracks_matchedCaloEnergy",
-                              "tracks_trkRelIso",
-                              "tracks_MinDeltaPhiTrackMht",
-                              "tracks_ptRatioTrackMht",
-                              "n_tags",
-                              #"tracks_MinDeltaPhiTrackLepton",
-                              #"tracks_MinDeltaPhiTrackJets",
-                              #"tracks_ptRatioTrackLepton",
-                              #"tracks_ptRatioTrackJets",
-                              #"MinDeltaPhiMhtJets",
-                              #"MinDeltaPhiLeptonMht",
-                              #"MinDeltaPhiLeptonJets",
-                              #"ptRatioMhtJets",
-                              #"ptRatioLeptonMht",
-                              #"ptRatioLeptonJets",
-                              "tracks_ECaloPt",
-                              "region",
-                            ]
-    variables["fakerate"] = [
-                              "HT:n_allvertices",
-                              #"tracks_pt",
-                              #"tracks_is_pixel_track",
-                              #"HT",
-                              #"MHT",
-                              #"n_goodjets",
-                              #"n_allvertices",
-                              #"n_btags",
-                            ]
-    variables["kappa"] = [
-                              "tracks_pt",
-                            ]
+event_selections = {}
+event_selections["analysis"] = collections.OrderedDict()
+event_selections["analysis"]["Baseline"] =             "((event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.leadinglepton_mt>90 and event.tracks_invmass[i_track]>110))"
+event_selections["analysis"]["QCDLowMHTJets"] =        "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>50 and event.MHT<100 and event.n_goodjets>=1"
+event_selections["analysis"]["QCDLowMHT50"] =          "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>50 and event.MHT<100"
+event_selections["analysis"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<50"
+event_selections["analysis"]["HadBaseline"] =          "event.HT>150 and event.MHT>150 and event.n_goodjets>=1 and event.n_goodelectrons==0 and event.n_goodmuons==0"
+event_selections["analysis"]["SMuBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
+event_selections["analysis"]["SMuValidationZLL"] =     "event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
+event_selections["analysis"]["SMuValidationMT"] =      "event.n_goodjets>=1 and event.n_goodmuons==1 and event.n_goodelectrons==0 and event.leadinglepton_mt<90"
+event_selections["analysis"]["SElBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
+event_selections["analysis"]["SElValidationZLL"] =     "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
+event_selections["analysis"]["SElValidationMT"] =      "event.n_goodjets>=1 and event.n_goodelectrons==1 and event.n_goodmuons==0 and event.leadinglepton_mt<90"
+event_selections["analysis"]["PromptDY"] =             "event.leadinglepton_id==11 and event.tracks_invmass[i_track]>=70 and event.tracks_invmass[i_track]<=110"
 
-    event_selections = {}
-    event_selections["analysis"] = collections.OrderedDict()
-    event_selections["analysis"]["Baseline"] =             "((event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.leadinglepton_mt>90 and event.tracks_invmass[i_track]>110))"
-    event_selections["analysis"]["QCDLowMHTJets"] =        "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>50 and event.MHT<100 and event.n_goodjets>=1"
-    event_selections["analysis"]["QCDLowMHT50"] =          "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>50 and event.MHT<100"
-    event_selections["analysis"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<50"
-    event_selections["analysis"]["HadBaseline"] =          "event.HT>150 and event.MHT>150 and event.n_goodjets>=1 and event.n_goodelectrons==0 and event.n_goodmuons==0"
-    event_selections["analysis"]["SMuBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
-    event_selections["analysis"]["SMuValidationZLL"] =     "event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
-    event_selections["analysis"]["SMuValidationMT"] =      "event.n_goodjets>=1 and event.n_goodmuons==1 and event.n_goodelectrons==0 and event.leadinglepton_mt<90"
-    event_selections["analysis"]["SElBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
-    event_selections["analysis"]["SElValidationZLL"] =     "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
-    event_selections["analysis"]["SElValidationMT"] =      "event.n_goodjets>=1 and event.n_goodelectrons==1 and event.n_goodmuons==0 and event.leadinglepton_mt<90"
-    event_selections["analysis"]["PromptDY"] =             "event.leadinglepton_id==11 and event.tracks_invmass[i_track]>=70 and event.tracks_invmass[i_track]<=110"
+event_selections["fakerate"] = collections.OrderedDict()
+event_selections["fakerate"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<50"
 
-    event_selections["fakerate"] = collections.OrderedDict()
-    event_selections["fakerate"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<50"
+event_selections["kappa"] = collections.OrderedDict()
+event_selections["kappa"]["PromptDY"] =                "event.leadinglepton_id==11 and event.tracks_invmass[i_track]>=70 and event.tracks_invmass[i_track]<=110"
 
-    event_selections["kappa"] = collections.OrderedDict()
-    event_selections["kappa"]["PromptDY"] =                "event.leadinglepton_id==11 and event.tracks_invmass[i_track]>=70 and event.tracks_invmass[i_track]<=110"
+# some common cuts:
+baseline_short = "event.tracks_is_pixel_track[i_track]==1 and event.tracks_trkRelIso[i_track]<0.01 and event.tracks_deDxHarmonic2pixel[i_track]>2.0"
+baseline_long = "event.tracks_is_pixel_track[i_track]==0 and event.tracks_trkRelIso[i_track]<0.01 and event.tracks_deDxHarmonic2pixel[i_track]>2.0"
+BdtSideband = "event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_mva_tight_may20_chi2[i_track]<0.13"
+ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]>0.15 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]<0.80"
+ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]<0.12"
 
-    # some common cuts:
-    baseline_short = "event.tracks_is_pixel_track[i_track]==1 and event.tracks_trkRelIso[i_track]<0.01 and event.tracks_deDxHarmonic2pixel[i_track]>2.0"
-    baseline_long = "event.tracks_is_pixel_track[i_track]==0 and event.tracks_trkRelIso[i_track]<0.01 and event.tracks_deDxHarmonic2pixel[i_track]>2.0"
-    BdtSideband = "event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_mva_tight_may20_chi2[i_track]<0.13"
-    ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]>0.15 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]<0.80"
-    ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]<0.12"
+regions = collections.OrderedDict()
+regions["sr_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>0.15 and " + ECaloBasecut
+regions["sr_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>0.15 and " + ECaloBasecut
+regions["srgenfake_short"] = regions["sr_short"] + " and event.tracks_fake[i_track]==1"
+regions["srgenfake_long"] = regions["sr_long"] + " and event.tracks_fake[i_track]==1"
+regions["srgenprompt_short"] = regions["sr_short"] + " and event.tracks_fake[i_track]==0"
+regions["srgenprompt_long"] = regions["sr_long"] + " and event.tracks_fake[i_track]==0"
+regions["promptECaloLow_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloBasecut
+regions["promptECaloLow_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloBasecut
+regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
+regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
+regions["promptprediction_short"] = regions["promptECaloSideband_short"]
+regions["promptprediction_long"] = regions["promptECaloSideband_long"]
+regions["fakecr_short"] = baseline_short + " and " + ECaloBasecut + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+regions["fakecr_long"] = baseline_long + " and " + ECaloBasecut + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+regions["fakeprediction_short"] = regions["fakecr_short"]
+regions["fakeprediction_long"] = regions["fakecr_long"]
+regions["fakecrECaloSideband_short"] = baseline_short + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+regions["fakecrECaloSideband_long"] = baseline_long + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+regions["fakepredictionECaloSideband_short"] = regions["fakecrECaloSideband_short"]
+regions["fakepredictionECaloSideband_long"] = regions["fakecrECaloSideband_long"]
 
-    regions = {}
-    regions["sr_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>0.15 and " + ECaloBasecut
-    regions["sr_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>0.15 and " + ECaloBasecut
-    regions["srgenfake_short"] = regions["sr_short"] + " and event.tracks_fake[i_track]==1"
-    regions["srgenfake_long"] = regions["sr_long"] + " and event.tracks_fake[i_track]==1"
-    regions["srgenprompt_short"] = regions["sr_short"] + " and event.tracks_fake[i_track]==0"
-    regions["srgenprompt_long"] = regions["sr_long"] + " and event.tracks_fake[i_track]==0"
-    regions["promptECaloLow_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloBasecut
-    regions["promptECaloLow_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloBasecut
-    regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
-    regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
-    regions["promptprediction_short"] = regions["promptECaloSideband_short"]
-    regions["promptprediction_long"] = regions["promptECaloSideband_long"]
-    regions["fakecr_short"] = baseline_short + " and " + ECaloBasecut + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
-    regions["fakecr_long"] = baseline_long + " and " + ECaloBasecut + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
-    regions["fakeprediction_short"] = regions["fakecr_short"]
-    regions["fakeprediction_long"] = regions["fakecr_long"]
-    regions["fakecrECaloSideband_short"] = baseline_short + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
-    regions["fakecrECaloSideband_long"] = baseline_long + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
-    regions["fakepredictionECaloSideband_short"] = regions["fakecrECaloSideband_short"]
-    regions["fakepredictionECaloSideband_long"] = regions["fakecrECaloSideband_long"]
-
-    samples = {}
-    samples["fakerate"] = {
-                "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
-                "Run2016": ["Run2016*JetHT*root"],
-                #"Run2017": ["Run2017*JetHT*root"],
-                #"Run2018": ["Run2018*JetHT*root"],
-              }
-    samples["kappa"] = {
-                "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
-                "Run2016": ["Run2016*SingleElectron*root"],
-                #"Run2017": ["Run2017*JetHT*root"],
-                #"Run2018": ["Run2018*JetHT*root"],
-              }
-    samples["analysis"] = {
-                "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
-                "T1qqqq-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-                "T1qqqq-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-                "T1qqqq-mLSP-2775": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-                "T2bt-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-                "T2bt-mLSP-1500": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-                "T2bt-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-                "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
-                "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
-                "Run2016MET": ["Run2016*MET*root"],
-                #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
-                #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
-                #"Run2017MET": ["Run2017*MET*root"],
-                #"Run2018SingleElectron": ["Run2018*EGamma*root"],
-                #"Run2018SingleMuon": ["Run2018*SingleMuon*root"],
-                #"Run2018MET": ["Run2018*MET*root"],
-              }
+samples = {}
+samples["fakerate"] = {
+            "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
+            "Run2016": ["Run2016*JetHT*root"],
+            #"Run2017": ["Run2017*JetHT*root"],
+            #"Run2018": ["Run2018*JetHT*root"],
+          }
+samples["kappa"] = {
+            #"Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
+            "Summer16": ["Summer16.WJetsToLNu*root", "Summer16.DYJetsToLL*root"],
+            #"Run2016": ["Run2016*SingleElectron*root"],
+            #"Run2017": ["Run2017*JetHT*root"],
+            #"Run2018": ["Run2018*JetHT*root"],
+          }
+samples["analysis"] = {
+            "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
+            "T1qqqq-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "T1qqqq-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "T1qqqq-mLSP-2775": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "T2bt-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "T2bt-mLSP-1500": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "T2bt-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
+            "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
+            "Run2016MET": ["Run2016*MET*root"],
+            #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
+            #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
+            #"Run2017MET": ["Run2017*MET*root"],
+            #"Run2018SingleElectron": ["Run2018*EGamma*root"],
+            #"Run2018SingleMuon": ["Run2018*SingleMuon*root"],
+            #"Run2018MET": ["Run2018*MET*root"],
+          }
 
 
 def calculate_ratio(mode, rootfile, path, numerator_label, denominator_label, ratio_label):
@@ -280,7 +279,6 @@ def submit_files(mode, outputfolder, options):
             commands.append(" ".join(chunk))
 
     print "Running %s jobs..." % len(commands)        
-    print commands  
     GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % outputfolder, confirm=False)
             
     # 2) hadd everything:
@@ -297,20 +295,24 @@ def spawn_jobs(options):
     outputfolder_kappa = options.outputfolder + "_kappa"
 
     rootfile = options.outputfolder + "/fakeratekappa.root"
-    if os.path.exists(rootfile):
-        os.system("rm " + rootfile)
+    if False:
+        if os.path.exists(rootfile):
+            os.system("rm " + rootfile)
 
-    print "Getting fake rate..."
-    submit_files("fakerate", outputfolder_fakerate, options)  
-    print "Calculate fake rate..."
-    calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakecr", "fakerate")
+    if False:
+        print "Getting fake rate..."
+        submit_files("fakerate", outputfolder_fakerate, options)  
+        print "Calculate fake rate..."
+        calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakecr", "fakerate")
+    
+    if True:
+        print "Getting kappa..."
+        submit_files("kappa", outputfolder_kappa, options)  
+        print "Calculate kappa..."
+        calculate_ratio("kappa", rootfile, outputfolder_kappa, "promptECaloLow", "promptECaloSideband", "kappa")
 
-    print "Getting kappa..."
-    submit_files("kappa", outputfolder_kappa, options)  
-    print "Calculate kappa..."
-    calculate_ratio("kappa", rootfile, outputfolder_kappa, "promptECaloLow", "promptECaloSideband", "kappa")
-
-    submit_files("analysis", options.outputfolder, options)
+    if False:
+        submit_files("analysis", options.outputfolder, options)
 
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename):
   
