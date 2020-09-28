@@ -98,7 +98,6 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkP_tightgenelematch_endcap = TH1F('hTrkP_tightgenelematch_endcap','P of track matched with gen-matched electron in endcap region',100,0,10000)
     
     hTrkPt = TH1F('hTrkPt','pT of track',100,0,1000)
-    hTrkPt_mumatch = TH1F('hTrkPt_mumatch','pT of track matched with muon',100,0,1000)
     hTrkPt_tightmumatch = TH1F('hTrkPt_tightmumatch','pT of track matched with tight muon',100,0,1000)
     hTrkPt_tightmumatch_barrel = TH1F('hTrkPt_tightmumatch_barrel','pT of track matched with tight muon in barrel region',100,0,1000)
     hTrkPt_tightmumatch_endcap = TH1F('hTrkPt_tightmumatch_endcap','hTrkPt_tightmumatch_endcap',100,0,1000)
@@ -106,28 +105,26 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkPt_tightgenmumatch_barrel = TH1F('hTrkPt_tightgenmumatch_barrel','hTrkPt_tightgenmumatch_barrel',100,0,1000)
     hTrkPt_tightgenmumatch_endcap = TH1F('hTrkPt_tightgenmumatch_endcap','hTrkPt_tightgenmumatch_endcap',100,0,1000)
     
-    hTrkEta_tightmumatch = TH1F('hTrkEta_tightmumatch','hTrkEta_tightmumatch',100,0,1000)
-    hTrkEta_tightmumatch_barrel = TH1F('hTrkEta_tightmumatch_barrel','hTrkEta_tightmumatch_barrel',100,0,1000)
-    hTrkEta_tightmumatch_endcap = TH1F('hTrkEta_tightmumatch_endcap','hTrkEta_tightmumatch_endcap',100,0,1000)
-    hTrkEta_tightgenmumatch = TH1F('hTrkEta_tightgenmumatch','hTrkEta_tightgenmumatch',100,0,1000)
-    hTrkEta_tightgenmumatch_barrel = TH1F('hTrkEta_tightgenmumatch_barrel','hTrkEta_tightgenmumatch_barrel',100,0,1000)
-    hTrkEta_tightgenmumatch_endcap = TH1F('hTrkEta_tightgenmumatch_endcap','hTrkEta_tightgenmumatch_endcap',100,0,1000)
+    hTrkEta_tightmumatch = TH1F('hTrkEta_tightmumatch','hTrkEta_tightmumatch',100,-2.5,2.5)
+    hTrkEta_tightmumatch_barrel = TH1F('hTrkEta_tightmumatch_barrel','hTrkEta_tightmumatch_barrel',100,-2.5,2.5)
+    hTrkEta_tightmumatch_endcap = TH1F('hTrkEta_tightmumatch_endcap','hTrkEta_tightmumatch_endcap',100,-2.5,2.5)
+    hTrkEta_tightgenmumatch = TH1F('hTrkEta_tightgenmumatch','hTrkEta_tightgenmumatch',100,-2.5,2.5)
+    hTrkEta_tightgenmumatch_barrel = TH1F('hTrkEta_tightgenmumatch_barrel','hTrkEta_tightgenmumatch_barrel',100,-2.5,2.5)
+    hTrkEta_tightgenmumatch_endcap = TH1F('hTrkEta_tightgenmumatch_endcap','hTrkEta_tightgenmumatch_endcap',100,-2.5,2.5)
     
-    hTrkPt_elematch = TH1F('hTrkPt_elematch','hTrkPt_elematch',100,0,1000)
     hTrkPt_tightelematch = TH1F('hTrkPt_tightelematch','hTrkPt_tightelematch',100,0,1000)
     hTrkPt_tightelematch_barrel = TH1F('hTrkPt_tightelematch_barrel','hTrkPt_tightelematch_barrel',100,0,1000)
     hTrkPt_tightelematch_endcap = TH1F('hTrkPt_tightelematch_endcap','hTrkPt_tightelematch_endcap',100,0,1000)
     hTrkPt_tightgenelematch = TH1F('hTrkPt_tightgenelematch','hTrkPt_tightgenelematch',100,0,1000)
     hTrkPt_tightgenelematch_barrel = TH1F('hTrkPt_tightgenelematch_barrel','hTrkPt_tightgenelematch_barrel',100,0,1000)
     hTrkPt_tightgenelematch_endcap = TH1F('hTrkPt_tightgenelematch_endcap','hTrkPt_tightgenelematch_endcap',100,0,1000)
-    hTrkEta_tightelematch = TH1F('hTrkEta_tightelematch','hTrkEta_tightelematch',100,0,1000)
-    hTrkEta_tightelematch_barrel = TH1F('hTrkEta_tightelematch_barrel','hTrkEta_tightelematch_barrel',100,0,1000)
-    hTrkEta_tightelematch_endcap = TH1F('hTrkEta_tightelematch_endcap','hTrkEta_tightelematch_endcap',100,0,1000)
-    hTrkEta_tightgenelematch = TH1F('hTrkEta_tightgenelematch','hTrkEta_tightgenelematch',100,0,1000)
-    hTrkEta_tightgenelematch_barrel = TH1F('hTrkEta_tightgenelematch_barrel','hTrkEta_tightgenelematch_barrel',100,0,1000)
-    hTrkEta_tightgenelematch_endcap = TH1F('hTrkEta_tightgenelematch_endcap','hTrkEta_tightgenelematch_endcap',100,0,1000)
+    hTrkEta_tightelematch = TH1F('hTrkEta_tightelematch','hTrkEta_tightelematch',100,-2.5,2.5)
+    hTrkEta_tightelematch_barrel = TH1F('hTrkEta_tightelematch_barrel','hTrkEta_tightelematch_barrel',100,-2.5,2.5)
+    hTrkEta_tightelematch_endcap = TH1F('hTrkEta_tightelematch_endcap','hTrkEta_tightelematch_endcap',100,-2.5,2.5)
+    hTrkEta_tightgenelematch = TH1F('hTrkEta_tightgenelematch','hTrkEta_tightgenelematch',100,-2.5,2.5)
+    hTrkEta_tightgenelematch_barrel = TH1F('hTrkEta_tightgenelematch_barrel','hTrkEta_tightgenelematch_barrel',100,-2.5,2.5)
+    hTrkEta_tightgenelematch_endcap = TH1F('hTrkEta_tightgenelematch_endcap','hTrkEta_tightgenelematch_endcap',100,-2.5,2.5)
     
-    hTrkPixelDedx_mumatch = TH1F('hTrkPixelDedx_mumatch','hTrkPixelDedx_mumatch',100,0,10)
     hTrkPixelDedx_tightmumatch = TH1F('hTrkPixelDedx_tightmumatch','hTrkPixelDedx_tightmumatch',100,0,10)
     hTrkPixelDedx_tightmumatch_barrel = TH1F('hTrkPixelDedx_tightmumatch_barrel','hTrkPixelDedx_tightmumatch_barrel',100,0,10)
     hTrkPixelDedx_tightmumatch_endcap = TH1F('hTrkPixelDedx_tightmumatch_endcap','hTrkPixelDedx_tightmumatch_endcap',100,0,10)
@@ -138,7 +135,6 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkPixelDedxCalib_tightmumatch_barrel = TH1F('hTrkPixelDedxCalib_tightmumatch_barrel','hTrkPixelDedxCalib_tightmumatch_barrel',100,0,10)
     hTrkPixelDedxCalib_tightmumatch_endcap = TH1F('hTrkPixelDedxCalib_tightmumatch_endcap','hTrkPixelDedxCalib_tightmumatch_endcap',100,0,10)
     
-    hTrkPixelDedx_elematch = TH1F('hTrkPixelDedx_elematch','hTrkPixelDedx_elematch',100,0,10)
     hTrkPixelDedx_tightelematch = TH1F('hTrkPixelDedx_tightelematch','hTrkPixelDedx_tightelematch',100,0,10)
     hTrkPixelDedx_tightelematch_barrel = TH1F('hTrkPixelDedx_tightelematch_barrel','hTrkPixelDedx_tightelematch_barrel',100,0,10)
     hTrkPixelDedx_tightelematch_endcap = TH1F('hTrkPixelDedx_tightelematch_endcap','hTrkPixelDedx_tightelematch_endcap',100,0,10)
@@ -149,7 +145,6 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkPixelDedxCalib_tightelematch_barrel = TH1F('hTrkPixelDedxCalib_tightelematch_barrel','hTrkPixelDedxCalib_tightelematch_barrel',100,0,10)
     hTrkPixelDedxCalib_tightelematch_endcap = TH1F('hTrkPixelDedxCalib_tightelematch_endcap','hTrkPixelDedxCalib_tightelematch_endcap',100,0,10)
     
-    hTrkStripsDedx_mumatch = TH1F('hTrkStripsDedx_mumatch','hTrkStripsDedx_mumatch',100,0,10)
     hTrkStripsDedx_tightmumatch = TH1F('hTrkStripsDedx_tightmumatch','hTrkStripsDedx_tightmumatch',100,0,10)
     hTrkStripsDedx_tightmumatch_barrel = TH1F('hTrkStripsDedx_tightmumatch_barrel','hTrkStripsDedx_tightmumatch_barrel',100,0,10)
     hTrkStripsDedx_tightmumatch_endcap = TH1F('hTrkStripsDedx_tightmumatch_endcap','hTrkStripsDedx_tightmumatch_endcap',100,0,10)
@@ -160,7 +155,6 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkStripsDedxCalib_tightmumatch_barrel = TH1F('hTrkStripsDedxCalib_tightmumatch_barrel','hTrkStripsDedxCalib_tightmumatch_barrel',100,0,10)
     hTrkStripsDedxCalib_tightmumatch_endcap = TH1F('hTrkStripsDedxCalib_tightmumatch_endcap','hTrkStripsDedxCalib_tightmumatch_endcap',100,0,10)
     
-    hTrkStripsDedx_elematch = TH1F('hTrkStripsDedx_elematch','hTrkStripsDedx_elematch',100,0,10)
     hTrkStripsDedx_tightelematch = TH1F('hTrkStripsDedx_tightelematch','hTrkStripsDedx_tightelematch',100,0,10)
     hTrkStripsDedx_tightelematch_barrel = TH1F('hTrkStripsDedx_tightelematch_barrel','hTrkStripsDedx_tightelematch_barrel',100,0,10)
     hTrkStripsDedx_tightelematch_endcap = TH1F('hTrkStripsDedx_tightelematch_endcap','hTrkStripsDedx_tightelematch_endcap',100,0,10)
@@ -171,33 +165,33 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkStripsDedxCalib_tightelematch_barrel = TH1F('hTrkStripsDedxCalib_tightelematch_barrel','hTrkStripsDedxCalib_tightelematch_barrel',100,0,10)
     hTrkStripsDedxCalib_tightelematch_endcap = TH1F('hTrkStripsDedxCalib_tightelematch_endcap','hTrkStripsDedxCalib_tightelematch_endcap',100,0,10)
     
-    hMuP = TH1F('hMuP','hMuP',100,0,10000)
-    hMuPt = TH1F('hMuPt','hMuPt',100,0,1000)
+    hMuP = TH1F('hMuP','hMuP',1000,0,10000)
+    hMuPt = TH1F('hMuPt','hMuPt',1000,0,1000)
     hMuEta = TH1F('hMuEta','hMuEta',100,-3,3)
     hMuPhi = TH1F('hMuPhi','hMuPhi',100,-3.14,3.14)
     hMuGamma = TH1F('hMuGamma','Muon Gamma',100,0,10000)
-    hMuBetaGamma = TH1F('hMuBetaGamma','Muon BetaGamma',2000,0,20000)
+    hMuBetaGamma = TH1F('hMuBetaGamma','Muon BetaGamma',100,0,10000)
     
     hMuP_genmatch = TH1F('hMuP_genmatch','hMuP_genmatch',1000,0,10000)
     hMuPt_genmatch = TH1F('hMuPt_genmatch','hMuPt_genmatch',1000,0,10000)
     hMuEta_genmatch = TH1F('hMuEta_genmatch','hMuEta_genmatch',100,-3,3)
     hMuPhi_genmatch = TH1F('hMuPhi_genmatch','hMuPhi_genmatch',100,-3.14,3.14)
     hMuGamma_genmatch = TH1F('hMuGamma_genmatch','genmatched Muon Gamma',100,0,10000)
-    hMuBetaGamma_genmatch = TH1F('hMuBetaGamma_genmatch','genmatched Muon BetaGamma',2000,0,20000)
+    hMuBetaGamma_genmatch = TH1F('hMuBetaGamma_genmatch','genmatched Muon BetaGamma',100,0,10000)
     
     hEleP = TH1F('hEleP','hEleP',100,0,10000)
     hElePt = TH1F('hElePt','hElePt',100,0,1000)
     hEleEta = TH1F('hEleEta','hEleEta',100,-3,3)
     hElePhi = TH1F('hElePhi','hElePhi',100,-3.14,3.14)
     hEleGamma = TH1F('hEleGamma','Electron Gamma',100,0,200000)
-    hEleBetaGamma = TH1F('hEleBetaGamma','Electron BetaGamma',2000,0,20000)
+    hEleBetaGamma = TH1F('hEleBetaGamma','Electron BetaGamma',100,0,10000)
     
     hEleP_genmatch = TH1F('hEleP_genmatch','hEleP_genmatch',1000,0,10000)
     hElePt_genmatch = TH1F('hElePt_genmatch','hElePt_genmatch',1000,0,10000)
     hEleEta_genmatch = TH1F('hEleEta_genmatch','hEleEta_genmatch',100,-3,3)
     hElePhi_genmatch = TH1F('hElePhi_genmatch','hElePhi_genmatch',100,-3.14,3.14)
     hEleGamma_genmatch = TH1F('hEleGamma_genmatch','genmatched Electron Gamma',100,0,10000)
-    hEleBetaGamma_ele_genmatch = TH1F('hEleBetaGamma_genmatch','genmatched Electron BetaGamma',2000,0,20000)
+    hEleBetaGamma_genmatch = TH1F('hEleBetaGamma_genmatch','genmatched Electron BetaGamma',100,0,10000)
     
     # Event loop
     updateevery = 1000
@@ -268,17 +262,16 @@ def main(inputfiles,output_dir,output,nev,isfast):
 	    tightmuons.append(mu)
 	    
 	    beta_mu = mu.Beta()
-	    gamma_mu = mu.Gamma()
-	    gamma_mu_byformula = TMath.Sqrt(1+((mu.P()/0.105)**2))
-	    gamma_mu_byformula2 = mu.E()/0.105
-	    #betagamma_mu = beta_mu*gamma_mu
-	    betagamma_mu = beta_mu*gamma_mu_byformula2
+	    #gamma_mu = mu.Gamma()
+	    #gamma_mu = TMath.Sqrt(1+((mu.P()/0.105)**2))
+	    gamma_mu = mu.E()/0.105
+	    betagamma_mu = beta_mu*gamma_mu
 	    
 	    fillth1(hMuP,mu.P(),weight)
 	    fillth1(hMuPt,mu.Pt(),weight)
 	    fillth1(hMuEta,mu.Eta(),weight)
 	    fillth1(hMuPhi,mu.Phi(),weight)
-	    fillth1(hMuGamma,gamma_mu_byformula2,weight)
+	    fillth1(hMuGamma,gamma_mu,weight)
 	    fillth1(hMuBetaGamma,betagamma_mu,weight)
 	    
 	    # Gen-muon matching
@@ -295,18 +288,21 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		    dr_mu_gen = mu.DeltaR(gp)
 		    if dr_mu_gen < drmin:
 			drmin = dr_mu_gen
-			idx = igp
-			matchingGp = gp
+			idx = imu
+			mu_genmatch = mu
 	
 		if drmin < threshold :
 		    match = True
-		    tightmuons_genmatch.append(mu)
-		    fillth1(hMuP_genmatch,mu.P(),weight)
-		    fillth1(hMuPt_genmatch,mu.Pt(),weight)
-		    fillth1(hMuEta_genmatch,mu.Eta(),weight)
-	    	    fillth1(hMuPhi_genmatch,mu.Phi(),weight)
-		    fillth1(hMuGamma_genmatch,gamma_mu,weight)
-	    	    fillth1(hMuBetaGamma_genmatch,betagamma_mu,weight)
+		    tightmuons_genmatch.append(mu_genmatch)
+		    gamma_mu_genmatch = mu_genmatch.E()/0.105
+		    betagamma_mu_genmatch = mu_genmatch.Beta()*gamma_mu_genmatch
+
+		    fillth1(hMuP_genmatch,mu_genmatch.P(),weight)
+		    fillth1(hMuPt_genmatch,mu_genmatch.Pt(),weight)
+		    fillth1(hMuEta_genmatch,mu_genmatch.Eta(),weight)
+	    	    fillth1(hMuPhi_genmatch,mu_genmatch.Phi(),weight)
+		    fillth1(hMuGamma_genmatch,gamma_mu_genmatch,weight)
+	    	    fillth1(hMuBetaGamma_genmatch,betagamma_mu_genmatch,weight)
 
 	# Electrons
 	n_tightelectron =0
@@ -324,16 +320,16 @@ def main(inputfiles,output_dir,output,nev,isfast):
 	    tightelectrons.append(ele)
 	    
 	    beta_ele = ele.Beta()
-	    gamma_ele = ele.Gamma()
-	    gamma_ele_byformula = TMath.Sqrt(1+((ele.P()/0.000511)**2))
-	    gamma_ele_byformula2 = ele.E()/0.000511
-	    betagamma_ele = beta_ele*gamma_ele_byformula2
+	    #gamma_ele = ele.Gamma()
+	    #gamma_ele = TMath.Sqrt(1+((ele.P()/0.000511)**2))
+	    gamma_ele = ele.E()/0.000511
+	    betagamma_ele = beta_ele*gamma_ele
 	    
 	    fillth1(hEleP,ele.P(),weight)
 	    fillth1(hElePt,ele.Pt(),weight)
 	    fillth1(hEleEta,ele.Eta(),weight)
 	    fillth1(hElePhi,ele.Phi(),weight)
-	    fillth1(hEleGamma,gamma_ele_byformula2,weight)
+	    fillth1(hEleGamma,gamma_ele,weight)
 	    fillth1(hEleBetaGamma,betagamma_ele,weight)
 	    
 	    # Gen-electron matching
@@ -350,18 +346,21 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		    dr_ele_gen = ele.DeltaR(gp)
 		    if dr_ele_gen < drmin:
 			drmin = dr_ele_gen
-			idx = igp
-			matchingGp = gp
+			idx = iele
+			ele_genmatch = ele
 	
 		if drmin < threshold :
 		    match = True
-		    tightelectrons_genmatch.append(ele)
-		    fillth1(hEleP_genmatch,ele.P(),weight)
-		    fillth1(hElePt_genmatch,ele.Pt(),weight)
-		    fillth1(hEleEta_genmatch,ele.Eta(),weight)
-	    	    fillth1(hElePhi_genmatch,ele.Phi(),weight)
-		    fillth1(hEleGamma_genmatch,gamma_ele,weight)
-	    	    fillth1(hEleBetaGamma_genmatch,betagamma_ele,weight)
+		    tightelectrons_genmatch.append(ele_genmatch)
+		    gamma_ele_genmatch = ele_genmatch.E()/0.000511
+		    betagamma_ele_genmatch = ele_genmatch.Beta() * gamma_ele_genmatch
+
+		    fillth1(hEleP_genmatch,ele_genmatch.P(),weight)
+		    fillth1(hElePt_genmatch,ele_genmatch.Pt(),weight)
+		    fillth1(hEleEta_genmatch,ele_genmatch.Eta(),weight)
+	    	    fillth1(hElePhi_genmatch,ele_genmatch.Phi(),weight)
+		    fillth1(hEleGamma_genmatch,gamma_ele_genmatch,weight)
+	    	    fillth1(hEleBetaGamma_genmatch,betagamma_ele_genmatch,weight)
 
 	# Number of tight leptons
 	n_lepton = n_tightmuon + n_tightelectron
@@ -386,38 +385,38 @@ def main(inputfiles,output_dir,output,nev,isfast):
                 dr_mu_track = mu.DeltaR(track)
 		if dr_mu_track < drmin:
 		    drmin = dr_mu_track
-		    idx = imu
-		    matchingMu = mu
+		    idx = itrack
+		    track_mumatch = track
 
 	    if drmin < threshold : 
 		match = True
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
-		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
-		fillth1(hTrkP_tightmumatch,track.P(),weight)
-		fillth1(hTrkPt_tightmumatch,track.Pt(),weight)
+		dedx_pixel = c.tracks_deDxHarmonic2pixel[idx]
+		dedx_strips = c.tracks_deDxHarmonic2strips[idx]
+		fillth1(hTrkP_tightmumatch,track_mumatch.P(),weight)
+		fillth1(hTrkPt_tightmumatch,track_mumatch.Pt(),weight)
 		fillth1(hTrkPixelDedx_tightmumatch,dedx_pixel,weight)
 		fillth1(hTrkStripsDedx_tightmumatch,dedx_strips,weight)
 		
-		if abs(track.Eta())<=1.5 : 
+		if abs(track_mumatch.Eta())<=1.5 : 
 		    #print 'barrel region(mu matching)'
 		    SF_dedx_pixel = Dedxcalibdict_Muon_barrel[Identifier]
 		    SF_dedx_strips = 1.0
-		    fillth1(hTrkP_tightmumatch_barrel,track.P(),weight)
-		    fillth1(hTrkPt_tightmumatch_barrel,track.Pt(),weight)
-		    fillth1(hTrkEta_tightmumatch_barrel,track.Eta(),weight)
+		    fillth1(hTrkP_tightmumatch_barrel,track_mumatch.P(),weight)
+		    fillth1(hTrkPt_tightmumatch_barrel,track_mumatch.Pt(),weight)
+		    fillth1(hTrkEta_tightmumatch_barrel,track_mumatch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightmumatch_barrel,dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightmumatch_barrel,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightmumatch,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkStripsDedx_tightmumatch_barrel,dedx_strips,weight)
 		    fillth1(hTrkStripsDedxCalib_tightmumatch_barrel,dedx_strips*SF_dedx_strips,weight)
 		    fillth1(hTrkStripsDedxCalib_tightmumatch,dedx_strips*SF_dedx_strips,weight)
-		elif abs(track.Eta())>1.5 : 
+		elif abs(track_mumatch.Eta())>1.5 : 
 		    #print 'endcap region(mu matching)'
 		    SF_dedx_pixel = Dedxcalibdict_Muon_endcap[Identifier]
 		    SF_dedx_strips = 1.0
-		    fillth1(hTrkP_tightmumatch_endcap,track.P(),weight)
-		    fillth1(hTrkPt_tightmumatch_endcap,track.Pt(),weight)
-		    fillth1(hTrkEta_tightmumatch_endcap,track.Eta(),weight)
+		    fillth1(hTrkP_tightmumatch_endcap,track_mumatch.P(),weight)
+		    fillth1(hTrkPt_tightmumatch_endcap,track_mumatch.Pt(),weight)
+		    fillth1(hTrkEta_tightmumatch_endcap,track_mumatch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightmumatch_endcap,dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightmumatch_endcap,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightmumatch,dedx_pixel*SF_dedx_pixel,weight)
@@ -436,38 +435,38 @@ def main(inputfiles,output_dir,output,nev,isfast):
                 dr_mu_track = mu.DeltaR(track)
 		if dr_mu_track < drmin:
 		    drmin = dr_mu_track
-		    idx = imu
-		    matchingMu = mu
+		    idx = itrack
+		    track_genmumatch = track
 
 	    if drmin < threshold : 
 		match = True
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
-		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
-		fillth1(hTrkP_tightgenmumatch,track.P(),weight)
-		fillth1(hTrkPt_tightgenmumatch,track.Pt(),weight)
+		dedx_pixel = c.tracks_deDxHarmonic2pixel[idx]
+		dedx_strips = c.tracks_deDxHarmonic2strips[idx]
+		fillth1(hTrkP_tightgenmumatch,track_genmumatch.P(),weight)
+		fillth1(hTrkPt_tightgenmumatch,track_genmumatch.Pt(),weight)
 		fillth1(hTrkPixelDedx_tightgenmumatch,dedx_pixel,weight)
 		fillth1(hTrkStripsDedx_tightgenmumatch,dedx_strips,weight)
 		
-		if abs(track.Eta())<=1.5 : 
+		if abs(track_genmumatch.Eta())<=1.5 : 
 		    #print 'barrel region(mu matching)'
 		    SF_dedx_pixel = Dedxcalibdict_Muon_barrel[Identifier]
 		    SF_dedx_strips = 1.0
-		    fillth1(hTrkP_tightgenmumatch_barrel,track.P(),weight)
-		    fillth1(hTrkPt_tightgenmumatch_barrel,track.Pt(),weight)
-		    fillth1(hTrkEta_tightgenmumatch_barrel,track.Eta(),weight)
+		    fillth1(hTrkP_tightgenmumatch_barrel,track_genmumatch.P(),weight)
+		    fillth1(hTrkPt_tightgenmumatch_barrel,track_genmumatch.Pt(),weight)
+		    fillth1(hTrkEta_tightgenmumatch_barrel,track_genmumatch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightgenmumatch_barrel,dedx_pixel,weight)
 		    #fillth1(hTrkPixelDedxCalib_tightgenmumatch_barrel,dedx_pixel*SF_dedx_pixel,weight)
 		    #fillth1(hTrkPixelDedxCalib_tightgenmumatch,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkStripsDedx_tightgenmumatch_barrel,dedx_strips,weight)
 		    #fillth1(hTrkStripsDedxCalib_tightgenmumatch_barrel,dedx_strips*SF_dedx_strips,weight)
 		    #fillth1(hTrkStripsDedxCalib_tightgenmumatch,dedx_strips*SF_dedx_strips,weight)
-		elif abs(track.Eta())>1.5 : 
+		elif abs(track_genmumatch.Eta())>1.5 : 
 		    #print 'endcap region(mu matching)'
 		    SF_dedx_pixel = Dedxcalibdict_Muon_endcap[Identifier]
 		    SF_dedx_strips = 1.0
-		    fillth1(hTrkP_tightgenmumatch_endcap,track.P(),weight)
-		    fillth1(hTrkPt_tightgenmumatch_endcap,track.Pt(),weight)
-		    fillth1(hTrkEta_tightgenmumatch_endcap,track.Eta(),weight)
+		    fillth1(hTrkP_tightgenmumatch_endcap,track_genmumatch.P(),weight)
+		    fillth1(hTrkPt_tightgenmumatch_endcap,track_genmumatch.Pt(),weight)
+		    fillth1(hTrkEta_tightgenmumatch_endcap,track_genmumatch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightgenmumatch_endcap,dedx_pixel,weight)
 		    #fillth1(hTrkPixelDedxCalib_tightgenmumatch_endcap,dedx_pixel*SF_dedx_pixel,weight)
 		    #fillth1(hTrkPixelDedxCalib_tightgenmumatch,dedx_pixel*SF_dedx_pixel,weight)
@@ -486,40 +485,38 @@ def main(inputfiles,output_dir,output,nev,isfast):
                 dr_ele_track = ele.DeltaR(track)
 		if dr_ele_track < drmin:
 		    drmin = dr_ele_track
-		    idx = iele
-		    matchingEle = ele
+		    idx = itrack
+		    track_elematch = track
 
 	    if drmin < threshold : 
 		match = True
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
-		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
-		#fillth1(hTrkPt_elematch,track.Pt(),weight)
-		#fillth1(hTrkPixelDedx_elematch,dedx_pixel,weight)
-		fillth1(hTrkP_tightelematch,track.P(),weight)
-		fillth1(hTrkPt_tightelematch,track.Pt(),weight)
+		dedx_pixel = c.tracks_deDxHarmonic2pixel[idx]
+		dedx_strips = c.tracks_deDxHarmonic2strips[idx]
+		fillth1(hTrkP_tightelematch,track_elematch.P(),weight)
+		fillth1(hTrkPt_tightelematch,track_elematch.Pt(),weight)
 		fillth1(hTrkPixelDedx_tightelematch,dedx_pixel,weight)
 		fillth1(hTrkStripsDedx_tightelematch,dedx_strips,weight)
 		
-		if abs(track.Eta())<=1.5 : 
+		if abs(track_elematch.Eta())<=1.5 : 
 		    #print 'barrel region(ele matching)'
 		    SF_dedx_pixel = Dedxcalibdict_Electron_barrel[Identifier]
 		    SF_dedx_strips = 1.0
-		    fillth1(hTrkP_tightelematch_barrel,track.P(),weight)
-		    fillth1(hTrkPt_tightelematch_barrel,track.Pt(),weight)
-		    fillth1(hTrkEta_tightelematch_barrel,track.Eta(),weight)
+		    fillth1(hTrkP_tightelematch_barrel,track_elematch.P(),weight)
+		    fillth1(hTrkPt_tightelematch_barrel,track_elematch.Pt(),weight)
+		    fillth1(hTrkEta_tightelematch_barrel,track_elematch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightelematch_barrel,dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightelematch_barrel,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightelematch,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkStripsDedx_tightelematch_barrel,dedx_strips,weight)
 		    fillth1(hTrkStripsDedxCalib_tightelematch_barrel,dedx_strips*SF_dedx_strips,weight)
 		    fillth1(hTrkStripsDedxCalib_tightelematch,dedx_strips*SF_dedx_strips,weight)
-		elif abs(track.Eta())>1.5 : 
+		elif abs(track_elematch.Eta())>1.5 : 
 		    #print 'endcap region(ele matching)'
 		    SF_dedx_pixel = Dedxcalibdict_Electron_endcap[Identifier]
 		    SF_dedx_strips = 1.0
-		    fillth1(hTrkP_tightelematch_endcap,track.P(),weight)
-		    fillth1(hTrkPt_tightelematch_endcap,track.Pt(),weight)
-		    fillth1(hTrkEta_tightelematch_endcap,track.Eta(),weight)
+		    fillth1(hTrkP_tightelematch_endcap,track_elematch.P(),weight)
+		    fillth1(hTrkPt_tightelematch_endcap,track_elematch.Pt(),weight)
+		    fillth1(hTrkEta_tightelematch_endcap,track_elematch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightelematch_endcap,dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightelematch_endcap,dedx_pixel*SF_dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxCalib_tightelematch,dedx_pixel*SF_dedx_pixel,weight)
@@ -537,37 +534,37 @@ def main(inputfiles,output_dir,output,nev,isfast):
                 dr_ele_track = ele.DeltaR(track)
 		if dr_ele_track < drmin:
 		    drmin = dr_ele_track
-		    idx = iele
-		    matchingEle = ele
+		    idx = itrack
+		    track_genelematch = track
 
 	    if drmin < threshold : 
 		match = True
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
-		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
-		fillth1(hTrkP_tightgenelematch,track.P(),weight)
-		fillth1(hTrkPt_tightgenelematch,track.Pt(),weight)
+		dedx_pixel = c.tracks_deDxHarmonic2pixel[idx]
+		dedx_strips = c.tracks_deDxHarmonic2strips[idx]
+		fillth1(hTrkP_tightgenelematch,track_genelematch.P(),weight)
+		fillth1(hTrkPt_tightgenelematch,track_genelematch.Pt(),weight)
 		fillth1(hTrkPixelDedx_tightgenelematch,dedx_pixel,weight)
 		fillth1(hTrkStripsDedx_tightgenelematch,dedx_strips,weight)
 		
-		if abs(track.Eta())<=1.5 : 
+		if abs(track_genelematch.Eta())<=1.5 : 
 		    #print 'barrel region(ele matching)'
-		    fillth1(hTrkP_tightgenelematch_barrel,track.P(),weight)
-		    fillth1(hTrkPt_tightgenelematch_barrel,track.Pt(),weight)
-		    fillth1(hTrkEta_tightgenelematch_barrel,track.Eta(),weight)
+		    fillth1(hTrkP_tightgenelematch_barrel,track_genelematch.P(),weight)
+		    fillth1(hTrkPt_tightgenelematch_barrel,track_genelematch.Pt(),weight)
+		    fillth1(hTrkEta_tightgenelematch_barrel,track_genelematch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightgenelematch_barrel,dedx_pixel,weight)
 		    fillth1(hTrkStripsDedx_tightgenelematch_barrel,dedx_strips,weight)
-		elif abs(track.Eta())>1.5 : 
+		elif abs(track_genelematch.Eta())>1.5 : 
 		    #print 'endcap region(ele matching)'
-		    fillth1(hTrkP_tightgenelematch_endcap,track.P(),weight)
-		    fillth1(hTrkPt_tightgenelematch_endcap,track.Pt(),weight)
-		    fillth1(hTrkEta_tightgenelematch_endcap,track.Eta(),weight)
+		    fillth1(hTrkP_tightgenelematch_endcap,track_genelematch.P(),weight)
+		    fillth1(hTrkPt_tightgenelematch_endcap,track_genelematch.Pt(),weight)
+		    fillth1(hTrkEta_tightgenelematch_endcap,track_genelematch.Eta(),weight)
 		    fillth1(hTrkPixelDedx_tightgenelematch_endcap,dedx_pixel,weight)
 		    fillth1(hTrkStripsDedx_tightgenelematch_endcap,dedx_strips,weight)
 		else : print 'should not see this'
 		    
     fout.Write()
     fout.Close()
-    print("DONE")
+    print(output_dir+'/'+output+" just created")
 
 if __name__ == "__main__":
     

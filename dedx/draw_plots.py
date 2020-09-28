@@ -56,21 +56,21 @@ if __name__=="__main__":
     
     # Samples
     samples = {
-        #"WJetsToLNu":	{"select": "Summer16.WJetsToLNu_Tune|Summer16.WJetsToLNu_HT", "type": "bg", "color": 85},
-        #"DYJetsToLL":	{"select": "Summer16.DYJetsToLL_M-50_Tune|Summer16.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
-        #"TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
-        #"QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
-        #"ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
-        #"Diboson":	{"select": "Summer16.WW|Summer16.WZ|Summer16.ZZ", "type": "bg", "color": 51},
+        "WJetsToLNu":	{"select": "Summer16.WJetsToLNu_Tune|Summer16.WJetsToLNu_HT", "type": "bg", "color": 85},
+        "DYJetsToLL":	{"select": "Summer16.DYJetsToLL_M-50_Tune|Summer16.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
+        "TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
+        "QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
+        "ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
+        "Diboson":	{"select": "Summer16.WW|Summer16.WZ|Summer16.ZZ", "type": "bg", "color": 51},
         #"rare":		{"select": "Summer16.ST|Summer16.GJets|RunIIFall17MiniAODv2.ST", "type": "bg", "color": 15},
 	
 	## Fall17 Bkgs
-	"WJetsToLNu":	{"select": "RunIIFall17MiniAODv2.WJetsToLNu_HT", "type": "bg", "color": 85},
-        "DYJetsToLL":	{"select": "RunIIFall17MiniAODv2.DYJetsToLL_M-50_Tune|RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
-        "TT":		{"select": "RunIIFall17MiniAODv2.TTJets_Tune|RunIIFall17MiniAODv2.TTJets_HT", "type": "bg", "color": 8}, 
-        "QCD":		{"select": "RunIIFall17MiniAODv2.QCD_HT", "type": "bg", "color": 97},
-        "ZJetsToNuNu":	{"select": "RunIIFall17MiniAODv2.ZJetsToNuNu_HT", "type": "bg", "color": 67},
-        "Diboson":	{"select": "RunIIFall17MiniAODv2.WW|RunIIFall17MiniAODv2.WZ|RunIIFall17MiniAODv2.ZZ", "type": "bg", "color": 51},
+	#"WJetsToLNu":	{"select": "RunIIFall17MiniAODv2.WJetsToLNu_HT", "type": "bg", "color": 85},
+        #"DYJetsToLL":	{"select": "RunIIFall17MiniAODv2.DYJetsToLL_M-50_Tune|RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
+        #"TT":		{"select": "RunIIFall17MiniAODv2.TTJets_Tune|RunIIFall17MiniAODv2.TTJets_HT", "type": "bg", "color": 8}, 
+        #"QCD":		{"select": "RunIIFall17MiniAODv2.QCD_HT", "type": "bg", "color": 97},
+        #"ZJetsToNuNu":	{"select": "RunIIFall17MiniAODv2.ZJetsToNuNu_HT", "type": "bg", "color": 67},
+        #"Diboson":	{"select": "RunIIFall17MiniAODv2.WW|RunIIFall17MiniAODv2.WZ|RunIIFall17MiniAODv2.ZZ", "type": "bg", "color": 51},
 	
 	## signals
 	#"SMS-T2bt-mLSP1": {"select": "SMS-T2bt-LLChipm_ctau-200_mLSP-1_", "type": "sg", "color": kYellow},
@@ -82,20 +82,37 @@ if __name__=="__main__":
     
     # Variables to draw
     variables_mu =	[
+	    "hMuP",
 	    "hMuPt",
-	    "hMuPt_genmatch",
+	    "hMuPt_fromZ_leading",
+	    "hMuPt_fromZ_trailing",
 	    "hMuEta",
 	    "hMuPhi",
-	    "hGamma_mu",
+	    "hMuGamma",
+	    "hMuBetaGamma",
+
+	    "hMuP_genmatch",
+	    "hMuPt_genmatch",
+	    "hMuEta_genmatch",
+	    "hMuPhi_genmatch",
+	    "hMuGamma_genmatch",
+	    "hMuBetaGamma_genmatch",
 	    
 	    "hTrkPt_tightmumatch",
+	    "hTrkPt_tightmumatch_fromZ",
 	    "hTrkPt_tightgenmumatch",
+
 	    "hTrkPt_tightgenmumatch_barrel",
+	    "hTrkPt_tightgenmumatch_fromZ_barrel",
 	    "hTrkPt_tightgenmumatch_endcap",
+	    "hTrkPt_tightgenmumatch_fromZ_endcap",
 	    
 	    "hTrkPixelDedx_tightmumatch",
+	    "hTrkPixelDedx_tightmumatch_fromZ",
 	    "hTrkPixelDedx_tightmumatch_barrel",
+	    "hTrkPixelDedx_tightmumatch_fromZ_barrel",
 	    "hTrkPixelDedx_tightmumatch_endcap",
+	    "hTrkPixelDedx_tightmumatch_fromZ_endcap",
 	    "hTrkPixelDedx_tightgenmumatch",
 	    "hTrkPixelDedx_tightgenmumatch_barrel",
 	    "hTrkPixelDedx_tightgenmumatch_endcap",
@@ -104,8 +121,11 @@ if __name__=="__main__":
 	    "hTrkPixelDedxCalib_tightmumatch_endcap",
 	    
 	    "hTrkStripsDedx_tightmumatch",
+	    "hTrkStripsDedx_tightmumatch_fromZ",
 	    "hTrkStripsDedx_tightmumatch_barrel",
+	    "hTrkStripsDedx_tightmumatch_fromZ_barrel",
 	    "hTrkStripsDedx_tightmumatch_endcap",
+	    "hTrkStripsDedx_tightmumatch_fromZ_endcap",
 	    "hTrkStripsDedx_tightgenmumatch",
 	    "hTrkStripsDedx_tightgenmumatch_barrel",
 	    "hTrkStripsDedx_tightgenmumatch_endcap",
@@ -116,19 +136,25 @@ if __name__=="__main__":
     
     variables_ele =	[
 	    "hElePt",
+	    "hElePt_fromZ_leading",
+	    "hElePt_fromZ_trailing",
 	    "hElePt_genmatch",
 	    "hEleEta",
 	    "hElePhi",
 	    "hGamma_ele",
 	    
 	    "hTrkPt_tightelematch",
+	    "hTrkPt_tightelematch_fromZ",
 	    "hTrkPt_tightgenelematch",
 	    "hTrkPt_tightgenelematch_barrel",
 	    "hTrkPt_tightgenelematch_endcap",
 	    
 	    "hTrkPixelDedx_tightelematch",
+	    "hTrkPixelDedx_tightelematch_fromZ",
 	    "hTrkPixelDedx_tightelematch_barrel",
+	    "hTrkPixelDedx_tightelematch_fromZ_barrel",
 	    "hTrkPixelDedx_tightelematch_endcap",
+	    "hTrkPixelDedx_tightelematch_fromZ_endcap",
 	    "hTrkPixelDedx_tightgenelematch",
 	    "hTrkPixelDedx_tightgenelematch_barrel",
 	    "hTrkPixelDedx_tightgenelematch_endcap",
@@ -137,8 +163,11 @@ if __name__=="__main__":
 	    "hTrkPixelDedxCalib_tightelematch_endcap",
 	    
 	    "hTrkStripsDedx_tightelematch",
+	    "hTrkStripsDedx_tightelematch_fromZ",
 	    "hTrkStripsDedx_tightelematch_barrel",
+	    "hTrkStripsDedx_tightelematch_fromZ_barrel",
 	    "hTrkStripsDedx_tightelematch_endcap",
+	    "hTrkStripsDedx_tightelematch_fromZ_endcap",
 	    "hTrkStripsDedx_tightgenelematch",
 	    "hTrkStripsDedx_tightgenelematch_barrel",
 	    "hTrkStripsDedx_tightgenelematch_endcap",
@@ -157,20 +186,20 @@ if __name__=="__main__":
     # Folder for histograms and plots
     histodir = "output_mediumchunks/"
     #histodir = sys.argv[1]
-    #plotdir = "plots_2016"
-    plotdir = "plots_2017"
+    plotdir = "plots_2016"
+    #plotdir = "plots_2017"
     ##############################
 
     # Draw plots
     for variable in variables_mu:
-	#samples["SingleMuon"]={"select": "Run2016B-SingleMuon|Run2016C-SingleMuon|Run2016D-SingleMuon|Run2016E-SingleMuon|Run2016F-SingleMuon|Run2016G-SingleMuon|Run2016H-SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
-	samples["SingleMuon"]={"select": "Run2017B-SingleMuon|Run2017C-SingleMuon|Run2017D-SingleMuon|Run2017E-SingleMuon|Run2017F-SingleMuon", "type": "data", "color": kBlack, "lumi": 40805.1454}
+	samples["SingleMuon"]={"select": "Run2016B-SingleMuon|Run2016C-SingleMuon|Run2016D-SingleMuon|Run2016E-SingleMuon|Run2016F-SingleMuon|Run2016G-SingleMuon|Run2016H-SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
+	#samples["SingleMuon"]={"select": "Run2017B-SingleMuon|Run2017C-SingleMuon|Run2017D-SingleMuon|Run2017E-SingleMuon|Run2017F-SingleMuon", "type": "data", "color": kBlack, "lumi": 40805.1454}
 	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
 	del samples["SingleMuon"]
     
     for variable in variables_ele:
-#	samples["SingleElectron"]={"select": "Run2016B-SingleElectron|Run2016C-SingleElectron|Run2016D-SingleElectron|Run2016E-SingleElectron|Run2016F-SingleElectron|Run2016G-SingleElectron|Run2016H-SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
-	samples["SingleElectron"]={"select": "Run2017B-SingleElectron|Run2017C-SingleElectron|Run2017D-SingleElectron|Run2017E-SingleElectron|Run2017F-SingleElectron", "type": "data", "color": kBlack, "lumi": 40805.1454}
+	samples["SingleElectron"]={"select": "Run2016B-SingleElectron|Run2016C-SingleElectron|Run2016D-SingleElectron|Run2016E-SingleElectron|Run2016F-SingleElectron|Run2016G-SingleElectron|Run2016H-SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
+	#samples["SingleElectron"]={"select": "Run2017B-SingleElectron|Run2017C-SingleElectron|Run2017D-SingleElectron|Run2017E-SingleElectron|Run2017F-SingleElectron", "type": "data", "color": kBlack, "lumi": 40805.1454}
 	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
 	del samples["SingleElectron"]
     
