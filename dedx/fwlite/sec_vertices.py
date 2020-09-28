@@ -12,13 +12,17 @@ from shared_utils import *
 
 #python tools/sec_vertices.py "edm_RunIISummer16DR80Premix*.root"
 #python tools/sec_vertices.py "edm_Run2016G*.root"
+ROOT.TH1.SetDefaultSumw2(True)
     
 try: 
     inputfiles = glob(sys.argv[1])
 except: 
-    inputfiles = glob("./EDM_output/edm_RunIISummer*.root")
-    #inputfiles = glob("./EDM_output/edm_higgsino94x_susyall_mChipm250GeV*.root")
+    #inputfiles = glob("./EDM_output/edm_RunIISummer*.root")
     #inputfiles = glob("./EDM_output/edm_Run2016G*.root")
+    #inputfiles = glob("./EDM_output/edm_higgsino94x_susyall_mChipm250GeV*.root")
+    #inputfiles = glob("./EDM_output/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_*.root")
+    #inputfiles = glob("./EDM_output/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_NoPU_SVstuff.root")
+    inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_SVstuff.root")
 
 
 if 'Run201' in inputfiles[0] or 'Single' in inputfiles[0] : 
@@ -51,7 +55,8 @@ tlegend = ROOT.TLegend(0.17, 0.77, 0.51, 0.88)
 if not os.path.exists('./SV_rootfiles'):
     os.system('mkdir -p SV_rootfiles')
 
-fnew = ROOT.TFile(inputfiles[0].replace('EDM_output','SV_rootfiles').replace('edm','vertex').replace('*',''), 'recreate')
+#fnew = ROOT.TFile('./SV_rootfiles/'+inputfiles[0].replace('EDM_output_merged','').replace('edm','vertex').replace('*',''), 'recreate')
+fnew = ROOT.TFile('./TestSV.root','recreate')
 
 # Primary
 mass_primary = ROOT.TH1F("mass_primary", "primary vertex invariant mass; invariant mass [GeV];", 200, 0, 2) # invariant mass of all vertices
@@ -88,11 +93,15 @@ P_proton = ROOT.TH1F("P_proton","Total momentum[GeV]|proton",300,0,30)
 P_good_proton = ROOT.TH1F("P_good_proton", "Total momentum[GeV]|proton;", 300, 0, 30) 
 P_good_proton_nodedx = ROOT.TH1F("P_good_proton_nodedx", "Total momentum[GeV]|proton;", 300, 0, 30) 
 P_good_proton_yesdedx = ROOT.TH1F("P_good_proton_yesdedx", "Total momentum[GeV]|proton;", 300, 0, 30) 
+P_good_proton_yesdedx_barrel = ROOT.TH1F("P_good_proton_yesdedx_barrel", "Total momentum[GeV]|proton;", 300, 0, 30) 
+P_good_proton_yesdedx_endcap = ROOT.TH1F("P_good_proton_yesdedx_endcap", "Total momentum[GeV]|proton;", 300, 0, 30) 
 
 pt_proton = ROOT.TH1F("pt_proton","Transverse momentum[GeV]|proton",300,0,30)
 pt_good_proton = ROOT.TH1F("pt_good_proton", "Transverse momentum[GeV]|proton;", 300, 0, 30) 
 pt_good_proton_nodedx = ROOT.TH1F("pt_good_proton_nodedx", "Transverse momentum[GeV]|proton;", 300, 0, 30) 
 pt_good_proton_yesdedx = ROOT.TH1F("pt_good_proton_yesdedx", "Transverse momentum[GeV]|proton;", 300, 0, 30) 
+pt_good_proton_yesdedx_barrel = ROOT.TH1F("pt_good_proton_yesdedx_barrel", "Transverse momentum[GeV]|proton;", 300, 0, 30) 
+pt_good_proton_yesdedx_endcap = ROOT.TH1F("pt_good_proton_yesdedx_endcap", "Transverse momentum[GeV]|proton;", 300, 0, 30) 
 eta_good_proton_nodedx = ROOT.TH1F("eta_good_proton_nodedx", "Pseudorapidity|proton;", 100,-2.5,2.5) 
 eta_good_proton_yesdedx = ROOT.TH1F("eta_good_proton_yesdedx", "Pseudorapidity|proton;", 100, -2.5, 2.5) 
 
@@ -103,10 +112,14 @@ dedxstrips_proton = ROOT.TH1F("dedxstrips_proton", "strips dedx|proton;", 200, 0
 dedxpixel_good_proton = ROOT.TH1F("dedxpixel_good_proton", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_nodedx = ROOT.TH1F("dedxpixel_good_proton_nodedx", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_yesdedx = ROOT.TH1F("dedxpixel_good_proton_yesdedx", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_yesdedx_barrel = ROOT.TH1F("dedxpixel_good_proton_yesdedx_barrel", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_yesdedx_endcap = ROOT.TH1F("dedxpixel_good_proton_yesdedx_endcap", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixelCalib_good_proton = ROOT.TH1F("dedxpixelCalib_good_proton", "Calibrated pixel dedx|proton;", 200, 0, 10) 
 dedxstrips_good_proton = ROOT.TH1F("dedxstrips_good_proton", "strips dedx|proton;", 200, 0, 10) 
 dedxstrips_good_proton_nodedx = ROOT.TH1F("dedxstrips_good_proton_nodedx", "strips dedx|proton;", 200, 0, 10) 
 dedxstrips_good_proton_yesdedx = ROOT.TH1F("dedxstrips_good_proton_yesdedx", "strips dedx|proton;", 200, 0, 10) 
+dedxstrips_good_proton_yesdedx_barrel = ROOT.TH1F("dedxstrips_good_proton_yesdedx_barrel", "strips dedx|proton;", 200, 0, 10) 
+dedxstrips_good_proton_yesdedx_endcap = ROOT.TH1F("dedxstrips_good_proton_yesdedx_endcap", "strips dedx|proton;", 200, 0, 10) 
 
 massdedxpixel_proton = ROOT.TH1F("massdedxpixel_proton", "pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 massdedxpixelCalib_proton = ROOT.TH1F("massdedxpixelCalib_proton", "Calibrated pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
@@ -149,6 +162,7 @@ for i, event in enumerate(events):
     if i > 100000: break
     #if i > 2000: break
     if i%1000==0:print 'passing {}th event'.format(i)
+    #if i%1==0: print i, "   Primary vertices per event:", primaryVertices.product().size()
     #if i%1==0: print i, "   Secondary vertices per event:", secondaryVertices_Lambda.product().size()
 
     tracks = tracks_handle.product()
@@ -223,7 +237,7 @@ for i, event in enumerate(events):
 	#print 'secondary pT:%.2f \tsv daughter(0) pT:%.2f \tsv daughter(1) pT:%.2f \tproton pT:%.2f'%(secondary.pt(),secondary.daughter(0).pt(),secondary.daughter(1).pt(),protrack.pt())
 	    
 	# more tight selection
-        if (radDis <= 2.1) and (radDis > 0.2) and abs(secondary.mass()-1.11604e+00)<2.13880e-03 and bestCosAngle > 0.999994:
+        if (radDis <= 2.1) and (radDis > 0.2) and abs(secondary.mass()-1.11604e+00)<2.13880e-03 and bestCosAngle > 0.999994 and abs(protrack.eta()) < 2.4:
             radialDistance_good_Lambda.Fill(radDis)
 	    CosAngle_good_Lambda.Fill(bestCosAngle)
 	    P_good_Lambda.Fill(secondary.p())
@@ -239,23 +253,8 @@ for i, event in enumerate(events):
             #hDeDxPixelVsP_proton.Fill(protrack.p(),dedxpixel)
             #hDeDxPixelCalibVsP_proton.Fill(protrack.p(),dedxpixelCalib)
     	
-	    #if dedxpixel==0 or dedxstrips==0 : # when there are no dedx 
-	    if dedxpixel==0 : # when there are no dedx 
-		radialDistance_good_Lambda_nodedx.Fill(radDis)
-	    	CosAngle_good_Lambda_nodedx.Fill(bestCosAngle)
-		P_good_Lambda_nodedx.Fill(secondary.p())
-		pt_good_Lambda_nodedx.Fill(secondary.pt())
-		eta_good_Lambda_nodedx.Fill(secondary.eta())
-               	mass_good_Lambda_nodedx.Fill(secondary.mass())
-               	P_good_proton_nodedx.Fill(protrack.p())
-               	pt_good_proton_nodedx.Fill(protrack.pt())
-               	eta_good_proton_nodedx.Fill(protrack.eta())
-		dedxpixel_good_proton_nodedx.Fill(dedxpixel)
-            	dedxstrips_good_proton_nodedx.Fill(dedxstrips)
-            	massdedxpixel_good_proton_nodedx.Fill(massfromdedxpixel)
-            	massdedxstrips_good_proton_nodedx.Fill(massfromdedxstrips)
-	    
-	    else :
+	    if dedxpixel > 0 : 
+		print 'yes dedx'
 		radialDistance_good_Lambda_yesdedx.Fill(radDis)
 	    	CosAngle_good_Lambda_yesdedx.Fill(bestCosAngle)
 	        P_good_Lambda_yesdedx.Fill(secondary.p())
@@ -271,19 +270,37 @@ for i, event in enumerate(events):
             	massdedxpixel_good_proton_yesdedx.Fill(massfromdedxpixel)
 	    	massdedxpixelCalib_good_proton.Fill(massfromdedxpixelCalib)
             	massdedxstrips_good_proton_yesdedx.Fill(massfromdedxstrips)
+		if abs(protrack.eta()) < 1.5 :
+		    P_good_proton_yesdedx_barrel.Fill(protrack.p())
+	            pt_good_proton_yesdedx_barrel.Fill(protrack.pt())
+		    dedxpixel_good_proton_yesdedx_barrel.Fill(dedxpixel)
+		    dedxstrips_good_proton_yesdedx_barrel.Fill(dedxstrips)
+		elif abs(protrack.eta()) >= 1.5 and abs(protrack.eta()) < 2.4 :
+		    P_good_proton_yesdedx_endcap.Fill(protrack.p())
+	            pt_good_proton_yesdedx_endcap.Fill(protrack.pt())
+		    dedxpixel_good_proton_yesdedx_endcap.Fill(dedxpixel)
+		    dedxstrips_good_proton_yesdedx_endcap.Fill(dedxstrips)
+		else : pass
 
-                    
-                    
-        #newj = protonIdx-1
-        #if newj<0: newj = protonIdx+1
-        #protrack2 = tracks[newj]
-        #pt2, eta2 = protrack2.pt(), protrack2.eta()
-        #dedx2 = 1.5*dEdxTrack.get(newj).dEdx()
-        ##massfromdedx = ROOT.TMath.Log10(ROOT.TMath.Sqrt((dedx-3.01)*pow(pt*ROOT.TMath.CosH(eta),2)/1.74))
-        #massfromdedx2 = ROOT.TMath.Sqrt((dedx2-2.557)*pow(pt2*ROOT.TMath.CosH(eta2),2)/2.579)        
-	        #hDeDxVsP_Rando.Fill(protrack2.p(),dedx2)
-	        #massdedx_to1p5_Rando.Fill(massfromdedx2)
-	        #pt_to1p5_Rando.Fill(pt2)                    
+
+	    
+	    elif dedxpixel==0 : # when there are no dedx 
+		print 'no dedx'
+		radialDistance_good_Lambda_nodedx.Fill(radDis)
+	    	CosAngle_good_Lambda_nodedx.Fill(bestCosAngle)
+		P_good_Lambda_nodedx.Fill(secondary.p())
+		pt_good_Lambda_nodedx.Fill(secondary.pt())
+		eta_good_Lambda_nodedx.Fill(secondary.eta())
+               	mass_good_Lambda_nodedx.Fill(secondary.mass())
+               	P_good_proton_nodedx.Fill(protrack.p())
+               	pt_good_proton_nodedx.Fill(protrack.pt())
+               	eta_good_proton_nodedx.Fill(protrack.eta())
+		dedxpixel_good_proton_nodedx.Fill(dedxpixel)
+            	dedxstrips_good_proton_nodedx.Fill(dedxstrips)
+            	massdedxpixel_good_proton_nodedx.Fill(massfromdedxpixel)
+            	massdedxstrips_good_proton_nodedx.Fill(massfromdedxstrips)
+
+	    else : print 'What is this?'
 
 fnew.cd()
 fnew.Write()
