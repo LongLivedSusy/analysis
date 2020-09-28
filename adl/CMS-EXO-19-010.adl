@@ -1,0 +1,115 @@
+info analysis
+  title "Search for disappearing tracks in proton-proton collisions at sqrt(s) = 13 TeV"
+  experiment CMS
+  id EXO-16-033
+  publication ...
+  sqrtS 13.0
+  lumi 101fb-1
+  arXiv ...
+  hepdata
+  doi ...
+
+object HLTtracks
+  take HLTtrack
+  select pT > 50
+  select size(HLThits) >= 5
+
+object jets
+  take Jet
+  select pT > 30
+  select abs(Eta) < 2.4
+
+object jetshighpT
+  take jets j
+  select pT > 110
+  select max(dphi(j, jets)) < 2.5
+
+object electrons
+  take gedGsfElectrons
+
+object muons
+  take Muon
+  select pT > 5 or (pT > 3 and anyID == 1) or (PFID == 1)
+
+object leptons
+  take electrons
+  take muons
+
+object vertices
+  take sort(vertex, sumpT^2 of phys objects, desc)
+  
+object isotracks
+  take track t
+  select pT > 55
+  select abs(Eta) < 2.1
+  select sum(pTother tracks in dR < 0.3) / pT < 0.05
+  select dR(t, jets) > 0.5
+  select abs(d0) < 0.02 # cm
+  select abs(dz) < 0.50 # cm
+  select size(missinginnerhits) == 0
+  select size(missingmiddlehits) == 0
+  select size(pixelhits) >= 4
+  select dR(t, leptons) >= 0.15
+  # veto regions of the detector with increased lepton reco inefficiencies:
+  # muon system
+  reject abs(Eta) [] 0.15 0.35 or abs(Eta) [] 1.55 1.85
+  reject abs(Eta) [] 1.42 1.65
+  # reject dR(t, noisy calo cell) < 0.05
+  # for 2017 data, veto tracks in regions with pixel tracker issues:
+  reject Eta [] 0 1.42 and Phi [] 0.4 0.8 # vetoes 20% of simulated tracks
+  # Veto due to lepton reconstruction efficiency: removes 4% overall.
+
+object distracks
+  take isotracks it
+  select size(missingouterhits) >= 3
+  select Ecalo in (dR(Energy calo, track) < 0.5) < 10 # GeV
+
+object distrackn4
+  take distracks
+  select nlayerswithhits == 4 # 20cm at eta = 0
+  
+object distrackn5
+  take distracks
+  select nlayerswithhits == 5 # 20-30cm at eta = 0
+
+object distrackn6
+  take distracks
+  select nlayerswithhits >= 5 # >30cm at eta = 0
+
+
+# EVENT SELECTION
+
+region trigger
+  select (HLTMET > 105 and size(HLTtracks) >= 1) or (HLTMET > 120 or HLTMETnomu > 120)
+
+region presel
+  select trigger
+  select size(vertices) >= 1
+  select size(jetshighpT) >= 1
+  select METnomu > 120
+  select dphi(jetshighpT[0], MET) > 0.5
+  select size(jetshighpT) >= 2 ? max(dphi(jetshighpT, jetshighpT)) < 2.5 : ALL
+  # for 39fb-1 (2018B), reject phi(MET) [] -1.6 -0.6 (HEM veto).  Corresponds to vetoing 31% of events and reducing signal acceptance by 16% in 39fb-1.
+
+region SRn4
+  select presel
+  select size(distrackn4) > 0
+  select size(distrackn5) == 0
+  select size(distrackn6) == 0
+  
+region SRn5
+  select presel
+  select size(distrackn4) == 0
+  select size(distrackn5) > 0
+  select size(distrackn6) == 0
+
+region SRn4
+  select presel
+  select size(distrackn4) == 0
+  select size(distrackn5) == 0
+  select size(distrackn6) > 0
+
+
+
+
+
