@@ -11,59 +11,23 @@ gStyle.SetOptFit(1111)
 format_c = 'png'
 
 
-dict_Run2016_SingleMuon = {
-		    'Run2016B-SingleMuon':'./output_mediumchunks/Run2016B-SingleMuon.root',
-		    'Run2016C-SingleMuon':'./output_mediumchunks/Run2016C-SingleMuon.root',
-	       	    'Run2016D-SingleMuon':'./output_mediumchunks/Run2016D-SingleMuon.root',
-               	    'Run2016E-SingleMuon':'./output_mediumchunks/Run2016E-SingleMuon.root',
-               	    'Run2016F-SingleMuon':'./output_mediumchunks/Run2016F-SingleMuon.root',
-               	    'Run2016G-SingleMuon':'./output_mediumchunks/Run2016G-SingleMuon.root',
-               	    'Run2016H-SingleMuon':'./output_mediumchunks/Run2016H-SingleMuon.root',
-		    }
-
-dict_Run2016_SingleElectron = {
-		    'Run2016B-SingleElectron':'./output_mediumchunks/Run2016B-SingleElectron.root',
-		    'Run2016C-SingleElectron':'./output_mediumchunks/Run2016C-SingleElectron.root',
-	       	    'Run2016D-SingleElectron':'./output_mediumchunks/Run2016D-SingleElectron.root',
-               	    'Run2016E-SingleElectron':'./output_mediumchunks/Run2016E-SingleElectron.root',
-               	    'Run2016F-SingleElectron':'./output_mediumchunks/Run2016F-SingleElectron.root',
-               	    'Run2016G-SingleElectron':'./output_mediumchunks/Run2016G-SingleElectron.root',
-               	    'Run2016H-SingleElectron':'./output_mediumchunks/Run2016H-SingleElectron.root',
-		    }
-
-dict_Run2017_SingleMuon = {
-		    'Run2017B-SingleMuon':'./output_mediumchunks/Run2017B-SingleMuon.root',
-		    'Run2017C-SingleMuon':'./output_mediumchunks/Run2017C-SingleMuon.root',
-	       	    'Run2017D-SingleMuon':'./output_mediumchunks/Run2017D-SingleMuon.root',
-               	    'Run2017E-SingleMuon':'./output_mediumchunks/Run2017E-SingleMuon.root',
-               	    'Run2017F-SingleMuon':'./output_mediumchunks/Run2017F-SingleMuon.root',
-		    }
-
-dict_Run2017_SingleElectron = {
-		    'Run2017B-SingleElectron':'./output_mediumchunks/Run2017B-SingleElectron.root',
-		    'Run2017C-SingleElectron':'./output_mediumchunks/Run2017C-SingleElectron.root',
-	       	    'Run2017D-SingleElectron':'./output_mediumchunks/Run2017D-SingleElectron.root',
-               	    'Run2017E-SingleElectron':'./output_mediumchunks/Run2017E-SingleElectron.root',
-               	    'Run2017F-SingleElectron':'./output_mediumchunks/Run2017F-SingleElectron.root',
-		    }
-
 dict_Summer16 = {
 	'WJetsToLNu_TuneCUETP8M1':'./output_mediumchunks/Summer16.WJetsToLNu_TuneCUETP8M1.root',
-	'WJetsToLNu_HT-100To200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-100To200.root',
-	'WJetsToLNu_HT-200To400':'./output_mediumchunks/Summer16.WJetsToLNu_HT-200To400.root',
-	'WJetsToLNu_HT-400To600':'./output_mediumchunks/Summer16.WJetsToLNu_HT-400To600.root',
-	'WJetsToLNu_HT-600To800':'./output_mediumchunks/Summer16.WJetsToLNu_HT-600To800.root',
-	'WJetsToLNu_HT-800To1200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-800To1200.root',
-	'WJetsToLNu_HT-1200To2500':'./output_mediumchunks/Summer16.WJetsToLNu_HT-1200To2500.root',
-	'WJetsToLNu_HT-2500ToInf':'./output_mediumchunks/Summer16.WJetsToLNu_HT-2500ToInf.root',
+	#'WJetsToLNu_HT-100To200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-100To200.root',
+	#'WJetsToLNu_HT-200To400':'./output_mediumchunks/Summer16.WJetsToLNu_HT-200To400.root',
+	#'WJetsToLNu_HT-400To600':'./output_mediumchunks/Summer16.WJetsToLNu_HT-400To600.root',
+	#'WJetsToLNu_HT-600To800':'./output_mediumchunks/Summer16.WJetsToLNu_HT-600To800.root',
+	#'WJetsToLNu_HT-800To1200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-800To1200.root',
+	#'WJetsToLNu_HT-1200To2500':'./output_mediumchunks/Summer16.WJetsToLNu_HT-1200To2500.root',
+	#'WJetsToLNu_HT-2500ToInf':'./output_mediumchunks/Summer16.WJetsToLNu_HT-2500ToInf.root',
 	'DYJetsToLL_M-50_TuneCUETP8M1':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_TuneCUETP8M1.root',
-	'DYJetsToLL_M-50_HT-100to200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-100to200.root',
-	'DYJetsToLL_M-50_HT-200to400':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-200to400.root',
-	'DYJetsToLL_M-50_HT-400to600':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-400to600.root',
-	'DYJetsToLL_M-50_HT-600to800':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-600to800.root',
-	'DYJetsToLL_M-50_HT-800to1200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-800to1200.root',
-	'DYJetsToLL_M-50_HT-1200to2500':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-1200to2500.root',
-	'DYJetsToLL_M-50_HT-2500toInf':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-2500toInf.root',
+	#'DYJetsToLL_M-50_HT-100to200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-100to200.root',
+	#'DYJetsToLL_M-50_HT-200to400':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-200to400.root',
+	#'DYJetsToLL_M-50_HT-400to600':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-400to600.root',
+	#'DYJetsToLL_M-50_HT-600to800':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-600to800.root',
+	#'DYJetsToLL_M-50_HT-800to1200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-800to1200.root',
+	#'DYJetsToLL_M-50_HT-1200to2500':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-1200to2500.root',
+	#'DYJetsToLL_M-50_HT-2500toInf':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-2500toInf.root',
 	'QCD_HT200to300':'./output_mediumchunks/Summer16.QCD_HT200to300.root',
 	'QCD_HT300to500':'./output_mediumchunks/Summer16.QCD_HT300to500.root',
 	'QCD_HT500to700':'./output_mediumchunks/Summer16.QCD_HT500to700.root',
@@ -82,6 +46,10 @@ dict_Summer16 = {
 	'ZJetsToNuNu_HT-800To1200':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-800To1200.root',
 	'ZJetsToNuNu_HT-1200To2500':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-1200To2500.root',
 	'ZJetsToNuNu_HT-2500ToInf':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-2500ToInf.root',
+	}
+
+dict_Summer16_FastSimSignal = {
+	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_mediumchunks/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900.root',
 	}
 
 dict_Fall17 = {
@@ -148,7 +116,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     fin={}
     hDedx={}
     mean={}
-   
+     
     #Data Intercalib
     c.cd()
     for name,f in natsorted(SelectedData.items()):
@@ -160,40 +128,12 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         hDedx[name].Scale(1.0/hDedx[name].Integral())
 
 	# Run2016 PIXEL
-	if 'Pixel' in hist and 'Run2016B' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
-	elif 'Pixel' in hist and 'Run2016C' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	elif 'Pixel' in hist and 'Run2016D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.7,3.0)
-	elif 'Pixel' in hist and 'Run2016D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.2)
-	elif 'Pixel' in hist and 'Run2016E' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.5,3.0)
-	elif 'Pixel' in hist and 'Run2016F' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
-	elif 'Pixel' in hist and 'Run2016G' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	elif 'Pixel' in hist and 'Run2016H' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
+	if 'Pixel' in hist:
+	    fitres = hDedx[name].Fit('gaus','S','',4.0,5.0)
 	
-	## Run2017 PIXEL
-	elif 'Pixel' in hist and 'Run2017B' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.4,3.6)
-	elif 'Pixel' in hist and 'Run2017C' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	elif 'Pixel' in hist and 'Run2017D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	elif 'Pixel' in hist and 'Run2017D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.2)
-	elif 'Pixel' in hist and 'Run2017E' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.2,3.2)
-	elif 'Pixel' in hist and 'Run2017F' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.0,3.2)
-
 	# STRIP
     	elif 'Strips' in hist:
-	    fitres = hDedx[name].Fit('gaus','S','',2.8,3.8)
+	    fitres = hDedx[name].Fit('gaus','S','',4.0,6.0)
 	else : 
 	    print 'Hist string or data period unmatched'
 	    quit()
@@ -202,8 +142,8 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         mean[name] = hDedx[name].GetFunction('gaus').GetParameter(1)
 	hDedx[name].Draw('HIST E SAME')
     	c.SaveAs(outputdir+'/Intercalib_'+name+'_'+hist+'.'+format_c)
-   
-    # Data all period
+     
+    # All fastsim samples
     c2.cd()
     i=0
     for name,f in natsorted(SelectedData.items()):
@@ -215,19 +155,20 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         hDedx[name].SetLineWidth(2)
         hDedx[name].SetLineColor(i+1)
         hDedx[name].Scale(1.0/hDedx[name].Integral())
-	if 'Pixel' in hist:
-	    hDedx[name].GetYaxis().SetRangeUser(0,0.15)
-    	elif 'Strips' in hist:
-	    hDedx[name].GetYaxis().SetRangeUser(0,0.2)
+	#if 'Pixel' in hist:
+	#    hDedx[name].GetYaxis().SetRangeUser(0,0.15)
+    	#elif 'Strips' in hist:
+	#    hDedx[name].GetYaxis().SetRangeUser(0,0.2)
     	hDedx[name].Draw('HIST E SAME')
         tl.AddEntry(hDedx[name],'%s, mu=%s'%(name,round(mean[name],3)),'l')
         i=i+1
-   
+    
+    
     # MC
     i = 0
     for name,f in natsorted(SelectedMC.items()):
         fin[name] = TFile(f)
-        hDedx[name] = fin[name].Get(hist)
+	hDedx[name] = fin[name].Get('hTrkPixelDedx_tightgenmumatch_barrel') #MC : FullSim gen-matched muon dEdx at barrel region as standard candle
 	if i==0:
 	    print 'Cloning ',name
 	    hDedx_total = hDedx[name].Clone('hDedx_total')
@@ -246,8 +187,9 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     hDedx_total.Draw('HIST E SAME')
     tl.AddEntry(hDedx_total, 'Total MC bkg, mu=%s'%(round(mean_mc,3)))
     tl.Draw('SAME')
-    
+     
     c2.SaveAs(outputdir+'/Intercalib_AllPeriod_'+hist+'.'+format_c)
+    
     
     # Extract Scale Factor 
     with open(outputdir+"/datacalib_dict"+hist+".txt",'w') as txt:
@@ -255,34 +197,40 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	    SF = mean_mc / mean[name]
             print "'%s' : %s,"%(name.split('_')[0], SF)
 	    txt.write("'%s' : %s,\n"%(name.split('_')[0], SF))
-    
+     
     
 if __name__ == '__main__' :
 
-    DataSets = ["Run2016-SingleMuon","Run2016-SingleElectron","Run2017-SingleMuon","Run2017-SingleElectron"]
-    #DataSets = ["Run2016-SingleMuon"]
-    #DataSets = ["Run2017-SingleMuon"]
+    DataSets = ["Summer16PrivateFastSim"]
 
     for	data in DataSets:
         outputdir = './plots/InterCalib_'+data
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
-	if data == "Run2016-SingleMuon":
+	if data == "Summer16PrivateFastSim":
 	    SelectedMC = dict_Summer16
-	    SelectedData = dict_Run2016_SingleMuon
-	elif data == "Run2016-SingleElectron":
-	    SelectedMC = dict_Summer16
-	    SelectedData = dict_Run2016_SingleElectron
-	elif data == "Run2017-SingleMuon":
-	    SelectedMC = dict_Fall17
-    	    SelectedData = dict_Run2017_SingleMuon
-	elif data == "Run2017-SingleElectron":
-	    SelectedMC = dict_Fall17
-    	    SelectedData = dict_Run2017_SingleElectron
+	    SelectedData = dict_Summer16_FastSimSignal
+	else : 
+	    print 'wrong data'
+	    quit()
 
-	hists = []
-	hists.extend(['hTrkPixelDedx_tightmumatch','hTrkPixelDedx_tightmumatch_barrel','hTrkPixelDedx_tightmumatch_endcap','hTrkStripsDedx_tightmumatch','hTrkStripsDedx_tightmumatch_barrel','hTrkStripsDedx_tightmumatch_endcap']) # before calibration
-	#hists.extend(['hTrkPixelDedxCalib_tightmumatch','hTrkPixelDedxCalib_tightmumatch_barrel','hTrkPixelDedxCalib_tightmumatch_endcap','hTrkStripsDedxCalib_tightmumatch','hTrkStripsDedxCalib_tightmumatch_barrel','hTrkStripsDedxCalib_tightmumatch_endcap']) #after calibration
+	hists=[
+		 # before calibration
+		#'hTrkPixelDedx_tightgenmumatch',
+		'hTrkPixelDedx_tightgenmumatch_barrel',
+		'hTrkPixelDedx_tightgenmumatch_endcap',
+		#'hTrkStripsDedx_tightgenmumatch',
+		'hTrkStripsDedx_tightgenmumatch_barrel',
+		'hTrkStripsDedx_tightgenmumatch_endcap',
+
+		# after calibration
+		#'hTrkPixelDedxCalib_tightmumatch',
+		#'hTrkPixelDedxCalib_tightmumatch_barrel',
+		#'hTrkPixelDedxCalib_tightmumatch_endcap',
+		#'hTrkStripsDedxCalib_tightmumatch',
+		#'hTrkStripsDedxCalib_tightmumatch_barrel',
+		#'hTrkStripsDedxCalib_tightmumatch_endcap',
+		]
 	
 	# Run
 	for hist in hists:
