@@ -7,6 +7,41 @@ from shared_utils import *
 
 TH1.SetDefaultSumw2(True)
 
+def pass_background_stitching(current_file_name, madHT, phase):
+    if (madHT>0) and \
+       ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
+       ("WJetsToLNu_TuneCUETP8M1_13TeV" in current_file_name and madHT>100) or \
+       (phase == 1 and "TTJets_Tune" in current_file_name and madHT>600) or \
+       ("HT-100to200_" in current_file_name and (madHT<100 or madHT>200)) or \
+       ("HT-200to300_" in current_file_name and (madHT<200 or madHT>300)) or \
+       ("HT-200to400_" in current_file_name and (madHT<200 or madHT>400)) or \
+       ("HT-300to500_" in current_file_name and (madHT<300 or madHT>500)) or \
+       ("HT-400to600_" in current_file_name and (madHT<400 or madHT>600)) or \
+       ("HT-600to800_" in current_file_name and (madHT<600 or madHT>800)) or \
+       ("HT-800to1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
+       ("HT-1200to2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
+       ("HT-2500toInf_" in current_file_name and madHT<2500) or \
+       ("HT-500to700_" in current_file_name and (madHT<500 or madHT>700)) or \
+       ("HT-700to1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
+       ("HT-1000to1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
+       ("HT-1500to2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
+       ("HT-100To200_" in current_file_name and (madHT<100 or madHT>200)) or \
+       ("HT-200To300_" in current_file_name and (madHT<200 or madHT>300)) or \
+       ("HT-200To400_" in current_file_name and (madHT<200 or madHT>400)) or \
+       ("HT-300To500_" in current_file_name and (madHT<300 or madHT>500)) or \
+       ("HT-400To600_" in current_file_name and (madHT<400 or madHT>600)) or \
+       ("HT-500To700_" in current_file_name and (madHT<500 or madHT>700)) or \
+       ("HT-600To800_" in current_file_name and (madHT<600 or madHT>800)) or \
+       ("HT-700To1000_" in current_file_name and (madHT<700 or madHT>1000)) or \
+       ("HT-800To1200_" in current_file_name and (madHT<800 or madHT>1200)) or \
+       ("HT-1000To1500_" in current_file_name and (madHT<1000 or madHT>1500)) or \
+       ("HT-1200To2500_" in current_file_name and (madHT<1200 or madHT>2500)) or \
+       ("HT-1500To2000_" in current_file_name and (madHT<1500 or madHT>2000)) or \
+       ("HT-2500ToInf_" in current_file_name and madHT<2500):
+        return False
+    else:
+        return True
+
 def main(inputfiles,output_dir,output,nev,isfast):
     
     # Adding Trees
@@ -21,7 +56,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
     Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H',
 		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F',
 		    'Run2018A','Run2018B','Run2018C','Run2018D',
-		    'Summer16','Fall17']
+		    'Summer16','Fall17','Summer16FastSim']
     
     FileName = c.GetFile().GetName().split('/')[-1]
     for identifier in Identifiers:
@@ -232,7 +267,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 	    # madHT check
 	    if c.GetBranch("madHT"):
 		madHT = c.madHT
-	    	#if not pass_background_stitching(FileName, madHT, phase): continue
+	    	if not pass_background_stitching(FileName, madHT, phase): continue
 	    
 	# MET filters, etc
 	if isfast : 
@@ -399,7 +434,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		
 		if abs(track_mumatch.Eta())<=1.5 : 
 		    #print 'barrel region(mu matching)'
-		    SF_dedx_pixel = Dedxcalibdict_Muon_barrel[Identifier]
+		    SF_dedx_pixel = DedxCorr_Pixel_barrel[Identifier]
 		    SF_dedx_strips = 1.0
 		    fillth1(hTrkP_tightmumatch_barrel,track_mumatch.P(),weight)
 		    fillth1(hTrkPt_tightmumatch_barrel,track_mumatch.Pt(),weight)
@@ -412,7 +447,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		    fillth1(hTrkStripsDedxCalib_tightmumatch,dedx_strips*SF_dedx_strips,weight)
 		elif abs(track_mumatch.Eta())>1.5 : 
 		    #print 'endcap region(mu matching)'
-		    SF_dedx_pixel = Dedxcalibdict_Muon_endcap[Identifier]
+		    SF_dedx_pixel = DedxCorr_Pixel_endcap[Identifier]
 		    SF_dedx_strips = 1.0
 		    fillth1(hTrkP_tightmumatch_endcap,track_mumatch.P(),weight)
 		    fillth1(hTrkPt_tightmumatch_endcap,track_mumatch.Pt(),weight)
@@ -449,7 +484,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		
 		if abs(track_genmumatch.Eta())<=1.5 : 
 		    #print 'barrel region(mu matching)'
-		    SF_dedx_pixel = Dedxcalibdict_Muon_barrel[Identifier]
+		    SF_dedx_pixel = DedxCorr_Pixel_barrel[Identifier]
 		    SF_dedx_strips = 1.0
 		    fillth1(hTrkP_tightgenmumatch_barrel,track_genmumatch.P(),weight)
 		    fillth1(hTrkPt_tightgenmumatch_barrel,track_genmumatch.Pt(),weight)
@@ -462,7 +497,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		    #fillth1(hTrkStripsDedxCalib_tightgenmumatch,dedx_strips*SF_dedx_strips,weight)
 		elif abs(track_genmumatch.Eta())>1.5 : 
 		    #print 'endcap region(mu matching)'
-		    SF_dedx_pixel = Dedxcalibdict_Muon_endcap[Identifier]
+		    SF_dedx_pixel = DedxCorr_Pixel_endcap[Identifier]
 		    SF_dedx_strips = 1.0
 		    fillth1(hTrkP_tightgenmumatch_endcap,track_genmumatch.P(),weight)
 		    fillth1(hTrkPt_tightgenmumatch_endcap,track_genmumatch.Pt(),weight)
@@ -499,7 +534,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		
 		if abs(track_elematch.Eta())<=1.5 : 
 		    #print 'barrel region(ele matching)'
-		    SF_dedx_pixel = Dedxcalibdict_Electron_barrel[Identifier]
+		    SF_dedx_pixel = 1.0
 		    SF_dedx_strips = 1.0
 		    fillth1(hTrkP_tightelematch_barrel,track_elematch.P(),weight)
 		    fillth1(hTrkPt_tightelematch_barrel,track_elematch.Pt(),weight)
@@ -512,7 +547,7 @@ def main(inputfiles,output_dir,output,nev,isfast):
 		    fillth1(hTrkStripsDedxCalib_tightelematch,dedx_strips*SF_dedx_strips,weight)
 		elif abs(track_elematch.Eta())>1.5 : 
 		    #print 'endcap region(ele matching)'
-		    SF_dedx_pixel = Dedxcalibdict_Electron_endcap[Identifier]
+		    SF_dedx_pixel = 1.0
 		    SF_dedx_strips = 1.0
 		    fillth1(hTrkP_tightelematch_endcap,track_elematch.P(),weight)
 		    fillth1(hTrkPt_tightelematch_endcap,track_elematch.Pt(),weight)

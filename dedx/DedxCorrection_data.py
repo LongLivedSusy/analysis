@@ -288,12 +288,12 @@ if __name__ == '__main__' :
 
 	hists=[
 		 # before calibration
-		'hTrkPixelDedx_tightmumatch',
+		#'hTrkPixelDedx_tightmumatch',
 		'hTrkPixelDedx_tightmumatch_barrel',
 		'hTrkPixelDedx_tightmumatch_endcap',
-		'hTrkStripsDedx_tightmumatch',
-		'hTrkStripsDedx_tightmumatch_barrel',
-		'hTrkStripsDedx_tightmumatch_endcap',
+		#'hTrkStripsDedx_tightmumatch',
+		#'hTrkStripsDedx_tightmumatch_barrel',
+		#'hTrkStripsDedx_tightmumatch_endcap',
 
 		# after calibration
 		#'hTrkPixelDedxCalib_tightmumatch',

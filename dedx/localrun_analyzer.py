@@ -15,8 +15,9 @@ if __name__ == "__main__":
     #Inputfile txt path
     path = "./inputs/"
     inputfiles = [
-	    "./inputs/Run2016B-SingleMuon.txt",
-	    #"./inputs/Summer16.WJetsToLNu_HT-100To200.txt",
+	    #"./inputs/Run2016B-SingleMuon.txt",
+	    #"./inputs/Run2017B-SingleMuon.txt",
+	    "./inputs/Summer16.WJetsToLNu_HT-100To200.txt",
 	    #"./inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.txt",
 	    #"./inputs/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.txt",
 	    ]

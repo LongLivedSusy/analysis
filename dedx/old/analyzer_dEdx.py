@@ -256,7 +256,7 @@ def myround(x, base=5):
     return int(base * round(float(x)/base))
 
 
-def main(inputfiles,output_dir,output,nev):
+def main(inputfiles,output_dir,output,nev,isfast):
     
     # Adding Trees
     c = TChain("TreeMaker2/PreSelection")
@@ -266,19 +266,17 @@ def main(inputfiles,output_dir,output,nev):
     
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
+    
     Identifiers = ['Run2016B','Run2016C','Run2016D','Run2016E','Run2016F','Run2016G','Run2016H',
 		    'Run2017B','Run2017C','Run2017D','Run2017E','Run2017F',
 		    'Run2018A','Run2018B','Run2018C','Run2018D',
 		    'Summer16','Fall17']
+    
     FileName = c.GetFile().GetName().split('/')[-1]
     for identifier in Identifiers:
 	if identifier in FileName :
 	    Identifier = identifier 
 
-    print "FileName : ",FileName
-    print "Indentifier : ",Identifier
-    print "Total Entries : ",nentries 
-    #c.Show(0)
     
     # check if data:
     phase = 0
@@ -293,7 +291,13 @@ def main(inputfiles,output_dir,output,nev):
                 phase = 0
             elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
                 phase = 1
+    
+    print "FileName : ",FileName
+    print "Indentifier : ",Identifier
     print "Phase:", phase
+    print "IsFastSim : ",isfast 
+    print "Total Entries : ",nentries 
+    #c.Show(0)
 
     #FIXME: no special handling for Autumn18 yet
     if data_period == "Autumn18":
@@ -481,7 +485,7 @@ def main(inputfiles,output_dir,output,nev):
     h3_TrkChi_P_Eta_Dedx = TH3F('h3_TrkChi_P_Eta_Dedx','Chargino P vs Eta vs Dedx', 200,0,4000,10,0,2.5,100,0,10)
     
     # Event loop
-    updateevery = 10000
+    updateevery = 1000
     for ientry in range(nentries):
 	
 	if ientry%updateevery==0:
@@ -521,7 +525,10 @@ def main(inputfiles,output_dir,output,nev):
 	    	if not pass_background_stitching(FileName, madHT, phase): continue
 	    
 	# MET filters, etc
-	if not passesUniversalSelection(c): continue
+	if isfast : 
+	    if not passesUniversalSelectionFastSim(c): continue
+	else : 
+	    if not passesUniversalSelection(c): continue
 
 	# some preselection on event
 	#if not c.MET>50 : continue
@@ -571,12 +578,12 @@ def main(inputfiles,output_dir,output,nev):
 	    if not c.Electrons_charge[0] * c.Electrons_charge[1] == -1 : continue
 	    invmass = (ele1+ele2).M()
 	    if not (invmass >= 70 and invmass <= 110) : continue 
-	    #print '{}th event Z invmass:{}, ele1 pT:{}, ele2 pT:{}, {}'.format(ientry, invmass,ele1.Pt(),ele2.Pt(), True if ele1.Pt()>ele2.Pt() else False)
-	    FillHisto(hElePt_fromZ_leading,ele1.Pt(),weight)
-	    FillHisto(hElePt_fromZ_trailing,ele2.Pt(),weight)
 	    tightelectrons_fromZ.append(ele1)
 	    tightelectrons_fromZ.append(ele2)
-
+	    FillHisto(hElePt_fromZ_leading,ele1.Pt(),weight)
+	    FillHisto(hElePt_fromZ_trailing,ele2.Pt(),weight)
+	    #print '{}th event Z invmass:{}, ele1 pT:{}, ele2 pT:{}, {}'.format(ientry, invmass,ele1.Pt(),ele2.Pt(), True if ele1.Pt()>ele2.Pt() else False)
+	
 	# Muons
 	n_tightmuon = 0
 	tightmuons=[]
@@ -907,12 +914,14 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir",default="outputs_smallchunks",dest="output_dir")
     parser.add_argument("--output",default="output.root",dest="output")
     parser.add_argument("--nev",default=-1,dest="nev")
+    parser.add_argument("--fast",default=False,action='store_true')
 
     args = parser.parse_args()
     inputfiles = args.inputfiles
     output_dir = args.output_dir
     output = args.output
     nev = int(args.nev)
-
-    main(inputfiles,output_dir,output,nev)
+    isfast = args.fast
+    
+    main(inputfiles,output_dir,output,nev,isfast)
 
