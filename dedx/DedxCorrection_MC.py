@@ -13,21 +13,21 @@ format_c = 'png'
 
 dict_Summer16 = {
 	'WJetsToLNu_TuneCUETP8M1':'./output_mediumchunks/Summer16.WJetsToLNu_TuneCUETP8M1.root',
-	#'WJetsToLNu_HT-100To200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-100To200.root',
-	#'WJetsToLNu_HT-200To400':'./output_mediumchunks/Summer16.WJetsToLNu_HT-200To400.root',
-	#'WJetsToLNu_HT-400To600':'./output_mediumchunks/Summer16.WJetsToLNu_HT-400To600.root',
-	#'WJetsToLNu_HT-600To800':'./output_mediumchunks/Summer16.WJetsToLNu_HT-600To800.root',
-	#'WJetsToLNu_HT-800To1200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-800To1200.root',
-	#'WJetsToLNu_HT-1200To2500':'./output_mediumchunks/Summer16.WJetsToLNu_HT-1200To2500.root',
-	#'WJetsToLNu_HT-2500ToInf':'./output_mediumchunks/Summer16.WJetsToLNu_HT-2500ToInf.root',
+	'WJetsToLNu_HT-100To200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-100To200.root',
+	'WJetsToLNu_HT-200To400':'./output_mediumchunks/Summer16.WJetsToLNu_HT-200To400.root',
+	'WJetsToLNu_HT-400To600':'./output_mediumchunks/Summer16.WJetsToLNu_HT-400To600.root',
+	'WJetsToLNu_HT-600To800':'./output_mediumchunks/Summer16.WJetsToLNu_HT-600To800.root',
+	'WJetsToLNu_HT-800To1200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-800To1200.root',
+	'WJetsToLNu_HT-1200To2500':'./output_mediumchunks/Summer16.WJetsToLNu_HT-1200To2500.root',
+	'WJetsToLNu_HT-2500ToInf':'./output_mediumchunks/Summer16.WJetsToLNu_HT-2500ToInf.root',
 	'DYJetsToLL_M-50_TuneCUETP8M1':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_TuneCUETP8M1.root',
-	#'DYJetsToLL_M-50_HT-100to200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-100to200.root',
-	#'DYJetsToLL_M-50_HT-200to400':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-200to400.root',
-	#'DYJetsToLL_M-50_HT-400to600':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-400to600.root',
-	#'DYJetsToLL_M-50_HT-600to800':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-600to800.root',
-	#'DYJetsToLL_M-50_HT-800to1200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-800to1200.root',
-	#'DYJetsToLL_M-50_HT-1200to2500':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-1200to2500.root',
-	#'DYJetsToLL_M-50_HT-2500toInf':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-2500toInf.root',
+	'DYJetsToLL_M-50_HT-100to200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-100to200.root',
+	'DYJetsToLL_M-50_HT-200to400':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-200to400.root',
+	'DYJetsToLL_M-50_HT-400to600':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-400to600.root',
+	'DYJetsToLL_M-50_HT-600to800':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-600to800.root',
+	'DYJetsToLL_M-50_HT-800to1200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-800to1200.root',
+	'DYJetsToLL_M-50_HT-1200to2500':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-1200to2500.root',
+	'DYJetsToLL_M-50_HT-2500toInf':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-2500toInf.root',
 	'QCD_HT200to300':'./output_mediumchunks/Summer16.QCD_HT200to300.root',
 	'QCD_HT300to500':'./output_mediumchunks/Summer16.QCD_HT300to500.root',
 	'QCD_HT500to700':'./output_mediumchunks/Summer16.QCD_HT500to700.root',
@@ -201,7 +201,8 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     
 if __name__ == '__main__' :
 
-    DataSets = ["Summer16PrivateFastSim"]
+    #DataSets = ["Summer16PrivateFastSim"]
+    DataSets = ["Fall17"]
 
     for	data in DataSets:
         outputdir = './plots/InterCalib_'+data
@@ -210,18 +211,19 @@ if __name__ == '__main__' :
 	if data == "Summer16PrivateFastSim":
 	    SelectedMC = dict_Summer16
 	    SelectedData = dict_Summer16_FastSimSignal
+	elif data == "Fall17":
+	    SelectedMC = dict_Summer16
+	    SelectedData = dict_Fall17
 	else : 
 	    print 'wrong data'
 	    quit()
 
 	hists=[
 		 # before calibration
-		#'hTrkPixelDedx_tightgenmumatch',
 		'hTrkPixelDedx_tightgenmumatch_barrel',
 		'hTrkPixelDedx_tightgenmumatch_endcap',
-		#'hTrkStripsDedx_tightgenmumatch',
-		'hTrkStripsDedx_tightgenmumatch_barrel',
-		'hTrkStripsDedx_tightgenmumatch_endcap',
+		#'hTrkStripsDedx_tightgenmumatch_barrel',
+		#'hTrkStripsDedx_tightgenmumatch_endcap',
 
 		# after calibration
 		#'hTrkPixelDedxCalib_tightmumatch',
