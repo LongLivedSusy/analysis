@@ -1253,8 +1253,15 @@ DedxCorr_Pixel_barrel = {
 	'Run2018C' : 1.0,
 	'Run2018D' : 1.0,
 
+	# Summer16 MC
+	'Summer16' : 1.0
+	
 	# Summer16 Private fastsim signal
-	'Summer16FastSim.SMS-T2bt-LLChipm' : 0.630164946858,
+	'Summer16FastSim' : 0.630164946858,
+
+	# Fall17 MC
+	'Fall17' : 1.0
+
 	}
 
 DedxCorr_Pixel_endcap = {
@@ -1280,8 +1287,15 @@ DedxCorr_Pixel_endcap = {
 	'Run2018C' : 1.0,
 	'Run2018D' : 1.0,
 
+	# Summer16 MC
+	'Summer16' : 1.0
+	
 	# Summer16 Private fastsim signal
-	'Summer16FastSim.SMS-T2bt-LLChipm' : 0.610480884465,
+	'Summer16FastSim' : 0.630164946858,
+
+	# Fall17 MC
+	'Fall17' : 1.0
+
 	}
 
 '''
