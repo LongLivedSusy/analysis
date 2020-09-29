@@ -64,16 +64,20 @@ def runSystematics(inputfile, outputdir, doSyst=False, systname='', nSigmaBtag=0
 	    # For Jet syst
 	    applysmearing = True
 	    if applysmearing : 
-	        Jets = jets_rescale_smear(tree,applysmearing,nSigmaJec,nSigmaJer) # 'Jets' is list containing TLorentzVector jet
+	        Jets = jets_rescale_smear(tree,applysmearing,nSigmaJec,nSigmaJer)
 	    else : Jets = tree.Jets
 
 	    # For ISR syst
 	    weight_ISR = get_isr_weight(tree, nSigmaIsr)
 	    
-	# Total weight
-	weight = weight_btag * weight_ISR 
-	print 'weight:{}, weight_btag:{}, weight_ISR:{}'.format(weight, weight_btag, weight_ISR)
+	    # Total weight
+	    weight = weight_btag * weight_ISR 
+	    
+	    #print 'weight:%.2f, weight_btag:%.2f, weight_ISR:%.2f'%(weight,weight_btag,weight_ISR)
 
+	#print 'weight:%.2f, weight_btag:%.2f, weight_ISR:%.2f'%(weight,weight_btag,weight_ISR)
+	
+	
 
     # Save to root file
     fout.cd()
@@ -87,14 +91,12 @@ if __name__ == "__main__" :
     args = parser.parse_args()
     doSyst = args.doSyst
 
-    #inputfile = "../dedx/inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.txt"
-    inputfile = "../dedx/inputs/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.txt"
+    inputfile = "../dedx/inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.txt"
     outputdir = 'output'
     
     if not os.path.exists(outputdir) : 
 	os.system('mkdir -p '+outputdir)
     
-    '''
     if doSyst : 
 	#read_sigmas('./syst_sigmas.txt')
 	for systname, nsigmas in read_sigmas('./syst_sigmas.txt').iteritems():
@@ -104,11 +106,8 @@ if __name__ == "__main__" :
 	    nSigmaIsr=nsigmas[3]
 
 	    print systname, nSigmaBtag, nSigmaJec, nSigmaJer, nSigmaIsr
-	    #runSystematics(inputfile, outputdir, doSyst, systname, nSigmaBtag, nSigmaJec, nSigmaJer, nSigmaIsr)
+	    runSystematics(inputfile, outputdir, doSyst, systname, nSigmaBtag, nSigmaJec, nSigmaJer, nSigmaIsr)
 
     else : runSystematics(inputfile, outputdir)
-    '''
 
-    #runSystematics(inputfile, outputdir)
-    runSystematics(inputfile, outputdir, doSyst=True, systname='IsrUp', nSigmaBtag=0, nSigmaJec=0, nSigmaJer=0, nSigmaIsr=1)
-    
+

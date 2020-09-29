@@ -52,6 +52,47 @@ dict_Summer16_FastSimSignal = {
 	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_mediumchunks/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900.root',
 	}
 
+dict_Fall17 = {
+	'WJetsToLNu_HT-100To200':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200.root',
+	'WJetsToLNu_HT-200To400':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400.root',
+	'WJetsToLNu_HT-400To600':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600.root',
+	'WJetsToLNu_HT-600To800':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800.root',
+	'WJetsToLNu_HT-800To1200':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200.root',
+	'WJetsToLNu_HT-1200To2500':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500.root',
+	'WJetsToLNu_HT-2500ToInf':'./output_mediumchunks/RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf.root',
+	'DYJetsToLL_M-50_TuneCUETP8M1':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5.root',
+	'DYJetsToLL_M-50_HT-100to200':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200.root',
+	'DYJetsToLL_M-50_HT-200to400':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400.root',
+	'DYJetsToLL_M-50_HT-400to600':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600.root',
+	'DYJetsToLL_M-50_HT-600to800':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800.root',
+	'DYJetsToLL_M-50_HT-800to1200':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200.root',
+	'DYJetsToLL_M-50_HT-1200to2500':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500.root',
+	'DYJetsToLL_M-50_HT-2500toInf':'./output_mediumchunks/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf.root',
+	'QCD_HT200to300':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT200to300.root',
+	'QCD_HT300to500':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT300to500.root',
+	'QCD_HT500to700':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT500to700.root',
+	'QCD_HT700to1000':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT700to1000.root',
+	'QCD_HT1000to1500':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT1000to1500.root',
+	'QCD_HT1500to2000':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT1500to2000.root',
+	'QCD_HT2000toInf':'./output_mediumchunks/RunIIFall17MiniAODv2.QCD_HT2000toInf.root',
+	'TTJets_TuneCP5':'./output_mediumchunks/RunIIFall17MiniAODv2.TTJets_TuneCP5.root',
+	'TTJets_HT-600to800':'./output_mediumchunks/RunIIFall17MiniAODv2.TTJets_HT-600to800.root',
+	'TTJets_HT-800to1200':'./output_mediumchunks/RunIIFall17MiniAODv2.TTJets_HT-800to1200.root',
+	'TTJets_HT-1200to2500':'./output_mediumchunks/RunIIFall17MiniAODv2.TTJets_HT-1200to2500.root',
+	'TTJets_HT-2500toInf':'./output_mediumchunks/RunIIFall17MiniAODv2.TTJets_HT-2500toInf.root',
+	'WWTo1L1Nu2Q':'./output_mediumchunks/RunIIFall17MiniAODv2.WWTo1L1Nu2Q.root',
+	'WZTo1L1Nu2Q':'./output_mediumchunks/RunIIFall17MiniAODv2.WZTo1L1Nu2Q.root',
+	'ZZTo2L2Q':'./output_mediumchunks/RunIIFall17MiniAODv2.ZZTo2L2Q.root',
+	'ZJetsToNuNu_HT-100To200':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-100To200.root',
+	'ZJetsToNuNu_HT-200To400':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-200To400.root',
+	'ZJetsToNuNu_HT-400To600':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-400To600.root',
+	'ZJetsToNuNu_HT-600To800':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-600To800.root',
+	'ZJetsToNuNu_HT-800To1200':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-800To1200.root',
+	'ZJetsToNuNu_HT-1200To2500':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-1200To2500.root',
+	'ZJetsToNuNu_HT-2500ToInf':'./output_mediumchunks/RunIIFall17MiniAODv2.ZJetsToNuNu_HT-2500ToInf.root',
+	}
+
+
 def main(SelectedData,SelectedMC,hist,outputdir):
 
     print 'SelectedData : %s, SelectedMC : %s, hist : %s, outputdir : %s'%(SelectedData,SelectedMC,hist,outputdir)
@@ -179,8 +220,8 @@ if __name__ == '__main__' :
 		'hTrkPixelDedx_tightgenmumatch_barrel',
 		'hTrkPixelDedx_tightgenmumatch_endcap',
 		#'hTrkStripsDedx_tightgenmumatch',
-		#'hTrkStripsDedx_tightgenmumatch_barrel',
-		#'hTrkStripsDedx_tightgenmumatch_endcap',
+		'hTrkStripsDedx_tightgenmumatch_barrel',
+		'hTrkStripsDedx_tightgenmumatch_endcap',
 
 		# after calibration
 		#'hTrkPixelDedxCalib_tightmumatch',

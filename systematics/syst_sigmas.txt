@@ -1,6 +1,6 @@
 #Each law is nSigma variation(1:up, -1:down)
 #Line start with '#' will be ignored in code
-#SystName  Btag	JEC JER	ISR
+# Column : Btag	JEC JER	ISR
 Nominal	    0   0   0   0
 BtagUp	    1   0   0   0
 JecUp	    0   1   0   0	
