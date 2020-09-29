@@ -1254,13 +1254,13 @@ DedxCorr_Pixel_barrel = {
 	'Run2018D' : 1.0,
 
 	# Summer16 MC
-	'Summer16' : 1.0
+	'Summer16' : 1.0,
 	
 	# Summer16 Private fastsim signal
 	'Summer16FastSim' : 0.630164946858,
 
 	# Fall17 MC
-	'Fall17' : 1.0
+	'Fall17' : 1.0,
 
 	}
 
@@ -1288,13 +1288,13 @@ DedxCorr_Pixel_endcap = {
 	'Run2018D' : 1.0,
 
 	# Summer16 MC
-	'Summer16' : 1.0
+	'Summer16' : 1.0,
 	
 	# Summer16 Private fastsim signal
 	'Summer16FastSim' : 0.630164946858,
 
 	# Fall17 MC
-	'Fall17' : 1.0
+	'Fall17' : 1.0,
 
 	}
 
