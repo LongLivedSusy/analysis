@@ -24,11 +24,14 @@ if __name__ == "__main__":
     #Inputfile txt path
     path = "./inputs/"
     #inputfiles = sorted(glob(path+'/*.txt'))
-    inputfiles = sorted(glob(path+'/Run2016*.txt'))
+    #inputfiles = sorted(glob(path+'/Run2016*.txt'))
     #inputfiles = sorted(glob(path+'/Run2017*.txt'))
     #inputfiles = sorted(glob(path+'/Summer16*.txt'))
     #inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
     #inputfiles = sorted(glob(path+'/RunIIFall17*.txt')+glob(path+'/Run2017*.txt'))
+    inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt'))
+    #inputfiles = sorted(glob(path+'/Summer16*.txt')+glob(path+'/RunIIFall17*.txt'))
+    #inputfiles = sorted(glob(path+'/RunIISummer16MiniAODv3.SMS*.txt'))
     #inputfiles = ["./inputs/Run2016H-SingleMuon.txt"]
     #inputfiles = ["./inputs/Run2016H-SingleElectron.txt"]
     #inputfiles = ["./inputs/Run2017B-SingleMuon.txt"]
@@ -39,6 +42,8 @@ if __name__ == "__main__":
     #inputfiles = ["./inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.txt"]
    
     condorDir = 'condor_data'
+    #condorDir = 'condor_MC'
+    #condorDir = 'condor_RunIISignal'
     output_dir = "./output_smallchunks/"
     if not os.path.exists(output_dir):
 	os.system("mkdir -p "+output_dir)
