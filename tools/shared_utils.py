@@ -1240,6 +1240,19 @@ DedxCorr_Pixel_barrel = {
 	'Run2016G' : 1.37770046065,
 	'Run2016H' : 1.36903038497,
 
+	# Run2017
+	'Run2016B' : 1.0,
+	'Run2016C' : 1.0,
+	'Run2016D' : 1.0,
+	'Run2016E' : 1.0,
+	'Run2016F' : 1.0,
+
+	# Run2018
+	'Run2016A' : 1.0,
+	'Run2016B' : 1.0,
+	'Run2016C' : 1.0,
+	'Run2016D' : 1.0,
+
 	# Summer16 Private fastsim signal
 	'Summer16FastSim.SMS-T2bt-LLChipm' : 0.630164946858,
 	}
@@ -1253,6 +1266,19 @@ DedxCorr_Pixel_endcap = {
 	'Run2016F' : 1.28124951223,
 	'Run2016G' : 1.31090072648,
 	'Run2016H' : 1.3131533895,
+
+	# Run2017
+	'Run2016B' : 1.0,
+	'Run2016C' : 1.0,
+	'Run2016D' : 1.0,
+	'Run2016E' : 1.0,
+	'Run2016F' : 1.0,
+
+	# Run2018
+	'Run2016A' : 1.0,
+	'Run2016B' : 1.0,
+	'Run2016C' : 1.0,
+	'Run2016D' : 1.0,
 
 	# Summer16 Private fastsim signal
 	'Summer16FastSim.SMS-T2bt-LLChipm' : 0.610480884465,
