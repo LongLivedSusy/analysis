@@ -47,6 +47,14 @@ dict_Run2017_SingleElectron = {
                	    'Run2017F-SingleElectron':'./output_mediumchunks/Run2017F-SingleElectron.root',
 		    }
 
+dict_Run2018_SingleMuon = {
+		    'Run2018A-SingleMuon':'./output_mediumchunks/Run2018A-SingleMuon.root',
+		    'Run2018B-SingleMuon':'./output_mediumchunks/Run2018B-SingleMuon.root',
+		    'Run2018C-SingleMuon':'./output_mediumchunks/Run2018C-SingleMuon.root',
+	       	    'Run2018D-SingleMuon':'./output_mediumchunks/Run2018D-SingleMuon.root',
+		    }
+
+
 dict_Summer16 = {
 	'WJetsToLNu_TuneCUETP8M1':'./output_mediumchunks/Summer16.WJetsToLNu_TuneCUETP8M1.root',
 	'WJetsToLNu_HT-100To200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-100To200.root',
@@ -118,38 +126,46 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         hDedx[name].SetLineWidth(2)
         hDedx[name].Scale(1.0/hDedx[name].Integral())
 
-	# Run2016 PIXEL
-	if 'Pixel' in hist and 'Run2016B' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
-	elif 'Pixel' in hist and 'Run2016C' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	elif 'Pixel' in hist and 'Run2016D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.7,3.0)
-	elif 'Pixel' in hist and 'Run2016D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.2)
-	elif 'Pixel' in hist and 'Run2016E' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.5,3.0)
-	elif 'Pixel' in hist and 'Run2016F' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
-	elif 'Pixel' in hist and 'Run2016G' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	elif 'Pixel' in hist and 'Run2016H' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	
-	## Run2017 PIXEL
-	elif 'Pixel' in hist and 'Run2017B' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.4,3.6)
-	elif 'Pixel' in hist and 'Run2017C' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	elif 'Pixel' in hist and 'Run2017D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	elif 'Pixel' in hist and 'Run2017D' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',1.8,3.2)
-	elif 'Pixel' in hist and 'Run2017E' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.2,3.2)
-	elif 'Pixel' in hist and 'Run2017F' in name:
-	    fitres = hDedx[name].Fit('gaus','S','',2.0,3.2)
+	# PIXEL barrel
+	if 'Pixel' in hist and 'barrel' in hist:
+	    if   'Run2016B' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
+	    elif 'Run2016C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2016D' in name: fitres = hDedx[name].Fit('gaus','S','',1.7,3.0)
+	    elif 'Run2016E' in name: fitres = hDedx[name].Fit('gaus','S','',1.5,3.0)
+	    elif 'Run2016F' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
+	    elif 'Run2016G' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
+	    elif 'Run2016H' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
+	    elif 'Run2017B' in name: fitres = hDedx[name].Fit('gaus','S','',2.4,3.6)
+	    elif 'Run2017C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2017D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2017E' in name: fitres = hDedx[name].Fit('gaus','S','',2.2,3.2)
+	    elif 'Run2017F' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.2)
+	    elif 'Run2018A' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.6)
+	    elif 'Run2018B' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.4)
+	    elif 'Run2018C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2018D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    else : print 'Data period is not matched'; quit()
 
+	# PIXEL endcap
+	elif 'Pixel' in hist and 'endcap' in hist:
+	    if   'Run2016B' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
+	    elif 'Run2016C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2016D' in name: fitres = hDedx[name].Fit('gaus','S','',1.7,3.0)
+	    elif 'Run2016E' in name: fitres = hDedx[name].Fit('gaus','S','',1.5,3.0)
+	    elif 'Run2016F' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
+	    elif 'Run2016G' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
+	    elif 'Run2016H' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
+	    elif 'Run2017B' in name: fitres = hDedx[name].Fit('gaus','S','',2.2,3.4)
+	    elif 'Run2017C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2017D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2017E' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2017F' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,3.0)
+	    elif 'Run2018A' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
+	    elif 'Run2018B' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
+	    elif 'Run2018C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
+	    elif 'Run2018D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
+	    else : print 'Data period is not matched'; quit()
+	
 	# STRIP
     	elif 'Strips' in hist:
 	    fitres = hDedx[name].Fit('gaus','S','',2.8,3.8)
@@ -159,6 +175,8 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 
         fitres.Print()
         mean[name] = hDedx[name].GetFunction('gaus').GetParameter(1)
+	hDedx[name].GetXaxis().SetTitle('MeV/cm')
+	hDedx[name].GetYaxis().SetTitle('Normalized')
 	hDedx[name].Draw('HIST E SAME')
     	c.SaveAs(outputdir+'/Intercalib_'+name+'_'+hist+'.'+format_c)
      
@@ -183,7 +201,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         i=i+1
     
     
-    # MC
+    # Standard candle MC : Summer16
     i = 0
     for name,f in natsorted(SelectedMC.items()):
         fin[name] = TFile(f)
@@ -191,21 +209,21 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         hDedx[name] = fin[name].Get("hTrkPixelDedx_tightgenmumatch_barrel") # pixel barrel is standard candle
 	if i==0:
 	    print 'Cloning ',name
-	    hDedx_total = hDedx[name].Clone('hDedx_total')
+	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
 	else : 
 	    print 'Adding ',name
-	    hDedx_total.Add(hDedx[name])
+	    hDedx_standard.Add(hDedx[name])
 	i+=1
 
-    hDedx_total.SetTitle('Total MC background '+hist)
-    hDedx_total.SetFillStyle(3002)
-    hDedx_total.SetFillColor(kBlue)
-    hDedx_total.Scale(1.0/hDedx_total.Integral())
-    fitres = hDedx_total.Fit('gaus','S0','',2.5,3.5)
+    hDedx_standard.SetTitle('Summer16 MC background '+hist)
+    hDedx_standard.SetFillStyle(3002)
+    hDedx_standard.SetFillColor(kBlue)
+    hDedx_standard.Scale(1.0/hDedx_standard.Integral())
+    fitres = hDedx_standard.Fit('gaus','S0','',2.5,3.5)
     fitres.Print()
-    mean_mc = hDedx_total.GetFunction('gaus').GetParameter(1)
-    hDedx_total.Draw('HIST E SAME')
-    tl.AddEntry(hDedx_total, 'Total MC bkg, mu=%s'%(round(mean_mc,3)))
+    mean_mc = hDedx_standard.GetFunction('gaus').GetParameter(1)
+    hDedx_standard.Draw('HIST E SAME')
+    tl.AddEntry(hDedx_standard, 'Summer16 MC bkg, mu=%s'%(round(mean_mc,3)))
     tl.Draw('SAME')
      
     c2.SaveAs(outputdir+'/Intercalib_AllPeriod_'+hist+'.'+format_c)
@@ -222,8 +240,9 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     
 if __name__ == '__main__' :
 
-    DataSets = ["Run2016-SingleMuon"]
+    #DataSets = ["Run2016-SingleMuon"]
     #DataSets = ["Run2017-SingleMuon"]
+    DataSets = ["Run2018-SingleMuon"]
 
     for	data in DataSets:
         outputdir = './plots/InterCalib_'+data
@@ -236,11 +255,14 @@ if __name__ == '__main__' :
 	    SelectedMC = dict_Summer16
 	    SelectedData = dict_Run2016_SingleElectron
 	elif data == "Run2017-SingleMuon":
-	    SelectedMC = dict_Fall17
+	    SelectedMC = dict_Summer16
     	    SelectedData = dict_Run2017_SingleMuon
 	elif data == "Run2017-SingleElectron":
-	    SelectedMC = dict_Fall17
+	    SelectedMC = dict_Summer16
     	    SelectedData = dict_Run2017_SingleElectron
+	elif data == "Run2018-SingleMuon":
+	    SelectedMC = dict_Summer16
+    	    SelectedData = dict_Run2018_SingleMuon
 	else : 
 	    print 'wrong data'
 	    quit()

@@ -110,93 +110,78 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	quit()
 
     c = TCanvas(ctitle,ctitle,800,600)
-    c2 = TCanvas(ctitle+' all period',ctitle+' all period',800,600)
+    c2 = TCanvas(ctitle+' all',ctitle+' all',800,600)
     tl = TLegend(0.5,0.6,0.9,0.9)
     
     fin={}
     hDedx={}
-    mean={}
      
-    #Data Intercalib
     c.cd()
-    for name,f in natsorted(SelectedData.items()):
-	print 'name',name
-        fin[name] = TFile(f)
-        hDedx[name] = fin[name].Get(hist)
-        hDedx[name].SetTitle(name+' '+hist)
-        hDedx[name].SetLineWidth(2)
-        hDedx[name].Scale(1.0/hDedx[name].Integral())
-
-	# Run2016 PIXEL
-	if 'Pixel' in hist:
-	    fitres = hDedx[name].Fit('gaus','S','',4.0,5.0)
-	
-	# STRIP
-    	elif 'Strips' in hist:
-	    fitres = hDedx[name].Fit('gaus','S','',4.0,6.0)
-	else : 
-	    print 'Hist string or data period unmatched'
-	    quit()
-
-        fitres.Print()
-        mean[name] = hDedx[name].GetFunction('gaus').GetParameter(1)
-	hDedx[name].Draw('HIST E SAME')
-    	c.SaveAs(outputdir+'/Intercalib_'+name+'_'+hist+'.'+format_c)
      
-    # All fastsim samples
-    c2.cd()
+    # MCs to be corrected
     i=0
     for name,f in natsorted(SelectedData.items()):
         fin[name] = TFile(f)
         hDedx[name] = fin[name].Get(hist)
-        hDedx[name].SetTitle(ctitle+' all period')
-        hDedx[name].GetXaxis().SetTitle('MeV/cm')
-        hDedx[name].GetYaxis().SetTitle('Normalized')
-        hDedx[name].SetLineWidth(2)
-        hDedx[name].SetLineColor(i+1)
-        hDedx[name].Scale(1.0/hDedx[name].Integral())
-	#if 'Pixel' in hist:
-	#    hDedx[name].GetYaxis().SetRangeUser(0,0.15)
-    	#elif 'Strips' in hist:
-	#    hDedx[name].GetYaxis().SetRangeUser(0,0.2)
-    	hDedx[name].Draw('HIST E SAME')
-        tl.AddEntry(hDedx[name],'%s, mu=%s'%(name,round(mean[name],3)),'l')
-        i=i+1
+	if i==0 :
+	    print 'Cloning ',name
+	    hDedx_totalMC = hDedx[name].Clone('hDedx_totalMC')
+	else : 
+	    print 'Adding ',name
+	    hDedx_totalMC.Add(hDedx[name])
+	i+=1
     
+    hDedx_totalMC.GetXaxis().SetTitle('MeV/cm')
+    hDedx_totalMC.GetYaxis().SetTitle('Normalized')
+    hDedx_totalMC.Scale(1.0/hDedx_totalMC.Integral())
+    fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.5,3.5)
+    fitres_totalMC.Print()
+    mean_totalMC = hDedx_totalMC.GetFunction('gaus').GetParameter(1)
     
-    # MC
+    hDedx_totalMC.Draw('HIST E')
+    c.SaveAs(outputdir+'/Intercalib_totalMC_'+hist+'.'+format_c)
+    
+    #hDedx_totalMC_clone = hDedx_totalMC.Clone('hDedx_totalMC_clone')
+    #tl.AddEntry(hDedx_totalMC_clone,'Fall17 MC, mu=%s'%(round(mean_totalMC,3)),'l')
+    
+    # standard candle MC
     i = 0
     for name,f in natsorted(SelectedMC.items()):
         fin[name] = TFile(f)
 	hDedx[name] = fin[name].Get('hTrkPixelDedx_tightgenmumatch_barrel') #MC : FullSim gen-matched muon dEdx at barrel region as standard candle
 	if i==0:
 	    print 'Cloning ',name
-	    hDedx_total = hDedx[name].Clone('hDedx_total')
+	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
 	else : 
 	    print 'Adding ',name
-	    hDedx_total.Add(hDedx[name])
+	    hDedx_standard.Add(hDedx[name])
 	i+=1
+    
+    hDedx_standard.GetXaxis().SetTitle('MeV/cm')
+    hDedx_standard.GetYaxis().SetTitle('Normalized')
+    hDedx_standard.Scale(1.0/hDedx_standard.Integral())
+    fitres_standard = hDedx_standard.Fit('gaus','S','',2.3,3.5)
+    fitres_standard.Print()
+    mean_standard = hDedx_standard.GetFunction('gaus').GetParameter(1)
+    tl.AddEntry(hDedx_standard, 'Summer16 MC barrel, mu=%s'%(round(mean_standard,3)))
+    
+    hDedx_standard.Draw('HIST E')
+    c.SaveAs(outputdir+'/Intercalib_Summer16_'+hist+'.'+format_c)
 
-    hDedx_total.SetTitle('Total MC background '+hist)
-    hDedx_total.SetFillStyle(3002)
-    hDedx_total.SetFillColor(kBlue)
-    hDedx_total.Scale(1.0/hDedx_total.Integral())
-    fitres = hDedx_total.Fit('gaus','S0','',2.5,3.5)
-    fitres.Print()
-    mean_mc = hDedx_total.GetFunction('gaus').GetParameter(1)
-    hDedx_total.Draw('HIST E SAME')
-    tl.AddEntry(hDedx_total, 'Total MC bkg, mu=%s'%(round(mean_mc,3)))
-    tl.Draw('SAME')
-     
-    c2.SaveAs(outputdir+'/Intercalib_AllPeriod_'+hist+'.'+format_c)
-    
-    
+    #c2.cd()
+    #hDedx_standard.SetFillStyle(3002)
+    #hDedx_standard.SetFillColor(kBlue)
+    #hDedx_totalMC_clone.SetLineColor(kRed)
+    #hDedx_totalMC_clone.Draw('HIST E SAME')
+    #hDedx_standard.Draw('HIST E SAME')
+    #tl.Draw()
+    #c2.SaveAs(outputdir+'/Intercalib_All_'+hist+'.'+format_c)
+
     # Extract Scale Factor 
     with open(outputdir+"/datacalib_dict"+hist+".txt",'w') as txt:
-	for name,f in natsorted(SelectedData.items()):
-	    SF = mean_mc / mean[name]
-            print "'%s' : %s,"%(name.split('_')[0], SF)
-	    txt.write("'%s' : %s,\n"%(name.split('_')[0], SF))
+	SF = mean_standard / mean_totalMC
+        print "'This MC' : %s,"%(SF)
+	txt.write("'This MC' : %s,\n"%(SF))
      
     
 if __name__ == '__main__' :
