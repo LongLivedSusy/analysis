@@ -1248,10 +1248,10 @@ DedxCorr_Pixel_barrel = {
 	'Run2017F' : 1.14165003663,
 
 	# Run2018
-	'Run2018A' : 1.0,
-	'Run2018B' : 1.0,
-	'Run2018C' : 1.0,
-	'Run2018D' : 1.0,
+	'Run2018A' : 1.14280127759,
+	'Run2018B' : 1.21896886916,
+	'Run2018C' : 1.20071688001,
+	'Run2018D' : 1.23557097115,
 
 	# Summer16 MC
 	'Summer16' : 1.0,
@@ -1260,8 +1260,7 @@ DedxCorr_Pixel_barrel = {
 	'Summer16FastSim' : 0.630164946858,
 
 	# Fall17 MC
-	'Fall17' : 1.0,
-
+	'Fall17' : 0.970245040361,
 	}
 
 DedxCorr_Pixel_endcap = {
@@ -1282,10 +1281,10 @@ DedxCorr_Pixel_endcap = {
 	'Run2017F' : 1.30098356465,
 
 	# Run2018
-	'Run2018A' : 1.0,
-	'Run2018B' : 1.0,
-	'Run2018C' : 1.0,
-	'Run2018D' : 1.0,
+	'Run2018A' : 1.22872298467,
+	'Run2018B' : 1.27088556403,
+	'Run2018C' : 1.30269594263,
+	'Run2018D' : 1.27311261974,
 
 	# Summer16 MC
 	'Summer16' : 1.0,
@@ -1294,8 +1293,7 @@ DedxCorr_Pixel_endcap = {
 	'Summer16FastSim' : 0.630164946858,
 
 	# Fall17 MC
-	'Fall17' : 1.0,
-
+	'Fall17' : 0.955100865402,
 	}
 
 '''
