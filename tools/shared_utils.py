@@ -1059,7 +1059,7 @@ def passQCDHighMETFilter2(t):
 			return False
 	return True
 
-def passesUniversalSelection(t):
+def passesUniversalSelection(t, is_fastsim = False):
 	if not bool(t.JetID): return False
 	if not t.NVtx>0: return False
 	#print 'made a'
@@ -1069,16 +1069,16 @@ def passesUniversalSelection(t):
 	#if not t.PFCaloMETRatio<5: return False # turned off now that we use muons
 	###if not t.globalSuperTightHalo2016Filter: return False
 	#print 'made c'    
-	if not t.HBHENoiseFilter: return False    
-	if not t.HBHEIsoNoiseFilter: return False
-	if not t.eeBadScFilter: return False      
+	if not is_fastsim and not t.HBHENoiseFilter: return False    
+	if not is_fastsim and not t.HBHEIsoNoiseFilter: return False
+	if not is_fastsim and not t.eeBadScFilter: return False      
 	#print 'made d'    
-	if not t.BadChargedCandidateFilter: return False
-	if not t.BadPFMuonFilter: return False
+	if not is_fastsim and not t.BadChargedCandidateFilter: return False
+	if not is_fastsim and not t.BadPFMuonFilter: return False
 	#print 'made e'    
-	if not t.CSCTightHaloFilter: return False
+	if not is_fastsim and not t.CSCTightHaloFilter: return False
 	#print 'made f'        
-	if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
+	if not is_fastsim and not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
 	##if not t.ecalBadCalibReducedExtraFilter: return False
 	##if not t.ecalBadCalibReducedFilter: return False      
 	   
