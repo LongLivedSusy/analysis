@@ -432,7 +432,7 @@ def passesPreselection_basic_track(track):
 	
 	if track.charge() == 0: return False
 	
-	if track.pt() > 5: return False
+	if track.pt() < 5: return False
 	
 	return True
 

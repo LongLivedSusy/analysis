@@ -6,34 +6,27 @@ gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
 TH1.SetDefaultSumw2()
 
-plotDir = 'plotsLLchargino'
+plotDir = 'plotsMuon'
 if not os_.path.exists(plotDir) :
     os_.system('mkdir -p '+plotDir)
 
-fsim = TFile('./LLchargino/SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root')
-ffastsim = TFile('./LLchargino/SUS-RunIISummer15GS-00734_T2btLLFastSim.root')
+fsim = TFile('./Muons/SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root')
+ffastsim = TFile('./Muons/SUS-RunIISummer15GS-00734_T2btLLFastSim.root')
 fsim.ls()
 
 #rebin = 1
 rebin = 5
-logscale = True
 
 plots = [
-	    ['P_chargino','(P | chargino) [GeV]'],
-	    ['pt_chargino','(pt | chargino) [GeV]'],
-	    ['eta_chargino','(eta | chargino)'],
-	    ['phi_chargino','(phi | chargino)'],
+	    ['P_muon','(P | muon) [GeV]'],
+	    ['pt_muon','(pt | muon) [GeV]'],
+	    ['eta_muon','(eta | muon)'],
+	    ['phi_muon','(phi | muon)'],
 	    
-	    ['P_chargino_trackmatch','(P | chargino) [GeV]'],
-	    ['pt_chargino_trackmatch','(pt | chargino) [GeV]'],
-	    ['eta_chargino_trackmatch','(eta | chargino)'],
-	    ['phi_chargino_trackmatch','(phi | chargino)'],
-	    
-	    ['P_chargino_trackmatch_pt1200','(P | chargino) [GeV]'],
-	    ['pt_chargino_trackmatch_pt1200','(pt | chargino) [GeV]'],
-	    ['eta_chargino_trackmatch_pt1200','(eta | chargino)'],
-	    ['phi_chargino_trackmatch_pt1200','(phi | chargino)'],
-	    
+	    ['P_muon_trackmatch','(P | muon) [GeV]'],
+	    ['pt_muon_trackmatch','(pt | muon) [GeV]'],
+	    ['eta_muon_trackmatch','(eta | muon)'],
+	    ['phi_muon_trackmatch','(phi | muon)'],
 	    
 	    ['P_track','(P | track) [GeV]'],
 	    ['pt_track','(pt | track) [GeV]'],
@@ -77,12 +70,6 @@ for plot in plots:
     c1.Update()
 
     c1.Print(plotDir+'/'+histname+'.png')
-    
-    if logscale == True : 
-	rp.GetUpperPad().SetLogy()
-	c1.Update()
-	c1.Print(plotDir+'/'+histname+'_log.png')
-
 
 exit()
 

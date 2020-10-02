@@ -10,7 +10,8 @@ if not os_.path.exists(plotDir) :
 
 #fdata = TFile('./SV_rootfiles/vertex_Run2016G8691FBA4-2697-E711-B324-F02FA768CFFE_SVstuff.root')
 #fsim = TFile('./SV_rootfiles/vertex_RunIISummer16DR80PremixD6188037-8CA5-E911-9A4F-34E6D7E05F1B_SVstuff.root')
-ffastsim = TFile('./SV_rootfiles/vertex_higgsino94x_susyall_mChipm250GeV_dm1p01GeV_pu35_part19of25_SVstuff.root')
+#ffastsim = TFile('./SV_rootfiles/vertex_higgsino94x_susyall_mChipm250GeV_dm1p01GeV_pu35_part19of25_SVstuff.root')
+ffastsim = TFile('./SV_rootfiles/vertex_SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGIPREMIX_S2_DATAMIX_L1_DIGI2RAW_L1Reco_RECO_SVstuff.root')
 #fdata.ls()
 
 
@@ -104,7 +105,7 @@ for plot in plots:
 
     #histo_data.SetTitle('Run 2016G')
     #histo_sim.SetTitle('Summer16 MC')
-    histo_fastsim.SetTitle('higgsino FastSim')
+    histo_fastsim.SetTitle('FastSim')
     #if 'higgsino' in fsim.GetName() : 
     #    histo_sim.SetTitle('higgsino FastSim')
     #else : histo_sim.SetTitle('Summer16 MC')

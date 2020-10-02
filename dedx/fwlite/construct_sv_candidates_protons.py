@@ -3,30 +3,36 @@ import os,sys
 
 process = cms.Process("DisplacedThings")
 
-
-
 try: 
     fname = sys.argv[2]
-    output_folder = sys.argv[3]
 except: 
     #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/8678DD46-3DB2-E611-A53A-008CFA1974D8.root"
-    fname = "file:/nfs/dust/cms/user/wolfmor/Run2016GSingleElectronAOD07Aug17-v1/D25CC9A3-5787-E711-AD38-20CF3027A589.root"
+    #fname = "file:/nfs/dust/cms/user/wolfmor/Run2016GSingleElectronAOD07Aug17-v1/D25CC9A3-5787-E711-AD38-20CF3027A589.root"
     #fname = "file:T2bt-AOD_F219C63C-8A8A-E911-A7CA-008CFAF292B2.root"
     #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/F219C63C-8A8A-E911-A7CA-008CFAF292B2.root"#run over
     #fname = "/store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/ECF10E5A-6B8A-E911-BB0D-3417EBE528B5.root"#run over
     #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/B6BB1B78-9D8A-E911-B1E0-2047478D3908.root" # done
     #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/ECF10E5A-6B8A-E911-BB0D-3417EBE528B5.root"
-    output_folder = './EDM_output'
+    #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/CMSSW_9_4_17/src/SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGIPREMIX_S2_DATAMIX_L1_DIGI2RAW_L1Reco_RECO.root"
+    #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/CMSSW_9_4_17/src/SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGIPREMIX_S2_DATAMIX_L1_DIGI2RAW_L1Reco_RECO_premix10000_10000evt.root"
+    #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/CMSSW_9_4_17/src/SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGI_L1_DIGI2RAW_L1Reco_RECO_NoPU.root"
+    #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/output/smallchunks/SUS-RunIISummer15GS-00734_T2btLLFastSim_200of200.root"
+    fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/CMSSW_9_4_17/src/20200831_040129897445869/SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_1of1.root"
+
+
+output_folder = './EDM_output'
+if not os.path.exists(output_folder):
+    print 'Making output folder : ', output_folder
+    os.system('mkdir -p '+output_folder)
 
 print 'will use', fname
 
-fnameout = output_folder+"/edm_"+(fname.split('/')[-1]).replace('.root','SVstuff.root')
+fnameout = output_folder+"/edm_"+(fname.split('/')[-1]).replace('.root','_SVstuff.root')
 if 'Run2' in fname:
     fnameout = fnameout.replace('edm_', 'edm_'+fname.split('/')[-6])
 else:
-    #if 'Summer16' in fname:
-    #fnameout = fnameout.replace('edm_', 'edm_'+'Summer16')
-    print 'MC'
+    if 'Summer16' in fname:
+	fnameout = fnameout.replace('edm_', 'edm_'+'Summer16')
 
 # Use the tracks_and_vertices.root file as input.
 process.source = cms.Source("PoolSource",
@@ -57,7 +63,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 # shapes of tracks through the detector.
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-if '/mc/' in fname or 'T2' in fname or 'higgsino' in fname: process.GlobalTag =  GlobalTag(process.GlobalTag, "auto:run2_mc")
+if '/mc/' in fname or 'T2' in fname or 'higgsino' in fname or 'SUS' in fname: process.GlobalTag =  GlobalTag(process.GlobalTag, "auto:run2_mc")
 else: process.GlobalTag =  GlobalTag(process.GlobalTag, "auto:run2_data")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")

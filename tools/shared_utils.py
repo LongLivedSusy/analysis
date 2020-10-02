@@ -1084,6 +1084,15 @@ def passesUniversalSelection(t, is_fastsim = False):
 	   
 	return True
 
+def passesUniversalSelectionFastSim(t):
+	if not bool(t.JetID): return False
+	if not t.NVtx>0: return False
+	#print 'made a'
+	if not  passQCDHighMETFilter(t): return False
+	if not passQCDHighMETFilter2(t): return False
+	   
+	return True
+
 
 
 def passesUniversalDataSelection(t):
@@ -1217,7 +1226,78 @@ def PassTrig(c,trigname):
 		#print "Passing trigger %s, index:%s"%(c.TriggerNames[trigidx],trigidx)
 	return False
 
+# Pixel dEdx correction factors
+# Standard candle : dE/dx from Summer16 FullSim background MC gen-matched muon track at barrel region
+# Fit dEdx shape by gaussian to find a peak.
+# Correction Factor : Peak of standard candle / Peak of each data to be correctected
+DedxCorr_Pixel_barrel = {
+	# Run2016
+	'Run2016B' : 1.1759157007,
+	'Run2016C' : 1.20850798978,
+	'Run2016D' : 1.23427599765,
+	'Run2016E' : 1.28826839246,
+	'Run2016F' : 1.31364557124,
+	'Run2016G' : 1.37770046065,
+	'Run2016H' : 1.36903038497,
 
+	# Run2017
+	'Run2017B' : 0.966165618728,
+	'Run2017C' : 1.21034272661,
+	'Run2017D' : 1.2020558435,
+	'Run2017E' : 1.05408996653,
+	'Run2017F' : 1.14165003663,
+
+	# Run2018
+	'Run2018A' : 1.14280127759,
+	'Run2018B' : 1.21896886916,
+	'Run2018C' : 1.20071688001,
+	'Run2018D' : 1.23557097115,
+
+	# Summer16 MC
+	'Summer16' : 1.0,
+	
+	# Summer16 Private fastsim signal
+	'Summer16FastSim' : 0.630164946858,
+
+	# Fall17 MC
+	'Fall17' : 0.970245040361,
+	}
+
+DedxCorr_Pixel_endcap = {
+	# Run2016
+	'Run2016B' : 1.1906198167,
+	'Run2016C' : 1.19781783734,
+	'Run2016D' : 1.20288995199,
+	'Run2016E' : 1.23451267095,
+	'Run2016F' : 1.28124951223,
+	'Run2016G' : 1.31090072648,
+	'Run2016H' : 1.3131533895,
+
+	# Run2017
+	'Run2017B' : 1.05283572523,
+	'Run2017C' : 1.18970321942,
+	'Run2017D' : 1.20824495559,
+	'Run2017E' : 1.20562608952,
+	'Run2017F' : 1.30098356465,
+
+	# Run2018
+	'Run2018A' : 1.22872298467,
+	'Run2018B' : 1.27088556403,
+	'Run2018C' : 1.30269594263,
+	'Run2018D' : 1.27311261974,
+
+	# Summer16 MC
+	'Summer16' : 1.0,
+	
+	# Summer16 Private fastsim signal
+	'Summer16FastSim' : 0.630164946858,
+
+	# Fall17 MC
+	'Fall17' : 0.955100865402,
+	}
+
+'''
+#Deprecated correction factor
 Dedxcalibdict_Muon_barrel = {
 	# Run2016
 	'Run2016B' : 1.17636779514,
@@ -1321,7 +1401,7 @@ Dedxcalibdict_Electron_endcap = {
 	# Fall17 MC
 	'Fall17' : 0.950210140051,
 	}
-
+'''
 
 
 '''
