@@ -417,20 +417,20 @@ datamc = 'Data'
 def stamp(lumi='35.9', showlumi = False, WorkInProgress = True):
 	tl.SetTextFont(cmsTextFont)
 	tl.SetTextSize(0.98*tl.GetTextSize())
-	tl.DrawLatex(0.135,0.915, 'CMS')
+	tl.DrawLatex(0.15,0.845, 'CMS')
 	tl.SetTextFont(extraTextFont)
 	tl.SetTextSize(1.0/0.98*tl.GetTextSize())
-	xlab = 0.213
-	if WorkInProgress: tl.DrawLatex(xlab,0.915, ' Preliminary')
-	else: tl.DrawLatex(xlab,0.915, ('MC' in datamc)*' simulation '+'preliminary')
+	xlab = 0.235
+	if WorkInProgress: tl.DrawLatex(xlab,0.845, ' internal')
+	else: tl.DrawLatex(xlab,0.845, ('MC' in datamc)*' simulation '+'preliminary')
 	tl.SetTextFont(regularfont)
 	tl.SetTextSize(0.81*tl.GetTextSize())    
 	thingy = ''
 	if showlumi: thingy+='#sqrt{s}=13 TeV, L = '+str(lumi)+' fb^{-1}'
-	xthing = 0.6202
+	xthing = 0.57
 	if not showlumi: xthing+=0.13
-	tl.DrawLatex(xthing,0.915,thingy)
-	tl.SetTextSize(1.0/0.81*tl.GetTextSize())  
+	tl.DrawLatex(xthing,0.845,thingy)
+	tl.SetTextSize(1.0/0.81*tl.GetTextSize())
 
 
 def stamp2(lumi,datamc='MC'):
@@ -957,7 +957,7 @@ def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelS
 				return 0, mva_
 				
 				
-def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
+def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.1,-0.25]):###from Akshansh
 		moh_ = c.tracks_nMissingOuterHits[itrack]
 		phits = c.tracks_nValidPixelHits[itrack]
 		thits = c.tracks_nValidTrackerHits[itrack]
@@ -984,12 +984,12 @@ def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerP
 		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
 		if pixelOnly:
 				mva_ = evaluateBDT(readerPixelOnly, trackfv)
-				if mva_ > -0.05: return 1, mva_  
+				if mva_ > threshes[0]: return 1, mva_  
 				#elif dxyVtx>0.05: return -1, mva_
 				else: return 0, mva_ 
 		elif pixelStrips:
 				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
-				if mva_>-0.05: return 2, mva_
+				if mva_>threshes[1]: return 2, mva_
 				#elif dxyVtx>0.05: return -2, mva_
 				else: return 0, mva_ ##this -2 was nominally 0
 		else:
@@ -1084,16 +1084,14 @@ def passesUniversalSelection(t):
 	   
 	return True
 
+
 def passesUniversalSelectionFastSim(t):
-	if not bool(t.JetID): return False
-	if not t.NVtx>0: return False
-	#print 'made a'
-	if not  passQCDHighMETFilter(t): return False
-	if not passQCDHighMETFilter2(t): return False
-	   
-	return True
-
-
+ 	if not bool(t.JetID): return False
+ 	if not t.NVtx>0: return False
+ 	#print 'made a'
+ 	if not  passQCDHighMETFilter(t): return False
+ 	if not passQCDHighMETFilter2(t): return False
+ 	return True	
 
 def passesUniversalDataSelection(t):
 	if not (bool(t.JetID) and  t.NVtx>0): return False
