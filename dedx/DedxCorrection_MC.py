@@ -1,11 +1,11 @@
 import os,sys
 from ROOT import *
 from glob import glob
-from natsort import natsorted,ns
+#from natsort import natsorted,ns
 
 gROOT.SetBatch(1)
-gStyle.SetOptStat(0)
-gStyle.SetOptFit(1111)
+gStyle.SetOptStat(False)
+#gStyle.SetOptFit(1111)
 
 #format_c = 'pdf'
 format_c = 'png'
@@ -49,7 +49,7 @@ dict_Summer16 = {
 	}
 
 dict_Summer16_FastSimSignal = {
-	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_mediumchunks/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900.root',
+	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_mediumchunks/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
 	}
 
 dict_Fall17 = {
@@ -93,9 +93,9 @@ dict_Fall17 = {
 	}
 
 
-def main(SelectedData,SelectedMC,hist,outputdir):
+def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
 
-    print 'SelectedData : %s, SelectedMC : %s, hist : %s, outputdir : %s'%(SelectedData,SelectedMC,hist,outputdir)
+    print 'SelectedData : %s, SelectedMC : %s, hist : %s, outputdir : %s, isFastSim: %s'%(SelectedData,SelectedMC,hist,outputdir,isFastSim)
 
     if 'Pixel' in hist and 'ele' in hist:
 	ctitle = 'Electron track Pixel dEdx'
@@ -111,7 +111,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 
     c = TCanvas(ctitle,ctitle,800,600)
     c2 = TCanvas(ctitle+' all',ctitle+' all',800,600)
-    tl = TLegend(0.5,0.6,0.9,0.9)
+    tl = TLegend(0.6,0.6,0.9,0.9)
     
     fin={}
     hDedx={}
@@ -120,7 +120,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
      
     # MCs to be corrected
     i=0
-    for name,f in natsorted(SelectedData.items()):
+    for name,f in sorted(SelectedData.items()):
         fin[name] = TFile(f)
         hDedx[name] = fin[name].Get(hist)
 	if i==0 :
@@ -134,19 +134,11 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     hDedx_totalMC.GetXaxis().SetTitle('MeV/cm')
     hDedx_totalMC.GetYaxis().SetTitle('Normalized')
     hDedx_totalMC.Scale(1.0/hDedx_totalMC.Integral())
-    fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.5,3.5)
-    fitres_totalMC.Print()
-    mean_totalMC = hDedx_totalMC.GetFunction('gaus').GetParameter(1)
-    
-    hDedx_totalMC.Draw('HIST E')
-    c.SaveAs(outputdir+'/Intercalib_totalMC_'+hist+'.'+format_c)
-    
-    #hDedx_totalMC_clone = hDedx_totalMC.Clone('hDedx_totalMC_clone')
-    #tl.AddEntry(hDedx_totalMC_clone,'Fall17 MC, mu=%s'%(round(mean_totalMC,3)),'l')
-    
+
+
     # standard candle MC
     i = 0
-    for name,f in natsorted(SelectedMC.items()):
+    for name,f in sorted(SelectedMC.items()):
         fin[name] = TFile(f)
 	hDedx[name] = fin[name].Get('hTrkPixelDedx_tightgenmumatch_barrel') #MC : FullSim gen-matched muon dEdx at barrel region as standard candle
 	if i==0:
@@ -156,38 +148,64 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	    print 'Adding ',name
 	    hDedx_standard.Add(hDedx[name])
 	i+=1
-    
+
     hDedx_standard.GetXaxis().SetTitle('MeV/cm')
     hDedx_standard.GetYaxis().SetTitle('Normalized')
     hDedx_standard.Scale(1.0/hDedx_standard.Integral())
+
+
+    c.cd()
+    if isFastSim and not 'Calib' in hist : 
+        fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',4.0,5.5)
+    elif isFastSim and 'Calib' in hist: 
+        fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.5,3.5)
+    else :
+        fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.5,3.5)
+    
+    fitres_totalMC.Print()
+    mean_totalMC = hDedx_totalMC.GetFunction('gaus').GetParameter(1)
+    
+    hDedx_totalMC.Draw('HIST E SAME')
+    c.SaveAs(outputdir+'/Intercalib_totalMC_'+hist+'.'+format_c)
+    
     fitres_standard = hDedx_standard.Fit('gaus','S','',2.3,3.5)
     fitres_standard.Print()
     mean_standard = hDedx_standard.GetFunction('gaus').GetParameter(1)
     tl.AddEntry(hDedx_standard, 'Summer16 MC barrel, mu=%s'%(round(mean_standard,3)))
     
-    hDedx_standard.Draw('HIST E')
+    hDedx_standard.Draw('HIST E SAME')
     c.SaveAs(outputdir+'/Intercalib_Summer16_'+hist+'.'+format_c)
 
-    #c2.cd()
-    #hDedx_standard.SetFillStyle(3002)
-    #hDedx_standard.SetFillColor(kBlue)
-    #hDedx_totalMC_clone.SetLineColor(kRed)
-    #hDedx_totalMC_clone.Draw('HIST E SAME')
-    #hDedx_standard.Draw('HIST E SAME')
-    #tl.Draw()
-    #c2.SaveAs(outputdir+'/Intercalib_All_'+hist+'.'+format_c)
-
+    c2.cd()
+    rp = TRatioPlot(hDedx_standard,hDedx_totalMC)
+    rp.Draw()
+    hDedx_totalMC.SetTitle('harmonic-2 pixel dEdx')
+    hDedx_standard.SetTitle('harmonic-2 pixel dEdx')
+    hDedx_totalMC.SetLineColor(kRed)
+    hDedx_standard.SetFillStyle(3002)
+    hDedx_standard.SetFillColor(kBlue)
+    rp.GetUpperRefYaxis().SetTitle("Normalized");
+    rp.GetUpperRefYaxis().SetRangeUser(0,0.15);
+    rp.GetLowerRefYaxis().SetTitle("ratio");
+    rp.GetLowerRefYaxis().SetRangeUser(0,2);
+    tl.AddEntry(hDedx_totalMC,'FastSim MC, mu=%s'%(round(mean_totalMC,3)),'l')
+    #tl.AddEntry(hDedx_totalMC,'Fall17 MC, mu=%s'%(round(mean_totalMC,3)),'l')
+    tl.Draw()
+    c2.SaveAs(outputdir+'/RatioPlot_'+hist+'.'+format_c)
+   
     # Extract Scale Factor 
     with open(outputdir+"/datacalib_dict"+hist+".txt",'w') as txt:
 	SF = mean_standard / mean_totalMC
         print "'This MC' : %s,"%(SF)
 	txt.write("'This MC' : %s,\n"%(SF))
+
+
      
     
 if __name__ == '__main__' :
 
-    #DataSets = ["Summer16PrivateFastSim"]
-    DataSets = ["Fall17"]
+    DataSets = ["Summer16PrivateFastSim"]
+    #DataSets = ["Fall17"]
 
     for	data in DataSets:
         outputdir = './plots/InterCalib_'+data
@@ -196,9 +214,11 @@ if __name__ == '__main__' :
 	if data == "Summer16PrivateFastSim":
 	    SelectedMC = dict_Summer16
 	    SelectedData = dict_Summer16_FastSimSignal
+            isFastSim=True
 	elif data == "Fall17":
 	    SelectedMC = dict_Summer16
 	    SelectedData = dict_Fall17
+            isFastSim=False
 	else : 
 	    print 'wrong data'
 	    quit()
@@ -211,15 +231,15 @@ if __name__ == '__main__' :
 		#'hTrkStripsDedx_tightgenmumatch_endcap',
 
 		# after calibration
-		#'hTrkPixelDedxCalib_tightmumatch',
-		#'hTrkPixelDedxCalib_tightmumatch_barrel',
-		#'hTrkPixelDedxCalib_tightmumatch_endcap',
-		#'hTrkStripsDedxCalib_tightmumatch',
-		#'hTrkStripsDedxCalib_tightmumatch_barrel',
-		#'hTrkStripsDedxCalib_tightmumatch_endcap',
+		#'hTrkPixelDedxCalib_tightgenmumatch',
+		'hTrkPixelDedxCalib_tightgenmumatch_barrel',
+		'hTrkPixelDedxCalib_tightgenmumatch_endcap',
+		#'hTrkStripsDedxCalib_tightgenmumatch',
+		#'hTrkStripsDedxCalib_tightgenmumatch_barrel',
+		#'hTrkStripsDedxCalib_tightgenmumatch_endcap',
 		]
 	
 	# Run
 	for hist in hists:
-	    main(SelectedData,SelectedMC,hist,outputdir)
+	    main(SelectedData,SelectedMC,hist,outputdir,isFastSim)
 
