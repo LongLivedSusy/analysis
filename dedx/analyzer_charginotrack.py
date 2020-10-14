@@ -168,6 +168,8 @@ def main(inputfiles,output_dir,output,nev,isfast):
     hTrkStripsDedxCalib_charginomatch_barrel = TH1F('hTrkStripsDedxCalib_charginomatch_barrel','Chargino-matched track strips dedx at barrel region',100,0,10)
     hTrkStripsDedxCalib_charginomatch_endcap = TH1F('hTrkStripsDedxCalib_charginomatch_endcap','Chargino-matched track strips dedx at endcap region',100,0,10)
 
+    hGenStopMass = TH1F('hGenStopMass','Gen-stop mass', 2500, 0, 2500)
+
     hGenCharginoP = TH1F('hGenCharginoP','Gen-chargino total momentum',1000,0,10000)
     hGenCharginoPt = TH1F('hGenCharginoPt','Gen-chargino transverse momentum',1000,0,1000)
     hGenCharginoEta = TH1F('hGenCharginoEta','Gen-chargino pseudo-rapidity',100,-2.5,2.5)
@@ -222,28 +224,38 @@ def main(inputfiles,output_dir,output,nev,isfast):
 	fillth1(hMHT,c.MHT,weight)
 	fillth1(hHT,c.HT,weight)
  
+	# Gen-stop
+	chosenStopMass = 1250
+	hasRightStopMass = True
+	for igp,gp in enumerate(c.GenParticles):
+	    if not abs(c.GenParticles_PdgId[igp])==1000006 : continue
+	    if not abs(c.GenParticles[igp].M()-chosenStopMass)<0.1:
+		hasRightStopMass = False
+		break
+	    fillth1(hGenStopMass,gp.M(),weight)
+	if not hasRightStopMass: continue
+
 	# Gen-chargino
 	charginos=[]
 	for igp,gp in enumerate(c.GenParticles):
 	    if not abs(c.GenParticles_PdgId[igp])==1000024 : continue
 	    if not gp.Pt() > 20 : continue
+	    
 	    charginos.append(gp)
-
 	    fillth1(hGenCharginoP,gp.P(),weight)
 	    fillth1(hGenCharginoPt,gp.Pt(),weight)
 	    fillth1(hGenCharginoEta,gp.Eta(),weight)
 	    fillth1(hGenCharginoPhi,gp.Phi(),weight)
 	
+
 	# Track
 	for itrack, track in enumerate(c.tracks):
 	    if not track.Pt()>20 : continue
 	    if not abs(track.Eta()) < 2.4 : continue
-	    #if not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue
 	    if not bool(c.tracks_trackQualityHighPurity[itrack]) : continue
 	    if not c.tracks_ptError[itrack]/(track.Pt()*track.Pt())<10 : continue
 	    if not c.tracks_dzVtx[itrack]<0.1 : continue
 	    if not c.tracks_trkRelIso[itrack]<0.01 : continue
-	    #if not c.tracks_trkRelIso[itrack]<0.2 : continue
 	    if not c.tracks_trackerLayersWithMeasurement[itrack]>=2 : continue
 	    if not c.tracks_nValidTrackerHits[itrack]>=2 : continue
 	    if not c.tracks_nMissingInnerHits[itrack]==0 : continue
