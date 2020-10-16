@@ -23,7 +23,7 @@ binnings["analysis"]["Met"] = [20, 0, 600]
 binnings["analysis"]["MET"] = binnings["analysis"]["Met"]
 binnings["analysis"]["Mht"] = binnings["analysis"]["Met"]
 binnings["analysis"]["MHT"] = binnings["analysis"]["Met"]
-binnings["analysis"]["tracks_pt"] = binnings["analysis"]["Ht"]
+binnings["analysis"]["tracks_pt"] = [50, 0, 1000]
 binnings["analysis"]["leadinglepton_pt"] = binnings["analysis"]["Ht"]
 binnings["analysis"]["leadinglepton_eta"] = [15, 0, 3]
 binnings["analysis"]["tracks_eta"] = [15, 0, 3]
@@ -64,7 +64,7 @@ binnings["analysis"]["ptRatioLeptonJets"] = binnings["analysis"]["tracks_ptRatio
 binnings["fakerate"] = {}
 binnings["fakerate"]["tracks_pt"] = [20, 0, 1000]
 binnings["fakerate"]["tracks_is_pixel_track"] = [2, 0, 2]
-binnings["fakerate"]["HT"] = [5, 0, 2000]
+binnings["fakerate"]["HT"] = [10, 0, 2000]
 binnings["fakerate"]["MHT"] = [10, 0, 2000]
 binnings["fakerate"]["n_allvertices"] = [25, 0, 50]
 binnings["fakerate"]["n_goodjets"] = [20, 0, 20]
@@ -74,7 +74,7 @@ binnings["fakerate"]["tracks_eta"] = [12, -3, 3]
 binnings["fakerate"]["tracks_phi"] = [16, -4, 4]
 binnings["fakerate"]["HT:n_allvertices"] = [3, 0, 2000, 3, 0, 50]
 binnings["kappa"] = {}
-binnings["kappa"]["tracks_pt"] = [10, 0, 100]
+binnings["kappa"]["tracks_pt"] = [5, 0, 100]
 
 variables = {}
 variables["analysis"] = [
@@ -93,32 +93,32 @@ variables["analysis"] = [
                           "tracks_MinDeltaPhiTrackMht",
                           "tracks_ptRatioTrackMht",
                           "n_tags",
-                          #"tracks_MinDeltaPhiTrackLepton",
-                          #"tracks_MinDeltaPhiTrackJets",
-                          #"tracks_ptRatioTrackLepton",
-                          #"tracks_ptRatioTrackJets",
-                          #"MinDeltaPhiMhtJets",
-                          #"MinDeltaPhiLeptonMht",
-                          #"MinDeltaPhiLeptonJets",
-                          #"ptRatioMhtJets",
-                          #"ptRatioLeptonMht",
-                          #"ptRatioLeptonJets",
+                          "tracks_MinDeltaPhiTrackLepton",
+                          "tracks_MinDeltaPhiTrackJets",
+                          "tracks_ptRatioTrackLepton",
+                          "tracks_ptRatioTrackJets",
+                          "MinDeltaPhiMhtJets",
+                          "MinDeltaPhiLeptonMht",
+                          "MinDeltaPhiLeptonJets",
+                          "ptRatioMhtJets",
+                          "ptRatioLeptonMht",
+                          "ptRatioLeptonJets",
                           "tracks_ECaloPt",
                           "region",
                         ]
 variables["fakerate"] = [
-                          "HT:n_allvertices",
+                          #"HT:n_allvertices",
                           #"tracks_pt",
                           #"tracks_is_pixel_track",
-                          #"HT",
+                          "HT",
                           #"MHT",
                           #"n_goodjets",
                           #"n_allvertices",
                           #"n_btags",
                         ]
 variables["kappa"] = [
-                          "tracks_pt",
-                        ]
+                       "tracks_pt",
+                     ]
 
 event_selections = {}
 event_selections["analysis"] = collections.OrderedDict()
@@ -151,16 +151,15 @@ ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_pt[i_track]
 regions = collections.OrderedDict()
 regions["sr_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>0.15 and " + ECaloBasecut
 regions["sr_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>0.15 and " + ECaloBasecut
-regions["srgenfake_short"] = regions["sr_short"] + " and event.tracks_fake[i_track]==1"
-regions["srgenfake_long"] = regions["sr_long"] + " and event.tracks_fake[i_track]==1"
-regions["srgenprompt_short"] = regions["sr_short"] + " and event.tracks_fake[i_track]==0"
-regions["srgenprompt_long"] = regions["sr_long"] + " and event.tracks_fake[i_track]==0"
 regions["promptECaloLow_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloBasecut
 regions["promptECaloLow_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloBasecut
 regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
 regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
+
 regions["promptprediction_short"] = regions["promptECaloSideband_short"]
 regions["promptprediction_long"] = regions["promptECaloSideband_long"]
+#regions["promptpredictionsubtracted_short"] = regions["promptECaloSideband_short"]
+#regions["promptpredictionsubtracted_long"] = regions["promptECaloSideband_long"]
 regions["fakecr_short"] = baseline_short + " and " + ECaloBasecut + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
 regions["fakecr_long"] = baseline_long + " and " + ECaloBasecut + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
 regions["fakeprediction_short"] = regions["fakecr_short"]
@@ -169,38 +168,84 @@ regions["fakecrECaloSideband_short"] = baseline_short + " and " + ECaloSideband 
 regions["fakecrECaloSideband_long"] = baseline_long + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
 regions["fakepredictionECaloSideband_short"] = regions["fakecrECaloSideband_short"]
 regions["fakepredictionECaloSideband_long"] = regions["fakecrECaloSideband_long"]
+regions["promptRegionCkappa1_short"] = regions["fakecr_short"]
+regions["promptRegionCkappa1_long"] = regions["fakecr_long"]
+regions["promptRegionCkappa2_short"] = regions["promptECaloSideband_short"]
+regions["promptRegionCkappa2_long"] = regions["promptECaloSideband_long"]
+regions["promptRegionCkappa3_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3) and " + ECaloSideband
+regions["promptRegionCkappa3_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3) and " + ECaloSideband
+regions["promptRegionCkappa4_short"] = baseline_short + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+regions["promptRegionCkappa4_long"] = baseline_long + " and " + ECaloSideband + " and " + BdtSideband + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+regions["promptRegionCkappa5_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]>(3.14/3) and " + ECaloSideband
+regions["promptRegionCkappa5_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]>(3.14/3) and " + ECaloSideband
 
+
+# add genfake and genprompt info to all regions:
+for regionlabel in regions.keys():
+    new_genfake_label = regionlabel.split("_")[0] + "genfake_" + regionlabel.split("_")[1]
+    regions[new_genfake_label] = regions[regionlabel] + " and event.tracks_fake[i_track]==1"
+    new_genprompt_label = regionlabel.split("_")[0] + "genprompt_" + regionlabel.split("_")[1]
+    regions[new_genprompt_label] = regions[regionlabel] + " and event.tracks_fake[i_track]==0"
+
+mc_summer16 = [
+               "Summer16.DYJetsToLL*root",
+               "Summer16.QCD*root",
+               "Summer16.WJetsToLNu*root",
+               "Summer16.ZJetsToNuNu_HT*root",
+               "Summer16.WW_TuneCUETP8M1*root",
+               "Summer16.WZ_TuneCUETP8M1*root",
+               "Summer16.ZZ_TuneCUETP8M1*root",
+               "Summer16.TTJets_DiLept*root",
+               "Summer16.TTJets_SingleLeptFromT*root",
+              ]
+mc_fall17 = [
+               "RunIIFall17MiniAODv2.DYJetsToLL*root",
+               "RunIIFall17MiniAODv2.QCD*root",
+               "RunIIFall17MiniAODv2.WJetsToLNu*root",
+               "RunIIFall17MiniAODv2.ZJetsToNuNu_HT*root",
+               "RunIIFall17MiniAODv2.WW*root",
+               "RunIIFall17MiniAODv2.WZ*root",
+               "RunIIFall17MiniAODv2.ZZ*root",
+               "RunIIFall17MiniAODv2.TTJets_DiLept_Tune*root",
+               "RunIIFall17MiniAODv2.TTJets_SingleLeptFromT_Tune*root",
+              ]
+              
 samples = {}
 samples["fakerate"] = {
-            "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
+            "Summer16": mc_summer16,
+            "Fall17": mc_fall17,
             "Run2016": ["Run2016*JetHT*root"],
-            #"Run2017": ["Run2017*JetHT*root"],
-            #"Run2018": ["Run2018*JetHT*root"],
+            "Run2017": ["Run2017*JetHT*root"],
+            "Run2018": ["Run2018*JetHT*root"],
           }
 samples["kappa"] = {
-            #"Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
-            "Summer16": ["Summer16.WJetsToLNu*root", "Summer16.DYJetsToLL*root"],
-            #"Run2016": ["Run2016*SingleElectron*root"],
-            #"Run2017": ["Run2017*JetHT*root"],
-            #"Run2018": ["Run2018*JetHT*root"],
+            "Summer16": mc_summer16,
+            "Fall17": mc_fall17,
+            "Run2016": ["Run2016*SingleElectron*root"],
+            "Run2017": ["Run2017*SingleElectron*root"],
+            "Run2018": ["Run2018*EGamma*root"],
           }
 samples["analysis"] = {
-            "Summer16": ["Summer16.DYJetsToLL*root", "Summer16.QCD*root", "Summer16.WJetsToLNu*root", "Summer16.ZJetsToNuNu_HT*root", "Summer16.WW_TuneCUETP8M1*root", "Summer16.WZ_TuneCUETP8M1*root", "Summer16.ZZ_TuneCUETP8M1*root", "Summer16.TTJets_DiLept*root", "Summer16.TTJets_SingleLeptFromT*root"],
-            "T1qqqq-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-            "T1qqqq-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-            "T1qqqq-mLSP-2775": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-            "T2bt-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-            "T2bt-mLSP-1500": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
-            "T2bt-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"],
+            "Summer16": mc_summer16,
+            "Fall17": mc_fall17,
+            #"T1qqqq-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8*.root"],
+            #"T1qqqq-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8*.root"],
+            #"T1qqqq-mLSP-2775": ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8*.root"],
+            #"T2bt-mLSP-1000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8*.root"],
+            #"T2bt-mLSP-1500": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8*.root"],
+            #"T2bt-mLSP-2000": ["RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8*.root"],
             "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
             "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
             "Run2016MET": ["Run2016*MET*root"],
-            #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
-            #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
-            #"Run2017MET": ["Run2017*MET*root"],
-            #"Run2018SingleElectron": ["Run2018*EGamma*root"],
-            #"Run2018SingleMuon": ["Run2018*SingleMuon*root"],
-            #"Run2018MET": ["Run2018*MET*root"],
+            "Run2016JetHT": ["Run2016*JetHT*root"],
+            "Run2017SingleElectron": ["Run2017*SingleElectron*root"],
+            "Run2017SingleMuon": ["Run2017*SingleMuon*root"],
+            "Run2017MET": ["Run2017*MET*root"],
+            "Run2017JetHT": ["Run2017*JetHT*root"],
+            "Run2018SingleElectron": ["Run2018*EGamma*root"],
+            "Run2018SingleMuon": ["Run2018*SingleMuon*root"],
+            "Run2018MET": ["Run2018*MET*root"],
+            "Run2018JetHT": ["Run2018*JetHT*root"],
           }
 
 
@@ -241,8 +286,16 @@ def hadd_everything(samples, outputfolder):
             contains_data = True
 
     if contains_data:
-        os.system("hadd -f %s/merged_Run2016All.root %s/Run2016*root" % (outputfolder, outputfolder))
-
+        try:
+            os.system("hadd -f %s/merged_Run2016All.root %s/Run2016*root" % (outputfolder, outputfolder))
+        except: pass
+        try:
+            os.system("hadd -f %s/merged_Run2017All.root %s/Run2017*root" % (outputfolder, outputfolder))
+        except: pass
+        try:
+            os.system("hadd -f %s/merged_Run2018All.root %s/Run2018*root" % (outputfolder, outputfolder))
+        except: pass
+        
 
 def submit_files(mode, outputfolder, options):
 
@@ -264,7 +317,7 @@ def submit_files(mode, outputfolder, options):
             tree = fin.Get("Events")
             nev = tree.GetEntries()
             fin.Close()
-            if nev>0:
+            if nev>0 and int(nev/options.jobs_per_file)>0:
                 for iStart in range(0, nev, int(nev/options.jobs_per_file)):
                     cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode %s --event_start %s --nev %s; " % (this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode, iStart, int(nev/options.jobs_per_file))
                     commands.append(cmd)
@@ -293,26 +346,27 @@ def spawn_jobs(options):
     os.system("mkdir -p %s_kappa" % options.outputfolder)
     outputfolder_fakerate = options.outputfolder + "_fakerate"
     outputfolder_kappa = options.outputfolder + "_kappa"
-
     rootfile = options.outputfolder + "/fakeratekappa.root"
-    if False:
+
+    if 1:
         if os.path.exists(rootfile):
             os.system("rm " + rootfile)
 
-    if False:
+    if 1:
         print "Getting fake rate..."
         submit_files("fakerate", outputfolder_fakerate, options)  
         print "Calculate fake rate..."
         calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakecr", "fakerate")
     
-    if True:
+    if 1:
         print "Getting kappa..."
         submit_files("kappa", outputfolder_kappa, options)  
         print "Calculate kappa..."
         calculate_ratio("kappa", rootfile, outputfolder_kappa, "promptECaloLow", "promptECaloSideband", "kappa")
 
-    if False:
+    if 1:
         submit_files("analysis", options.outputfolder, options)
+
 
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename):
   
@@ -484,8 +538,10 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
     # Get fakerate and kappa histograms:
     if mode == "analysis":
         tfile_factors = TFile(outputfolder + "/fakeratekappa.root", "open")
-        h_fakerate_short = tfile_factors.Get(data_period + "_HT:n_allvertices_QCDLowMHT_fakerate_short")
-        h_fakerate_long = tfile_factors.Get(data_period + "_HT:n_allvertices_QCDLowMHT_fakerate_long")
+        #h_fakerate_short = tfile_factors.Get(data_period + "_HT:n_allvertices_QCDLowMHT_fakerate_short")
+        #h_fakerate_long = tfile_factors.Get(data_period + "_HT:n_allvertices_QCDLowMHT_fakerate_long")
+        h_fakerate_short = tfile_factors.Get(data_period + "_HT_QCDLowMHT_fakerate_short")
+        h_fakerate_long = tfile_factors.Get(data_period + "_HT_QCDLowMHT_fakerate_long")
         h_kappa_short = tfile_factors.Get(data_period + "_tracks_pt_PromptDY_kappa_short")
         h_kappa_long = tfile_factors.Get(data_period + "_tracks_pt_PromptDY_kappa_long")
         h_fakerate_short.SetDirectory(0)
@@ -510,8 +566,10 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
 
         # get fakerate for event:
         if mode == "analysis":
-            fakerate_short = getBinContent_with_overflow(h_fakerate_short, event.HT, yval = event.n_allvertices)
-            fakerate_long = getBinContent_with_overflow(h_fakerate_long, event.HT, yval = event.n_allvertices)
+            #fakerate_short = getBinContent_with_overflow(h_fakerate_short, event.HT, yval = event.n_allvertices)
+            #fakerate_long = getBinContent_with_overflow(h_fakerate_long, event.HT, yval = event.n_allvertices)
+            fakerate_short = getBinContent_with_overflow(h_fakerate_short, event.HT)
+            fakerate_long = getBinContent_with_overflow(h_fakerate_long, event.HT)
 
         # loop over all event selections:
         for event_selection in event_selections[mode]:
@@ -554,7 +612,7 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
                         values["tracks_is_pixel_track"].append(is_pixel_track)
 
                         # save kappa:
-                        if mode == "analysis" and "promptprediction" in region:
+                        if mode == "analysis" and "prompt" in region:
                             if is_pixel_track:
                                 kappa = getBinContent_with_overflow(h_kappa_short, event.tracks_pt[i_track])
                             else:
@@ -590,13 +648,36 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
                                 scaling = fakerate_short
                             else:
                                 scaling = fakerate_long
-                            if n_tags > 1:
-                                scaling = fakerate_short * fakerate_long
+                            #if n_tags > 1:
+                            #    scaling = fakerate_short * fakerate_long
 
+                        #elif mode == "analysis" and "promptpredictionsubtracted" in region:
+                        #    scaling = kappas[i]
+                        #    if n_tags > 1:
+                        #        scaling = kappas[i] * kappas[i]
+                        #        
+                        #    # subtract fake background: N_ev * kappa - N_ev * FR = N_ev * (kappa - FR)
+                        #    if is_pixel_track:
+                        #        scaling -= fakerate_short
+                        #    else:
+                        #        scaling -= fakerate_long
+                        #    
+                        #    if scaling < 0:
+                        #        scaling = 0
+
+                        elif mode == "analysis" and "promptRegionCkappa" in region:
+                            #if n_tags <= 1:
+                            if is_pixel_track:
+                                scaling = kappas[i] * fakerate_short
+                            else:
+                                scaling = kappas[i] * fakerate_long
+                            #elif n_tags > 1:
+                            #    scaling = kappas[i] * kappas[i] * fakerate_short * fakerate_long
+                                
                         elif mode == "analysis" and "promptprediction" in region:
                             scaling = kappas[i]
-                            if n_tags > 1:
-                                scaling = kappas[i] * kappas[i]
+                            #if n_tags > 1:
+                            #    scaling = kappas[i] * kappas[i]
 
                         fill_histogram(variable, value, histograms, event_selection, data_period, region, weight, scaling)
     
@@ -617,12 +698,12 @@ if __name__ == "__main__":
     parser.add_option("--mode", dest="mode")
     parser.add_option("--outputfolder", dest="outputfolder", default = "test")
     parser.add_option("--kappafile", dest="kappafile", default = "kappa.root")
-    parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_50_run2_merged")
+    parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_51_run2_merged")
     parser.add_option("--nev", dest = "nev", default = -1)
-    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 20)
+    parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 25)
     parser.add_option("--files_per_job", dest = "files_per_job", default = 1)
     parser.add_option("--event_start", dest = "event_start", default = 0)
-    parser.add_option("--runmode", dest="runmode", default="multi")
+    parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--debug", dest="debug", action="store_true")
     (options, args) = parser.parse_args()
 
