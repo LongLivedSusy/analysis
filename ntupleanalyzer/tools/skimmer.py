@@ -10,23 +10,30 @@ import shared_utils
 import xsections
 import os
 
-def correct_dedx_intercalibration(dedx, filename):
-    
-    correction_values = {'Run2016H': 1.0, 'Run2016D': 0.9110228586038934,\
-                    'Run2016E': 0.9172251497168261, 'Run2016F': 0.9866513309729763, \
-                    'Run2016G': 1.0051360517782837, 'Run2016B': 0.9089157247376515, \
-                    'Run2016C': 0.9037296677386634, 'Summer16': 0.744690871542444, \
-                    'Run2017F': 0.8834783199828424, 'Run2018D': 0.9343114197729864, \
-                    'Run2017D': 0.8871578228655626, 'Run2017C': 0.8824631824088149, \
-                    'Run2017B': 0.7753458186951745, 'Run2018A': 0.8748729581145911, \
-                    'Run2018C': 0.9106488664283063, 'Run2017E': 0.8455468376019104}
-    
-    correction_value = 1.0
-    for label in correction_values:
-        if label in filename:
-            correction_value = correction_values[label]
-    return correction_value * dedx
+def correct_dedx_intercalibration(dedx, filename, abseta):
 
+    if 'Run20' in filename: 
+    	keyforcalibs = filename.split("/")[-1].split('-')[0]
+    	dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel[keyforcalibs]
+    	dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap[keyforcalibs]
+    elif 'Summer16FastSim' in filename:
+    	dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel['Summer16FastSim']
+    	dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap['Summer16FastSim']
+    elif 'Summer16' in filename: 
+    	dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel['Summer16']
+    	dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap['Summer16']
+    elif 'Fall17' in filename: 
+    	dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel['Fall17']
+    	dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap['Fall17']
+    else: 
+    	dedxcalib_barrel = 1.0
+    	dedxcalib_endcap = 1.0	    
+
+    if abseta < 1.5:
+        return dedxcalib_barrel * dedx
+    else:
+        return dedxcalib_endcap * dedx
+    
 
 def pass_background_stitching(current_file_name, madHT, phase):
     if (madHT>0) and \
@@ -108,68 +115,85 @@ def get_exo_tag_stage(event, track, iCand, h_cutflow_exo):
     score = 0
     h_cutflow_exo.Fill(score)
     
+    if track.Pt() > 55                                                 : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
     if abs(track.Eta()) < 2.1                                          : score+=1; h_cutflow_exo.Fill(score)
     else: return score
+
+    # other tracks:
+    ptsum_tracks = 0
+    for i_track in event.tracks:
+        deltaR = track.DeltaR(i_track)
+        if deltaR > 0 and deltaR < 0.3:
+            ptsum_tracks += i_track.Pt()
+    if ptsum_tracks/track.Pt() < 0.05                                  : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+
+    # other jets:
+    exo_track_jet_mindeltaR = 9999
+    for jet in event.Jets:
+        if jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
+            deltaR = jet.DeltaR(track)
+            if deltaR < exo_track_jet_mindeltaR:
+                exo_track_jet_mindeltaR = deltaR
+    if exo_track_jet_mindeltaR > 0.5                                   : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+
+    if abs(event.tracks_dxyVtx[iCand]) < 0.02                          : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+    if abs(event.tracks_dzVtx[iCand]) < 0.5                            : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+
+    if event.tracks_nMissingInnerHits[iCand] == 0                      : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+    if event.tracks_nMissingMiddleHits[iCand] == 0                     : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+
+    if event.tracks_nValidPixelHits[iCand] >= 3                        : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+
+    # veto electrons:
+    pass_iso_electrons = True    
+    for i, obj in enumerate(event.Electrons):
+        if track.DeltaR(obj) < 0.15:
+            pass_iso_electrons = False
+    if pass_iso_electrons                                              : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+            
+    # veto muons:
+    pass_iso_muons = True    
+    for i, obj in enumerate(event.Muons):
+        if track.DeltaR(obj) < 0.15:
+            pass_iso_muons = False
+    if pass_iso_muons                                                  : score+=1; h_cutflow_exo.Fill(score)
+    else: return score
+    
+    # inefficiencies:
     if not (abs(track.Eta()) > 0.15 and abs(track.Eta()) < 0.35)       : score+=1; h_cutflow_exo.Fill(score)
     else: return score
     if not (abs(track.Eta()) > 1.42 and abs(track.Eta()) < 1.65)       : score+=1; h_cutflow_exo.Fill(score)
     else: return score
     if not (abs(track.Eta()) > 1.55 and abs(track.Eta()) < 1.85)       : score+=1; h_cutflow_exo.Fill(score)
     else: return score
-    if event.tracks_nValidPixelHits[iCand] >= 3                        : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-    if event.tracks_nMissingInnerHits[iCand] == 0                      : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-    if event.tracks_nMissingMiddleHits[iCand] == 0                     : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
     if event.tracks_trkRelIso[iCand] < 0.05                            : score+=1; h_cutflow_exo.Fill(score)
     else: return score
-    if abs(event.tracks_dxyVtx[iCand]) < 0.02                          : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-    if abs(event.tracks_dzVtx[iCand]) < 0.5                            : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-    
-    exo_track_jet_mindeltaR = 9999
-    for jet in event.Jets:
-        if jet.Pt() > 30 and abs(jet.Eta()) < 4.5:
-            deltaR = jet.DeltaR(track)
-            if deltaR < exo_track_jet_mindeltaR:
-                exo_track_jet_mindeltaR = deltaR
-    if exo_track_jet_mindeltaR > 0.5                                   : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-    
-    if bool(event.tracks_passPFCandVeto[iCand])                        : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
+
+    #if bool(event.tracks_passPFCandVeto[iCand])                        : score+=1; h_cutflow_exo.Fill(score)
+    #else: return score
+               
+    #pass_iso_pions = True    
+    #for i, obj in enumerate(event.TAPPionTracks):
+    #    if track.DeltaR(obj) < 0.15:
+    #        pass_iso_pions = False
+    #if pass_iso_pions                                                  : score+=1; h_cutflow_exo.Fill(score)
+    #else: return score
         
-    pass_iso_electrons = True    
-    for i, obj in enumerate(event.Electrons):
-        if obj.Pt() > 35 and abs(obj.Eta()) < 2.1 and bool(event.Electrons_tightID[i]):
-            if track.DeltaR(obj) < 0.15:
-                pass_iso_electrons = False
-    if pass_iso_electrons                                              : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-        
-    pass_iso_muons = True    
-    for i, obj in enumerate(event.Muons):
-        if obj.Pt() > 35 and abs(obj.Eta()) < 2.1 and bool(event.Muons_tightID[i]):
-            if track.DeltaR(obj) < 0.15:
-                pass_iso_muons = False
-    if pass_iso_muons                                                  : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-        
-    pass_iso_pions = True    
-    for i, obj in enumerate(event.TAPPionTracks):
-        if track.DeltaR(obj) < 0.15:
-            pass_iso_pions = False
-    if pass_iso_pions                                                  : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-        
-    if event.tracks_matchedCaloEnergy[iCand] < 10                      : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
     if event.tracks_nMissingOuterHits[iCand] >= 3                      : score+=1; h_cutflow_exo.Fill(score)
     else: return score    
-    if track.Pt() > 55                                                 : score+=1; h_cutflow_exo.Fill(score)
+    if event.tracks_matchedCaloEnergy[iCand] < 10                      : score+=1; h_cutflow_exo.Fill(score)
     else: return score
+
+    return score
 
 
 def get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2):
@@ -307,7 +331,7 @@ def get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2):
         return 0
         
 
-def get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2, sideband = False):
+def get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2):
     
     if is_pixel_track:
         category = "short"
@@ -316,9 +340,7 @@ def get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2, si
     
     for var in readers[label + "_" + category]["tmva_variables"]:
         
-        if sideband and "matchedCaloEnergy" in var:
-            readers[label + "_" + category]["tmva_variables"][var][0] = 0
-        elif "ptErrOverPt2" in var:
+        if "ptErrOverPt2" in var:
             readers[label + "_" + category]["tmva_variables"][var][0] = ptErrOverPt2
         elif "tracks_" in var:
             readers[label + "_" + category]["tmva_variables"][var][0] = eval("event.%s[%s]" % (var, iCand))
@@ -349,7 +371,7 @@ def reweight_ctau(ctauIn, ctauOut, LabXY_list, mode = 0):
     return output
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False):
+def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False, debug = False, keep_all_tracks = False):
 
     print "Input: %s \nOutput: %s \n n_ev: %s" % (event_tree_filenames, track_tree_output, nevents)
 
@@ -378,6 +400,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     data_period = ""
     is_signal = False
     is_data = False
+    is_fastsim = False
     for label in ["Run2016", "Run2017", "Run2018", "Summer16", "Fall17", "Autumn18", "RunIISummer16MiniAODv3"]:
         if label in event_tree_filenames[0]:
             data_period = label
@@ -390,6 +413,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
          
     if data_period == "RunIISummer16MiniAODv3":
         data_period = "Summer16"
+
+    if "FastSim" in event_tree_filenames[0]:
+        is_fastsim = True
 
     if "_chi" in event_tree_filenames[0] or "SMS-" in event_tree_filenames[0]:
         is_signal = True
@@ -438,31 +464,35 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         BTAG_deepCSV = 0.4184
     btag_cut = BTAG_deepCSV
 
-    # load BDTs and fetch list of DT tag labels
+    # load BDTs and fetch list of DT tag label:
     bdts = {
-        "tight": {
-                    "short": ["../../disappearing-track-tag/2016-short-tracks/weights/TMVAClassification_BDT.weights.xml",                         ["dxyVtx", "dzVtx", "matchedCaloEnergy", "trkRelIso", "nValidPixelHits", "nValidTrackerHits", "ptErrOverPt2"] ],
-                    "long":  ["../../disappearing-track-tag/2016-long-tracks/weights/TMVAClassification_BDT.weights.xml",                          ["dxyVtx", "dzVtx", "matchedCaloEnergy", "trkRelIso", "nValidPixelHits", "nValidTrackerHits", "nMissingOuterHits", "ptErrOverPt2"] ],          
-                 },                                                                                                                                
-        "loose": {
-                    "short": ["../../disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml",                   ["dzVtx", "matchedCaloEnergy", "trkRelIso", "nValidPixelHits", "nValidTrackerHits", "ptErrOverPt2"] ],
-                    "long":  ["../../disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml",                    ["dzVtx", "matchedCaloEnergy", "trkRelIso", "nValidPixelHits", "nValidTrackerHits", "nMissingOuterHits", "ptErrOverPt2"] ],          
-                 },                                                                             
-        "tight_may20": {                                                                       
-                    "short": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2"] ],
-                    "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy/dataset/weights/TMVAClassification_BDT.weights.xml",        ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2"] ],          
-                 },                                                                             
-        "loose_may20": {                                                                       
-                    "short": ["../../disappearing-track-tag/2016-short-tracks-may20/dataset/weights/TMVAClassification_BDT.weights.xml",           ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2"] ],
-                    "long":  ["../../disappearing-track-tag/2016-long-tracks-may20/dataset/weights/TMVAClassification_BDT.weights.xml",            ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2"] ],          
-                 },
         "tight_may20_chi2": {
+                    "short": ["../../disappearing-track-tag/201X-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long":  ["../../disappearing-track-tag/201X-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                 },
+        "loose_may20_chi2": {
+                    "short": ["../../disappearing-track-tag/201X-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long":  ["../../disappearing-track-tag/201X-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                 },
+        "tight_may20_chi2_phase0": {
                     "short": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
                     "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
-        "loose_may20_chi2": {
+        "loose_may20_chi2_phase0": {
                     "short": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
                     "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                 },
+        "tight_may20_chi2_phase1": {
+                    "short": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                 },
+        "loose_may20_chi2_phase1": {
+                    "short": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                 },
+        "tight_may20_chi2_phase1_v2": {
+                    "short": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
            }
 
@@ -479,9 +509,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 readers[label + "_" + category]["reader"].AddVariable(var, readers[label + "_" + category]["tmva_variables"][var])
 
             if phase == 0:
-                readers[label + "_" + category]["reader"].BookMVA("BDT", bdts[label][category][0])
-            else:    
-                readers[label + "_" + category]["reader"].BookMVA("BDT", bdts[label][category][0].replace("2016", "2017"))
+                readers[label + "_" + category]["reader"].BookMVA("BDT", bdts[label][category][0].replace("201X", "2016"))
+            else:
+                readers[label + "_" + category]["reader"].BookMVA("BDT", bdts[label][category][0].replace("201X", "2017"))
     
     tout = TTree("Events", "tout")
 
@@ -522,6 +552,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     ]
                      
     integer_branches = [
+                        "pass_baseline",
                         "n_goodjets",
                         "n_btags",
                         "n_goodelectrons",
@@ -578,7 +609,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                            'tracks_passPFCandVeto', 
                            'tracks_charge', 
                            'tracks_passmask', 
-                           'tracks_region', 
+                           'tracks_region',
+                           'tracks_mt2tag',
+                           'tracks_exotag',
+                           'tracks_baseline',
                           ]
                           
     if not is_data:
@@ -628,18 +662,18 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                              'tracks_ptRatioTrackJets',
                             ]
 
-    if is_signal:
+    if True:
         vector_float_branches += [
                             'tracks_chiCandGenMatchingDR',
                             'tracks_chiLabXY',
                             'tracks_chiGamma',
                             'tracks_chiBeta',
                             'tracks_chiEta',
+                            'tracks_chiPt',
                                 ]
 
     for label in bdts:
         vector_float_branches += ["tracks_mva_%s" % label]
-        vector_float_branches += ["tracks_mva_%s_sideband" % label]
 
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
@@ -681,11 +715,19 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     signal_gluino_mass = round(genParticle.M())
                 elif abs(event.GenParticles_PdgId[i_genParticle]) == 1000022:
                     signal_lsp_mass = round(genParticle.M())
-        
+                
         # basic event selection:
-        if not is_data and not shared_utils.passesUniversalSelection(event):
-            continue
-        if is_data and not shared_utils.passesUniversalDataSelection(event):
+        passed_baseline_selection = True
+        if is_fastsim:
+            if not shared_utils.passesUniversalSelectionFastSim(event):
+                passed_baseline_selection = False
+        else:
+            if not is_data and not shared_utils.passesUniversalSelection(event):
+                passed_baseline_selection = False
+            elif is_data and not shared_utils.passesUniversalDataSelection(event):
+                passed_baseline_selection = False
+
+        if not keep_all_tracks and not passed_baseline_selection:
             continue
 
         # check trigger:
@@ -725,7 +767,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                             "leptons_phi": electron.Phi(),
                                             "leptons_iso": bool(event.Electrons_passIso[i]),
                                             "leptons_charge": event.Electrons_charge[i],
-                                            "leptons_dedx": correct_dedx_intercalibration(matched_dedx, current_file_name),
+                                            "leptons_dedx": correct_dedx_intercalibration(matched_dedx, current_file_name, electron.Eta()),
                                             "leptons_id": 11,
                                             })
                                              
@@ -750,7 +792,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                             "leptons_phi": muon.Phi(),
                                             "leptons_iso": bool(event.Muons_passIso[i]),
                                             "leptons_charge": event.Muons_charge[i],
-                                            "leptons_dedx": correct_dedx_intercalibration(matched_dedx, current_file_name),
+                                            "leptons_dedx": correct_dedx_intercalibration(matched_dedx, current_file_name, muon.Eta()),
                                             "leptons_id": 13,
                                             })
 
@@ -880,12 +922,17 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
 
         for iCand, track in enumerate(event.tracks):
 
-            #exo_tag_stage = get_exo_tag_stage(event, track, iCand, h_cutflow_exo)
-            #mt2_tag_tage = get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2)
+            if keep_all_tracks:
+                exo_tag_score = get_exo_tag_stage(event, track, iCand, h_cutflow_exo)
+                mt2_tag_score = get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2)
+            else:
+                exo_tag_score = 0
+                mt2_tag_score = 0
                         
             # basic track selection:
             if track.Pt() < 30: continue
-            if abs(track.Eta()) > 2.4: continue
+
+            pass_baseline_track_selection = True
 
             # check for nearby leptons and pions:
             drlep = 99
@@ -895,8 +942,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 if drlep<0.1:
                     islep = True
                     break            
-            if islep: continue
-             
+            if islep:
+                pass_baseline_track_selection = False
+
+            if not keep_all_tracks and not pass_baseline_track_selection:
+                continue             
+
             # veto DTs too close to jets
             isjet = False
             for jet in event.Jets:
@@ -904,8 +955,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 if jet.DeltaR(track)<0.4: 
                     isjet = True
                     break
-            if isjet: continue
+            if isjet:
+                pass_baseline_track_selection = False
 
+            if not keep_all_tracks and not pass_baseline_track_selection:
+                continue
+                
             ptErrOverPt2 = event.tracks_ptError[iCand] / (track.Pt()**2)
             
             if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
@@ -913,7 +968,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
 
+            # speed things up!
+            if not keep_all_tracks and event.tracks_trkRelIso[iCand]>0.01:
+                continue
+            if not keep_all_tracks and event.tracks_deDxHarmonic2pixel[iCand]<2.0:
+                continue
+
             base_cuts = bool(event.tracks_trackQualityHighPurity[iCand]) and \
+                        abs(track.Eta())<2.4 and \
                         ptErrOverPt2<10 and \
                         event.tracks_dzVtx[iCand]<0.1 and \
                         event.tracks_trkRelIso[iCand]<0.2 and \
@@ -922,12 +984,15 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         event.tracks_nMissingInnerHits[iCand]==0 and \
                         event.tracks_nValidPixelHits[iCand]>=2 and \
                         bool(event.tracks_passPFCandVeto[iCand])
-                                    
+                                                
             if not is_pixel_track:
                 base_cuts = base_cuts and event.tracks_nMissingOuterHits[iCand]>=2 
             
             # keep only baseline tracks:
             if not base_cuts:
+                pass_baseline_track_selection = False
+
+            if not keep_all_tracks and not pass_baseline_track_selection:
                 continue
 
             pass_mask = True
@@ -939,7 +1004,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     
             for label in bdts:
                 mva_scores[label] = get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2)
-                mva_scores[label + "_sideband"] = get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2, sideband = True)
                         
             # check if actual fake track (no genparticle in cone around track):
             is_prompt_electron = False
@@ -997,6 +1061,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             chi_Gamma = -1
             chi_Beta = -1
             chi_Eta = -1
+            chi_Pt = -1
             if is_signal:
                 min_deltaR = 100
                 for k in range(len(event.GenParticles)):
@@ -1009,10 +1074,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                 chi_Gamma = event.GenParticles[k].Gamma()
                                 chi_Beta = event.GenParticles[k].Beta()
                                 chi_Eta = event.GenParticles[k].Eta()
+                                chi_Pt = event.GenParticles[k].Pt()
                             except:
                                 pass
             
-            DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name)
+            DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name, abs(track.Eta()))
             region = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, 1, is_pixel_track, DeDxCorrected, n_goodelectrons, n_goodmuons, event_tree_filenames[0])
             
             MinDeltaPhiTrackMht = abs(track.DeltaPhi(mhtvec))
@@ -1044,6 +1110,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             tagged_tracks.append(
                                    {
                                      "tracks_is_pixel_track": is_pixel_track,
+                                     "tracks_baseline": pass_baseline_track_selection,
                                      "tracks_pixelLayersWithMeasurement": event.tracks_pixelLayersWithMeasurement[iCand],
                                      "tracks_trackerLayersWithMeasurement": event.tracks_trackerLayersWithMeasurement[iCand],
                                      "tracks_nMissingInnerHits": event.tracks_nMissingInnerHits[iCand],
@@ -1075,8 +1142,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                      "tracks_chargedPtSum": event.tracks_chargedPtSum[iCand],
                                      "tracks_charge": event.tracks_charge[iCand],
                                      "tracks_invmass": invariant_mass,
-                                     #"tracks_passexotag": pass_exo_tag,
-                                     #"tracks_passmt2tag": pass_mt2_tag,
+                                     "tracks_exotag": exo_tag_score,
+                                     "tracks_mt2tag": mt2_tag_score,
                                      "tracks_passmask": pass_mask,
                                      "tracks_region": region,
                                      'tracks_MinDeltaPhiTrackMht': MinDeltaPhiTrackMht,
@@ -1097,28 +1164,31 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 tagged_tracks[-1]["tracks_prompt_tau_leadtrk"] = is_prompt_tau_leadtrk
                 tagged_tracks[-1]["tracks_prompt_tau_widecone"] = is_prompt_tau_widecone
 
-            if is_signal:
+            if True:
                 tagged_tracks[-1]["tracks_chiCandGenMatchingDR"] = chiCandGenMatchingDR
                 tagged_tracks[-1]["tracks_chiLabXY"] = chi_LabXY
                 tagged_tracks[-1]["tracks_chiGamma"] = chi_Gamma
                 tagged_tracks[-1]["tracks_chiBeta"] = chi_Beta
                 tagged_tracks[-1]["tracks_chiEta"] = chi_Eta
+                tagged_tracks[-1]["tracks_chiPt"] = chi_Pt
                                        
             for label in mva_scores:
                 tagged_tracks[-1]["tracks_mva_%s" % label] = mva_scores[label]
                 
             tagged_tracks[-1]["object"] = track
             
-            # some synchronization info:
-  
-            if tagged_tracks[-1]["tracks_mva_tight_may20_chi2"]>-0.05 and tagged_tracks[-1]["tracks_trkRelIso"]<0.01:
-                print "****************"
-                print "track found in %s:%s:%s" % (event.RunNum, event.LumiBlockNum, event.EvtNum)
-                print tagged_tracks[-1]
-                print "****************"
+            # some synchronization info:           
+            if debug:
+                if tagged_tracks[-1]["tracks_mva_tight_may20_chi2"]>-0.05 and tagged_tracks[-1]["tracks_trkRelIso"]<0.01:
+                    print "****************"
+                    print "track found in %s:%s:%s" % (event.RunNum, event.LumiBlockNum, event.EvtNum)
+                    print mva_scores
+                    print tagged_tracks[-1]
+                    print "****************"
+                    print event.EvtNum, tagged_tracks[-1]["tracks_pt"]
                 
   
-        # FIXME: keep only events with candidate tracks
+        # keep only events with candidate tracks
         if len(tagged_tracks)==0:
             continue
         
@@ -1206,6 +1276,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             tree_branch_values["lumisec"][0] = event.LumiBlockNum
         except:
             print "Error while saving event number info"
+        tree_branch_values["pass_baseline"][0] = passed_baseline_selection
         tree_branch_values["n_goodelectrons"][0] = n_goodelectrons
         tree_branch_values["n_goodmuons"][0] = n_goodmuons
         tree_branch_values["n_btags"][0] = event.BTags
@@ -1235,7 +1306,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         tree_branch_values["ptRatioLeptonMht"][0] = ptRatioLeptonMht
         tree_branch_values["MinDeltaPhiLeptonJets"][0] = MinDeltaPhiLeptonJets
         tree_branch_values["ptRatioLeptonJets"][0] = ptRatioLeptonJets
-                                             
+
         # track-level variables:
         n_tracks = len(tagged_tracks)
       
@@ -1311,9 +1382,14 @@ if __name__ == "__main__":
     else:
 
         inputfiles = [
-                      "/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-562E92D6-37BB-E611-B964-001E674FC800_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh/Run2016H-17Jul2018-v1.JetHTAOD_110000-42B8998E-A97C-E711-A9DE-0242AC1C050B_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root",
+                      "/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root",
                       #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root",
                      ]
 
         for inputfile in inputfiles: 
@@ -1326,5 +1402,6 @@ if __name__ == "__main__":
                  outputfile,
                  nevents = -1,
                  overwrite = True,
+                 debug = False,
                 )
 
