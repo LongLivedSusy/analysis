@@ -10,90 +10,88 @@ gStyle.SetOptStat(False)
 #format_c = 'pdf'
 format_c = 'png'
 
-rebin = 10
+rebin = 5
 
 dict_Summer16_FullSimSignal = {
-	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
+	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root',
         }
 
 dict_Summer16_FastSimSignal = {
-	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
+	#'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
+	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root',
 	}
 
 
 
 def main(SelectedFastSim,SelectedFullSim,hist,outputdir):
 
-    ctitle = 'stop mass'
+    ctitle = 'FullSim/FastSim comparison'
     c = TCanvas(ctitle,ctitle,800,600)
     tl = TLegend(0.6,0.7,0.85,0.9)
     
     fin={}
-    hDedx={}
+    histos={}
      
-    c.cd()
-
-     
-    # MCs to be corrected
+    # Fastsim MC
     i=0
     for name,f in sorted(SelectedFastSim.items()):
         fin[name] = TFile(f)
-        hDedx[name] = fin[name].Get(hist)
+        histos[name] = fin[name].Get(hist)
 	if i==0 :
 	    print 'Cloning ',name
-	    hDedx_totalMC = hDedx[name].Clone('hDedx_totalMC')
+	    hFastsim = histos[name].Clone('hFastsim')
 	else : 
 	    print 'Adding ',name
-	    hDedx_totalMC.Add(hDedx[name])
+	    hFastsim.Add(histos[name])
 	i+=1
     
-    hDedx_totalMC.GetXaxis().SetTitle('GeV')
-    hDedx_totalMC.GetYaxis().SetTitle('Normalized')
-    hDedx_totalMC.Scale(1.0/hDedx_totalMC.Integral())
+    hFastsim.GetXaxis().SetTitle('GeV')
+    hFastsim.GetYaxis().SetTitle('Normalized')
+    hFastsim.Scale(1.0/hFastsim.Integral())
 
 
-    # standard candle MC
+    # Fullsim MC
     i = 0
     for name,f in sorted(SelectedFullSim.items()):
         fin[name] = TFile(f)
-	hDedx[name] = fin[name].Get(hist) #MC : FullSim gen-matched muon dEdx at barrel region as standard candle
+	histos[name] = fin[name].Get(hist) 
 	if i==0:
 	    print 'Cloning ',name
-	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
+	    hFullsim = histos[name].Clone('hFullsim')
 	else : 
 	    print 'Adding ',name
-	    hDedx_standard.Add(hDedx[name])
+	    hFullsim.Add(histos[name])
 	i+=1
 
-    hDedx_standard.GetXaxis().SetTitle('GeV')
-    hDedx_standard.GetYaxis().SetTitle('Normalized')
-    hDedx_standard.Scale(1.0/hDedx_standard.Integral())
+    hFullsim.Rebin(rebin)
+    hFastsim.Rebin(rebin)
+    
+    hFullsim.GetXaxis().SetTitle('GeV')
+    hFullsim.GetYaxis().SetTitle('Normalized')
+    hFullsim.Scale(1.0/hFullsim.Integral())
 
-    c.cd()
-    hDedx_standard.Rebin(rebin)
-    hDedx_totalMC.Rebin(rebin)
-    rp = TRatioPlot(hDedx_standard,hDedx_totalMC)
+    hFastsim.SetLineColor(kRed)
+    hFullsim.SetLineColor(kBlue)
+    #hFullsim.SetFillStyle(3002)
+    #hFullsim.SetFillColor(kBlue)
+    
+    rp = TRatioPlot(hFullsim,hFastsim)
+    rp.SetH1DrawOpt('E')
+    rp.SetH2DrawOpt('E')
     rp.Draw()
-    if 'Pixel' in hist : 
-        hDedx_totalMC.SetTitle('harmonic-2 pixel dEdx')
-        hDedx_standard.SetTitle('harmonic-2 pixel dEdx')
-    elif 'Strips' in hist : 
-        hDedx_totalMC.SetTitle('harmonic-2 strips dEdx')
-        hDedx_standard.SetTitle('harmonic-2 strips dEdx')
-    else : print 'no pixel/strips?'
-
-
-    hDedx_totalMC.SetLineColor(kRed)
-    hDedx_standard.SetFillStyle(3002)
-    hDedx_standard.SetFillColor(kBlue)
     rp.GetUpperRefYaxis().SetTitle("Normalized");
-    rp.GetUpperRefYaxis().SetRangeUser(0,0.1);
-    rp.GetLowerRefYaxis().SetTitle("ratio");
+    #rp.GetUpperRefYaxis().SetRangeUser(0,0.1);
+    rp.GetLowerRefYaxis().SetTitle("Fullsim/Fastsim");
     rp.GetLowerRefYaxis().SetRangeUser(0,2);
-    tl.AddEntry(hDedx_standard, 'Summer16 T2bt Fullsim')
-    tl.AddEntry(hDedx_totalMC,'Summer16 T2bt FastSim','l')
+   
+    tl.AddEntry(hFullsim,'T2bt Fullsim','lE')
+    tl.AddEntry(hFastsim,'T2bt FastSim','lE')
     tl.Draw()
-    c.SaveAs(outputdir+'/RatioPlot_'+hist+'.'+format_c)
+
+    
+    c.Update()
+    c.Print(outputdir+'/RatioPlot_'+hist+'.'+format_c)
    
     
 if __name__ == '__main__' :
@@ -107,7 +105,25 @@ if __name__ == '__main__' :
     
     hists=[
         'hGenStopMass',
-    	]
+        'hGenLSPMass',
+        'hGenCharginoP',
+        'hGenCharginoPt',
+        'hGenCharginoEta',
+        'hGenCharginoPhi',
+    	
+        'hTrkP_charginomatch',
+        'hTrkPt_charginomatch',
+        'hTrkEta_charginomatch',
+        'hTrkPhi_charginomatch',
+
+        'hTrkPixelDedx_charginomatch_barrel',
+    	'hTrkPixelDedxCalib_charginomatch_barrel',
+    	'hTrkStripsDedx_charginomatch_barrel',
+    	'hTrkPixelDedx_charginomatch_endcap',
+    	'hTrkPixelDedxCalib_charginomatch_endcap',
+    	'hTrkStripsDedx_charginomatch_endcap',
+
+        ]
     
     # Run
     for hist in hists:
