@@ -10,6 +10,10 @@ import shared_utils
 import xsections
 import os
 
+gROOT.SetBatch(True)
+#gStyle.SetOptStat(0)
+TH1D.SetDefaultSumw2()
+
 def correct_dedx_intercalibration(dedx, filename, abseta):
 
     if 'Run20' in filename: 
@@ -108,16 +112,21 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
         return region
 
 
-def get_exo_tag_stage(event, track, iCand, h_cutflow_exo):
+def get_exo_tag_stage(event, track, iCand, is_pixel_track, histos):
 
     # Disappearing track tag from EXO-19-010 search ("EXO tag"):
     
-    score = 0
-    h_cutflow_exo.Fill(score)
+    if is_pixel_track:
+        hlabel = "cutflow_exo_short"
+    else:
+        hlabel = "cutflow_exo_long"
     
-    if track.Pt() > 55                                                 : score+=1; h_cutflow_exo.Fill(score)
+    score = 0
+    histos[hlabel].Fill(score)
+    
+    if track.Pt() > 55                                                 : score+=1; histos[hlabel].Fill(score)
     else: return score
-    if abs(track.Eta()) < 2.1                                          : score+=1; h_cutflow_exo.Fill(score)
+    if abs(track.Eta()) < 2.1                                          : score+=1; histos[hlabel].Fill(score)
     else: return score
 
     # other tracks:
@@ -126,7 +135,7 @@ def get_exo_tag_stage(event, track, iCand, h_cutflow_exo):
         deltaR = track.DeltaR(i_track)
         if deltaR > 0 and deltaR < 0.3:
             ptsum_tracks += i_track.Pt()
-    if ptsum_tracks/track.Pt() < 0.05                                  : score+=1; h_cutflow_exo.Fill(score)
+    if ptsum_tracks/track.Pt() < 0.05                                  : score+=1; histos[hlabel].Fill(score)
     else: return score
 
     # other jets:
@@ -136,20 +145,20 @@ def get_exo_tag_stage(event, track, iCand, h_cutflow_exo):
             deltaR = jet.DeltaR(track)
             if deltaR < exo_track_jet_mindeltaR:
                 exo_track_jet_mindeltaR = deltaR
-    if exo_track_jet_mindeltaR > 0.5                                   : score+=1; h_cutflow_exo.Fill(score)
+    if exo_track_jet_mindeltaR > 0.5                                   : score+=1; histos[hlabel].Fill(score)
     else: return score
 
-    if abs(event.tracks_dxyVtx[iCand]) < 0.02                          : score+=1; h_cutflow_exo.Fill(score)
+    if abs(event.tracks_dxyVtx[iCand]) < 0.02                          : score+=1; histos[hlabel].Fill(score)
     else: return score
-    if abs(event.tracks_dzVtx[iCand]) < 0.5                            : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-
-    if event.tracks_nMissingInnerHits[iCand] == 0                      : score+=1; h_cutflow_exo.Fill(score)
-    else: return score
-    if event.tracks_nMissingMiddleHits[iCand] == 0                     : score+=1; h_cutflow_exo.Fill(score)
+    if abs(event.tracks_dzVtx[iCand]) < 0.5                            : score+=1; histos[hlabel].Fill(score)
     else: return score
 
-    if event.tracks_nValidPixelHits[iCand] >= 3                        : score+=1; h_cutflow_exo.Fill(score)
+    if event.tracks_nMissingInnerHits[iCand] == 0                      : score+=1; histos[hlabel].Fill(score)
+    else: return score
+    if event.tracks_nMissingMiddleHits[iCand] == 0                     : score+=1; histos[hlabel].Fill(score)
+    else: return score
+
+    if event.tracks_nValidPixelHits[iCand] >= 3                        : score+=1; histos[hlabel].Fill(score)
     else: return score
 
     # veto electrons:
@@ -157,7 +166,7 @@ def get_exo_tag_stage(event, track, iCand, h_cutflow_exo):
     for i, obj in enumerate(event.Electrons):
         if track.DeltaR(obj) < 0.15:
             pass_iso_electrons = False
-    if pass_iso_electrons                                              : score+=1; h_cutflow_exo.Fill(score)
+    if pass_iso_electrons                                              : score+=1; histos[hlabel].Fill(score)
     else: return score
             
     # veto muons:
@@ -165,38 +174,38 @@ def get_exo_tag_stage(event, track, iCand, h_cutflow_exo):
     for i, obj in enumerate(event.Muons):
         if track.DeltaR(obj) < 0.15:
             pass_iso_muons = False
-    if pass_iso_muons                                                  : score+=1; h_cutflow_exo.Fill(score)
+    if pass_iso_muons                                                  : score+=1; histos[hlabel].Fill(score)
     else: return score
     
     # inefficiencies:
-    if not (abs(track.Eta()) > 0.15 and abs(track.Eta()) < 0.35)       : score+=1; h_cutflow_exo.Fill(score)
+    if not (abs(track.Eta()) > 0.15 and abs(track.Eta()) < 0.35)       : score+=1; histos[hlabel].Fill(score)
     else: return score
-    if not (abs(track.Eta()) > 1.42 and abs(track.Eta()) < 1.65)       : score+=1; h_cutflow_exo.Fill(score)
+    if not (abs(track.Eta()) > 1.42 and abs(track.Eta()) < 1.65)       : score+=1; histos[hlabel].Fill(score)
     else: return score
-    if not (abs(track.Eta()) > 1.55 and abs(track.Eta()) < 1.85)       : score+=1; h_cutflow_exo.Fill(score)
+    if not (abs(track.Eta()) > 1.55 and abs(track.Eta()) < 1.85)       : score+=1; histos[hlabel].Fill(score)
     else: return score
-    if event.tracks_trkRelIso[iCand] < 0.05                            : score+=1; h_cutflow_exo.Fill(score)
+    if event.tracks_trkRelIso[iCand] < 0.05                            : score+=1; histos[hlabel].Fill(score)
     else: return score
 
-    #if bool(event.tracks_passPFCandVeto[iCand])                        : score+=1; h_cutflow_exo.Fill(score)
+    #if bool(event.tracks_passPFCandVeto[iCand])                        : score+=1; histos[hlabel].Fill(score)
     #else: return score
                
     #pass_iso_pions = True    
     #for i, obj in enumerate(event.TAPPionTracks):
     #    if track.DeltaR(obj) < 0.15:
     #        pass_iso_pions = False
-    #if pass_iso_pions                                                  : score+=1; h_cutflow_exo.Fill(score)
+    #if pass_iso_pions                                                  : score+=1; histos[hlabel].Fill(score)
     #else: return score
         
-    if event.tracks_nMissingOuterHits[iCand] >= 3                      : score+=1; h_cutflow_exo.Fill(score)
+    if event.tracks_nMissingOuterHits[iCand] >= 3                      : score+=1; histos[hlabel].Fill(score)
     else: return score    
-    if event.tracks_matchedCaloEnergy[iCand] < 10                      : score+=1; h_cutflow_exo.Fill(score)
+    if event.tracks_matchedCaloEnergy[iCand] < 10                      : score+=1; histos[hlabel].Fill(score)
     else: return score
 
     return score
 
 
-def get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2):
+def get_mt2_tag_stage(event, track, iCand, is_pixel_track, histos):
     
     pass_mt2_pass_iso = True
     pass_mt2_pass_track_iso = True
@@ -213,118 +222,118 @@ def get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2):
     # pixel tracks:
     if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
 
-        score = 100
-        h_cutflow_mt2.Fill(score)
+        score = 0
+        histos["cutflow_mt2_short"].Fill(score)
         
-        if track.Pt() > 15                                             : score+=1; h_cutflow_mt2.Fill(score)
+        if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if abs(track.Eta()) < 2.4                                      : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; h_cutflow_mt2.Fill(score)
+        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if ptErrOverPt2 < 0.2                                          : score+=1; h_cutflow_mt2.Fill(score)
+        if ptErrOverPt2 < 0.2                                          : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if abs(event.tracks_dxyVtx[iCand]) < 0.02                      : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(event.tracks_dxyVtx[iCand]) < 0.02                      : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_pixelLayersWithMeasurement[iCand] >= 3         : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_pixelLayersWithMeasurement[iCand] >= 3         : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; h_cutflow_mt2.Fill(score)
+        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if pass_mt2_pass_iso                                           : score+=1; h_cutflow_mt2.Fill(score)
+        if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
-        if pass_mt2_pass_track_iso                                     : score+=1; h_cutflow_mt2.Fill(score)
+        if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_short"].Fill(score)
         else: return score
         
     elif event.tracks_trackerLayersWithMeasurement[iCand] < 7:
         
-        score = 200
-        h_cutflow_mt2.Fill(score)
+        score = 0
+        histos["cutflow_mt2_medium"].Fill(score)
         
-        if track.Pt() > 15                                             : score+=1; h_cutflow_mt2.Fill(score)
+        if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if abs(track.Eta()) < 2.4                                      : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; h_cutflow_mt2.Fill(score)
+        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if ptErrOverPt2 < 0.02                                         : score+=1; h_cutflow_mt2.Fill(score)
+        if ptErrOverPt2 < 0.02                                         : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; h_cutflow_mt2.Fill(score)
+        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if pass_mt2_pass_iso                                           : score+=1; h_cutflow_mt2.Fill(score)
+        if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
-        if pass_mt2_pass_track_iso                                     : score+=1; h_cutflow_mt2.Fill(score)
+        if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_medium"].Fill(score)
         else: return score
         
     elif event.tracks_trackerLayersWithMeasurement[iCand] >= 7:
         
-        score = 300
-        h_cutflow_mt2.Fill(score)
+        score = 0
+        histos["cutflow_mt2_long"].Fill(score)
         
-        if track.Pt() > 15                                             : score+=1; h_cutflow_mt2.Fill(score)
+        if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if abs(track.Eta()) < 2.4                                      : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; h_cutflow_mt2.Fill(score)
+        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if ptErrOverPt2 < 0.005                                        : score+=1; h_cutflow_mt2.Fill(score)
+        if ptErrOverPt2 < 0.005                                        : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; h_cutflow_mt2.Fill(score)
+        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; h_cutflow_mt2.Fill(score)
+        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; h_cutflow_mt2.Fill(score)
+        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if pass_mt2_pass_iso                                           : score+=1; h_cutflow_mt2.Fill(score)
+        if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if ((track.Pt()<150 and event.MT2>100) or track.Pt()>150)      : score+=1; h_cutflow_mt2.Fill(score)
+        if ((track.Pt()<150 and event.MT2>100) or track.Pt()>150)      : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
-        if pass_mt2_pass_track_iso                                     : score+=1; h_cutflow_mt2.Fill(score)
+        if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_long"].Fill(score)
         else: return score
                 
     else:
@@ -371,12 +380,15 @@ def reweight_ctau(ctauIn, ctauOut, LabXY_list, mode = 0):
     return output
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False, debug = False, keep_all_tracks = False):
+def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False, debug = False, keep_all_tracks = False, cutflow_study = True):
 
     print "Input: %s \nOutput: %s \n n_ev: %s" % (event_tree_filenames, track_tree_output, nevents)
 
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
+
+    if cutflow_study:
+        keep_all_tracks = True
 
     # check if output file exists:
     if not overwrite and os.path.exists(track_tree_output):
@@ -439,8 +451,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     # write number of events to histogram:
     nev = tree.GetEntries()
     h_nev = TH1F("nev", "nev", 1, 0, 1)
-    h_cutflow_exo = TH1F("cutflow_exo", "cutflow_exo", 20, 0, 20)
-    h_cutflow_mt2 = TH1F("cutflow_mt2", "cutflow_mt2", 400, 0, 400)
+    histos = {}
+    histos["cutflow_exo_short"] = TH1F("cutflow_exo_short", "cutflow_exo_short", 20, 0, 20)
+    histos["cutflow_exo_long"] = TH1F("cutflow_exo_long", "cutflow_exo_long", 20, 0, 20)
+    histos["cutflow_mt2_short"] = TH1F("cutflow_mt2_short", "cutflow_mt2_short", 20, 0, 20)
+    histos["cutflow_mt2_medium"] = TH1F("cutflow_mt2_medium", "cutflow_mt2_medium", 20, 0, 20)
+    histos["cutflow_mt2_long"] = TH1F("cutflow_mt2_long", "cutflow_mt2_long", 20, 0, 20)
 
     h_nev.Fill(0, nev)
     h_nev.Write()
@@ -684,7 +700,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     for iEv, event in enumerate(tree):
         
         if nevents > 0 and iEv > nevents: break      
-        if (iEv+1) % 10000 == 0:
+        if (iEv+1) % 1000 == 0:
             print "event %s / %s" % (iEv + 1, nev)
 
         # calculate weight and collect lumisections:
@@ -921,16 +937,21 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         tagged_tracks = []
 
         for iCand, track in enumerate(event.tracks):
-
-            if keep_all_tracks:
-                exo_tag_score = get_exo_tag_stage(event, track, iCand, h_cutflow_exo)
-                mt2_tag_score = get_mt2_tag_stage(event, track, iCand, h_cutflow_mt2)
-            else:
-                exo_tag_score = 0
-                mt2_tag_score = 0
                         
             # basic track selection:
             if track.Pt() < 30: continue
+
+            if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
+                is_pixel_track = True
+            elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
+                is_pixel_track = False
+
+            if keep_all_tracks:
+                exo_tag_score = get_exo_tag_stage(event, track, iCand, is_pixel_track, histos)
+                mt2_tag_score = get_mt2_tag_stage(event, track, iCand, is_pixel_track, histos)
+            else:
+                exo_tag_score = 0
+                mt2_tag_score = 0
 
             pass_baseline_track_selection = True
 
@@ -962,11 +983,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 continue
                 
             ptErrOverPt2 = event.tracks_ptError[iCand] / (track.Pt()**2)
-            
-            if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
-                is_pixel_track = True
-            elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
-                is_pixel_track = False
 
             # speed things up!
             if not keep_all_tracks and event.tracks_trkRelIso[iCand]>0.01:
@@ -1077,6 +1093,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                 chi_Pt = event.GenParticles[k].Pt()
                             except:
                                 pass
+                         
+            # some debug info:       
+            #if chiCandGenMatchingDR<0.01:
+            #    print "Chargino found in event", iEv
+            #    print "mt2_tag_score", mt2_tag_score
+            #    print "exo_tag_score", exo_tag_score
             
             DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name, abs(track.Eta()))
             region = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, 1, is_pixel_track, DeDxCorrected, n_goodelectrons, n_goodmuons, event_tree_filenames[0])
@@ -1334,12 +1356,35 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     
         tout.Fill()
     
-    h_cutflow_exo.Write()
-    h_cutflow_mt2.Write()
+
+    if cutflow_study:
+        # save canvases:
+        for search, histolist in [
+                                   ("exo", ["cutflow_exo_long", "cutflow_exo_short"]),
+                                   ("mt2", ["cutflow_mt2_long", "cutflow_mt2_medium", "cutflow_mt2_short"]),
+                                 ]:
+                                 
+            c1 = shared_utils.mkcanvas()
+            legend = shared_utils.mklegend(x1 = 0.65, y1 = 0.7, x2 = 0.9, y2 = 0.9)
+            colors = [kBlue, kOrange, kGreen]
+                                 
+            for i_label, label in enumerate(histolist):
+                shared_utils.histoStyler(histos[label])
+                histos[label].SetTitle(";cut stage;Tracks")
+                histos[label].SetLineColor(colors.pop(0))
+                if i_label == 0:
+                    histos[label].Draw("hist")
+                else:
+                    histos[label].Draw("same hist")
+                legend.AddEntry(histos[label], label.replace("_", "").replace("exo", "EXO tag, ").replace("mt2", "MT2 tag, ").replace("cutflow", "") + " tracks")
+                histos[label].Write()
+            legend.Draw()
+            c1.Print("cutflow_%s.pdf" % search)
 
     fout.cd()
     fout.Write()
     fout.Close()
+    
                             
     # write JSON containing lumisections:
     json_filename = track_tree_output.replace(".root", ".json")
@@ -1383,7 +1428,8 @@ if __name__ == "__main__":
 
         inputfiles = [
                       #"/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root",
-                      "/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root",
+                      "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_70000-A2BE8E6F-B587-E911-9730-002590A36F46_RA2AnalysisTree.root",
+                      #"/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root",
                       #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root",
                       #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root",
                       #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root",
