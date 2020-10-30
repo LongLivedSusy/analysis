@@ -153,12 +153,12 @@ def bdttag(files, is_signal=True):
 
 if __name__ == "__main__":
 
-    sg_file = "../../ntupleanalyzer/skim_19/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-00D93B88-C0A7-E911-9163-001F29087EE8_skim.root"    
-    bg_file = "../../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2AOD_100000-0034ACBB-B9D5-E611-B27B-0CC47A78A436_skim.root"
+    sg_file = "../ntupleanalyzer/skim_19/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-00D93B88-C0A7-E911-9163-001F29087EE8_skim.root"    
+    bg_file = "../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_ext2AOD_100000-0034ACBB-B9D5-E611-B27B-0CC47A78A436_skim.root"
     exoandmt2(sg_file)
     
-    #sg_files = glob.glob("../../ntupleanalyzer/skim_19/RunIISummer16MiniAODv3.SMS-T2*.root")    
-    #bg_files = glob.glob("../../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root")    
+    #sg_files = glob.glob("../ntupleanalyzer/skim_19/RunIISummer16MiniAODv3.SMS-T2*.root")    
+    #bg_files = glob.glob("../ntupleanalyzer/skim_19/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root")    
 
     sg_files = [sg_file]
     bg_files = [bg_file]
