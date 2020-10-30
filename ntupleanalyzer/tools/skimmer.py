@@ -73,7 +73,7 @@ def pass_background_stitching(current_file_name, madHT, phase):
         return False
     else:
         return True
-    
+
 
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename, sideband = False):
   
@@ -226,126 +226,164 @@ def get_mt2_tag_stage(event, track, iCand, is_pixel_track, histos):
         histos["cutflow_mt2_short"].Fill(score)
         
         if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if ptErrOverPt2 < 0.2                                          : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if abs(event.tracks_dxyVtx[iCand]) < 0.02                      : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_pixelLayersWithMeasurement[iCand] >= 3         : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_short"].Fill(score)
-        else: return score
+        else: return score+100
         
-    elif event.tracks_trackerLayersWithMeasurement[iCand] < 7:
-        
-        score = 0
-        histos["cutflow_mt2_medium"].Fill(score)
-        
-        if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if ptErrOverPt2 < 0.02                                         : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_medium"].Fill(score)
-        else: return score
-        
-    elif event.tracks_trackerLayersWithMeasurement[iCand] >= 7:
+        #elif event.tracks_trackerLayersWithMeasurement[iCand] < 7:
+        #    
+        #    score = 0
+        #    histos["cutflow_mt2_medium"].Fill(score)
+        #    
+        #    if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if ptErrOverPt2 < 0.02                                         : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_medium"].Fill(score)
+        #    else: return score+200
+        #    
+        #elif event.tracks_trackerLayersWithMeasurement[iCand] >= 7:
+        #    
+        #    score = 0
+        #    histos["cutflow_mt2_long"].Fill(score)
+        #    
+        #    if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if ptErrOverPt2 < 0.005                                        : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if ((track.Pt()<150 and event.MT2>100) or track.Pt()>150)      : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+        #    if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_long"].Fill(score)
+        #    else: return score+300
+    
+    else:
         
         score = 0
         histos["cutflow_mt2_long"].Fill(score)
         
         if track.Pt() > 15                                             : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if abs(track.Eta()) < 2.4                                      : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if not (abs(track.Eta()) > 1.38 and abs(track.Eta()) < 1.6)    : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if ptErrOverPt2 < 0.005                                        : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if abs(event.tracks_dxyVtx[iCand]) < 0.01                      : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if abs(event.tracks_dzVtx[iCand]) < 0.05                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_neutralPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_neutralPtSum[iCand]/track.Pt() < 0.1           : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_chargedPtSum[iCand] < 10                       : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_chargedPtSum[iCand]/track.Pt() < 0.2           : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_pixelLayersWithMeasurement[iCand] >= 2         : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_nMissingInnerHits[iCand] == 0                  : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if event.tracks_nMissingOuterHits[iCand] >= 2                  : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if bool(event.tracks_passPFCandVeto[iCand])                    : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if pass_mt2_pass_iso                                           : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
-        if ((track.Pt()<150 and event.MT2>100) or track.Pt()>150)      : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
+        else: return score+200
         if pass_mt2_pass_track_iso                                     : score+=1; histos["cutflow_mt2_long"].Fill(score)
-        else: return score
-                
-    else:
-        return 0
+        else: return score+200
+    
+    return 0
         
 
-def get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2):
+def get_BDT_score(label, event, iCand, readers, is_pixel_track, phase, ptErrOverPt2):
     
     if is_pixel_track:
         category = "short"
     else:
         category = "long"
+    category += "_phase" + str(phase)
     
     for var in readers[label + "_" + category]["tmva_variables"]:
         
@@ -380,7 +418,7 @@ def reweight_ctau(ctauIn, ctauOut, LabXY_list, mode = 0):
     return output
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False, debug = False, keep_all_tracks = False, cutflow_study = True):
+def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False, debug = False, keep_all_tracks = False, cutflow_study = False):
 
     print "Input: %s \nOutput: %s \n n_ev: %s" % (event_tree_filenames, track_tree_output, nevents)
 
@@ -483,51 +521,65 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     # load BDTs and fetch list of DT tag label:
     bdts = {
         "tight_may20_chi2": {
-                    "short": ["../../disappearing-track-tag/201X-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/201X-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
         "loose_may20_chi2": {
-                    "short": ["../../disappearing-track-tag/201X-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/201X-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
-        "tight_may20_chi2_phase0": {
-                    "short": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        "tight_may20_chi2_pt10": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
-        "loose_may20_chi2_phase0": {
-                    "short": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        "loose_may20_chi2_pt10": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
-        "tight_may20_chi2_phase1": {
-                    "short": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },
-        "loose_may20_chi2_phase1": {
-                    "short": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },
-        "tight_may20_chi2_phase1_v2": {
-                    "short": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },
+        #"tight_may20_chi2_phase0": {
+        #            "short": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+        #            "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        #         },
+        #"loose_may20_chi2_phase0": {
+        #            "short": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+        #            "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        #         },
+        #"tight_may20_chi2_phase1": {
+        #            "short": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+        #            "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        #         },
+        #"loose_may20_chi2_phase1": {
+        #            "short": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+        #            "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        #         },
+        #"tight_may20_chi2_phase1_v2": {
+        #            "short": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+        #            "long":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        #         },
            }
 
     readers = {}
     for label in bdts:
         for category in ["short", "long"]:
+            for i_phase in ["phase0", "phase1"]:
         
-            readers[label + "_" + category] = {}
-            readers[label + "_" + category]["tmva_variables"] = {}
-            readers[label + "_" + category]["reader"] = TMVA.Reader()
-            
-            for var in bdts[label][category][1]:
-                readers[label + "_" + category]["tmva_variables"][var] = array('f',[0])
-                readers[label + "_" + category]["reader"].AddVariable(var, readers[label + "_" + category]["tmva_variables"][var])
-
-            if phase == 0:
-                readers[label + "_" + category]["reader"].BookMVA("BDT", bdts[label][category][0].replace("201X", "2016"))
-            else:
-                readers[label + "_" + category]["reader"].BookMVA("BDT", bdts[label][category][0].replace("201X", "2017"))
+                readers[label + "_" + category + "_" + i_phase] = {}
+                readers[label + "_" + category + "_" + i_phase]["tmva_variables"] = {}
+                readers[label + "_" + category + "_" + i_phase]["reader"] = TMVA.Reader()
+                
+                for var in bdts[label][category + "_" + i_phase][1]:
+                    readers[label + "_" + category + "_" + i_phase]["tmva_variables"][var] = array('f',[0])
+                    readers[label + "_" + category + "_" + i_phase]["reader"].AddVariable(var, readers[label + "_" + category + "_" + i_phase]["tmva_variables"][var])
+                
+                readers[label + "_" + category + "_" + i_phase]["reader"].BookMVA("BDT", bdts[label][category + "_" + i_phase][0])
     
     tout = TTree("Events", "tout")
 
@@ -937,21 +989,13 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         tagged_tracks = []
 
         for iCand, track in enumerate(event.tracks):
-                        
-            # basic track selection:
-            if track.Pt() < 30: continue
 
             if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = True
+                if track.Pt() < 10: continue
             elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
-
-            if keep_all_tracks:
-                exo_tag_score = get_exo_tag_stage(event, track, iCand, is_pixel_track, histos)
-                mt2_tag_score = get_mt2_tag_stage(event, track, iCand, is_pixel_track, histos)
-            else:
-                exo_tag_score = 0
-                mt2_tag_score = 0
+                if track.Pt() < 30: continue
 
             pass_baseline_track_selection = True
 
@@ -985,10 +1029,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             ptErrOverPt2 = event.tracks_ptError[iCand] / (track.Pt()**2)
 
             # speed things up!
-            if not keep_all_tracks and event.tracks_trkRelIso[iCand]>0.01:
-                continue
-            if not keep_all_tracks and event.tracks_deDxHarmonic2pixel[iCand]<2.0:
-                continue
+            #if not keep_all_tracks and event.tracks_trkRelIso[iCand]>0.01:
+            #    continue
+            #if not keep_all_tracks and event.tracks_deDxHarmonic2pixel[iCand]<2.0:
+            #    continue
 
             base_cuts = bool(event.tracks_trackQualityHighPurity[iCand]) and \
                         abs(track.Eta())<2.4 and \
@@ -1019,7 +1063,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     pass_mask = False
                     
             for label in bdts:
-                mva_scores[label] = get_BDT_score(label, event, iCand, readers, is_pixel_track, ptErrOverPt2)
+                mva_scores[label] = get_BDT_score(label, event, iCand, readers, is_pixel_track, phase, ptErrOverPt2)
                         
             # check if actual fake track (no genparticle in cone around track):
             is_prompt_electron = False
@@ -1093,13 +1137,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                 chi_Pt = event.GenParticles[k].Pt()
                             except:
                                 pass
-                         
-            # some debug info:       
-            #if chiCandGenMatchingDR<0.01:
-            #    print "Chargino found in event", iEv
-            #    print "mt2_tag_score", mt2_tag_score
-            #    print "exo_tag_score", exo_tag_score
-            
+                                
+            if keep_all_tracks:
+                exo_tag_score = get_exo_tag_stage(event, track, iCand, is_pixel_track, histos)
+                mt2_tag_score = get_mt2_tag_stage(event, track, iCand, is_pixel_track, histos)
+            else:
+                exo_tag_score = 0
+                mt2_tag_score = 0
+                                     
             DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name, abs(track.Eta()))
             region = get_signal_region(event.HT, event.MHT, n_goodjets, event.BTags, MinDeltaPhiMhtJets, 1, is_pixel_track, DeDxCorrected, n_goodelectrons, n_goodmuons, event_tree_filenames[0])
             
@@ -1358,25 +1403,39 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     
 
     if cutflow_study:
+        
+        #convert histos to efficiency hists:
+        for label in histos:
+            normalization = histos[label].GetBinContent(1)
+            if normalization > 0:
+                histos[label].Scale(1.0/normalization)
+
         # save canvases:
         for search, histolist in [
                                    ("exo", ["cutflow_exo_long", "cutflow_exo_short"]),
-                                   ("mt2", ["cutflow_mt2_long", "cutflow_mt2_medium", "cutflow_mt2_short"]),
+                                   ("mt2", ["cutflow_mt2_long", "cutflow_mt2_short"]),
                                  ]:
                                  
             c1 = shared_utils.mkcanvas()
-            legend = shared_utils.mklegend(x1 = 0.65, y1 = 0.7, x2 = 0.9, y2 = 0.9)
+            legend = shared_utils.mklegend(x1 = 0.4, y1 = 0.77, x2 = 0.9, y2 = 0.9)
+            legend.SetTextSize(0.035)
             colors = [kBlue, kOrange, kGreen]
                                  
             for i_label, label in enumerate(histolist):
                 shared_utils.histoStyler(histos[label])
-                histos[label].SetTitle(";cut stage;Tracks")
+                histos[label].SetTitle(";cut stage;Percentage of remaining tracks")
                 histos[label].SetLineColor(colors.pop(0))
                 if i_label == 0:
                     histos[label].Draw("hist")
                 else:
                     histos[label].Draw("same hist")
-                legend.AddEntry(histos[label], label.replace("_", "").replace("exo", "EXO tag, ").replace("mt2", "MT2 tag, ").replace("cutflow", "") + " tracks")
+                    
+                legendtext = label.replace("_", "").replace("exo", "EXO tag, ").replace("mt2", "MT2 tag, ").replace("cutflow", "") + " tracks"
+                
+                if "mt2" in label:
+                    legendtext = legendtext.replace("long", "medium + long")
+                    
+                legend.AddEntry(histos[label], legendtext)
                 histos[label].Write()
             legend.Draw()
             c1.Print("cutflow_%s.pdf" % search)
@@ -1427,27 +1486,32 @@ if __name__ == "__main__":
     else:
 
         inputfiles = [
-                      #"/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root",
-                      "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_70000-A2BE8E6F-B587-E911-9730-002590A36F46_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root",
-                      #"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root",
+                      #["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-66018F48-F288-E911-99D6-0CC47AFC3C74_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_70000-A2BE8E6F-B587-E911-9730-002590A36F46_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-66018F48-F288-E911-99D6-0CC47AFC3C74_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-0C99C30E-DE87-E911-925A-0242AC130002_RA2AnalysisTree.root", "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_70000-A2BE8E6F-B587-E911-9730-002590A36F46_RA2AnalysisTree.root", "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-66018F48-F288-E911-99D6-0CC47AFC3C74_RA2AnalysisTree.root"]
+                      ["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
                      ]
 
         for inputfile in inputfiles: 
 
-            outputfile = inputfile.split("/")[-1]
+            outputfile = inputfile[0].split("/")[-1]
 
             print "Testing file:\n%s", inputfile
             main(
-                 [inputfile],
+                 inputfile,
                  outputfile,
-                 nevents = -1,
+                 nevents = 1000,
                  overwrite = True,
                  debug = False,
+                 keep_all_tracks = False,
+                 cutflow_study = False,
                 )
 
