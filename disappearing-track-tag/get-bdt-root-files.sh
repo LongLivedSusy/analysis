@@ -9,5 +9,6 @@ do
 	if [[ $D == *"201"* ]]; then
       echo $D
 	  cp $COPYFROM/$D/output.root $D/output.root
+	  cp -r $COPYFROM/$D/dataset/plots $D/dataset/plots
     fi
 done
