@@ -1,0 +1,1 @@
+./trainBDT.py --category short --use_chi2 --dxyinformed --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_55_pt10_pixelonly_merged
