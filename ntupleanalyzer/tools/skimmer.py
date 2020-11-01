@@ -11,7 +11,7 @@ import xsections
 import os
 
 gROOT.SetBatch(True)
-#gStyle.SetOptStat(0)
+gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
 def correct_dedx_intercalibration(dedx, filename, abseta):
@@ -27,8 +27,10 @@ def correct_dedx_intercalibration(dedx, filename, abseta):
     	dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel['Summer16']
     	dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap['Summer16']
     elif 'Fall17' in filename: 
-    	dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel['Fall17']
-    	dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap['Fall17']
+    	#dedxcalib_barrel = shared_utils.DedxCorr_Pixel_barrel['Fall17']
+    	#dedxcalib_endcap = shared_utils.DedxCorr_Pixel_endcap['Fall17']
+    	dedxcalib_barrel = 1.0
+    	dedxcalib_endcap = 1.0	    
     else: 
     	dedxcalib_barrel = 1.0
     	dedxcalib_endcap = 1.0	    
@@ -418,7 +420,7 @@ def reweight_ctau(ctauIn, ctauOut, LabXY_list, mode = 0):
     return output
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = False, debug = False, keep_all_tracks = False, cutflow_study = False):
+def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = True, debug = False, keep_all_tracks = False, cutflow_study = False):
 
     print "Input: %s \nOutput: %s \n n_ev: %s" % (event_tree_filenames, track_tree_output, nevents)
 
@@ -538,12 +540,13 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                     "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
-        "loose_may20_chi2_pt10": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+        "tight_may20_chi2_pt15": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt15/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt15/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
+        
         #"tight_may20_chi2_phase0": {
         #            "short": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
         #            "long":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
@@ -746,9 +749,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     for branch in vector_float_branches:
         tree_branch_values[branch] = 0
         tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])
+
+    n_saved_events = 0
             
     print "Looping over %s events" % nev
-
     for iEv, event in enumerate(tree):
         
         if nevents > 0 and iEv > nevents: break      
@@ -1299,23 +1303,23 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         event.MHT = adjustedMht.Pt()
         MinDeltaPhiMhtJets = mindphi
         
-        # reweighting:
-        if is_signal:
-            LabXY_list = [] 
-            for k, genparticle in enumerate(event.GenParticles):
-                if abs(event.GenParticles_PdgId[k]) == 1000024:
-                    try:
-                        LabXY_list.append( [event.GenParticles_LabXYmm[k], event.GenParticles[k].Gamma() * event.GenParticles[k].Beta()] )
-                    except:
-                        pass
-            
-            if "T2bt" in event_tree_filenames[0]:
-                ctauIn = 117
-            elif "T1qqqq" in event_tree_filenames[0]:
-                ctauIn = 86
-            
-            for ctauOut in [10, 30, 50, 100, 200]: 
-                tree_branch_values["reweightTo%s" % ctauOut][0] = reweight_ctau(ctauIn, ctauOut, LabXY_list)
+        ## reweighting:
+        #if is_signal:
+        #    LabXY_list = [] 
+        #    for k, genparticle in enumerate(event.GenParticles):
+        #        if abs(event.GenParticles_PdgId[k]) == 1000024:
+        #            try:
+        #                LabXY_list.append( [event.GenParticles_LabXYmm[k], event.GenParticles[k].Gamma() * event.GenParticles[k].Beta()] )
+        #            except:
+        #                pass
+        #    
+        #    if "T2bt" in event_tree_filenames[0]:
+        #        ctauIn = 117
+        #    elif "T1qqqq" in event_tree_filenames[0]:
+        #        ctauIn = 86
+        #    
+        #    for ctauOut in [10, 30, 50, 100, 200]: 
+        #        tree_branch_values["reweightTo%s" % ctauOut][0] = reweight_ctau(ctauIn, ctauOut, LabXY_list)
                 
         # check if genLeptons are present in event:
         if not is_data:
@@ -1400,6 +1404,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     tree_branch_values[label][i] = track_output_dict[label]
                     
         tout.Fill()
+        n_saved_events += 1
     
 
     if cutflow_study:
@@ -1462,6 +1467,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         json_content = json.dumps(runs_compacted)
         with open(json_filename, "w") as fo:
             fo.write(json_content)
+            
+    
 
 
 if __name__ == "__main__":
@@ -1472,6 +1479,7 @@ if __name__ == "__main__":
     parser.add_option("--nev", dest = "nev", default = -1)
     parser.add_option("--test", dest = "test", action = "store_true")
     parser.add_option("--overwrite", dest = "overwrite", action = "store_true")
+    parser.add_option("--cutflow", dest = "cutflow_study", action = "store_true")
     (options, args) = parser.parse_args()
     
     if not options.test:
@@ -1481,6 +1489,7 @@ if __name__ == "__main__":
              options.outputfiles,
              nevents = int(options.nev),
              overwrite = options.overwrite,
+             cutflow_study = options.cutflow_study,
             )
 
     else:
@@ -1491,13 +1500,13 @@ if __name__ == "__main__":
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_70000-A2BE8E6F-B587-E911-9730-002590A36F46_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-66018F48-F288-E911-99D6-0CC47AFC3C74_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-0C99C30E-DE87-E911-925A-0242AC130002_RA2AnalysisTree.root", "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_70000-A2BE8E6F-B587-E911-9730-002590A36F46_RA2AnalysisTree.root", "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-66018F48-F288-E911-99D6-0CC47AFC3C74_RA2AnalysisTree.root"]
-                      ["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
                       ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
                      ]
 
         for inputfile in inputfiles: 
@@ -1512,6 +1521,7 @@ if __name__ == "__main__":
                  overwrite = True,
                  debug = False,
                  keep_all_tracks = False,
-                 cutflow_study = False,
+                 cutflow_study = True,
                 )
 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
