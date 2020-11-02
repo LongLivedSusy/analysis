@@ -31,7 +31,7 @@ def graphStyler(h, color=kBlack):
     h.SetFillColor(kWhite)
 
 
-def doplots(folder, significance_formula, suffix, significance_label):
+def doplots(folder, phase):
 
     labels = {}  
     
@@ -219,91 +219,66 @@ def doplots(folder, significance_formula, suffix, significance_label):
         #"RunIIFall17MiniAODv2.ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8",
     ]
     
-    labels["sg_p0"] = ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV"]
-    labels["bg_p0"] = ["Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM"]
-    #labels["sg_p1"] = ["RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV"]
-    #labels["bg_p1"] = ["RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM"]
-    #labels["sg_p1"] = list(labels["sg_p0"])
-    #labels["bg_p1"] = list(labels["bg_p0"])
-    
-    #labels["sg_p0"] = ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP"]
-    #labels["sg_p1"] = ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP"]
-    #labels["bg_p0"] = ["Summer16.WJetsToLNu_TuneCUETP8M1_13TeV"]
-    #labels["bg_p1"] = ["Summer16.WJetsToLNu_TuneCUETP8M1_13TeV"]
-    
+    if phase == 0:
+        labels["sg_p0"] = ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP"]
+        labels["bg_p0"] = ["Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM"]
+    elif phase == 1:
+        labels["sg_p0"] = ["RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1-AOD_110000"]
+        labels["bg_p0"] = ["RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_70000"]
+            
     for label in labels:
         for i, item in enumerate(labels[label]):
             labels[label][i] = folder + "/" + item + "*root"
     
-    basecuts = " && tracks_baseline==1 && pass_baseline==1"
-    #basecuts = ""
-
-    # get histograms
+    #basecuts = " && tracks_baseline==1 && pass_baseline==1 && tracks_trkRelIso<0.1 && tracks_deDxHarmonic2pixel>2.0"
+    #basecuts = " && tracks_baseline==1 && pass_baseline==1 && tracks_trkRelIso<0.1"
+    basecuts = " && pass_baseline==1"
+    
     histos = {}
-    histos["bg_short_p0"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_p0"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_p0"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_p0"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    
-    histos["bg_short_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
 
-    histos["bg_short_wp"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0.05 && tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_wp"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0 && tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_wp"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0.05 && tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_wp"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0 && tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_short_wp_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_wp_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_wp_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_wp_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
+    # get denominator histograms:
+    
+    histos["bg_short_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10", nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_p0_denom"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_p0_denom"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
 
-    histos["bg_short_pt15_p0"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>15" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_pt15_p0"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_pt15_p0"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>15 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_pt15_p0"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_short_pt15_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_pt15_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_pt15_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_pt15_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    
-    histos["bg_short_pt30_p0"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>30" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_pt30_p0"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_pt30_p0"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>30 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_pt30_p0"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_short_pt30_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_pt30_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_pt30_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_pt30_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    
-    #histos["bg_short_p1"] = plotting.get_all_histos(labels["bg_p1"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #histos["bg_long_p1"] = plotting.get_all_histos(labels["bg_p1"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #histos["sg_short_p1"] = plotting.get_all_histos(labels["sg_p1"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #histos["sg_long_p1"] = plotting.get_all_histos(labels["sg_p1"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #
-    #histos["bg_short_p1_denom"] = plotting.get_all_histos(labels["bg_p1"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #histos["bg_long_p1_denom"] = plotting.get_all_histos(labels["bg_p1"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #histos["sg_short_p1_denom"] = plotting.get_all_histos(labels["sg_p1"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    #histos["sg_long_p1_denom"] = plotting.get_all_histos(labels["sg_p1"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    
-    histos["bg_short_mt2"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "(tracks_mt2tag>=115 && tracks_mt2tag<150)", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_mt2"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "((tracks_mt2tag>=215 && tracks_mt2tag<250) || (tracks_mt2tag>=316 && tracks_mt2tag<350)) && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_mt2"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "(tracks_mt2tag>=115 && tracks_mt2tag<150) && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_mt2"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "((tracks_mt2tag>=215 && tracks_mt2tag<250) || (tracks_mt2tag>=316 && tracks_mt2tag<350)) && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_short_mt2_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_mt2_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_mt2_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_mt2_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
+    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_p0_denom"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_p0_denom"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
 
-    histos["bg_short_exo"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_exo"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_exotag>=17 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_exo"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_exo"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_short_exo_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["bg_long_exo_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_short_exo_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
-    histos["sg_long_exo_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1); print "OK"
+    # get numerator histograms:    
+    
+    histos["bg_short_pt10_p0"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_pt10_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_pt10_p0"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_pt10_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+                                  
+    histos["bg_short_wp_p0"] =    plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0.05 && tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_wp_p0"] =     plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0 && tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_wp_p0"] =    plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0.05 && tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_wp_p0"] =     plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0 && tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+                                  
+    histos["bg_short_pt15_p0"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==1 && tracks_pt>15" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_pt15_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_pt15_p0"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==1 && tracks_pt>15 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_pt15_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+                                  
+    histos["bg_short_pt30_p0"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>30" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_pt30_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_pt30_p0"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>30 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_pt30_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
+
+    histos["bg_short_mt2_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "(tracks_mt2tag>=115 && tracks_mt2tag<150)", nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_mt2_p0"] =    plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "((tracks_mt2tag>=215 && tracks_mt2tag<250) || (tracks_mt2tag>=316 && tracks_mt2tag<350)) && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_mt2_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "(tracks_mt2tag>=115 && tracks_mt2tag<150) && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_mt2_p0"] =    plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "((tracks_mt2tag>=215 && tracks_mt2tag<250) || (tracks_mt2tag>=316 && tracks_mt2tag<350)) && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+                                  
+    histos["bg_short_exo_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17", nBinsX=200, xmin=-1, xmax=1)
+    histos["bg_long_exo_p0"] =    plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_exotag>=17 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_short_exo_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+    histos["sg_long_exo_p0"] =    plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
     
     for label in histos:
         shared_utils.histoStyler(histos[label])
@@ -319,7 +294,9 @@ def doplots(folder, significance_formula, suffix, significance_label):
         if "denom" in label: continue
         
         efficiencies[label] = []
-        denominator = histos[label + "_denom"].Integral(histos[label + "_denom"].GetXaxis().FindBin(-1), histos[label + "_denom"].GetXaxis().FindBin(1))
+        
+        denom_label = label.split("_")[0] + "_" + label.split("_")[1] + "_" + label.split("_")[3] + "_denom"
+        denominator = histos[denom_label].Integral(histos[denom_label].GetXaxis().FindBin(-1), histos[denom_label].GetXaxis().FindBin(1))
 
         if "mt2" in label or "exo" in label or "wp" in label:        
             numerator = histos[label].Integral(histos[label].GetXaxis().FindBin(-1), histos[label].GetXaxis().FindBin(1))
@@ -355,9 +332,9 @@ def doplots(folder, significance_formula, suffix, significance_label):
             graphs_sgeff[label].SetPoint(graphs_sgeff[label].GetN(), score, eff_sg)
             graphs_bgeff[label].SetPoint(graphs_bgeff[label].GetN(), score, eff_bg)
             
-            significance = 0
-            try:
-                significance = eval(significance_formula)
+            try:            
+                significance = N_sg / math.sqrt(N_sg+N_bg)
+                #significance = N_sg / math.sqrt( N_bg + (0.1*N_bg)**2 )
             except:
                 significance = 0
             
@@ -386,9 +363,9 @@ def doplots(folder, significance_formula, suffix, significance_label):
         histo.SetTitle(";#epsilon_{  sg};1 - #epsilon_{  bg}")
         
         if category == "short":
-            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.5)
+            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.55)
         else: 
-            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.4)
+            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.45)
 
         for label in sorted(graphs_roc):
                         
@@ -413,15 +390,24 @@ def doplots(folder, significance_formula, suffix, significance_label):
                 legend.AddEntry(graphs_roc[label], legendlabel)
             elif "wp" in label:
                 graphs_roc[label].SetMarkerStyle(20)
-                graphs_roc[label].SetMarkerColor(kAzure-3)
+                if category == "short":
+                    graphs_roc[label].SetMarkerColor(kAzure-9)
+                else:
+                    graphs_roc[label].SetMarkerColor(kMagenta-8)
                 graphs_roc[label].Draw("same p")
                 graphs_roc[label].SetLineColor(kWhite)
                 legendlabel = "AN-18-214 working point"
                 legend.AddEntry(graphs_roc[label], legendlabel)
+            elif "pt10" in label:
+                if category == "short":
+                    legendlabel = "BDT (track p_{T}>10 GeV)"  
+                    graphs_roc[label].SetLineColor(kAzure-9)
+                    graphs_roc[label].Draw("same")
+                    legend.AddEntry(graphs_roc[label], legendlabel)
             elif "pt15" in label:
                 if category == "short":
                     legendlabel = "BDT (track p_{T}>15 GeV)"  
-                    graphs_roc[label].SetLineColor(kAzure-9)
+                    graphs_roc[label].SetLineColor(kAzure-3)
                     graphs_roc[label].Draw("same")
                     legend.AddEntry(graphs_roc[label], legendlabel)
             elif "pt30" in label:
@@ -430,129 +416,108 @@ def doplots(folder, significance_formula, suffix, significance_label):
                     graphs_roc[label].SetLineColor(kMagenta-8)
                     graphs_roc[label].Draw("same")
                     legend.AddEntry(graphs_roc[label], legendlabel)
-            else:
-                legendlabel = "BDT (track p_{T}>10 GeV)"   
-                graphs_roc[label].SetLineColor(kAzure-3)             
-                graphs_roc[label].Draw("same")
-                legend.AddEntry(graphs_roc[label], legendlabel)
-                
-
-            #if "p1" in label:
-            #    graphs_roc[label].SetLineStyle(2)
-            #    graphs_significance[label].SetLineStyle(2)
-            #legendlabel = label.replace("sg_", "").replace("short_", "short tracks ").replace("long_", "long tracks ").replace("p0", " (phase 0)").replace("p1", " (phase 1)")
-            #legendlabel = label.replace("sg_", "").replace("short_", "short tracks ").replace("long_", "long tracks ").replace("p0", "").replace("p1", "")
-
+                elif category == "long":
+                    legendlabel = "BDT (track p_{T}>30 GeV)"   
+                    graphs_roc[label].SetLineColor(kMagenta-8)             
+                    graphs_roc[label].Draw("same")
+                    legend.AddEntry(graphs_roc[label], legendlabel)
                 
         legend.SetTextSize(0.045)
+        legend.SetHeader("Phase %s" % phase)
         legend.Draw()
         shared_utils.stamp()
-        canvas.Print("roc_%s_%s.pdf" % (folder.split("/")[-1], category))
-        
-        if ymax < 1:
-            ymax = 1
-        else:
-            ymax = 1.1 * ymax
-        
-        if ymax_short < 1:
-            ymax_short = 1
-        else:
-            ymax_short = 1.1 * ymax_short
-         
-        if ymax_long < 1:
-            ymax_long = 1
-        else:
-            ymax_long = 1.1 * ymax_long
+        canvas.Print("plots/roc_%s_%s_phase%s.pdf" % (folder.split("/")[-1], category, phase))
         
         
-        # plot significance:
-        canvas = shared_utils.mkcanvas()
-        #histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax)
-        #histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax)
-        
-        if category == "short":
-            histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax_short)
-        else:
-            histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax_long)
-        
-        shared_utils.histoStyler(histo)
-        histo.Draw()
-        histo.SetTitle(";BDT response;efficiency, significance")
-        legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.45)
-
-        first = True
-        for label in graphs_significance:
-                        
-            if category not in label: continue
-
-            graphs_significance[label].Draw("same")
-            graphStyler(graphs_significance[label])
-            graphs_significance[label].SetLineColor(210)
-
-            graphs_sgeff[label].Draw("same")
-            graphStyler(graphs_sgeff[label])
-            graphs_sgeff[label].SetLineColor(kBlue)
-
-            graphs_bgeff[label].Draw("same")
-            graphStyler(graphs_bgeff[label])
-            graphs_bgeff[label].SetLineColor(kRed)
-
-            if "p1" in label:
-                graphs_significance[label].SetLineStyle(2)
-                graphs_sgeff[label].SetLineStyle(2)
-                graphs_bgeff[label].SetLineStyle(2)
-
-            legendlabel = label.replace("sg_", "").replace("short_", "short tracks ").replace("long_", "long tracks ").replace("p0", " (phase 0)").replace("p1", " (phase 1)")
-        
-        phase0 = graphs_significance["sg_short_p0"].Clone()
-        #phase1 = graphs_significance["sg_short_p1"].Clone()
-        phase0.SetLineColor(kBlack)
-        #phase1.SetLineColor(kBlack)
+        ## plot efficiencies:
         
         
-        legend.AddEntry(phase0, "Phase 0")
-        #legend.AddEntry(phase1, "Phase 1")
-
-        legend.AddEntry(graphs_sgeff["sg_short_p0"], "signal efficiency #epsilon_{sg}")
-        legend.AddEntry(graphs_bgeff["sg_short_p0"], "background efficiency #epsilon_{bg}")
-
+        
+        
+        ## plot significance:
+        #canvas = shared_utils.mkcanvas()
+        ##histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax)
+        ##histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax)
+        #
+        #if ymax < 1:
+        #    ymax = 1
+        #else:
+        #    ymax = 1.1 * ymax
+        #
+        #if ymax_short < 1:
+        #    ymax_short = 1
+        #else:
+        #    ymax_short = 1.1 * ymax_short
+        # 
+        #if ymax_long < 1:
+        #    ymax_long = 1
+        #else:
+        #    ymax_long = 1.1 * ymax_long
+        #
+        #if category == "short":
+        #    histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax_short)
+        #else:
+        #    histo = TH2F("empty", "empty", 1, -1, 1, 1, 0, ymax_long)
+        #
+        #shared_utils.histoStyler(histo)
+        #histo.Draw()
+        #histo.SetTitle(";BDT response;efficiency, significance")
+        #legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.45)
+        #
+        #first = True
+        #for label in graphs_significance:
+        #                
+        #    if category not in label: continue
+        #
+        #    graphs_significance[label].Draw("same")
+        #    graphStyler(graphs_significance[label])
+        #    graphs_significance[label].SetLineColor(210)
+        #
+        #    graphs_sgeff[label].Draw("same")
+        #    graphStyler(graphs_sgeff[label])
+        #    graphs_sgeff[label].SetLineColor(kBlue)
+        #
+        #    graphs_bgeff[label].Draw("same")
+        #    graphStyler(graphs_bgeff[label])
+        #    graphs_bgeff[label].SetLineColor(kRed)
+        #
+        #    if "p1" in label:
+        #        graphs_significance[label].SetLineStyle(2)
+        #        graphs_sgeff[label].SetLineStyle(2)
+        #        graphs_bgeff[label].SetLineStyle(2)
+        #
+        #    legendlabel = label.replace("sg_", "").replace("short_", "short tracks ").replace("long_", "long tracks ").replace("p0", " (phase 0)").replace("p1", " (phase 1)")
+        #
+        #phase0 = graphs_significance["sg_short_p0"].Clone()
+        ##phase1 = graphs_significance["sg_short_p1"].Clone()
+        #phase0.SetLineColor(kBlack)
+        ##phase1.SetLineColor(kBlack)
+        #
+        #
+        #legend.AddEntry(phase0, "Phase 0")
+        ##legend.AddEntry(phase1, "Phase 1")
+        #
+        #legend.AddEntry(graphs_sgeff["sg_short_p0"], "signal efficiency #epsilon_{sg}")
+        #legend.AddEntry(graphs_bgeff["sg_short_p0"], "background efficiency #epsilon_{bg}")
+        #
         #legend.AddEntry(graphs_significance["sg_short_p0"], "#epsilon_{sg} / #sqrt{#epsilon_{sg} + #epsilon_{bg}}")
-        legend.AddEntry(graphs_significance["sg_short_p0"], significance_label)
-        
-        legend.Draw()
-        shared_utils.stamp()
-        os.system("mkdir -p plot-significance")
-        canvas.Print("plot-significance/significance_%s%s.pdf" % (category, suffix))
+        #
+        #legend.Draw()
+        #shared_utils.stamp()
+        #canvas.Print("plots/significance_%s_%s_phase%s.pdf" % (folder.split("/")[-1], category, phase))
        
 
 if __name__ == "__main__":
 
+    os.system("mkdir -p plots")
+
     #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_52_iso_merged"
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/tools"
+    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/tools"
     #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_56_pixelpt10_cutflow"
+    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_56_pixelpt10_merged"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_58_pt15bdt"
 
-
-    significances = {
-            "_scaled1": ["N_sg / math.sqrt( N_sg + N_bg )", "S / #sqrt{S+B}"],
-            #"_10BG_scaled1": ["N_sg / math.sqrt( N_bg + (0.1*N_bg)**2 )", "S / #sqrt{B+(0.1B)^{2}}"],
-            #"_20BG_scaled1": ["N_sg / math.sqrt( N_bg + (0.2*N_bg)**2 )", "S / #sqrt{B+(0.2B)^{2}}"],
-            #"_30BG_scaled1": ["N_sg / math.sqrt( N_bg + (0.3*N_bg)**2 )", "S / #sqrt{B+(0.3B)^{2}}"],
-            #"_scaled1e4": ["1e4*N_sg / math.sqrt( 1e4*N_sg + N_bg )", "1e4*S / #sqrt{1e4*S+B}"],
-            #"_scaled1e5": ["1e5*N_sg / math.sqrt( 1e5*N_sg + N_bg )", "1e5*S / #sqrt{1e5*S+B}"],
-            #"_scaled1e6": ["1e6*N_sg / math.sqrt( 1e6*N_sg + N_bg )", "1e6*S / #sqrt{1e6*S+B}"],
-            #"_scaled1e7": ["1e7*N_sg / math.sqrt( 1e7*N_sg + N_bg )", "1e7*S / #sqrt{1e7*S+B}"],
-            #"_20BG_scaled1e4": ["1e4*N_sg / math.sqrt( N_bg + (0.2*N_bg)**2 )", "1e4*S / #sqrt{B+(0.2B)^{2}}"],
-            #"_20BG_scaled1e5": ["1e5*N_sg / math.sqrt( N_bg + (0.2*N_bg)**2 )", "1e5*S / #sqrt{B+(0.2B)^{2}}"],
-            #"_20BG_scaled1e6": ["1e6*N_sg / math.sqrt( N_bg + (0.2*N_bg)**2 )", "1e6*S / #sqrt{B+(0.2B)^{2}}"],
-            #"_30BG_scaled1e4": ["1e4*N_sg / math.sqrt( N_bg + (0.3*N_bg)**2 )", "1e4*S / #sqrt{B+(0.3B)^{2}}"],
-            #"_30BG_scaled1e5": ["1e5*N_sg / math.sqrt( N_bg + (0.3*N_bg)**2 )", "1e5*S / #sqrt{B+(0.3B)^{2}}"],
-            #"_30BG_scaled1e6": ["1e6*N_sg / math.sqrt( N_bg + (0.3*N_bg)**2 )", "1e6*S / #sqrt{B+(0.3B)^{2}}"],
-    }
-    
-    for significance_suffix in significances:
-        significance_formula = significances[significance_suffix][0]
-        significance_label = significances[significance_suffix][1]
-        doplots(folder, significance_formula, significance_suffix, significance_label)
+    doplots(folder, 1)
     
     
     

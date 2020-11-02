@@ -285,9 +285,9 @@ def train(skim_folder, category, is_dxyinformed, use_chi2, phase, n_ntuple_files
     # baseline selection already applied in skim
     
     if category == "short":
-        cuts = "tracks_is_pixel_track==1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999"
+        cuts = "tracks_pt>15 && tracks_is_pixel_track==1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999"
     elif category == "long":
-        cuts = "tracks_is_pixel_track==0 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999"
+        cuts = "tracks_pt>30 && tracks_is_pixel_track==0 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999"
 
     if is_dxyinformed:
         cuts += " && tracks_dxyVtx<0.1"
