@@ -11,179 +11,219 @@ import numpy
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
 
+cuts = {}
+
+cuts["BDT_short"] = [
+            "tracks_is_pixel_track==1",
+            "tracks_pt>15",
+            "tracks_trackQualityHighPurity==1",
+            "abs(tracks_eta)<2.4",
+            "tracks_ptErrOverPt2<10",
+            "tracks_dzVtx<0.1",
+            "tracks_trkRelIso<0.1",
+            "tracks_trackerLayersWithMeasurement>=2",
+            "tracks_nValidTrackerHits>=2",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nValidPixelHits>=2",
+            "tracks_passPFCandVeto==1",
+            "tracks_passleptonveto==1",
+            "tracks_passpionveto==1",
+            "tracks_passjetveto==1",
+            "tracks_deDxHarmonic2pixel>2.0",
+            "tracks_nMissingOuterHits>=0",
+            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy/tracks_p<0.12",
+]
+
+cuts["BDT_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "tracks_pt>30",
+            "tracks_trackQualityHighPurity==1",
+            "abs(tracks_eta)<2.4",
+            "tracks_ptErrOverPt2<10",
+            "tracks_dzVtx<0.1",
+            "tracks_trkRelIso<0.1",
+            "tracks_trackerLayersWithMeasurement>=2",
+            "tracks_nValidTrackerHits>=2",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nValidPixelHits>=2",
+            "tracks_passPFCandVeto==1",
+            "tracks_passleptonveto==1",
+            "tracks_passpionveto==1",
+            "tracks_passjetveto==1",
+            "tracks_deDxHarmonic2pixel>2.0",
+            "tracks_nMissingOuterHits>=2",
+            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy/tracks_p<0.12",
+]
+
+cuts["BDT_noJetVeto_short"] = [
+            "tracks_is_pixel_track==1",
+            "tracks_pt>15",
+            "tracks_trackQualityHighPurity==1",
+            "abs(tracks_eta)<2.4",
+            "tracks_ptErrOverPt2<10",
+            "tracks_dzVtx<0.1",
+            "tracks_trkRelIso<0.1",
+            "tracks_trackerLayersWithMeasurement>=2",
+            "tracks_nValidTrackerHits>=2",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nValidPixelHits>=2",
+            "tracks_passPFCandVeto==1",
+            "tracks_passleptonveto==1",
+            "tracks_passpionveto==1",
+            "tracks_passjetveto==1",
+            "tracks_deDxHarmonic2pixel>2.0",
+            "tracks_nMissingOuterHits>=0",
+            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy/tracks_p<0.12",
+]
+
+cuts["BDT_noJetVeto_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "tracks_pt>30",
+            "tracks_trackQualityHighPurity==1",
+            "abs(tracks_eta)<2.4",
+            "tracks_ptErrOverPt2<10",
+            "tracks_dzVtx<0.1",
+            "tracks_trkRelIso<0.1",
+            "tracks_trackerLayersWithMeasurement>=2",
+            "tracks_nValidTrackerHits>=2",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nValidPixelHits>=2",
+            "tracks_passPFCandVeto==1",
+            "tracks_passleptonveto==1",
+            "tracks_passpionveto==1",
+            "tracks_passjetveto==1",
+            "tracks_deDxHarmonic2pixel>2.0",
+            "tracks_nMissingOuterHits>=2",
+            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy/tracks_p<0.12",
+]
+
+cuts["MT2_short"] = [
+            "tracks_is_pixel_track==1",
+            "tracks_pt>15",
+            "abs(tracks_eta)<2.4",
+            "(abs(tracks_eta)<1.38 || abs(tracks_eta)>1.6)",
+            "tracks_ptErrOverPt2<0.2",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.05",
+            "tracks_neutralPtSum<10",
+            "tracks_neutralPtSum/tracks_pt<0.1",
+            "tracks_chargedPtSum<10",
+            "tracks_chargedPtSum/tracks_pt<0.2",
+            "tracks_pixelLayersWithMeasurement>=3",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingOuterHits>=2",
+            "tracks_passPFCandVeto==1",
+            "tracks_mt2_leptoniso==1",
+            #"tracks_mt2_trackiso==1",
+]
+
+cuts["MT2_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "tracks_pt>15",
+            "abs(tracks_eta)<2.4",
+            "(abs(tracks_eta)<1.38 || abs(tracks_eta)>1.6)",
+            "tracks_ptErrOverPt2<0.005",
+            "tracks_dxyVtx<0.01",
+            "tracks_dzVtx<0.05",
+            "tracks_neutralPtSum<10",
+            "tracks_neutralPtSum/tracks_pt<0.1",
+            "tracks_chargedPtSum<10",
+            "tracks_chargedPtSum/tracks_pt<0.2",
+            "tracks_pixelLayersWithMeasurement>=2",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingOuterHits>=2",
+            "tracks_passPFCandVeto==1",
+            "tracks_mt2_leptoniso==1",
+            #"tracks_mt2_trackiso==1",
+]
+
+cuts["EXO_short"] = [
+            "tracks_is_pixel_track==1",
+            "abs(tracks_eta)<2.1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
+            "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
+            "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",                                 
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>55",
+]
+
+cuts["EXO_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "abs(tracks_eta)<2.1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
+            "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
+            "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>55",
+]
+
+cuts["EXO_pt15_short"] = [
+            "tracks_is_pixel_track==1",
+            "abs(tracks_eta)<2.1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
+            "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
+            "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",                                 
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>15",
+]
+
+cuts["EXO_pt15_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "abs(tracks_eta)<2.1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
+            "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
+            "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>15",
+]
+
+
 def plot_cutflow(files, header, is_signal, prefix):
-        
-    cuts = {}
-    
-    cuts["BDT_short"] = [
-                "tracks_is_pixel_track==1",
-                "tracks_pt>30",
-                "tracks_trackQualityHighPurity==1",
-                "abs(tracks_eta)<2.4",
-                "tracks_ptErrOverPt2<10",
-                "tracks_dzVtx<0.1",
-                "tracks_trkRelIso<0.1",
-                "tracks_trackerLayersWithMeasurement>=2",
-                "tracks_nValidTrackerHits>=2",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nValidPixelHits>=2",
-                "tracks_passPFCandVeto==1",
-                "tracks_passleptonveto==1",
-                "tracks_passpionveto==1",
-                "tracks_passjetveto==1",
-                "tracks_deDxHarmonic2pixel>2.0",
-                "tracks_nMissingOuterHits>=0",
-                "tracks_mva_tight_may20_chi2_pt10>0",
-                "tracks_matchedCaloEnergy/tracks_p<0.12",
-    ]
-    
-    cuts["BDT_long"] = [
-                "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
-                "tracks_pt>30",
-                "tracks_trackQualityHighPurity==1",
-                "abs(tracks_eta)<2.4",
-                "tracks_ptErrOverPt2<10",
-                "tracks_dzVtx<0.1",
-                "tracks_trkRelIso<0.1",
-                "tracks_trackerLayersWithMeasurement>=2",
-                "tracks_nValidTrackerHits>=2",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nValidPixelHits>=2",
-                "tracks_passPFCandVeto==1",                 # removed
-                "tracks_passleptonveto==1",
-                "tracks_passpionveto==1",
-                "tracks_passjetveto==1",                    # removed
-                "tracks_deDxHarmonic2pixel>2.0",
-                "tracks_nMissingOuterHits>=2",
-                "tracks_mva_tight_may20_chi2_pt10>0",
-                "tracks_matchedCaloEnergy/tracks_p<0.12",
-    ]
-    
-    
-    cuts["updated_BDT_short"] = [
-                "tracks_is_pixel_track==1",
-                "tracks_pt>10",
-                "tracks_trackQualityHighPurity==1",
-                "abs(tracks_eta)<2.4",
-                "tracks_ptErrOverPt2<10",
-                "tracks_dzVtx<0.1",
-                "tracks_trkRelIso<0.1",
-                "tracks_trackerLayersWithMeasurement>=2",
-                "tracks_nValidTrackerHits>=2",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nValidPixelHits>=2",
-                "tracks_passPFCandVeto==1",
-                "tracks_passleptonveto==1",
-                "tracks_passpionveto==1",
-                "tracks_passjetveto==1",
-                "tracks_deDxHarmonic2pixel>2.0",
-                "tracks_nMissingOuterHits>=0",
-                "tracks_mva_tight_may20_chi2_pt10>0",
-                "tracks_matchedCaloEnergy/tracks_p<0.3",
-    ]
-    
-    cuts["updated_BDT_long"] = [
-                "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
-                "tracks_pt>30",
-                "tracks_trackQualityHighPurity==1",
-                "abs(tracks_eta)<2.4",
-                "tracks_ptErrOverPt2<10",
-                "tracks_dzVtx<0.1",
-                "tracks_trkRelIso<0.1",
-                "tracks_trackerLayersWithMeasurement>=2",
-                "tracks_nValidTrackerHits>=2",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nValidPixelHits>=2",
-                "tracks_passPFCandVeto>=0",                 # removed
-                "tracks_passleptonveto==1",
-                "tracks_passpionveto==1",
-                "tracks_passjetveto>=0",                    # removed
-                "tracks_deDxHarmonic2pixel>2.0",
-                "tracks_nMissingOuterHits>=2",
-                "tracks_mva_tight_may20_chi2_pt10>0",
-                "tracks_matchedCaloEnergy/tracks_p<0.12",
-    ]
-    
-    cuts["MT2_short"] = [
-                "tracks_is_pixel_track==1",
-                "tracks_pt>15",
-                "abs(tracks_eta)<2.4",
-                "(abs(tracks_eta)<1.38 || abs(tracks_eta)>1.6)",
-                "tracks_ptErrOverPt2<0.2",
-                "tracks_dxyVtx<0.02",
-                "tracks_dzVtx<0.05",
-                "tracks_neutralPtSum<10",
-                "tracks_neutralPtSum/tracks_pt<0.1",
-                "tracks_chargedPtSum<10",
-                "tracks_chargedPtSum/tracks_pt<0.2",
-                "tracks_pixelLayersWithMeasurement>=3",     #CHECK THIS
-                "tracks_nMissingInnerHits==0",
-                "tracks_nMissingOuterHits>=2",
-                "tracks_passPFCandVeto==1",
-                "tracks_mt2_leptoniso==1",
-                "tracks_mt2_trackiso==1",
-    ]
-    
-    cuts["MT2_long"] = [
-                "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
-                "tracks_pt>15",
-                "abs(tracks_eta)<2.4",
-                "(abs(tracks_eta)<1.38 || abs(tracks_eta)>1.6)",
-                "tracks_ptErrOverPt2<0.005",
-                "tracks_dxyVtx<0.01",
-                "tracks_dzVtx<0.05",
-                "tracks_neutralPtSum<10",
-                "tracks_neutralPtSum/tracks_pt<0.1",
-                "tracks_chargedPtSum<10",
-                "tracks_chargedPtSum/tracks_pt<0.2",
-                "tracks_pixelLayersWithMeasurement>=2",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nMissingOuterHits>=2",
-                "tracks_passPFCandVeto==1",
-                "tracks_mt2_leptoniso==1",
-                "tracks_mt2_trackiso==1",
-    ]
-    
-    cuts["EXO_short"] = [
-                "tracks_is_pixel_track==1",
-                "tracks_pt>10",                                                 # 55->30
-                "abs(tracks_eta)<2.1",
-                "tracks_exo_trackiso==1",
-                "tracks_exo_jetiso==1",
-                "tracks_dxyVtx<0.02",
-                "tracks_dzVtx<0.5",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nMissingMiddleHits==0",
-                "tracks_nValidPixelHits>=3",
-                "tracks_exo_leptoniso==1",
-                "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
-                "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
-                "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
-                "tracks_trkRelIso<0.05",
-                "tracks_nMissingOuterHits>=3",                                 
-                "tracks_matchedCaloEnergy<10",                
-    ]
-    
-    cuts["EXO_long"] = [
-                "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
-                "tracks_pt>10",                                                 # 55->30
-                "abs(tracks_eta)<2.1",
-                "tracks_exo_trackiso==1",
-                "tracks_exo_jetiso==1",
-                "tracks_dxyVtx<0.02",
-                "tracks_dzVtx<0.5",
-                "tracks_nMissingInnerHits==0",
-                "tracks_nMissingMiddleHits==0",
-                "tracks_nValidPixelHits>=3",
-                "tracks_exo_leptoniso==1",
-                "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
-                "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
-                "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
-                "tracks_trkRelIso<0.05",
-                "tracks_nMissingOuterHits>=3",
-                "tracks_matchedCaloEnergy<10",                
-    ]
-    
+            
     if is_signal:
         signal_cutstring = " && tracks_chiCandGenMatchingDR<0.01"
     else:
@@ -274,6 +314,9 @@ def plot_cutflow(files, header, is_signal, prefix):
     	canvas.SetLeftMargin(.14)
     	canvas.SetGrid()
         
+        if "bg" in prefix:
+            canvas.SetLogy()
+        
         if is_signal:
             legend = shared_utils.mklegend(x1=0.17, y1=0.17, x2=0.4, y2=0.4)
         else:
@@ -285,6 +328,11 @@ def plot_cutflow(files, header, is_signal, prefix):
         histos[label].SetLineColor(kRed)
         histos[label].SetTitle(";;percentage of tracks remaining")
         legend.AddEntry(histos[label], "short tracks")
+
+        if "bg" in prefix:
+            histos[label].GetYaxis().SetRangeUser(1e-4,2e0)
+        else:
+            histos[label].GetYaxis().SetRangeUser(0,1.1)
         
         label_long = label.replace("short", "long")
         shared_utils.histoStyler(histos[label_long])
@@ -298,8 +346,10 @@ def plot_cutflow(files, header, is_signal, prefix):
         legend.Draw()
         
         shared_utils.stamp()
-        canvas.Print("plots/" + prefix + "_" + label.replace("_short", "") + ".pdf")  
-                
+        
+        batchname = files[0].split("/")[2]
+        canvas.Print("plots/cutflow_" + batchname + "_" + prefix + "_" + label.replace("_short", "") + ".pdf")  
+        
 
 if __name__ == "__main__":
 
@@ -308,7 +358,17 @@ if __name__ == "__main__":
     background_p0 = ["../ntupleanalyzer/tools/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"]
     background_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"]
     
-    #plot_cutflow(signal_p0, "Signal phase 0", True, "sg_p0")
-    #plot_cutflow(signal_p1, "Signal phase 1", True, "sg_p1")
+    #signal_p0 = ["../ntupleanalyzer/skim_62_cutflow/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*.root"]    
+    #signal_p1 = ["../ntupleanalyzer/skim_62_cutflow/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*.root"]    
+    #background_p0 = ["../ntupleanalyzer/skim_62_cutflow/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root"]
+    #background_p1 = ["../ntupleanalyzer/skim_62_cutflow/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV*.root"]
+    
+    #signal_p0 = ["../ntupleanalyzer/skim_63_cutflow/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*.root"]    
+    #signal_p1 = ["../ntupleanalyzer/skim_63_cutflow/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*.root"]    
+    #background_p0 = ["../ntupleanalyzer/skim_63_cutflow/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root"]
+    #background_p1 = ["../ntupleanalyzer/skim_63_cutflow/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV*.root"]
+    
+    plot_cutflow(signal_p0, "Signal phase 0", True, "sg_p0")
+    plot_cutflow(signal_p1, "Signal phase 1", True, "sg_p1")
     plot_cutflow(background_p0, "WJets phase 0", False, "bg_p0")
     plot_cutflow(background_p1, "WJets phase 1", False, "bg_p1")

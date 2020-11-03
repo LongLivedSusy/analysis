@@ -8,6 +8,9 @@ import shared_utils
 import glob
 import numpy
 import math
+import cutflow
+from optparse import OptionParser
+
 
 gStyle.SetOptStat(0)
 TH1D.SetDefaultSumw2()
@@ -31,261 +34,64 @@ def graphStyler(h, color=kBlack):
     h.SetFillColor(kWhite)
 
 
-def doplots(folder, phase):
-
-    labels = {}  
+def roc_and_efficiencies(sg_filelist, bg_filelist, phase, batchname):
     
-    labels["sg_p0"] = [
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1075_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1275_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1375_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1575_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1675_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1875_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2075_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2175_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2275_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2375_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2475_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2575_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-25_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2675_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-75_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        ]
-        
-    labels["bg_p0"] = [
-        "Summer16.DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"Summer16.TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
-        #"Summer16.TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"Summer16.TTJets_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        #"Summer16.TTTT_TuneCUETP8M2T4_13TeV-amcatnlo-pythia8",
-        "Summer16.TT_TuneCUETP8M2T4_13TeV-powheg-pythia8",
-        "Summer16.WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.WW_TuneCUETP8M1_13TeV-pythia8",
-        "Summer16.WZ_TuneCUETP8M1_13TeV-pythia8",
-        "Summer16.ZJetsToNuNu_HT-100To200_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_HT-1200To2500_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_HT-200To400_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_HT-400To600_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_HT-600To800_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_HT-800To1200_13TeV-madgraph",
-        "Summer16.ZJetsToNuNu_Zpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-        "Summer16.ZZ_TuneCUETP8M1_13TeV-pythia8",
-        ]
-
-    labels["sg_p1"] = [
-        #"RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1",
-        "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8ext1",
-    ]
-
-    labels["bg_p1"] = [
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.GJets_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.GJets_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT1000to1500_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT200to300_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT300to500_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8",
-        #"RunIIFall17MiniAODv2.TTGamma_Dilept_TuneCP5_PSweights_13TeV_madgraph_pythia8",
-        #"RunIIFall17MiniAODv2.TTGamma_SingleLeptFromTbar_TuneCP5_PSweights_13TeV_madgraph_pythia8",
-        #"RunIIFall17MiniAODv2.TTGamma_SingleLeptFromT_TuneCP5_PSweights_13TeV_madgraph_pythia8",
-        #"RunIIFall17MiniAODv2.TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
-        #"RunIIFall17MiniAODv2.TTHH_TuneCP5_13TeV-madgraph-pythia8",
-        #"RunIIFall17MiniAODv2.TTJets_DiLept_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.TTJets_SingleLeptFromTbar_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.TTJets_SingleLeptFromT_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.TTJets_TuneCP5_13TeV-madgraphMLM-pythia8",
-        #"RunIIFall17MiniAODv2.TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8",
-        #"RunIIFall17MiniAODv2.TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8",
-        #"RunIIFall17MiniAODv2.TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8",
-        #"RunIIFall17MiniAODv2.TTTW_TuneCP5_13TeV-madgraph-pythia8",
-        #"RunIIFall17MiniAODv2.TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8",
-        #"RunIIFall17MiniAODv2.TTWZ_TuneCP5_13TeV-madgraph-pythia8",
-        #"RunIIFall17MiniAODv2.TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8",
-        #"RunIIFall17MiniAODv2.TTZToQQ_TuneCP5_13TeV-amcatnlo-pythia8",
-        #"RunIIFall17MiniAODv2.TTZZ_TuneCP5_13TeV-madgraph-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
-        "RunIIFall17MiniAODv2.WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",
-        "RunIIFall17MiniAODv2.WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",
-        "RunIIFall17MiniAODv2.WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8_v2",
-        #"RunIIFall17MiniAODv2.WZZ_TuneCP5_13TeV-amcatnlo-pythia8",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-100To200_13TeV-madgraph",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-1200To2500_13TeV-madgraph",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-200To400_13TeV-madgraph",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-400To600_13TeV-madgraph",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-600To800_13TeV-madgraph",
-        "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-800To1200_13TeV-madgraph",
-        #"RunIIFall17MiniAODv2.ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8",
-    ]
+    mt2_short = " && ".join(cutflow.cuts["MT2_short"])
+    mt2_long = " && ".join(cutflow.cuts["MT2_long"])
+    exo_short = " && ".join(cutflow.cuts["EXO_short"])
+    exo_long = " && ".join(cutflow.cuts["EXO_long"])
+    exo_pt15_short = " && ".join(cutflow.cuts["EXO_pt15_short"])
+    exo_pt15_long = " && ".join(cutflow.cuts["EXO_pt15_long"])
+    bdt_short = " && ".join(cutflow.cuts["BDT_short"][:-2])
+    bdt_long = " && ".join(cutflow.cuts["BDT_long"][:-2])
+    bdt_nojets_short = " && ".join(cutflow.cuts["BDT_noJetVeto_short"][:-2])
+    bdt_nojets_long = " && ".join(cutflow.cuts["BDT_noJetVeto_long"][:-2])
     
-    if phase == 0:
-        labels["sg_p0"] = ["RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP"]
-        labels["bg_p0"] = ["Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM"]
-    elif phase == 1:
-        labels["sg_p0"] = ["RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1-AOD_110000"]
-        labels["bg_p0"] = ["RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_70000"]
-            
-    for label in labels:
-        for i, item in enumerate(labels[label]):
-            labels[label][i] = folder + "/" + item + "*root"
-    
-    #basecuts = " && tracks_baseline==1 && pass_baseline==1 && tracks_trkRelIso<0.1 && tracks_deDxHarmonic2pixel>2.0"
-    #basecuts = " && tracks_baseline==1 && pass_baseline==1 && tracks_trkRelIso<0.1"
-    basecuts = " && pass_baseline==1"
+    #FIXME phase 1 dE/dx
+    if phase == 1:
+        bdt_short = bdt_short.replace("tracks_deDxHarmonic2pixel>2.0", "MHT>=0")
+        bdt_long = bdt_long.replace("tracks_deDxHarmonic2pixel>2.0", "MHT>=0")
+        bdt_nojets_short = bdt_nojets_short.replace("tracks_deDxHarmonic2pixel>2.0", "MHT>=0")
+        bdt_nojets_long = bdt_nojets_long.replace("tracks_deDxHarmonic2pixel>2.0", "MHT>=0")
+        lumi = 137000
+    else:
+        lumi = 35000
     
     histos = {}
 
-    # get denominator histograms:
-    
-    histos["bg_short_p0_denom"] = plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10", nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_p0_denom"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_p0_denom"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+    # get histograms:    
 
-    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_p0_denom"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_p0_denom"] = plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_p0_denom"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
-
-    # get numerator histograms:    
+    def fill_histos(label, variable, shortcuts, longcuts):
+                
+        histos["bg_short_%s" % label] = plotting.get_all_histos(bg_filelist, "Events", variable, "tracks_is_pixel_track==1 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["bg_long_%s" % label] =  plotting.get_all_histos(bg_filelist, "Events", variable, "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["sg_short_%s" % label] = plotting.get_all_histos(sg_filelist, "Events", variable, "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["sg_long_%s" % label] =  plotting.get_all_histos(sg_filelist, "Events", variable, "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
     
-    histos["bg_short_pt10_p0"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_pt10_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_pt10_p0"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_pt10_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-                                  
-    histos["bg_short_wp_p0"] =    plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0.05 && tracks_is_pixel_track==1 && tracks_pt>10" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_wp_p0"] =     plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0 && tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_wp_p0"] =    plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0.05 && tracks_is_pixel_track==1 && tracks_pt>10 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_wp_p0"] =     plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_mva_tight_may20_chi2_pt10>0 && tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-                                  
-    histos["bg_short_pt15_p0"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==1 && tracks_pt>15" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_pt15_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_pt15_p0"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==1 && tracks_pt>15 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_pt15_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt15", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-                                  
-    histos["bg_short_pt30_p0"] =  plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>30" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_pt30_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_pt30_p0"] =  plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==1 && tracks_pt>30 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_pt30_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01" + basecuts, nBinsX=200, xmin=-1, xmax=1)
-
-    histos["bg_short_mt2_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "(tracks_mt2tag>=115 && tracks_mt2tag<150)", nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_mt2_p0"] =    plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "((tracks_mt2tag>=215 && tracks_mt2tag<250) || (tracks_mt2tag>=316 && tracks_mt2tag<350)) && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_mt2_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "(tracks_mt2tag>=115 && tracks_mt2tag<150) && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_mt2_p0"] =    plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "((tracks_mt2tag>=215 && tracks_mt2tag<250) || (tracks_mt2tag>=316 && tracks_mt2tag<350)) && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
-                                  
-    histos["bg_short_exo_p0"] =   plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17", nBinsX=200, xmin=-1, xmax=1)
-    histos["bg_long_exo_p0"] =    plotting.get_all_histos(labels["bg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==0 && tracks_pt>30 && tracks_exotag>=17 && tracks_nMissingOuterHits>=2", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_short_exo_p0"] =   plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
-    histos["sg_long_exo_p0"] =    plotting.get_all_histos(labels["sg_p0"], "Events", "tracks_mva_tight_may20_chi2_pt10", "tracks_is_pixel_track==1 && tracks_exotag>=17 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01", nBinsX=200, xmin=-1, xmax=1)
+    # get common denominator:
+    fill_histos("denom", "tracks_mva_tight_may20_chi2", "tracks_pt>10", "tracks_pt>30")
     
+    # get numerator, ROC curve scans:
+    fill_histos("pt10", "tracks_mva_tight_may20_chi2_pt10", "tracks_pt>10 && " + bdt_short, "tracks_pt>30 && " + bdt_long)
+    fill_histos("pt15", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && " + bdt_short, "tracks_pt>30 && " + bdt_long)
+    fill_histos("pt15_nojets", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && " + bdt_nojets_short, "tracks_pt>30 && " + bdt_nojets_long)
+    fill_histos("pt30", "tracks_mva_tight_may20_chi2", "tracks_pt>30 && " + bdt_short, "tracks_pt>30 && " + bdt_long)
+
+    # get numerator, working points:
+    if phase == 0:
+        fill_histos("wpA", "tracks_mva_tight_may20_chi2", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>0.13 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>0.13 && " + bdt_long)        
+        fill_histos("wpB", "tracks_mva_tight_may20_chi2", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>0.05 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>0 && " + bdt_long)        
+    elif phase == 1:
+        fill_histos("wpA", "tracks_mva_tight_may20_chi2", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>0 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>0 && " + bdt_long)        
+        fill_histos("wpB", "tracks_mva_tight_may20_chi2", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>0.05 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>0 && " + bdt_long)        
+    
+    fill_histos("mt2", "tracks_mva_tight_may20_chi2", mt2_short, mt2_long)
+    fill_histos("exo", "tracks_mva_tight_may20_chi2", exo_short, exo_long)
+    fill_histos("exo_pt15", "tracks_mva_tight_may20_chi2", exo_pt15_short, exo_pt15_long)
+
     for label in histos:
         shared_utils.histoStyler(histos[label])
-        if "p0" in label:
-            histos[label].Scale(35000)
-        elif "p1" in label:
-            histos[label].Scale(137000)
+        histos[label].Scale(lumi)
         
     # get efficiencies:
     efficiencies = {}
@@ -295,16 +101,22 @@ def doplots(folder, phase):
         
         efficiencies[label] = []
         
-        denom_label = label.split("_")[0] + "_" + label.split("_")[1] + "_" + label.split("_")[3] + "_denom"
-        denominator = histos[denom_label].Integral(histos[denom_label].GetXaxis().FindBin(-1), histos[denom_label].GetXaxis().FindBin(1))
+        denom_label = label.split("_")[0] + "_" + label.split("_")[1] + "_denom"
+        denominator = histos[denom_label].Integral()
 
-        if "mt2" in label or "exo" in label or "wp" in label:        
-            numerator = histos[label].Integral(histos[label].GetXaxis().FindBin(-1), histos[label].GetXaxis().FindBin(1))
-            efficiencies[label].append([0, numerator/denominator, numerator])
+        if "mt2" in label or "exo" in label or "wp" in label:
+            numerator = histos[label].Integral()
+            if denominator > 0:
+                efficiencies[label].append([0, numerator/denominator, numerator])
+            else:
+                efficiencies[label].append([0, 0, numerator])
         else:
-            for i_score in numpy.arange(-1.0, 1.0, 0.005): 
+            for i_score in numpy.arange(-1.0, 1.0, 0.005):
                 numerator = histos[label].Integral(histos[label].GetXaxis().FindBin(i_score), histos[label].GetXaxis().FindBin(1))
-                efficiencies[label].append([i_score, numerator/denominator, numerator])
+                if denominator > 0:
+                    efficiencies[label].append([i_score, numerator/denominator, numerator])
+                else:
+                    efficiencies[label].append([i_score, 0, numerator])
 
     # build TGraphs
     graphs_roc = {}
@@ -354,18 +166,24 @@ def doplots(folder, phase):
         canvas = shared_utils.mkcanvas()
         
         if category == "short":
-            histo = TH2F("empty", "empty", 1, 0, 1, 1, 0.9, 1)
+            if phase == 0:
+                histo = TH2F("empty", "empty", 1, 0, 1, 1, 0.9, 1)
+            else:
+                histo = TH2F("empty", "empty", 1, 0, 1, 1, 0.98, 1)
         else:
-            histo = TH2F("empty", "empty", 1, 0, 1, 1, 0.99, 1)
+            if phase == 0:
+                histo = TH2F("empty", "empty", 1, 0, 1, 1, 0.99, 1)
+            else:
+                histo = TH2F("empty", "empty", 1, 0, 1, 1, 0.99, 1)
         
         shared_utils.histoStyler(histo)
         histo.Draw()
         histo.SetTitle(";#epsilon_{  sg};1 - #epsilon_{  bg}")
         
         if category == "short":
-            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.55)
+            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.6)
         else: 
-            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.45)
+            legend = shared_utils.mklegend(x1=0.17, y1=0.2, x2=0.65, y2=0.5)
 
         for label in sorted(graphs_roc):
                         
@@ -381,57 +199,83 @@ def doplots(folder, phase):
                 graphs_roc[label].Draw("same p")
                 legendlabel = "SUS-19-005 tag"
                 legend.AddEntry(graphs_roc[label], legendlabel)
+            elif "exo_pt15" in label:
+                graphs_roc[label].SetMarkerStyle(20)
+                graphs_roc[label].SetMarkerColor(kAzure+7)
+                graphs_roc[label].SetLineColor(kWhite)
+                graphs_roc[label].Draw("same p")
+                legendlabel = "EXO-19-010 tag (p_{T}>15 GeV)"
+                legend.AddEntry(graphs_roc[label], legendlabel)
             elif "exo" in label:
                 graphs_roc[label].SetMarkerStyle(20)
-                graphs_roc[label].SetMarkerColor(kViolet)
+                graphs_roc[label].SetMarkerColor(kAzure)
                 graphs_roc[label].SetLineColor(kWhite)
                 graphs_roc[label].Draw("same p")
                 legendlabel = "EXO-19-010 tag"
                 legend.AddEntry(graphs_roc[label], legendlabel)
-            elif "wp" in label:
+            elif "bdt_nojets" in label:
+                graphs_roc[label].SetLineColor(kBlack)
+                graphs_roc[label].Draw("same")
+                legendlabel = "EXO-19-010 tag (no jet veto)"
+                legend.AddEntry(graphs_roc[label], legendlabel)
+            elif "wpA" in label:
                 graphs_roc[label].SetMarkerStyle(20)
                 if category == "short":
-                    graphs_roc[label].SetMarkerColor(kAzure-9)
+                    graphs_roc[label].SetMarkerColor(kOrange)
                 else:
-                    graphs_roc[label].SetMarkerColor(kMagenta-8)
+                    graphs_roc[label].SetMarkerColor(kOrange)
                 graphs_roc[label].Draw("same p")
                 graphs_roc[label].SetLineColor(kWhite)
-                legendlabel = "AN-18-214 working point"
+                legendlabel = "AN-18-214 working point (A)"
+                legend.AddEntry(graphs_roc[label], legendlabel)
+            elif "wpB" in label:
+                graphs_roc[label].SetMarkerStyle(20)
+                if category == "short":
+                    graphs_roc[label].SetMarkerColor(kRed)
+                else:
+                    graphs_roc[label].SetMarkerColor(kRed)
+                graphs_roc[label].Draw("same p")
+                graphs_roc[label].SetLineColor(kWhite)
+                legendlabel = "AN-18-214 working point (B)"
                 legend.AddEntry(graphs_roc[label], legendlabel)
             elif "pt10" in label:
                 if category == "short":
                     legendlabel = "BDT (track p_{T}>10 GeV)"  
-                    graphs_roc[label].SetLineColor(kAzure-9)
+                    graphs_roc[label].SetLineColor(kRed)
+                    graphs_roc[label].Draw("same")
+                    legend.AddEntry(graphs_roc[label], legendlabel)
+            elif "pt15_nojets" in label:
+                if category == "short":
+                    legendlabel = "BDT (track p_{T}>15 GeV, no jet veto)"  
+                    graphs_roc[label].SetLineColor(kOrange)
+                    graphs_roc[label].SetLineStyle(2)
+                    graphs_roc[label].Draw("same")
+                    legend.AddEntry(graphs_roc[label], legendlabel)
+                elif category == "long":
+                    legendlabel = "BDT (track p_{T}>30 GeV, no jet veto)"  
+                    graphs_roc[label].SetLineColor(kPink+10)
+                    graphs_roc[label].SetLineStyle(2)
                     graphs_roc[label].Draw("same")
                     legend.AddEntry(graphs_roc[label], legendlabel)
             elif "pt15" in label:
                 if category == "short":
                     legendlabel = "BDT (track p_{T}>15 GeV)"  
-                    graphs_roc[label].SetLineColor(kAzure-3)
+                    graphs_roc[label].SetLineColor(kOrange)
                     graphs_roc[label].Draw("same")
                     legend.AddEntry(graphs_roc[label], legendlabel)
             elif "pt30" in label:
-                if category == "short":
-                    legendlabel = "BDT (track p_{T}>30 GeV)"  
-                    graphs_roc[label].SetLineColor(kMagenta-8)
-                    graphs_roc[label].Draw("same")
-                    legend.AddEntry(graphs_roc[label], legendlabel)
-                elif category == "long":
-                    legendlabel = "BDT (track p_{T}>30 GeV)"   
-                    graphs_roc[label].SetLineColor(kMagenta-8)             
-                    graphs_roc[label].Draw("same")
-                    legend.AddEntry(graphs_roc[label], legendlabel)
+                legendlabel = "BDT (track p_{T}>30 GeV)"  
+                graphs_roc[label].SetLineColor(kPink+10)
+                graphs_roc[label].Draw("same")
+                legend.AddEntry(graphs_roc[label], legendlabel)
                 
         legend.SetTextSize(0.045)
-        legend.SetHeader("Phase %s" % phase)
+        legend.SetHeader("Phase %s, %s tracks" % (phase, category))
         legend.Draw()
         shared_utils.stamp()
-        canvas.Print("plots/roc_%s_%s_phase%s.pdf" % (folder.split("/")[-1], category, phase))
-        
+        canvas.Print("plots/roc_%s_%s_phase%s.pdf" % (batchname, category, phase))
         
         ## plot efficiencies:
-        
-        
         
         
         ## plot significance:
@@ -509,15 +353,38 @@ def doplots(folder, phase):
 
 if __name__ == "__main__":
 
+    parser = OptionParser()
+    parser.add_option("--index", dest = "index", default = False)
+    (options, args) = parser.parse_args()
+
+    if not options.index:
+        for i in range(1,10):
+            os.system("./comparetags.py --index %s &" % i)
+
     os.system("mkdir -p plots")
 
-    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_52_iso_merged"
-    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/tools"
-    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_56_pixelpt10_cutflow"
-    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_56_pixelpt10_merged"
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_58_pt15bdt"
+    signal_p0 = ["../ntupleanalyzer/skim_63_cutflow/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*root"]
+    background_p0 = ["../ntupleanalyzer/skim_63_cutflow/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM*root"]
+    signal_p1 = ["../ntupleanalyzer/skim_63_cutflow/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1-AOD_110000*root"]
+    background_p1 = ["../ntupleanalyzer/skim_63_cutflow/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_70000*root"]
 
-    doplots(folder, 1)
+    #signal_p0 = ["../ntupleanalyzer/tools/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*root"]
+    #background_p0 = ["../ntupleanalyzer/tools/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM*root"]
+    #signal_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*root"]
+    #background_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraph*root"]
+
+    if options.index == "1":
+        roc_and_efficiencies(signal_p0, background_p0, 0, signal_p0[0].split("/")[2])
+    elif options.index == "2":
+        roc_and_efficiencies(signal_p1, background_p1, 1, signal_p1[0].split("/")[2])      
+    elif options.index == "3":
+        cutflow.plot_cutflow(signal_p0, "Signal phase 0", True, "sg_p0")
+    elif options.index == "4":
+        cutflow.plot_cutflow(signal_p1, "Signal phase 1", True, "sg_p1")
+    elif options.index == "5":
+        cutflow.plot_cutflow(background_p0, "WJets phase 0", False, "bg_p0")
+    elif options.index == "6":
+        cutflow.plot_cutflow(background_p1, "WJets phase 1", False, "bg_p1")
     
     
     
