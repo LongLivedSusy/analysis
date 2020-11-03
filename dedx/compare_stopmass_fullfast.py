@@ -14,12 +14,14 @@ rebin = 5
 
 dict_Summer16_FullSimSignal = {
 	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
-	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root',
+	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.root',
         }
 
 dict_Summer16_FastSimSignal = {
 	#'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
-	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root',
+	#'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root',
+	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1.root',
 	}
 
 
@@ -97,7 +99,7 @@ def main(SelectedFastSim,SelectedFullSim,hist,outputdir):
 if __name__ == '__main__' :
 
 
-    outputdir = './plots/Charginotrack'
+    outputdir = './plots/Charginotrack_mStop1300_mLSP1'
     if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
        
     SelectedFullSim = dict_Summer16_FullSimSignal
