@@ -20,7 +20,7 @@ cuts["BDT_short"] = [
             "abs(tracks_eta)<2.4",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
-            "tracks_trkRelIso<0.1",
+            "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
             "tracks_nValidTrackerHits>=2",
             "tracks_nMissingInnerHits==0",
@@ -31,8 +31,8 @@ cuts["BDT_short"] = [
             "tracks_passjetveto==1",
             "tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=0",
+            "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
-            "tracks_matchedCaloEnergy/tracks_p<0.12",
 ]
 
 cuts["BDT_long"] = [
@@ -42,7 +42,7 @@ cuts["BDT_long"] = [
             "abs(tracks_eta)<2.4",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
-            "tracks_trkRelIso<0.1",
+            "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
             "tracks_nValidTrackerHits>=2",
             "tracks_nMissingInnerHits==0",
@@ -53,8 +53,8 @@ cuts["BDT_long"] = [
             "tracks_passjetveto==1",
             "tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=2",
+            "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
-            "tracks_matchedCaloEnergy/tracks_p<0.12",
 ]
 
 cuts["BDT_noJetVeto_short"] = [
@@ -64,7 +64,7 @@ cuts["BDT_noJetVeto_short"] = [
             "abs(tracks_eta)<2.4",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
-            "tracks_trkRelIso<0.1",
+            "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
             "tracks_nValidTrackerHits>=2",
             "tracks_nMissingInnerHits==0",
@@ -72,11 +72,11 @@ cuts["BDT_noJetVeto_short"] = [
             "tracks_passPFCandVeto==1",
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
-            "tracks_passjetveto==1",
+            #"tracks_passjetveto==1",
             "tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=0",
+            "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
-            "tracks_matchedCaloEnergy/tracks_p<0.12",
 ]
 
 cuts["BDT_noJetVeto_long"] = [
@@ -86,7 +86,7 @@ cuts["BDT_noJetVeto_long"] = [
             "abs(tracks_eta)<2.4",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
-            "tracks_trkRelIso<0.1",
+            "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
             "tracks_nValidTrackerHits>=2",
             "tracks_nMissingInnerHits==0",
@@ -94,11 +94,11 @@ cuts["BDT_noJetVeto_long"] = [
             "tracks_passPFCandVeto==1",
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
-            "tracks_passjetveto==1",
+            #"tracks_passjetveto==1",
             "tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=2",
+            "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
-            "tracks_matchedCaloEnergy/tracks_p<0.12",
 ]
 
 cuts["MT2_short"] = [
@@ -175,6 +175,38 @@ cuts["EXO_long"] = [
             "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
             "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
             "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>55",
+]
+
+cuts["EXO_noeta_short"] = [
+            "tracks_is_pixel_track==1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",                                 
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>55",
+]
+
+cuts["EXO_noeta_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
             "tracks_trkRelIso<0.05",
             "tracks_nMissingOuterHits>=3",
             "tracks_matchedCaloEnergy<10",                
@@ -350,25 +382,3 @@ def plot_cutflow(files, header, is_signal, prefix):
         batchname = files[0].split("/")[2]
         canvas.Print("plots/cutflow_" + batchname + "_" + prefix + "_" + label.replace("_short", "") + ".pdf")  
         
-
-if __name__ == "__main__":
-
-    signal_p0 = ["../ntupleanalyzer/tools/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"]    
-    signal_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"]    
-    background_p0 = ["../ntupleanalyzer/tools/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"]
-    background_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"]
-    
-    #signal_p0 = ["../ntupleanalyzer/skim_62_cutflow/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*.root"]    
-    #signal_p1 = ["../ntupleanalyzer/skim_62_cutflow/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*.root"]    
-    #background_p0 = ["../ntupleanalyzer/skim_62_cutflow/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root"]
-    #background_p1 = ["../ntupleanalyzer/skim_62_cutflow/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV*.root"]
-    
-    #signal_p0 = ["../ntupleanalyzer/skim_63_cutflow/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*.root"]    
-    #signal_p1 = ["../ntupleanalyzer/skim_63_cutflow/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*.root"]    
-    #background_p0 = ["../ntupleanalyzer/skim_63_cutflow/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV*.root"]
-    #background_p1 = ["../ntupleanalyzer/skim_63_cutflow/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV*.root"]
-    
-    plot_cutflow(signal_p0, "Signal phase 0", True, "sg_p0")
-    plot_cutflow(signal_p1, "Signal phase 1", True, "sg_p1")
-    plot_cutflow(background_p0, "WJets phase 0", False, "bg_p0")
-    plot_cutflow(background_p1, "WJets phase 1", False, "bg_p1")
