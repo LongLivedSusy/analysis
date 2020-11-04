@@ -10,16 +10,20 @@ gStyle.SetOptStat(False)
 #format_c = 'pdf'
 format_c = 'png'
 
-rebin = 5
+#rebin = 5
+rebin = 10
+#rebin = 20
 
 dict_Summer16_FullSimSignal = {
 	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
-	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root',
+	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.root',
         }
 
 dict_Summer16_FastSimSignal = {
 	#'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
-	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root',
+	#'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root',
+	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1.root',
 	}
 
 
@@ -29,6 +33,8 @@ def main(SelectedFastSim,SelectedFullSim,hist,outputdir):
     ctitle = 'FullSim/FastSim comparison'
     c = TCanvas(ctitle,ctitle,800,600)
     tl = TLegend(0.6,0.7,0.85,0.9)
+
+    #c.SetLogy()
     
     fin={}
     histos={}
@@ -80,16 +86,18 @@ def main(SelectedFastSim,SelectedFullSim,hist,outputdir):
     rp.SetH1DrawOpt('E')
     rp.SetH2DrawOpt('E')
     rp.Draw()
+    rp.GetUpperPad().SetLogy()
     rp.GetUpperRefYaxis().SetTitle("Normalized");
     #rp.GetUpperRefYaxis().SetRangeUser(0,0.1);
     rp.GetLowerRefYaxis().SetTitle("Fullsim/Fastsim");
-    rp.GetLowerRefYaxis().SetRangeUser(0,2);
+    #rp.GetLowerRefYaxis().SetRangeUser(0,2);
+    rp.GetLowerRefGraph().SetMinimum(0);
+    rp.GetLowerRefGraph().SetMaximum(2);
    
     tl.AddEntry(hFullsim,'T2bt Fullsim','lE')
     tl.AddEntry(hFastsim,'T2bt FastSim','lE')
     tl.Draw()
 
-    
     c.Update()
     c.Print(outputdir+'/RatioPlot_'+hist+'.'+format_c)
    
@@ -97,7 +105,8 @@ def main(SelectedFastSim,SelectedFullSim,hist,outputdir):
 if __name__ == '__main__' :
 
 
-    outputdir = './plots/Charginotrack'
+    outputdir = './plots/Charginotrack_mStop1300_mLSP1'
+    #outputdir = './plots/Charginotrack_mStop1300_mLSP1100'
     if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
        
     SelectedFullSim = dict_Summer16_FullSimSignal
