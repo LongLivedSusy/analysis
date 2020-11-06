@@ -3,6 +3,7 @@ from __future__ import division
 import __main__ as main
 from ROOT import *
 from optparse import OptionParser
+from array import array
 import math, os, glob
 import GridEngineTools
 import re
@@ -14,7 +15,7 @@ parser = OptionParser()
 parser.add_option("--inputfile", dest = "inputfile", default = "")
 parser.add_option("--outputfile", dest = "outputfile")
 parser.add_option("--mode", dest="mode")
-parser.add_option("--outputfolder", dest="outputfolder", default = "ddbg_64_p15OptionalJetVeto_v2")
+parser.add_option("--outputfolder", dest="outputfolder", default = "ddbg_64_test")
 parser.add_option("--kappafile", dest="kappafile", default = "kappa.root")
 parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_64_p15OptionalJetVeto_merged")
 parser.add_option("--nev", dest = "nev", default = -1)
@@ -23,7 +24,11 @@ parser.add_option("--files_per_job", dest = "files_per_job", default = 1)
 parser.add_option("--event_start", dest = "event_start", default = 0)
 parser.add_option("--runmode", dest="runmode", default="grid")
 parser.add_option("--debug", dest="debug", action="store_true")
+parser.add_option("--workingpoint", dest = "workingpoint", default = "A")
 (options, args) = parser.parse_args()
+
+if not "_wp" + options.workingpoint in options.outputfolder:
+    options.outputfolder += "_wp" + options.workingpoint
 
 if options.inputfile != "":
     if "Run2016" in options.inputfile or "Summer16" in options.inputfile:
@@ -87,7 +92,7 @@ binnings["analysis"]["ptRatioLeptonJets"] = binnings["analysis"]["tracks_ptRatio
 binnings["fakerate"] = {}
 binnings["fakerate"]["tracks_pt"] = [20, 0, 1000]
 binnings["fakerate"]["tracks_is_pixel_track"] = [2, 0, 2]
-binnings["fakerate"]["HT"] = [10, 0, 2000]
+binnings["fakerate"]["HT"] = ["variable", 0, 200, 400, 600, 800, 1000, 2000]
 binnings["fakerate"]["MHT"] = [10, 0, 2000]
 binnings["fakerate"]["n_allvertices"] = [25, 0, 50]
 binnings["fakerate"]["n_goodjets"] = [20, 0, 20]
@@ -97,7 +102,8 @@ binnings["fakerate"]["tracks_eta"] = [12, -3, 3]
 binnings["fakerate"]["tracks_phi"] = [16, -4, 4]
 binnings["fakerate"]["HT:n_allvertices"] = [3, 0, 2000, 3, 0, 50]
 binnings["kappa"] = {}
-binnings["kappa"]["tracks_pt"] = [5, 0, 100]
+#binnings["kappa"]["tracks_pt"] = [5, 0, 100]
+binnings["kappa"]["tracks_pt"] = ["variable", 0, 25, 30, 40, 50, 120]
 
 variables = {}
 variables["analysis"] = [
@@ -130,7 +136,7 @@ variables["analysis"] = [
                           #"region",
                         ]
 variables["fakerate"] = [
-                          #"HT:n_allvertices",
+                          "HT:n_allvertices",
                           #"tracks_pt",
                           #"tracks_is_pixel_track",
                           "HT",
@@ -145,19 +151,21 @@ variables["kappa"] = [
 
 event_selections = {}
 event_selections["analysis"] = collections.OrderedDict()
-event_selections["analysis"]["Baseline"] =             "((event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.leadinglepton_mt>90 and event.tracks_invmass[i_track]>110))"
-event_selections["analysis"]["QCDLowMHTValidationJets"] = "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100 and event.n_goodjets>=1"
-event_selections["analysis"]["QCDLowMHTValidation"] =  "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100"
-event_selections["analysis"]["QCDLowMHTJets"] =        "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>30 and event.MHT<60 and event.n_goodjets>=1"
-event_selections["analysis"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>30 and event.MHT<60"
-event_selections["analysis"]["QCDLowMHTConstruction"] ="event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<60"
-event_selections["analysis"]["HadBaseline"] =          "event.HT>150 and event.MHT>150 and event.n_goodjets>=1 and event.n_goodelectrons==0 and event.n_goodmuons==0"
-event_selections["analysis"]["SMuBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
+#event_selections["analysis"]["Baseline"] =             "((event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.leadinglepton_mt>90 and event.tracks_invmass[i_track]>110))"
+#event_selections["analysis"]["QCDLowMHTValidationJets"] = "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100 and event.n_goodjets>=1"
+#event_selections["analysis"]["QCDLowMHTJets"] =        "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>30 and event.MHT<60 and event.n_goodjets>=1"
+#event_selections["analysis"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>30 and event.MHT<60"
+#event_selections["analysis"]["QCDLowMHTConstruction"] ="event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<60"
+#event_selections["analysis"]["HadBaseline"] =          "event.HT>150 and event.MHT>150 and event.n_goodjets>=1 and event.n_goodelectrons==0 and event.n_goodmuons==0"
+#event_selections["analysis"]["SMuBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
+#event_selections["analysis"]["SElBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
 event_selections["analysis"]["SMuValidationZLL"] =     "event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
 event_selections["analysis"]["SMuValidationMT"] =      "event.n_goodjets>=1 and event.n_goodmuons==1 and event.n_goodelectrons==0 and event.leadinglepton_mt<90"
-event_selections["analysis"]["SElBaseline"] =          "event.HT>150 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>110 and event.leadinglepton_mt>90"
+event_selections["analysis"]["SMuValidationHighMT"] =  "event.n_goodjets>=1 and event.n_goodelectrons==0 and event.n_goodmuons>=1 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110 and event.leadinglepton_mt>90"
 event_selections["analysis"]["SElValidationZLL"] =     "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
 event_selections["analysis"]["SElValidationMT"] =      "event.n_goodjets>=1 and event.n_goodelectrons==1 and event.n_goodmuons==0 and event.leadinglepton_mt<90"
+event_selections["analysis"]["SElValidationHighMT"] =  "event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.n_goodmuons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110 and event.leadinglepton_mt>90"
+event_selections["analysis"]["QCDLowMHTValidation"] =  "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100"
 
 event_selections["fakerate"] = collections.OrderedDict()
 event_selections["fakerate"]["QCDLowMHT"] =            "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<60"
@@ -165,58 +173,82 @@ event_selections["fakerate"]["QCDLowMHT"] =            "event.n_goodelectrons==0
 event_selections["kappa"] = collections.OrderedDict()
 event_selections["kappa"]["PromptDY"] =                 event_selections["analysis"]["SElValidationZLL"]
 
-workingpoint = "B"
+# add dedx cut for analysis regions:
+for region in event_selections["analysis"]:
+    event_selections["analysis"][region] += " and event.tracks_deDxHarmonic2pixel[i_track]>2.0"
 
 # some common cuts:
-baseline_short = "event.pass_baseline==1 and event.tracks_baseline[i_track]==1 and event.tracks_is_pixel_track[i_track]==1 and event.tracks_deDxHarmonic2pixel[i_track]>2.0"
-baseline_long = "event.pass_baseline==1 and event.tracks_baseline[i_track]==1 and event.tracks_is_pixel_track[i_track]==0 and event.tracks_deDxHarmonic2pixel[i_track]>2.0 and event.tracks_passjetveto[i_track]==1"
+#baseline_short = "event.pass_baseline==1 and event.tracks_baseline[i_track]==1 and event.tracks_is_pixel_track[i_track]==1"
+#baseline_long = "event.pass_baseline==1 and event.tracks_baseline[i_track]==1 and event.tracks_is_pixel_track[i_track]==0 and event.tracks_passjetveto[i_track]==1"
+baseline_short = "event.tracks_is_pixel_track[i_track]==1"
+baseline_long = "event.tracks_is_pixel_track[i_track]==0 and event.tracks_passjetveto[i_track]==1"
+
 if phase == 0:
-    if workingpoint == "A":
+    if options.workingpoint == "A":
         BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0.13"
         BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<0.12"
         BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0.13"
         BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<0.12"
-    elif workingpoint == "B":
+    elif options.workingpoint == "B":
         BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05"
         BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
         BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0"
         BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
+    elif options.workingpoint == "C":
+        BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05"
+        BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.55 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
+        BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0"
+        BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.4 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
 else:
-    if workingpoint == "A":
+    if options.workingpoint == "A":
         BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0"
         BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
         BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0"
         BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
-    elif workingpoint == "B":
+    elif options.workingpoint == "B":
+        BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.1"
+        BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.30 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.15"
+        BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05"
+        BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
+    elif options.workingpoint == "C":
         BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.1"
         BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.30 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.15"
         BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05"
         BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
     
-if workingpoint == "A":
+if options.workingpoint == "A":
     ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.15 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.80"
     ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.12"
-elif workingpoint == "B":
+elif options.workingpoint == "B":
     ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.22 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.80"
+    ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.20"
+elif options.workingpoint == "C":
+    ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.20 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.80"
     ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.20"
  
 regions = collections.OrderedDict()
 regions["sr_short"] = baseline_short + " and " + BdtSignalShort + " and " + ECaloBasecut
 regions["sr_long"] = baseline_long + " and " + BdtSignalLong + " and " + ECaloBasecut
 if phase == 0:
-    if workingpoint == "A":
+    if options.workingpoint == "A":
         regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
         regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband    
-    elif workingpoint == "B":
+    elif options.workingpoint == "B":
         regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
         regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
+    elif options.workingpoint == "C":
+        regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.4 and " + ECaloSideband
+        regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.4 and " + ECaloSideband
 elif phase == 1:
-    if workingpoint == "A":
+    if options.workingpoint == "A":
         regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
         regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
-    elif workingpoint == "B":
+    elif options.workingpoint == "B":
         regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
         regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
+    elif options.workingpoint == "C":
+        regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and " + ECaloSideband
+        regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and " + ECaloSideband
 
 regions["fakecr_short"] = baseline_short + " and " + ECaloBasecut + " and " + BdtSidebandShort + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
 regions["fakecr_long"] = baseline_long + " and " + ECaloBasecut + " and " + BdtSidebandLong + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
@@ -228,10 +260,11 @@ for kappa_variable in variables["kappa"]:
 for fakerate_variable in variables["fakerate"]:
     regions["fakeprediction_%s_short" % fakerate_variable] = regions["fakecr_short"]
     regions["fakeprediction_%s_long" % fakerate_variable] = regions["fakecr_long"]
-    regions["promptRegionCkappa2_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)")
-    regions["promptRegionCkappa2_%s_long" % fakerate_variable] = regions["promptECaloSideband_short"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)")
-    regions["promptRegionCkappa3_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(3.14/3)")
-    regions["promptRegionCkappa3_%s_long" % fakerate_variable] = regions["promptECaloSideband_short"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(3.14/3)")
+    regions["promptRegionCkappa_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)")
+    regions["promptRegionCkappa_%s_long" % fakerate_variable] = regions["promptECaloSideband_long"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)")
+    if options.workingpoint == "C":
+        regions["promptRegionCkappa_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"] + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+        regions["promptRegionCkappa_%s_long" % fakerate_variable] = regions["promptECaloSideband_long"] + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
 
 
 # add genfake and genprompt info to all regions:
@@ -267,24 +300,30 @@ mc_fall17 = [
 samples = {}
 samples["fakerate"] = {
             #"Summer16": mc_summer16,
-            "Run2016": ["Run2016*JetHT*root"],
+            #"Run2016": ["Run2016*JetHT*root"],
+            "Run2016": ["Run2016H*JetHT*root"],
             #"Fall17": mc_fall17,
             #"Run2017": ["Run2017*JetHT*root"],
             #"Run2018": ["Run2018*JetHT*root"],
           }
 samples["kappa"] = {
             #"Summer16": mc_summer16,
-            "Run2016": ["Run2016*SingleElectron*root"],
+            #"Run2016": ["Run2016*SingleElectron*root"],
+            "Run2016": ["Run2016H*SingleElectron*root"],
             #"Fall17": mc_fall17,
             #"Run2017": ["Run2017*SingleElectron*root"],
             #"Run2018": ["Run2018*EGamma*root"],
           }
 samples["analysis"] = {
             #"Summer16": mc_summer16,
-            "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
-            "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
-            "Run2016MET": ["Run2016*MET*root"],
-            "Run2016JetHT": ["Run2016*JetHT*root"],
+            #"Run2016SingleElectron": ["Run2016*SingleElectron*root"],
+            #"Run2016SingleMuon": ["Run2016*SingleMuon*root"],
+            #"Run2016MET": ["Run2016*MET*root"],
+            #"Run2016JetHT": ["Run2016*JetHT*root"],
+            "Run2016SingleElectron": ["Run2016H*SingleElectron*root"],
+            "Run2016SingleMuon": ["Run2016H*SingleMuon*root"],
+            "Run2016MET": ["Run2016H*MET*root"],
+            "Run2016JetHT": ["Run2016H*JetHT*root"],
             #"Fall17": mc_fall17,
             #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
             #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
@@ -372,10 +411,10 @@ def submit_files(mode, outputfolder, options, submit = True):
             fin.Close()
             if nev>0 and int(nev/options.jobs_per_file)>0:
                 for iStart in range(0, nev, int(nev/options.jobs_per_file)):
-                    cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode %s --event_start %s --nev %s; " % (this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode, iStart, int(nev/options.jobs_per_file))
+                    cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode %s --event_start %s --nev %s --workingpoint %s; " % (this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode, iStart, int(nev/options.jobs_per_file), options.workingpoint)
                     commands.append(cmd)
         else:
-            cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode %s; " % (this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode)
+            cmd = "./%s --outputfolder %s --inputfile %s --outputfile %s --mode %s --workingpoint %s; " % (this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode, options.workingpoint)
             commands.append(cmd)
             
     if options.files_per_job>1:
@@ -396,26 +435,35 @@ def spawn_jobs(options):
     os.system("mkdir -p %s" % options.outputfolder)
     os.system("mkdir -p %s_fakerate" % options.outputfolder)
     os.system("mkdir -p %s_kappa" % options.outputfolder)
+    
+    this_script_name = os.path.basename(__file__)
+    os.system("cp %s %s/" % (this_script_name, options.outputfolder) )
+    
     outputfolder_fakerate = options.outputfolder + "_fakerate"
     outputfolder_kappa = options.outputfolder + "_kappa"
     rootfile = options.outputfolder + "/fakeratekappa.root"
 
-    if os.path.exists(rootfile): os.system("rm " + rootfile)
-    print "Getting fake rate..."
-    cmds_fakerate = submit_files("fakerate", outputfolder_fakerate, options, submit = False)
-    print "Getting kappa..."
-    cmds_kappa = submit_files("kappa", outputfolder_kappa, options, submit = False)
+    if 1:
+        if os.path.exists(rootfile): os.system("rm " + rootfile)
+        print "Getting fake rate..."
+        cmds_fakerate = submit_files("fakerate", outputfolder_fakerate, options, submit = False)
+        print "Getting kappa..."
+        cmds_kappa = submit_files("kappa", outputfolder_kappa, options, submit = False)
+        GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
     
-    GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
-    
-    hadd_everything(samples["fakerate"], outputfolder_fakerate)
-    calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakecr", "fakerate")
-    hadd_everything(samples["kappa"], outputfolder_kappa)
-    calculate_ratio("kappa", rootfile, outputfolder_kappa, "sr", "promptECaloSideband", "kappa")
+    if 1:
+        hadd_everything(samples["fakerate"], outputfolder_fakerate)
+        calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakecr", "fakerate")
+        hadd_everything(samples["kappa"], outputfolder_kappa)
+        calculate_ratio("kappa", rootfile, outputfolder_kappa, "sr", "promptECaloSideband", "kappa")
 
-    # submitting analysis:
-    submit_files("analysis", options.outputfolder, options)
-    hadd_everything(samples["analysis"], options.outputfolder)
+    if 1:
+        submit_files("analysis", options.outputfolder, options)
+        hadd_everything(samples["analysis"], options.outputfolder)
+
+    if 1:
+        os.system("./plot_fakerate.py %s" % options.outputfolder)
+        os.system("./plot_validation.py %s" % options.outputfolder)
 
 
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename):
@@ -558,7 +606,10 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
             for region in regions:
                 h_name = data_period + "_" + variable + "_" + event_selection + "_" + region
                 if ":" not in variable:
-                    histograms[h_name] = TH1F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2])
+                    if binnings[mode][variable][0] == "variable":
+                        histograms[h_name] = TH1F(h_name, h_name, len(binnings[mode][variable][1:]) - 1, array('d', binnings[mode][variable][1:]) )                    
+                    else:
+                        histograms[h_name] = TH1F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2])
                 else:
                     histograms[h_name] = TH2F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2], binnings[mode][variable][3], binnings[mode][variable][4], binnings[mode][variable][5])
     
@@ -618,8 +669,16 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
         if iEv < int(event_start): continue
         if int(nevents) > 0 and iEv > int(nevents) + int(event_start): break
         
-        if (iEv+1) % 100 == 0:
-            print "%s: %s/%s" % (filename.split("/")[-1], iEv + 1, nev_tree)
+        if (iEv+1) % 10000 == 0:
+            if int(event_start) < 0:
+                Nstart = iEv
+            else:
+                Nstart = int(event_start) + iEv
+            if int(event_start) + int(nevents) > nev_tree:
+                Nend = nev_tree
+            else:
+                Nend = int(event_start) + int(nevents)
+            print "Running %s on %s: %s/%s" % (mode, filename.split("/")[-1], Nstart, Nend)
 
         weight = 1.0
         if not is_data:
@@ -773,6 +832,8 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
 
 
 if __name__ == "__main__":
+
+    print "Using working point %s..." % options.workingpoint
 
     if options.inputfile == "":
         spawn_jobs(options)

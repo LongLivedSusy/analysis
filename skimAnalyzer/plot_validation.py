@@ -12,13 +12,6 @@ color_promptbg = kAzure + 1
 
 def get_histo(root_file, label, lumi = False, title = False, color = False):
     
-    #print label
-    
-    #if "gen" in label:
-    #    label = label.replace("_short", "short").replace("_long", "long").replace("_gen", "gen")
-    
-    #print "getting %s from %s" % (label, root_file)
-    
     fin = TFile(root_file, "read")
     histo = fin.Get(label)
     histo.SetDirectory(0)
@@ -61,7 +54,7 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, pdff
     if use_prompt_fakesubtraction:
         #histos["promptprediction"] = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptpredictionsubtracted_" + category, lumi, "Prompt prediction", color_promptbg)
         histos["promptprediction"] = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptprediction_tracks_pt_" + category, lumi, "Prompt prediction", color_promptbg)
-        h_fake_ccontribution = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptRegionCkappa2_" + fakeratevariable + "_" + category, lumi, "Prompt prediction", color_promptbg)
+        h_fake_ccontribution = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptRegionCkappa_" + fakeratevariable + "_" + category, lumi, "Prompt prediction", color_promptbg)
         histos["promptprediction"].Add(h_fake_ccontribution, -1)
 
     else:
@@ -76,24 +69,7 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, pdff
         #histos["promptECaloLowgenprompt"] = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptECaloLowgenprompt_" + category, lumi, "MC prompt", color_promptbg)
         histos["promptECaloSidebandgenfake"] = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptECaloSidebandgenfake_" + category, lumi, "MC fakes", color_fakebg)
         histos["promptECaloSidebandgenprompt"] = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptECaloSidebandgenprompt_" + category, lumi, "MC prompt", color_promptbg)    
-    
-    #c1 = shared_utils.mkcanvas()
-    #htmp = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptRegionCkappa1_" + category, lumi, "htmp", color_promptbg)
-    #htmp.Draw()
-    #c1.Print("kappa1%s.pdf" % category)
-    #
-    #htmp = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptRegionCkappa2_" + category, lumi, "htmp", color_promptbg)
-    #htmp.Draw()
-    #c1.Print("kappa2%s.pdf" % category)
-    #
-    #htmp = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptRegionCkappa3_" + category, lumi, "htmp", color_promptbg)
-    #htmp.Draw()
-    #c1.Print("kappa3%s.pdf" % category)
-    #
-    #htmp = get_histo(root_file, datalabel + "_" + variable + "_" + region + "_promptRegionCkappa4_" + category, lumi, "htmp", color_promptbg)
-    #htmp.Draw()
-    #c1.Print("kappa4%s.pdf" % category)
-    
+        
     def makeplot(stacked_histograms, datahist, plotlabel):
 
         foldername = outputfolder + "/%s/%s%s%s_%sFR" % (data_period, category.replace("short", "Short").replace("long", "Long"), region, plotlabel, fakeratevariable.replace("_", "").replace(":", "-"))
@@ -103,6 +79,8 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, pdff
         
         canvas = shared_utils.mkcanvas()
         legend = shared_utils.mklegend(x1 = 0.6, y1 = 0.4, x2 = 0.9, y2 = 0.8)
+        
+        legend.SetHeader("%s, %s tracks" % (region, category))
     
         ymin = 1e-1; ymax = 1e2
         datahist.GetYaxis().SetRangeUser(ymin, ymax)
@@ -112,7 +90,7 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, pdff
     
         hratio, pads = shared_utils.FabDraw(canvas, legend, datahist, stacked_histograms, datamc = 'Data', lumi = lumi/1e3)
         stacked_histograms[-1].SetTitle("")
-    
+        
         hratio.GetYaxis().SetRangeUser(-0.1,2.6)    
         if "Run201" in dataid:
             hratio.GetYaxis().SetTitle('Data/prediction')
@@ -256,11 +234,18 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, pdff
 
 if __name__ == "__main__":
 
+    parser = OptionParser()
+    (options, args) = parser.parse_args()
+    
     gROOT.SetBatch(True)
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
 
-    histograms_folder = "ddbg_64_p15OptionalJetVeto_v5"
+    if len(args)>0:
+        histograms_folder = args[0]
+    else:
+        print "Usage: ./plot_validation.py <folder>"
+        quit()
     
     use_prompt_fakesubtraction = True
 
@@ -277,9 +262,11 @@ if __name__ == "__main__":
                 #"HadBaseline",
                 #"SMuBaseline",
                 #"SElBaseline",
-                #"QCDLowMHTValidationJets",
+                "QCDLowMHTValidation",
                 "SMuValidationMT",
                 "SElValidationMT",
+                "SElValidationHighMT",
+                "SMuValidationHighMT",                
                 #"SElValidationZLL",
                 #"SMuValidationZLL",
                 #"PromptDY",
@@ -294,8 +281,16 @@ if __name__ == "__main__":
                   #"n_tags",
                   #"n_goodjets",
                   #"n_btags",
+                  "HT",
+                  "MHT",
+                  "n_goodjets",
+                  "n_btags",
                   "leadinglepton_mt",
                   "tracks_invmass",
+                  "tracks_is_pixel_track",
+                  "tracks_pt",
+                  "tracks_eta",
+                  "tracks_deDxHarmonic2pixel",
                   #"tracks_is_pixel_track",
                   #"tracks_pt",
                   #"n_tags",
@@ -340,16 +335,6 @@ if __name__ == "__main__":
             for category in categories:
 
                 print region, variable, category
-
-                #if (variable == "tracks_is_pixel_track" or "region" in variable):
-                #    if category != "":
-                #        continue
-
-                #if category == "" and not (variable == "tracks_is_pixel_track" or "region" in variable):
-                #    continue
-
-                #if category == "" and region != "Baseline":
-                #    continue
 
                 for data_period in data_periods:
 
