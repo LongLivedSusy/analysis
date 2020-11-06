@@ -194,8 +194,6 @@ else:
         BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
     
 if workingpoint == "A":
-    #ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/(event.tracks_pt[i_track] * TMath.CosH(event.tracks_eta[i_track]))>0.15 and event.tracks_matchedCaloEnergy[i_track]/(event.tracks_pt[i_track] * TMath.CosH(event.tracks_eta[i_track]))<0.80"
-    #ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/(event.tracks_pt[i_track] * TMath.CosH(event.tracks_eta[i_track]))<0.12"
     ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.15 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.80"
     ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.12"
 elif workingpoint == "B":
