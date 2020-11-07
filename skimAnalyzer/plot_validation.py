@@ -247,7 +247,7 @@ if __name__ == "__main__":
         print "Usage: ./plot_validation.py <folder>"
         quit()
     
-    use_prompt_fakesubtraction = True
+    use_prompt_fakesubtraction = False
 
     fakeratevariable = "HT"
     #fakeratevariable = "HT:n_allvertices"

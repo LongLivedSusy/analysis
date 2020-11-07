@@ -138,7 +138,7 @@ if __name__ == "__main__":
                             if category == "combined":
                                 break
                               
-                    legend = shared_utils.mklegend(x1 = 0.15, y1 = 0.7, x2 = 0.5, y2 = 0.9)
+                    legend = shared_utils.mklegend(x1 = 0.15, y1 = 0.7, x2 = 0.5, y2 = 0.83)
                     legend.SetTextSize(0.04)
                     canvas = shared_utils.mkcanvas()
 
@@ -164,15 +164,16 @@ if __name__ == "__main__":
                         elif fakeratetype == "kappa":
                             ylabel = "Prompt transfer factor"
                                                                             
-                        histos[label].SetTitle(";%s;%s" % (variable, ylabel))
+                        histos[label].SetTitle(";%s;%s" % (variable.replace("tracks_pt", "p_{T}^{track} (GeV)"), ylabel))
                         legendlabel = "%s, %s tracks" % (label.split("_")[0], label.split("_")[-1])
                         legend.AddEntry(histos[label], legendlabel)
 
                     maxvalue = 3
                     for i, label in enumerate(histos):
-                        histos[label].GetYaxis().SetRangeUser(0, 1.1*maxvalue)
+                        histos[label].GetYaxis().SetRangeUser(0, 1.1 * maxvalue)
 
                     legend.Draw()
+                    shared_utils.stamp()
                         
                     canvas.SaveAs(folder + "_plots/" + fakeratetype + "_" + variable + "_" + identifier + ".pdf")
             

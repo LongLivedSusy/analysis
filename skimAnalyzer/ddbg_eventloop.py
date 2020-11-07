@@ -196,9 +196,9 @@ if phase == 0:
         BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
     elif options.workingpoint == "C":
         BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.05"
-        BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.55 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
+        BdtSidebandShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.5 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.1"
         BdtSignalLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0"
-        BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.4 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
+        BdtSidebandLong = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.3 and event.tracks_mva_tight_may20_chi2_pt15[i_track]<-0.05"
 else:
     if options.workingpoint == "A":
         BdtSignalShort = "event.tracks_mva_tight_may20_chi2_pt15[i_track]>0"
@@ -223,7 +223,7 @@ elif options.workingpoint == "B":
     ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.22 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.80"
     ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.20"
 elif options.workingpoint == "C":
-    ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.20 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.80"
+    ECaloSideband = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.20 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<1.20"
     ECaloBasecut = "event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.20"
  
 regions = collections.OrderedDict()
@@ -237,8 +237,8 @@ if phase == 0:
         regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
         regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
     elif options.workingpoint == "C":
-        regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.4 and " + ECaloSideband
-        regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.4 and " + ECaloSideband
+        regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.5 and " + ECaloSideband
+        regions["promptECaloSideband_long"] = baseline_long + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.3 and " + ECaloSideband
 elif phase == 1:
     if options.workingpoint == "A":
         regions["promptECaloSideband_short"] = baseline_short + " and event.tracks_mva_tight_may20_chi2_pt15[i_track]>-0.25 and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3) and " + ECaloSideband
@@ -262,9 +262,9 @@ for fakerate_variable in variables["fakerate"]:
     regions["fakeprediction_%s_long" % fakerate_variable] = regions["fakecr_long"]
     regions["promptRegionCkappa_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)")
     regions["promptRegionCkappa_%s_long" % fakerate_variable] = regions["promptECaloSideband_long"].replace("event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)", "event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)")
-    if options.workingpoint == "C":
-        regions["promptRegionCkappa_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"] + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
-        regions["promptRegionCkappa_%s_long" % fakerate_variable] = regions["promptECaloSideband_long"] + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+    #if options.workingpoint == "C":
+    #    regions["promptRegionCkappa_%s_short" % fakerate_variable] = regions["promptECaloSideband_short"] + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
+    #    regions["promptRegionCkappa_%s_long" % fakerate_variable] = regions["promptECaloSideband_long"] + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(2*3.14/3)"
 
 
 # add genfake and genprompt info to all regions:
@@ -449,7 +449,9 @@ def spawn_jobs(options):
         cmds_fakerate = submit_files("fakerate", outputfolder_fakerate, options, submit = False)
         print "Getting kappa..."
         cmds_kappa = submit_files("kappa", outputfolder_kappa, options, submit = False)
-        GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
+        print cmds_kappa[0]
+        quit()
+        #GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
     
     if 1:
         hadd_everything(samples["fakerate"], outputfolder_fakerate)
