@@ -24,6 +24,9 @@ thebinning['MatchedCalo'] = [100,0,100]
 binning['FakeCrNr'] = [6,-3,3]
 debugmode = False
 
+exomode = False
+
+
 defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-FEE6C100-4AA5-E911-9CD0-B496910A9A28_RA2AnalysisTree.root"#"/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_230000-FCD9083D-3E88-E911-B3D1-0CC47A7EEE76_RA2AnalysisTree.root"#"/pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_50cm/July5-SUMMER19sig/g1700_chi1550_27_200970_step4_50miniAODSIM_*_RA2AnalysisTree.root"
 import argparse
 parser = argparse.ArgumentParser()
@@ -53,7 +56,7 @@ elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or 
 if is2016: phase = 0
 else: phase = 1
 
-candPtCut = 30
+candPtCut = 15
 candPtUpperCut = 6499
 if is2016: BTAG_deepCSV = 0.6324
 if is2017: BTAG_deepCSV = 0.4941
@@ -84,18 +87,22 @@ identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').repl
 print 'Identifier', identifier
 
 
-
-calib_version = '-SingleElectron'
-if 'Run201' in identifier: 
+calib_version = '-SingleMuon'
+calib_version = ''# Sang-Il's new key names
+if 'Run20' in identifier: 
 	keyforcalibs = identifier.split('-')[0].replace('skims','').replace('skim','')+calib_version
-	dedxcalib_barrel = datacalibdict_Run2016_barrel[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
-	dedxcalib_endcap = datacalibdict_Run2016_endcap[keyforcalibs]/datacalibdict_Run2016_barrel['Summer16']
+	dedxcalib_barrel = DedxCorr_Pixel_barrel[keyforcalibs]
+	dedxcalib_endcap = DedxCorr_Pixel_endcap[keyforcalibs]
 elif 'Summer16' in identifier: 
-	dedxcalib_barrel = 1.
-	dedxcalib_endcap = datacalibdict_Run2016_endcap['Summer16']/datacalibdict_Run2016_barrel['Summer16']
+	dedxcalib_barrel = DedxCorr_Pixel_barrel['Summer16']
+	dedxcalib_endcap = DedxCorr_Pixel_endcap['Summer16']
+elif 'Fall17' in identifier: 
+	dedxcalib_barrel = DedxCorr_Pixel_barrel['Fall17']
+	dedxcalib_endcap = DedxCorr_Pixel_endcap['Fall17']
 else: 
 	dedxcalib_barrel = 1.0
 	dedxcalib_endcap = 1.0	
+	
 	
 thejet = TLorentzVector()
 	
@@ -127,15 +134,76 @@ if not newfileEachsignal:
 
 lowht = 0
 inf = 999999
-regionCuts = {}
 #varlist_                        = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 regionCuts = {}
-varlist_                                   = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'FakeCrNr', 'Log10DedxMass','BinNumber', 'Met']
-#regionCuts['Baseline']                     = [(100,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),       (-inf,inf),         (0,inf),   (0,inf),  (110,inf), (110,inf), (candPtCut,inf), (-2.4,2.4), (0,10),       (0,inf),    (-inf,inf),  (-inf,inf)]
-regionCuts['Baseline']                     = [(lowht,inf), (0,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,10),     (0,inf),    (-inf,inf),  (-inf,inf)]
+
+call = 20
+calm = 25
+calh = 150
 
 
-ncuts = 17
+call = 20
+calm = 20
+calh = 90
+
+dphiboundary = TMath.Pi()/2#3.14159*2/3
+
+	
+	
+if is2016: 
+	mvaLoose = -0.5
+	#mvaLoose = -1	
+	mvaTightLong = 0.05
+	mvaTightShort = 0.00
+else:
+	mvaLoose = -0.6
+	#mvaLoose = -1	
+	mvaTightLong = 0.00
+	mvaTightShort = -0.1	
+	
+varlist_                                  = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+regionCuts['LongBaseline']                            = [(lowht,inf),   (30,inf),    (1,inf), (0,inf), (1,inf), (0,0), (0,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),     (0,call),   (0,inf),   (0,dphiboundary), (mvaTightShort,inf)]
+regionCuts['ShortBaseline']                            = [(lowht,inf),   (30,inf),    (1,inf), (0,inf), (0,inf), (1,inf), (0,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),     (0,call),   (0,inf),   (0,dphiboundary), (mvaTightLong,inf)]
+
+dedxidx = varlist_.index('DeDxAverage')
+srindex = varlist_.index('BinNumber')
+mcalidx = varlist_.index('MatchedCalo')
+statidx = varlist_.index('DtStatus')
+dphiidx = varlist_.index('DPhiMhtDt')
+mvaidx = varlist_.index('LeadTrkMva')
+
+regionkeys = regionCuts.keys()
+for key in regionkeys:
+
+	#for prompt measurement
+	newlist2 = list(regionCuts[key])
+	newlist2[mcalidx] = (calm,calh)
+	newlist2[mvaidx] = (mvaLoose,inf)		
+	newkey = key+'CaloSideband'
+	regionCuts[newkey] = newlist2
+
+	#for fake measurement (trivial with pi/2)
+	newlist1 = list(regionCuts[key])
+	newlist1[dphiidx] = (dphiboundary,3.2)
+	if 'Short' in key: newlist1[mvaidx] = (mvaTightShort,inf)
+	else: newlist1[mvaidx] = (mvaTightLong,inf)	
+	newkey = key+'FakeCr'
+	regionCuts[newkey] = newlist1
+
+	#contamination region - unweighted, to subtract from prompt region, weighted to subtract from fake
+	newlist3 = list(regionCuts[key])
+	newlist3[mcalidx] = (calm,calh)
+	newlist3[dphiidx] = (dphiboundary,3.2)
+	newlist3[mvaidx] = (mvaLoose ,inf)
+	newkey = key+'CaloSidebandFakeCr'
+	regionCuts[newkey] = newlist3
+	
+	newkey = key+'CaloSidebandFakeCrKpW'
+	regionCuts[newkey] = newlist3
+	
+	
+	
+ncuts = 19
 def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
 	if not fvector[0]>=fvector[1]: return False
 	iomits = []
@@ -194,36 +262,33 @@ for ifile, f in enumerate(inputFiles):
 nentries = c.GetEntries()
 #nentries = 100
 
-
-
 c.Show(0)
 
 
-'''
-fMask = TFile('usefulthings/Masks.root')
-if 'Run2016' in inputFileNames: hMask = fMask.Get('hEtaVsPhiDT_maskData-2016Data-2016')
-else: 
-	#hMask = fMask.Get('hEtaVsPhiDTRun2016')
-	hMask = ''
-'''
-
-fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
+fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to13.root')
 hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
+
+if exomode: hMask = ''
+
 
 import os
 if phase==0:
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml'	
 else:
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-loose/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-loose/weights/TMVAClassification_BDT.weights.xml'	
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml'	
 
-readerPixelOnly = TMVA.Reader()
-readerPixelStrips = TMVA.Reader()
-prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
-prepareReaderPixel_loose(readerPixelOnly, pixelXml)
-#prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
-#prepareReaderPixel(readerPixelOnly, pixelXml)
+readerPixelOnly = TMVA.Reader("")
+readerPixelOnly.SetName('Reader1')
+readerPixelStrips = TMVA.Reader("")
+readerPixelStrips.SetName('Reader2')
+
+print 'going to process', pixelXml
+prepareReaderPixel_fullyinformed(readerPixelOnly, pixelXml)
+
+print 'going to process', pixelstripsXml
+prepareReaderPixelStrips_fullyinformed(readerPixelStrips, pixelstripsXml)
 
 
 import time
@@ -311,16 +376,14 @@ for ientry in range(nentries):
 	disappearingTracks = []    
 	nShort, nLong = 0, 0
 	for itrack, track in enumerate(c.tracks):
-		if not track.Pt() > 10 : continue		
+		if not track.Pt() > 15 : continue		
 		if not abs(track.Eta()) < 2.4: continue
-		#if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442):  continue
-		if not isBaselineTrack(track, itrack, c, hMask): 
-			continue
+
+		if not isBaselineTrackLoosetag(track, itrack, c, hMask):  continue
 		basicTracks.append([track,c.tracks_charge[itrack], itrack])
 		if not (track.Pt() > candPtCut and track.Pt()<candPtUpperCut): continue     	
 		
-		
-		dtstatus, mva = isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips)
+		dtstatus, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaLoose,mvaLoose])
 		if dtstatus==0: continue
 			
 		drlep = 99
@@ -341,7 +404,7 @@ for ientry in range(nentries):
 				thejet = jet
 				break
 		if isjet: 
-			print 'losing to a jet', thejet.Pt()
+			print ientry, 'losing to a jet', thejet.Pt()
 			continue
 			
 		ischargino = False
@@ -370,7 +433,8 @@ for ientry in range(nentries):
 			dedx = c.tracks_deDxHarmonic2pixel[itrack]
 		if abs(track.Eta())<1.5: dedxcalib = dedxcalib_barrel
 		else: dedxcalib = dedxcalib_endcap
-		disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], itrack])
+
+		disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], mva, itrack])
 
 
 	if not len(disappearingTracks)>0: continue
@@ -399,19 +463,12 @@ for ientry in range(nentries):
 	metvec = TLorentzVector()
 	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
 				  
-	if len(disappearingTracks)>0: 
-		dt = disappearingTracks[0][0]
-		pt = dt.Pt()
-		eta = abs(dt.Eta()) 
-		dedx = disappearingTracks[0][2] 
-		Log10DedxMass = TMath.Log10(TMath.Sqrt((dedx-3.01)*pow(c.tracks[disappearingTracks[0][3]].P(),2)/1.74))
-	else: 
-		print 'should never see this'
-		dt = TLorentzVector()
-		pt = -1
-		eta = -1
-		dedx = -1
-		Log10DedxMass = 0.01
+				  
+	dt, status, dedxPixel, mvascore, itrack = disappearingTracks[0]
+	
+	pt = dt.Pt()
+	eta = abs(dt.Eta()) 
+	log10dedxmass = TMath.Log10(TMath.Sqrt((dedxPixel-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
 		
 	adjustedBTags = 0        
 	adjustedJets = []
@@ -419,7 +476,7 @@ for ientry in range(nentries):
 	adjustedMht = TLorentzVector()
 	adjustedMht.SetPxPyPzE(0,0,0,0)
 	for ijet, jet in enumerate(c.Jets):
-		if not jet.Pt()>30: continue			
+		if not jet.Pt()>25: continue			
 		if not abs(jet.Eta())<5.0: continue
 		someoverlap = False
 		for dt_ in disappearingTracks: 
@@ -445,15 +502,19 @@ for ientry in range(nentries):
 		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoMuons[0][0]+dt).M()
 		else: invmass = 999			
 	else: 
-		mT = 999
-		invmass = 999	
+		mT, invmass = 999, 999
 	
-	matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
+	#matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
+	matchedcalofrac = 100*c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]/(dt.P())
+		
+	dphiMhtDt = abs(adjustedMht.DeltaPhi(dt))
 
-	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedx, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalo, disappearingTracks[0][1],Log10DedxMass]
+	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets,adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, status, dphiMhtDt, mvascore]
 	fv.append(getBinNumber(fv))
-	fv.append(c.MET)
+	fv.extend([c.MET, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),log10dedxmass])
 	
+	
+	print 'dphi, dt, mht', dphiMhtDt
 	if isdata: weight = 1
 	elif len(RecoElectrons)+len(RecoMuons)>0: 
 		weight = 0.9*signalweight#*c.puWeight
