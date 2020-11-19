@@ -13,16 +13,10 @@ from code import interact
 import collections
 
 
-'''
-gSystem.Load("libFWCoreFWLite.so")
-gSystem.Load("libDataFormatsFWLite.so")
-gSystem.Load("libDataFormatsPatCandidates.so")
-FWLiteEnabler.enable()
-'''
-
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False 
 
+exomode = False
 
 listOfEventNumbers = []
 
@@ -65,7 +59,7 @@ ClosureMode = True #false means run as if real data
 UseFits = False
 UseJets_bJetTagDeepCSVBvsAll = True
 sayalot = False
-candPtCut = 30
+candPtCut = 15
 candPtUpperCut = 6499
 
 
@@ -171,91 +165,137 @@ hHtWeighted = TH1F('hHtWeighted','hHtWeighted',100,0,3000)
 
 inf = 999999
 
-calm = 20
-calh = 25
-
-calm = 25
-calh = 40
-
-calm = 10
-calh = 15
-
-calm = 10
-calh = 13
-
-calm = 13
-calh = 27
-
-calm = 13
-calh = 35
-
-calm = 15
-calh = 25
-
-calm = 15
-calh = 25
-
-calm = 15
-calh = 22
-
-calm = 17
-calh = 27
-
-call = 12
-
 calm = 12
 calh = 80
 
-calm = 15
-calh = 140
+call = 20
+calm = 50
+calh = 150
+
+
 
 
 lowht = 0
-lowdphi, hidphi = 0.0,3.2
-#lowdphi, hidphi = 0.0,1.0
-#hihidphi = hidphi#hihidphi = 3.14159-1
-hihidphi = 3.14159*2/3
-hihidphi = 3.14159*3/4
+#dphiboundary = TMath.Pi()/2#3.14159*2/3
+dphiboundary = TMath.Pi()*2/3#3.14159*2/3
 
-#lowlowmva = 0.0
+'''
+#mvaLoose = 0.0
 if is2016: 
-	lowlowmva = 0.13
-	lowlowmva = 0.0	
-	lowlowmvaFake = -0.1
-	lowmva, himva = 0.13, inf
+	mvaLoose = 0.0	
+	mvaLoose = -0.4
+	mvaTightLong, inf = 0.13, inf
 else:
-	lowlowmva = 0.0
-	lowlowmva = -0.2	
-	lowlowmvaFake = -0.3	
-	lowmva, himva = 0.0, inf	
+	mvaLoose = -0.4	
+	mvaLoose = -0.3	
+	mvaTightLong, inf = 0.0, inf	
+'''
+	
+'''
+p0 short    0.74        > -0.05
+p0 long     0.70        > 0
+p1 short    0.76        > -0.1
+p1 long     0.78        > -0.05
+'''
+
+#classic
+if is2016: 
+	mvaLoose = -0.5
+	mvaTightLong = 0.13
+	mvaTightShort = -0.05
+else:
+	mvaLoose = -0.5	
+	mvaTightLong = 0.0
+	mvaTightShort = -0.1
+	
+##Viktor!
+if is2016: 
+	mvaLoose = -0.5
+	mvaTightLong = 0.0
+	mvaTightShort = -0.05
+else:
+	mvaLoose = -0.5	
+	mvaTightLong = 0.0
+	mvaTightShort = -0.1
+
+
+#classic
+if is2016: 
+	mvaLoose = -0.5
+	mvaTightLong = 0.13
+	mvaTightShort = -0.05
+else:
+	mvaLoose = -0.5	
+	mvaTightLong = 0.0
+	mvaTightShort = -0.1
+	
+	
+#TightenPhase0
+if is2016: 
+	mvaLoose = -0.4
+	#mvaLoose = -1	
+	mvaTightLong = 0.05
+	mvaTightShort = 0.00
+else:
+	mvaLoose = -0.4	
+	#mvaLoose = -1	
+	mvaTightLong = 0.00
+	mvaTightShort = -0.1	
+	
+	
+	
+#FutureCuts
+if is2016: 
+	mvaLoose = -0.7
+	mvaLoose = -0.4	
+	#mvaLoose = -1	
+	mvaTightLong = 0.05
+	mvaTightShort = 0.00
+else:
+	mvaLoose = -0.7
+	mvaLoose = -0.4	
+	#mvaLoose = -1	
+	mvaTightLong = 0.00
+	mvaTightShort = -0.1	
+	
+##testing with Viktor's long criteria
+'''
+if is2016: 
+	mvaLoose = -0.3
+	mvaTightLong = 0
+else:
+	mvaLoose = -0.3	
+	mvaTightLong = -0.05
+'''
 
 regionCuts = {}
-varlist_                                           = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
-regionCuts['Baseline']                            = [(lowht,inf),   (30,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (0,inf), (0,2.4),     (0,call),   (0,inf),   (lowdphi,hidphi), (lowmva,himva)]
+varlist_                                             = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+regionCuts['ShortBaseline']                          = [(lowht,inf),   (30,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),  (0,call),   (1,1),   (0,dphiboundary), (mvaTightShort,inf)]
+regionCuts['LongBaseline']                           = [(lowht,inf),   (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (30,inf),       (0,2.4),  (0,call),   (2,2),   (0,dphiboundary), (mvaTightLong,inf)]
 if processskims:
-	##regionCuts['ShortLowMhtBaseline']              = [(lowht,inf), (100,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),      (1,1),    (lowdphi,hidphi), (lowmva,himva)]
-	#varlist_                                     = ['Ht',         'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus',  'BinNumber', 'Met']
-	##regionCuts['ShortBaseline']                    = [(lowht,inf), (0,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,inf),   (0,inf), (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),     (1,1),       (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['ShortHadBaseline']                 = [(lowht,inf),(150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0 ),    (0,0),   (0,inf),   (100,inf), (candPtCut,inf), (0,2.4), (0,call),     (1,1),       (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['ShortSMuBaseline']                 = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0 ),    (1,inf), (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),     (1,1),      (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['ShortSElBaseline']                 = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (1,inf ),  (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),     (1,1),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['ShortSElValidZLL']                   = [(lowht,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (1,inf ),  (0,0),     (70,110),   (30,95),  (candPtCut,inf), (0,2.4), (0,call),    (1,1),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['ShortSElValidZLLHighMT']             = [(lowht,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (1,inf ),  (0,0),     (70,110),   (95,inf),  (candPtCut,inf), (0,2.4), (0,call),  (1,1),      (lowdphi,hidphi), (lowmva,himva)]	
-	regionCuts['ShortSElValidMT']                    = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (1,1 ),    (0,0),     (110,inf),  (30,95),   (candPtCut,inf), (0,2.4), (0,call),   (1,1),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['ShortSMuValidMT']                    = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0),     (1,1),     (110,inf),  (30,95),   (candPtCut,inf), (0,2.4), (0,call),   (1,1),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['ShortHadMhtSideband']                = [(lowht,inf), (0,50),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0),   (0,0),       (110,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,call),   (1,1),      (lowdphi,hidphi), (lowmva,himva)]
+	##regionCuts['ShortLowMhtBaseline']              = [(lowht,inf), (100,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),      (1,1),    (0,inf), (mvaTightLong,inf)]
+	#varlist_                                        = ['Ht',         'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',    'MatchedCalo', 'DtStatus',  'BinNumber', 'Met']
+	##regionCuts['ShortBaseline']                    = [(lowht,inf), (0,inf),   (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,inf),   (0,inf), (110,inf), (100,inf), (candPtCut,inf), (0,2.4),    (0,call),     (1,1),       (0,inf), (mvaTightLong,inf)]
+	##regionCuts['ShortHadBaseline']                 = [(lowht,inf),(150,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0 ),    (0,0),   (0,inf),   (100,inf), (candPtCut,inf), (0,2.4),    (0,call),     (1,1),       (0,inf), (mvaTightLong,inf)]
+	##regionCuts['ShortSMuBaseline']                 = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0 ),    (1,inf), (110,inf), (100,inf), (candPtCut,inf), (0,2.4),    (0,call),     (1,1),      (0,inf), (mvaTightLong,inf)]
+	##regionCuts['ShortSElBaseline']                 = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (1,inf ),  (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4),   (0,call),     (1,1),      (0,inf), (mvaTightLong,inf)]
+	regionCuts['ShortSElValidZLL']                   = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (1,inf), (0,0),      (0.0,inf),   (dedxcutLow,inf),        (1,1 ),  (0,0),     (70,110),   (30,100),  (candPtCut,inf), (0,2.4),  (0,call),    (1,1),      (0,dphiboundary), (mvaTightShort,inf)]
+	regionCuts['ShortSElValidZLLHighMT']             = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (1,inf), (0,0),      (0.0,inf),   (dedxcutLow,inf),        (1,1 ),  (0,0),     (70,110),   (100,inf),  (candPtCut,inf), (0,2.4), (0,call),  (1,1),      (0,dphiboundary), (mvaTightShort,inf)]	
+	regionCuts['ShortSElValidMT']                    = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (1,inf), (0,0),      (0.0,inf),   (dedxcutLow,inf),        (1,1 ),    (0,0),     (120,inf),  (30,100),   (candPtCut,inf), (0,2.4), (0,call),   (1,1),      (0,dphiboundary), (mvaTightShort,inf)]
+	regionCuts['ShortSMuValidMT']                    = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (1,inf), (0,0),      (0.0,inf),   (dedxcutLow,inf),        (0,0),     (1,1),     (120,inf),  (30,100),   (candPtCut,inf), (0,2.4), (0,call),   (1,1),      (0,dphiboundary), (mvaTightShort,inf)]
+	regionCuts['ShortHadMhtSideband']                = [(lowht,inf), (0,30),    (1,inf), (0,inf), (1,inf), (1,inf), (0,0),      (0.0,inf),   (dedxcutLow,inf),        (0,0),   (0,0),       (120,inf),  (0,inf),  (candPtCut,inf),  (0,2.4),   (0,call),   (1,1),      (0,dphiboundary), (mvaTightShort,inf)]
 	#varlist_                                       = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons',    'InvMass', 'LepMT',       'TrkPt',  'TrkEta',  'MatchedCalo', 'DtStatus',     'BinNumber', 'Met']
-	##regionCuts['LongBaseline']                     = [(lowht,inf), (30,inf),    (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),   (2,2),     (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['LongLowMhtBaseline']               = [(lowht,inf), (100,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),    (2,2),     (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['LongHadBaseline']                  = [(lowht,inf),(150,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (0,0),    (0,inf),   (100,inf), (candPtCut,inf), (0,2.4), (0,call),    (2,2),     (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['LongSMuBaseline']                  = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (1,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),   (2,2),     (lowdphi,hidphi), (lowmva,himva)]
-	##regionCuts['LongSElBaseline']                  = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,inf ),  (0,inf),  (110,inf), (100,inf), (candPtCut,inf), (0,2.4), (0,call),   (2,2),     (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['LongSElValidZLL']                    = [(lowht,inf),     (30,inf),  (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),    (1,inf ),  (0,0),      (70,110),  (30,95),  (candPtCut,inf), (0,2.4), (0,call),    (2,2),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['LongSElValidZLLHighMT']             = [(lowht,inf),     (30,inf),  (0,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),     (1,inf ),  (0,0),      (70,110),  (95,inf),  (candPtCut,inf), (0,2.4), (0,call),  (2,2),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['LongSElValidMT']                    = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,1 ),    (0,0),      (110,inf), (30,95),   (candPtCut,inf), (0,2.4), (0,call),   (2,2),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['LongSMuValidMT']                     = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),        (0,0),     (1,1),      (110,inf), (30,95),   (candPtCut,inf), (0,2.4), (0,call),   (2,2),      (lowdphi,hidphi), (lowmva,himva)]
-	regionCuts['LongHadMhtSideband']               = [(lowht,inf), (0,50),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),            (0,0),     (0,0),      (110,inf), (0,inf), (candPtCut,inf), (0,2.4), (0,call),    (2,2),      (lowdphi,hidphi), (lowmva,himva)]
-#varlist_                                       = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo',      'DtStatus',    'BinNumber', 'Met']
+	##regionCuts['LongBaseline']                     = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf),   (30,inf),      (0,2.4), (0,call), (2,2),     (0,inf), (mvaTightLong,inf)]
+	##regionCuts['LongLowMhtBaseline']               = [(lowht,inf), (100,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (110,inf), (100,inf),   (30,inf),      (0,2.4), (0,call),    (2,2),     (0,inf), (mvaTightLong,inf)]
+	##regionCuts['LongHadBaseline']                  = [(lowht,inf),(150,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (0,0),    (0,inf),   (100,inf),   (30,inf),      (0,2.4), (0,call),    (2,2),     (0,inf), (mvaTightLong,inf)]
+	##regionCuts['LongSMuBaseline']                  = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0 ),    (1,inf),  (110,inf), (100,inf),   (30,inf),      (0,2.4), (0,call),   (2,2),     (0,inf), (mvaTightLong,inf)]
+	##regionCuts['LongSElBaseline']                  = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,inf ),  (0,inf),  (110,inf), (100,inf),   (30,inf),      (0,2.4), (0,call),   (2,2),     (0,dphiboundary), (mvaTightLong,inf)]
+	regionCuts['LongSElValidZLL']                    = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,0),   (1,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,1 ),    (0,0),      (70,110),  (30,100),  (30,inf),    (0,2.4),  (0,call),  (2,2),      (0,dphiboundary), (mvaTightLong,inf)]
+	regionCuts['LongSElValidZLLHighMT']              = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,0),   (1,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,1 ),    (0,0),      (70,110),  (100,inf),  (30,inf),    (0,2.4), (0,call),  (2,2),      (0,dphiboundary), (mvaTightLong,inf)]
+	regionCuts['LongSElValidMT']                     = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,0),   (1,inf),    (0.0,inf),   (dedxcutLow,inf),         (1,1 ),    (0,0),      (120,inf), (30,100),   (30,inf),    (0,2.4), (0,call),   (2,2),      (0,dphiboundary), (mvaTightLong,inf)]
+	regionCuts['LongSMuValidMT']                     = [(lowht,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (0,0),   (1,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0),     (1,1),      (120,inf), (30,100),   (30,inf),    (0,2.4), (0,call),   (2,2),      (0,dphiboundary), (mvaTightLong,inf)]
+	regionCuts['LongHadMhtSideband']                 = [(lowht,inf), (0,30),    (1,inf), (0,inf), (1,inf), (0,0),   (1,inf),    (0.0,inf),   (dedxcutLow,inf),         (0,0),     (0,0),      (120,inf), (0,inf), (30,inf),      (0,2.4), (0,call),    (2,2),      (0,dphiboundary), (mvaTightLong,inf)]
+#varlist_                                       = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo',      'DtStatus',    'dphiboundary', 'Met']
 
 dedxidx = varlist_.index('DeDxAverage')
 srindex = varlist_.index('BinNumber')
@@ -269,28 +309,33 @@ kappabinIdx = varlist_.index(varname_kappaBinning)
 regionkeys = regionCuts.keys()
 for key in regionkeys:
 
-	newlist1 = list(regionCuts[key])
-	###newlist1[statidx] = (-regionCuts[key][statidx][1],-regionCuts[key][statidx][0])#commenting this says ditch old fake CR
-	newlist1[dphiidx] = (hihidphi,3.2)
-	newlist1[mvaidx] = (lowlowmvaFake,lowmva)	
-	newkey = key+'FakeCr'
-	regionCuts[newkey] = newlist1
-
-
+	#for prompt measurement
 	newlist2 = list(regionCuts[key])
 	newlist2[mcalidx] = (calm,calh)
-	newlist2[dphiidx] = (0,3.1416/3)
-	newlist2[mvaidx] = (lowlowmva,99)		
+	newlist2[mvaidx] = (mvaLoose,inf)		
 	newkey = key+'CaloSideband'
 	regionCuts[newkey] = newlist2
 
+	#for fake measurement (trivial with pi/2)
+	newlist1 = list(regionCuts[key])
+	newlist1[dphiidx] = (dphiboundary,3.2)
+	if 'Short' in key: newlist1[mvaidx] = (mvaTightShort,inf)
+	else: newlist1[mvaidx] = (mvaTightLong,inf)	
+	newkey = key+'FakeCr'
+	regionCuts[newkey] = newlist1
+
+	#contamination region - unweighted, to subtract from prompt region, weighted to subtract from fake
 	newlist3 = list(regionCuts[key])
 	newlist3[mcalidx] = (calm,calh)
-	###newlist3[statidx] = (-regionCuts[key][statidx][1],-regionCuts[key][statidx][0])#commenting this says ditch old fake CR
-	newlist3[dphiidx] = (hihidphi,3.2)
-	newlist3[mvaidx] = (lowlowmvaFake,lowmva)	
+	newlist3[dphiidx] = (dphiboundary,3.2)
+	newlist3[mvaidx] = (mvaLoose ,inf)
 	newkey = key+'CaloSidebandFakeCr'
+	regionCuts[newkey] = newlist3
+	
+	newkey = key+'CaloSidebandFakeCrKpW'
 	regionCuts[newkey] = newlist3	
+	
+		
 
 
 
@@ -420,15 +465,14 @@ elif 'JetHT' in inputFileNames:
 fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to13.root')
 hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
 
-#hMask = ''
+if exomode: hMask = ''
 
 import os
 if phase==0:
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml'
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml'
 	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml'	
-
 else:
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml'
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml'
 	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml'	
 
 readerPixelOnly = TMVA.Reader("")
@@ -510,8 +554,6 @@ for ientry in range(nentries):
 		if not passesUniversalSelection(c): continue
 
 
-
-	basicTracks = []
 	disappearingTracks = []    
 	fakecrTracks = []
 	nShort, nLong = 0, 0
@@ -521,20 +563,18 @@ for ientry in range(nentries):
 		if not abs(track.Eta()) < 2.4: continue
 		##if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue    #I kind of want to drop this eventually
 		if verbose: print itrack, 'before baseline pt', track.Pt(), 'eta', track.Eta()        
-		#if not isBaselineTrack(track, itrack, c, hMask): continue
 	
 	
-	
-		if not isBaselineTrackLoosetag(track, itrack, c, hMask): continue		
-	
-	
-	
+		print 'first considered a track with', itrack, c.tracks_chargedPtSum[itrack]
+		if not isBaselineTrackLoosetag(track, itrack, c, ''): continue		
 			
 		if verbose: print itrack, 'pt', track.Pt(), 'eta', track.Eta()
-		basicTracks.append([track,c.tracks_charge[itrack], itrack])		
+
+		print 'hath considered a track with', itrack, c.tracks_chargedPtSum[itrack]
+		
 		if not (track.Pt() > candPtCut): continue     # and track.Pt()<candPtUpperCut
 		if verbose: print ientry, itrack, 'basic track!', track.Pt()
-		dtstatus, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [lowlowmvaFake,lowlowmvaFake])
+		dtstatus, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaLoose,mvaLoose])
 		if verbose: print ientry, itrack, 'mva results were:', dtstatus, mva
 		if dtstatus==0: continue
 		if verbose: print ientry, itrack, 'still got this', track.Pt()
@@ -556,6 +596,7 @@ for ientry in range(nentries):
 				isjet = True
 				break
 		if isjet: 
+			a = 1
 			continue
 		#print ientry, 'found disappearing track w pT =', track.Pt(), dtstatus
 		listOfEventNumbers.append(c.EvtNum)
@@ -568,6 +609,7 @@ for ientry in range(nentries):
 		else: dedxcalib = dedxcalib_endcap
 	
 		disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], mva, itrack])
+
 
 
 	if not len(disappearingTracks)>=1: continue
@@ -616,7 +658,7 @@ for ientry in range(nentries):
 
 	RecoElectrons = []
 	for ilep, lep in enumerate(c.Electrons):
-		if not lep.Pt()>candPtCut: continue
+		if not lep.Pt()>30: continue
 		if debugmode: print ientry, ilep, 'ele with Pt' , lep.Pt()
 		#if (abs(lep.Eta()) < 1.566 and abs(lep.Eta()) > 1.4442): continue
 		if not abs(lep.Eta())<2.4: continue
@@ -627,7 +669,7 @@ for ientry in range(nentries):
 		matchedTrk = TLorentzVector()
 		RecoElectrons.append([lep, ilep])
 	
-	if len(RecoElectrons)>0: fillth2(hEtaVsPhiDT['Baseline'+'_tel'], RecoElectrons[0][0].Phi(), RecoElectrons[0][0].Eta())
+	if len(RecoElectrons)>0: fillth2(hEtaVsPhiDT['LongBaseline'+'_tel'], RecoElectrons[0][0].Phi(), RecoElectrons[0][0].Eta())
 
 
 	RecoMuons = []
@@ -637,7 +679,7 @@ for ientry in range(nentries):
 		if not abs(lep.Eta())<2.4: continue
 		if not c.Muons_passIso[ilep]: continue
 		if not c.Muons_tightID[ilep]: continue
-		if lep.Pt()>candPtCut: RecoMuons.append([lep,ilep])
+		if lep.Pt()>30: RecoMuons.append([lep,ilep])
 
 	metvec = TLorentzVector()
 	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
@@ -677,8 +719,6 @@ for ientry in range(nentries):
 	else: isfake = not (isPromptEl or isPromptMu or isPromptPi)
 
 	#if not (isPromptEl or isPromptMu or isPromptPi): continue
-
-
 
 
 	#print ientry, 'found a nice dt', dt.Pt()   
@@ -741,9 +781,11 @@ for ientry in range(nentries):
 
 			
 	matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
-	matchedcalofrac = 100*c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]/(dt.Pt()*TMath.CosH(dt.Eta()))
+	matchedcalofrac = 100*c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]/(dt.P())
+	#matchedcalofrac = 100*c.tracks_chargedPtSum[disappearingTracks[0][-1]]/(dt.Pt())
+
 	dphiMhtDt = abs(adjustedMht.DeltaPhi(dt))
-	fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, disappearingTracks[0][1], dphiMhtDt, mvascore]#'''*TMath.(eta)'''
+	fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, disappearingTracks[0][1], dphiMhtDt, mvascore]#'''*TMath.Cosh(eta)'''
 	fv.append(getBinNumber(fv))
 	fv.extend([c.MET, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),log10dedxmass])
 	if turnoffpred:
@@ -752,10 +794,14 @@ for ientry in range(nentries):
 		if abs(disappearingTracks[0][1])==1: 
 			FR = getfakerate(fv[0], hfrshort)
 			PR = getpromptrate(fv[kappabinIdx], hprshort)
+			PRfcr = getpromptrate(fv[kappabinIdx], hprshort)
+			FRpcr = 1.0
 		if abs(disappearingTracks[0][1])==2: 
 			FR = getfakerate(fv[0], hfrlong)
 			PR = getpromptrate(fv[kappabinIdx], hprlong)
-	
+			PRfcr = getpromptrate(fv[kappabinIdx], hprshort)
+			FRpcr = 1.0
+				
 	for regionkey in regionCuts:
 		if 'MhtSideband' in regionkey and (not isdata): weight_ = weight/gtrig.Eval(c.MHT)
 		else: weight_ = weight
@@ -767,7 +813,8 @@ for ientry in range(nentries):
 					if not turnoffpred: 
 						fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method1,fv[ivar], FR*weight_)
 						fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method2,fv[ivar], PR*weight_)
-						fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method3,fv[ivar], PR*FR*weight_)								
+						fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method3,fv[ivar], PRfcr*FR*weight_)
+						fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method4,fv[ivar], PR*FRpcr*weight_)
 				if isfake:
 					#print 'filling something with weight', weight_, 'Fake'+regionkey+'_'+varname
 					fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Truth,   fv[ivar], weight_)
@@ -775,6 +822,7 @@ for ientry in range(nentries):
 						fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method1,  fv[ivar], FR*weight_)							
 						fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method2,  fv[ivar], PR*weight_)
 						fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method3,  fv[ivar], PR*FR*weight_)								
+						fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method4,  fv[ivar], PR*FRpcr*weight_)						
 
 
 
@@ -782,7 +830,7 @@ fnew.cd()
 hHt.Write()
 hHtWeighted.Write()
 
-writeHistoStruct(histoStructDict, 'truthmethod1method2method3')
+writeHistoStruct(histoStructDict, 'truthmethod1method2method3method4')
 for key_ in hEtaVsPhiDT: hEtaVsPhiDT[key_].Write()
 
 if maketree and not processskims:
