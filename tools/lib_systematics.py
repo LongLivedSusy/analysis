@@ -195,7 +195,7 @@ def get_isr_weight(tree,nSigmaISR):
     elif n>=6 : w_nom = d * 0.511
     else : print 'Invalid NISR?' 
 
-    err = (1-w_nom)/2
+    err = abs(1-w_nom)/2
     w_isr_up   = w_nom + err
     w_isr      = w_nom
     w_isr_down = w_nom - err
