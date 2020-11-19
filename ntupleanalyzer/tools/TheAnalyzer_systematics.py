@@ -152,7 +152,7 @@ call = 20
 calm = 20
 calh = 90
 
-dphiboundary = TMath.Pi()/2#3.14159*2/3
+dphiboundary = TMath.Pi()*2./3#/2#3.14159*2/3
 
 	
 	
@@ -559,4 +559,7 @@ fnew_.cd()
 hHt.Write()
 hHtWeighted.Write()
 writeHistoStruct(histoStructDict, 'truth')
-print 'just created', fnew_.GetName(
+print 'just created', fnew_.GetName()
+fnew_.Close()	
+fMask.Close()
+os.abort
