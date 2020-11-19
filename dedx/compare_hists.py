@@ -21,7 +21,7 @@ if( iPos==0 ): CMS_lumi.relPosX = 0.12
 H_ref = 600; 
 W_ref = 800; 
 W = W_ref
-H  = H_ref
+H = H_ref
 
 # 
 # Simple example of macro: plot with CMS name and lumi text
@@ -55,32 +55,36 @@ format_c = 'png'
 #outputdir = './plots/T2bt_mStop1300_mLSP50'
 #outputdir = './plots/T2bt_mStop1300_mLSP200'
 #outputdir = './plots/T2bt_mStop1300_mLSP1100'
-#outputdir = './plots/T2bt_mStop1300_mLSP1100_dEdx'
-outputdir = './plots/T1qqqq_mStop1300_mLSP1100_dEdx'
+outputdir = './plots/T2bt_mStop1300_mLSP1100_dEdx'
+#outputdir = './plots/T1qqqq_mGluino2200_mLSP2000_dEdx'
+#outputdir = './plots/T1qqqq_mGluino1300_mLSP1100_dEdx'
 
 #rebin = 1
-#rebin = 5
-rebin = 10
+rebin = 5
+#rebin = 10
 #rebin = 20
     
 if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     
-f1 = rt.TFile('./output_test/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8_mGluino2200_mLSP2000.root')
-f2 = rt.TFile('./output_smallchunks_localrun/T2bt_mStop1300_mLSP1100/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root')
+#f1 = rt.TFile('./output_test/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8_mGluino2200_mLSP2000.root')
+#f1 = rt.TFile('./output_test/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8_mGluino1300_mLSP1100.root')
+
+f1 = rt.TFile('./output_smallchunks_localrun/T2bt_mStop1300_mLSP1100/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root')
+f2 = rt.TFile('./output_smallchunks_localrun/T2bt_mStop1300_mLSP1100/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root')
 
 hists=[
     #'hGenGluino',
     #'hGenStopMass',
-    'hGenLSPMass',
-    'hGenCharginoP',
-    'hGenCharginoPt',
-    'hGenCharginoEta',
-    'hGenCharginoPhi',
-	
-    'hTrkP_charginomatch',
-    'hTrkPt_charginomatch',
-    'hTrkEta_charginomatch',
-    'hTrkPhi_charginomatch',
+    #'hGenLSPMass',
+    #'hGenCharginoP',
+    #'hGenCharginoPt',
+    #'hGenCharginoEta',
+    #'hGenCharginoPhi',
+    #    
+    #'hTrkP_charginomatch',
+    #'hTrkPt_charginomatch',
+    #'hTrkEta_charginomatch',
+    #'hTrkPhi_charginomatch',
 
     'hTrkPixelDedx_charginomatch_barrel',
     'hTrkPixelDedxCalib_charginomatch_barrel',
@@ -132,20 +136,20 @@ hists=[
     #'hTrkPixelDedxCalib_tightmumatch_barrel',
     #'hTrkPixelDedxCalib_tightmumatch_endcap',
 
-    #'hTrkPixelDedx_tightgenmumatch',
-    #'hTrkPixelDedx_tightgenmumatch_barrel',
-    #'hTrkPixelDedx_tightgenmumatch_endcap',
-    #'hTrkPixelDedxCalib_tightgenmumatch',
-    #'hTrkPixelDedxCalib_tightgenmumatch_barrel',
-    #'hTrkPixelDedxCalib_tightgenmumatch_endcap',
+    'hTrkPixelDedx_tightgenmumatch',
+    'hTrkPixelDedx_tightgenmumatch_barrel',
+    'hTrkPixelDedx_tightgenmumatch_endcap',
+    'hTrkPixelDedxCalib_tightgenmumatch',
+    'hTrkPixelDedxCalib_tightgenmumatch_barrel',
+    'hTrkPixelDedxCalib_tightgenmumatch_endcap',
 
     #'hTrkStripsDedx_tightmumatch',
     #'hTrkStripsDedx_tightmumatch_barrel',
     #'hTrkStripsDedx_tightmumatch_endcap',
 
-    #'hTrkStripsDedx_tightgenmumatch',
-    #'hTrkStripsDedx_tightgenmumatch_barrel',
-    #'hTrkStripsDedx_tightgenmumatch_endcap',
+    'hTrkStripsDedx_tightgenmumatch',
+    'hTrkStripsDedx_tightgenmumatch_barrel',
+    'hTrkStripsDedx_tightgenmumatch_endcap',
     ]
 
 # Run
@@ -153,7 +157,7 @@ for hist in hists:
     
     print 'Drawing hist : ',hist
 
-    canvas = rt.TCanvas("c2","c2",50,50,W,H)
+    canvas = rt.TCanvas("c","c",50,50,W,H)
     canvas.SetFillColor(0)
     canvas.SetBorderMode(0)
     canvas.SetFrameFillStyle(0)
@@ -169,25 +173,16 @@ for hist in hists:
 
     #c.SetLogy()
     h1 = f1.Get(hist) 
-    h1.GetXaxis().SetTitle('GeV')
-    h1.GetYaxis().SetTitle('Normalized')
     h1.Scale(1.0/h1.Integral())
 
     h2 = f2.Get(hist) 
-    h2.GetXaxis().SetTitle('GeV')
-    h2.GetYaxis().SetTitle('Normalized')
     h2.Scale(1.0/h2.Integral())
 
     h1.Rebin(rebin)
     h2.Rebin(rebin)
     
-    h1.GetXaxis().SetTitle('GeV')
-    #h1.GetXaxis().SetRangeUser(0,15)
-    h1.GetYaxis().SetTitle('Normalized')
-    h1.Scale(1.0/h1.Integral())
-
-    h2.SetLineColor(rt.kRed)
     h1.SetLineColor(rt.kBlue)
+    h2.SetLineColor(rt.kRed)
     #h1.SetFillStyle(3002)
     #h1.SetFillColor(kBlue)
     
@@ -198,14 +193,15 @@ for hist in hists:
     rp.GetUpperPad().SetLogy()
     rp.GetUpperRefYaxis().SetTitle("Normalized");
     #rp.GetUpperRefYaxis().SetRangeUser(0,0.1);
+    #rp.GetLowerRefXaxis().SetTitle("MeV");
     rp.GetLowerRefYaxis().SetTitle("Fullsim/Fastsim");
     #rp.GetLowerRefYaxis().SetRangeUser(0,2);
     rp.GetLowerRefGraph().SetMinimum(0);
     rp.GetLowerRefGraph().SetMaximum(2);
    
-    #tl.AddEntry(h1,'T2bt Fullsim','lE')
-    #tl.AddEntry(h2,'T2bt FastSim','lE')
-    #tl.Draw()
+    tl.AddEntry(h1,'SMS-T2btLL Fullsim','lE')
+    tl.AddEntry(h2,'SMS-T2btLL FastSim','lE')
+    tl.Draw()
 
     canvas.Update()
     canvas.Print(outputdir+'/RatioPlot_'+hist+'.'+format_c)
