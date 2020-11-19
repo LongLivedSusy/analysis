@@ -19,11 +19,17 @@ gROOT.SetStyle('Plain')
 
 
 
+
+#set up systematics
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/lib_systematics.py')
+readerBtag = prepareReaderBtagSF()
+
+
+
 thebinning = binning
 thebinning['MatchedCalo'] = [100,0,100]
 binning['FakeCrNr'] = [6,-3,3]
 debugmode = False
-
 exomode = False
 
 
@@ -146,7 +152,7 @@ call = 20
 calm = 20
 calh = 90
 
-dphiboundary = TMath.Pi()*2/3#/2#3.14159*2/3
+dphiboundary = TMath.Pi()/2#3.14159*2/3
 
 	
 	
@@ -162,8 +168,9 @@ else:
 	mvaTightShort = -0.1	
 	
 varlist_                                  = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
-regionCuts['LongBaseline']                            = [(lowht,inf),   (30,inf),    (1,inf), (0,inf), (1,inf), (0,0), (0,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),     (0,call),   (0,inf),   (0,dphiboundary), (mvaTightShort,inf)]
-regionCuts['ShortBaseline']                            = [(lowht,inf),   (30,inf),    (1,inf), (0,inf), (0,inf), (1,inf), (0,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),     (0,call),   (0,inf),   (0,dphiboundary), (mvaTightLong,inf)]
+regionCuts['ShortBaseline']                          = [(lowht,inf),   (30,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),  (0,call),   (1,1),   (0,dphiboundary), (mvaTightShort,inf)]
+regionCuts['LongBaseline']                           = [(lowht,inf),   (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (30,inf),       (0,2.4),  (0,call),   (2,2),   (0,dphiboundary), (mvaTightLong,inf)]
+
 
 dedxidx = varlist_.index('DeDxAverage')
 srindex = varlist_.index('BinNumber')
@@ -174,12 +181,13 @@ mvaidx = varlist_.index('LeadTrkMva')
 
 regionkeys = regionCuts.keys()
 for key in regionkeys:
+	break
 
 	#for prompt measurement
 	newlist2 = list(regionCuts[key])
 	newlist2[mcalidx] = (calm,calh)
 	newlist2[mvaidx] = (mvaLoose,inf)		
-	newkey = key+'CaloSideband'
+	newkey = key.replace('SystNom','CaloSidebandSystNom')
 	regionCuts[newkey] = newlist2
 
 	#for fake measurement (trivial with pi/2)
@@ -187,20 +195,18 @@ for key in regionkeys:
 	newlist1[dphiidx] = (dphiboundary,3.2)
 	if 'Short' in key: newlist1[mvaidx] = (mvaTightShort,inf)
 	else: newlist1[mvaidx] = (mvaTightLong,inf)	
-	newkey = key+'FakeCr'
+	newkey = key.replace('SystNom','FakeCrSystNom')	
 	regionCuts[newkey] = newlist1
 
-	#contamination region - unweighted, to subtract from prompt region, weighted to subtract from fake
-	newlist3 = list(regionCuts[key])
-	newlist3[mcalidx] = (calm,calh)
-	newlist3[dphiidx] = (dphiboundary,3.2)
-	newlist3[mvaidx] = (mvaLoose ,inf)
-	newkey = key+'CaloSidebandFakeCr'
-	regionCuts[newkey] = newlist3
 	
-	newkey = key+'CaloSidebandFakeCrKpW'
-	regionCuts[newkey] = newlist3
-	
+#collectionsysts = ['JecNom','JecUp','JecDown']
+weightsysts = ['BTagUp','BTagDown','IsrUp','IsrDown']
+
+regionkeys = regionCuts.keys()
+for key in regionkeys:
+	for syst in weightsysts: 
+		newkey = key.replace('Nom',syst)
+		regionCuts[newkey] = list(regionCuts[key])
 	
 	
 ncuts = 19
@@ -235,6 +241,7 @@ for region in regionCuts:
 	for var in varlist_:
 		histname = region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname, thebinning)
+		print 'histname', histname
 		
 if model=='PureHiggsino':
 	mothermass = float(inputFileNames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
@@ -307,6 +314,7 @@ for ientry in range(nentries):
 
 	if verbose: print 'getting entry', ientry
 	c.GetEntry(ientry) 
+	
 	
 	if newfileEachsignal:
 		susymasses = []
@@ -524,19 +532,31 @@ for ientry in range(nentries):
 		
 	#print fv
 	#for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]	
+	sfbtagnom = get_btag_weight(c,nSigmaBtagSF=0,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
+	sfbtagup = get_btag_weight(c,nSigmaBtagSF=1,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
+	sfbtagdown = get_btag_weight(c,nSigmaBtagSF=-1,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
+	
+		
+	isrnom = get_isr_weight(c,0)
+	isrup = get_isr_weight(c,1)
+	isrdown = get_isr_weight(c,-1)
+	
 	for regionkey in regionCuts:
+		if not 'Nom' in regionkey: continue
 		for ivar, varname in enumerate(varlist_):
 			if selectionFeatureVector(fv,regionkey,varname):
-				fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], weight)
+				#weightsysts = ['Nom','BTagUp','BTagDown','IsrUp','IsrDown']
+				
+				
+				fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*weight)
+				fillth1(histoStructDict[regionkey.replace('Nom','BTagUp')+'_'+varname].Truth,fv[ivar], sfbtagup*isrnom*weight)
+				fillth1(histoStructDict[regionkey.replace('Nom','BTagDown')+'_'+varname].Truth,fv[ivar], sfbtagdown*isrnom*weight)
+				fillth1(histoStructDict[regionkey.replace('Nom','IsrUp')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrup*weight)
+				fillth1(histoStructDict[regionkey.replace('Nom','IsrDown')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrdown*weight)				
+				
 		
 fnew_.cd()
 hHt.Write()
 hHtWeighted.Write()
 writeHistoStruct(histoStructDict, 'truth')
-print 'just created', fnew_.GetName()
-fnew_.Close()	
-fMask.Close()
-os.abort()
-
-
-
+print 'just created', fnew_.GetName(
