@@ -1,0 +1,569 @@
+  
+/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_1_7
+./trainBDT.py --category long --dxyinformed --use_chi2 --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged
+Training BDT for phase 0...
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV]=7.7054942308e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1075_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1075_TuneCUETP8M1_13TeV]=1.43008743019e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1175_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1175_TuneCUETP8M1_13TeV]=1.31580874452e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV]=1.50716610251e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1275_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1275_TuneCUETP8M1_13TeV]=4.49245880458e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV]=8.77147128859e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1375_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1375_TuneCUETP8M1_13TeV]=4.18782653791e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1475_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1475_TuneCUETP8M1_13TeV]=4.7402175954e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV]=5.15294485999e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV]=3.7505568318e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1575_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1575_TuneCUETP8M1_13TeV]=1.8957196873e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV]=1.22731672113e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1675_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1675_TuneCUETP8M1_13TeV]=3.47283341801e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV]=1.27635576399e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1775_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1775_TuneCUETP8M1_13TeV]=3.85517067741e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV]=2.00235694742e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1875_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1875_TuneCUETP8M1_13TeV]=3.75531099185e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV]=5.44968304347e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1975_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-1975_TuneCUETP8M1_13TeV]=3.25863303734e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV]=3.34853173064e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV]=1.85243464938e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2075_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2075_TuneCUETP8M1_13TeV]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2100_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2100_TuneCUETP8M1_13TeV]=3.48925200834e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2175_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2175_TuneCUETP8M1_13TeV]=1.32287518029e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2275_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2275_TuneCUETP8M1_13TeV]=3.59402145058e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2300_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2300_TuneCUETP8M1_13TeV]=7.16708656751e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2375_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2375_TuneCUETP8M1_13TeV]=4.00468462652e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2400_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2400_TuneCUETP8M1_13TeV]=1.58552018873e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2475_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2475_TuneCUETP8M1_13TeV]=5.11069274431e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2575_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2575_TuneCUETP8M1_13TeV]=1.08896561713e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-25_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-25_TuneCUETP8M1_13TeV]=8.19150723609e-11
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2600_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2600_TuneCUETP8M1_13TeV]=4.94152912722e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2675_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2675_TuneCUETP8M1_13TeV]=2.61550653705e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2700_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2700_TuneCUETP8M1_13TeV]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV]=3.91570231054e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1_13TeV]=8.62030757884e-11
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV]=2.61240910721e-10
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV]=6.83172662203e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-75_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-75_TuneCUETP8M1_13TeV]=2.84657820436e-11
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV]=7.78588567227e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV]=2.21093833665e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV*.root
+weights[SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV]=3.78988002107e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV]=5.81531210158e-11
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1_13TeV]=4.13960105622e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV]=2.18564896701e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV]=3.97172052014e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1_13TeV]=3.89305124053e-12
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV]=2.94999983427e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV]=1.05785814229e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV]=2.44842563629e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV]=5.4153712325e-11
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV]=7.57540382287e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV]=4.2114248041e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV]=2.52834179906e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV]=8.93799275087e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV]=5.89767569192e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV]=3.127441574e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV*.root
+weights[SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV]=7.21905970044e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WJetsToLNu_TuneCUETP8M1*.root
+weights[WJetsToLNu_TuneCUETP8M1]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1*.root
+weights[WJetsToLNu_HT-200To400_TuneCUETP8M1]=1.83218031618e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1*.root
+weights[WJetsToLNu_HT-600To800_TuneCUETP8M1]=1.45941202248e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1*.root
+weights[WJetsToLNu_HT-800To1200_TuneCUETP8M1]=1.88520228426e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1*.root
+weights[WJetsToLNu_HT-1200To2500_TuneCUETP8M1]=4.10179455856e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WJetsToLNu_HT-2500ToInf_TuneCUETP8M1*.root
+weights[WJetsToLNu_HT-2500ToInf_TuneCUETP8M1]=3.05554654405e-08
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_TuneCUETP8M1]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1]=2.48389202257e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1]=5.19018631678e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1]=5.46485858771e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1]=1.83241088428e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1]=1.67077961271e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1]=1.74242324957e-07
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1*.root
+weights[DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1]=8.32376370019e-09
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.TTJets_DiLept*.root
+weights[TTJets_DiLept]=3.0878745556e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.TTJets_SingleLeptFromT*.root
+weights[TTJets_SingleLeptFromT]=2.01851147832e-06
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.TTJets_SingleLeptFromTbar*.root
+weights[TTJets_SingleLeptFromTbar]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.ZZ_TuneCUETP8M1*.root
+weights[ZZ_TuneCUETP8M1]=2.63446763995e-05
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WW_TuneCUETP8M1*.root
+weights[WW_TuneCUETP8M1]=0.0
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_65_p15OptionalJetVetoRevisedJets_merged/Summer16.WZ_TuneCUETP8M1*.root
+weights[WZ_TuneCUETP8M1]=0.0
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1_13TeV
+DataSetInfo              : [dataset] : Added class "Signal"
+                         : Add Tree Events of type Signal with 129299 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 156351 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 84144 events
+adding background tree: WJetsToLNu_HT-1200To2500_TuneCUETP8M1
+DataSetInfo              : [dataset] : Added class "Background"
+                         : Add Tree Events of type Background with 22746 events
+adding background tree: WJetsToLNu_HT-2500ToInf_TuneCUETP8M1
+                         : Add Tree Events of type Background with 5644 events
+adding background tree: DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1
+                         : Add Tree Events of type Background with 2036 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 744023 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 18249 events
+adding background tree: TTJets_DiLept
+                         : Add Tree Events of type Background with 121520 events
+adding background tree: DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1
+                         : Add Tree Events of type Background with 45676 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2675_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 14887 events
+adding background tree: DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1
+                         : Add Tree Events of type Background with 48601 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1975_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15804 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 109152 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-75_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 29204 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2300_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 80024 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 148309 events
+adding background tree: DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1
+                         : Add Tree Events of type Background with 34352 events
+adding background tree: WJetsToLNu_HT-200To400_TuneCUETP8M1
+                         : Add Tree Events of type Background with 82956 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2275_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 16149 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 161943 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 165679 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 148500 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 145630 events
+adding background tree: WJetsToLNu_HT-600To800_TuneCUETP8M1
+                         : Add Tree Events of type Background with 57644 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1875_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15083 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1575_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 16086 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 249840 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 227760 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2700_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 17141 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 223184 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 58249 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 138578 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 84348 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 116112 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 97147 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 330634 events
+adding background tree: WW_TuneCUETP8M1
+                         : Add Tree Events of type Background with 17877 events
+adding background tree: TTJets_SingleLeptFromTbar
+                         : Add Tree Events of type Background with 220212 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1800_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 159456 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1275_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 14696 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 180883 events
+adding background tree: ZZ_TuneCUETP8M1
+                         : Add Tree Events of type Background with 3886 events
+adding background tree: WJetsToLNu_HT-800To1200_TuneCUETP8M1
+                         : Add Tree Events of type Background with 22900 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 172433 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1300_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 137902 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2600_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 32717 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 123253 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2475_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15681 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 184652 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1700_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 154489 events
+adding background tree: WZ_TuneCUETP8M1
+                         : Add Tree Events of type Background with 12783 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2375_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 14562 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1375_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 14946 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-150_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 54183 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2000_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 124495 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2775_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15659 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-975_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 53185 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1900_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 71315 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2075_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15138 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1675_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15040 events
+adding background tree: TTJets_SingleLeptFromT
+                         : Add Tree Events of type Background with 490269 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1775_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 14809 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2575_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 16014 events
+adding background tree: WJetsToLNu_TuneCUETP8M1
+                         : Add Tree Events of type Background with 84868 events
+adding background tree: DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1
+                         : Add Tree Events of type Background with 3215 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 166756 events
+adding background tree: DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1
+                         : Add Tree Events of type Background with 36650 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1075_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 45436 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2400_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 66548 events
+adding background tree: DYJetsToLL_M-50_TuneCUETP8M1
+                         : Add Tree Events of type Background with 193037 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2175_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 15372 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 129909 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-25_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 10554 events
+adding signal tree: SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 178563 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1475_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 14773 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-1175_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 25016 events
+adding background tree: DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1
+                         : Add Tree Events of type Background with 14518 events
+adding signal tree: SMS-T1qqqq-LLChipm_ctau-200_mLSP-2100_TuneCUETP8M1_13TeV
+                         : Add Tree Events of type Signal with 113346 events
+Factory                  : Booking method: [1mBDT[0m
+                         : 
+<WARNING>                : Found events with NaN and/or +-inf values
+<WARNING>                : Dataset[dataset] : Input expression resolves to infinite value (+inf or -inf): tracks_chi2perNdof (103 times)
+<WARNING>                : These NaN and/or +-infs were all removed by the specified cut, continuing.
+                         : 
+DataSetFactory           : [dataset] : Number of events in input trees
+                         : Dataset[dataset] :     Signal     requirement: "tracks_chiCandGenMatchingDR<0.01 && tracks_pt>30 && tracks_is_pixel_track==0 && tracks_passjetveto==1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999 && tracks_dxyVtx<0.1"
+                         : Dataset[dataset] :     Signal          -- number of events passed: 3499318  / sum of weights: 5.12477
+                         : Dataset[dataset] :     Signal          -- efficiency             : 0.492986
+                         : Dataset[dataset] :     Background requirement: "tracks_pt>30 && tracks_is_pixel_track==0 && tracks_passjetveto==1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999 && tracks_dxyVtx<0.1"
+                         : Dataset[dataset] :     Background      -- number of events passed: 239299  / sum of weights: 0.617163
+                         : Dataset[dataset] :     Background      -- efficiency             : 0.152722
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Number of training and testing events
+                         : ---------------------------------------------------------------------------
+                         : Signal     -- training events            : 1749659
+                         : Signal     -- testing events             : 1749659
+                         : Signal     -- training and testing events: 3499318
+                         : Dataset[dataset] : Signal     -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.517453
+                         : Background -- training events            : 119649
+                         : Background -- testing events             : 119649
+                         : Background -- training and testing events: 239298
+                         : Dataset[dataset] : Background -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.156848
+                         : 
+DataSetInfo              : Correlation matrix (Signal):
+                         : -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                         :                           tracks_dxyVtx tracks_dzVtx tracks_trkRelIso tracks_nValidPixelHits tracks_nValidTrackerHits tracks_nMissingOuterHits tracks_ptErrOverPt2 tracks_chi2perNdof
+                         :            tracks_dxyVtx:        +1.000       +0.308           +0.151                 -0.058                   -0.278                   +0.211              +0.307             +0.123
+                         :             tracks_dzVtx:        +0.308       +1.000           +0.031                 -0.038                   -0.084                   +0.078              +0.100             +0.194
+                         :         tracks_trkRelIso:        +0.151       +0.031           +1.000                 -0.008                   -0.076                   +0.053              +0.102             +0.012
+                         :   tracks_nValidPixelHits:        -0.058       -0.038           -0.008                 +1.000                   +0.228                   +0.001              -0.060             +0.077
+                         : tracks_nValidTrackerHits:        -0.278       -0.084           -0.076                 +0.228                   +1.000                   -0.715              -0.653             +0.069
+                         : tracks_nMissingOuterHits:        +0.211       +0.078           +0.053                 +0.001                   -0.715                   +1.000              +0.517             +0.020
+                         :      tracks_ptErrOverPt2:        +0.307       +0.100           +0.102                 -0.060                   -0.653                   +0.517              +1.000             -0.159
+                         :       tracks_chi2perNdof:        +0.123       +0.194           +0.012                 +0.077                   +0.069                   +0.020              -0.159             +1.000
+                         : -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+DataSetInfo              : Correlation matrix (Background):
+                         : -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                         :                           tracks_dxyVtx tracks_dzVtx tracks_trkRelIso tracks_nValidPixelHits tracks_nValidTrackerHits tracks_nMissingOuterHits tracks_ptErrOverPt2 tracks_chi2perNdof
+                         :            tracks_dxyVtx:        +1.000       +0.270           +0.128                 -0.199                   -0.407                   +0.281              +0.323             +0.163
+                         :             tracks_dzVtx:        +0.270       +1.000           -0.025                 -0.292                   -0.264                   +0.178              +0.211             +0.046
+                         :         tracks_trkRelIso:        +0.128       -0.025           +1.000                 +0.178                   -0.099                   +0.127              +0.100             +0.044
+                         :   tracks_nValidPixelHits:        -0.199       -0.292           +0.178                 +1.000                   +0.462                   -0.084              -0.103             +0.073
+                         : tracks_nValidTrackerHits:        -0.407       -0.264           -0.099                 +0.462                   +1.000                   -0.603              -0.351             +0.123
+                         : tracks_nMissingOuterHits:        +0.281       +0.178           +0.127                 -0.084                   -0.603                   +1.000              +0.303             -0.055
+                         :      tracks_ptErrOverPt2:        +0.323       +0.211           +0.100                 -0.103                   -0.351                   +0.303              +1.000             +0.060
+                         :       tracks_chi2perNdof:        +0.163       +0.046           +0.044                 +0.073                   +0.123                   -0.055              +0.060             +1.000
+                         : -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+DataSetFactory           : [dataset] :  
+                         : 
+Factory                  : [1mTrain all methods[0m
+Factory                  : [dataset] : Create Transformation "I" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_nValidTrackerHits' <---> Output : variable 'tracks_nValidTrackerHits'
+                         : Input : variable 'tracks_nMissingOuterHits' <---> Output : variable 'tracks_nMissingOuterHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_nValidTrackerHits' <---> Output : variable 'tracks_nValidTrackerHits'
+                         : Input : variable 'tracks_nMissingOuterHits' <---> Output : variable 'tracks_nMissingOuterHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "P" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_nValidTrackerHits' <---> Output : variable 'tracks_nValidTrackerHits'
+                         : Input : variable 'tracks_nMissingOuterHits' <---> Output : variable 'tracks_nMissingOuterHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "G" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_nValidTrackerHits' <---> Output : variable 'tracks_nValidTrackerHits'
+                         : Input : variable 'tracks_nMissingOuterHits' <---> Output : variable 'tracks_nMissingOuterHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_nValidPixelHits' <---> Output : variable 'tracks_nValidPixelHits'
+                         : Input : variable 'tracks_nValidTrackerHits' <---> Output : variable 'tracks_nValidTrackerHits'
+                         : Input : variable 'tracks_nMissingOuterHits' <---> Output : variable 'tracks_nMissingOuterHits'
+                         : Input : variable 'tracks_ptErrOverPt2' <---> Output : variable 'tracks_ptErrOverPt2'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :            tracks_dxyVtx:                 0.0029133                 0.0058149   [                8.5569e-10                  0.099988 ]
+                         :             tracks_dzVtx:                 0.0056427                 0.0079674   [                3.3476e-10                  0.099991 ]
+                         :         tracks_trkRelIso:                 0.0023013                  0.010102   [                    0.0000                   0.19998 ]
+                         :   tracks_nValidPixelHits:                    2.9718                   0.51473   [                    2.0000                    9.0000 ]
+                         : tracks_nValidTrackerHits:                    9.3743                    3.5902   [                    3.0000                    29.000 ]
+                         : tracks_nMissingOuterHits:                    5.5177                    2.1202   [                    2.0000                    12.000 ]
+                         :      tracks_ptErrOverPt2:                 0.0027062                 0.0029704   [                0.00012390                   0.14483 ]
+                         :       tracks_chi2perNdof:                   0.56753                    1.0917   [                4.9264e-06                    132.73 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :            tracks_dxyVtx:                    1.5353                    1.0000   [                   -28.772                    20.385 ]
+                         :             tracks_dzVtx:                    1.1704                    1.0000   [                   -13.733                    13.882 ]
+                         :         tracks_trkRelIso:                   0.25718                    1.0000   [                   -7.4809                    20.312 ]
+                         :   tracks_nValidPixelHits:                    4.3695                    1.0000   [                   0.78059                    16.018 ]
+                         : tracks_nValidTrackerHits:                    4.0617                    1.0000   [                    1.4415                    10.323 ]
+                         : tracks_nMissingOuterHits:                    5.0862                    1.0000   [                    1.7046                    9.1115 ]
+                         :      tracks_ptErrOverPt2:                    2.1016                    1.0000   [                  -0.23721                    63.257 ]
+                         :       tracks_chi2perNdof:                   0.35001                    1.0000   [                  -0.22862                    121.48 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Principle Component (PCA) transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :            tracks_dxyVtx:                 -0.079911                    3.9435   [                   -8.2487                    19.070 ]
+                         :             tracks_dzVtx:                 0.0090750                    1.3703   [                   -15.559                    5.5112 ]
+                         :         tracks_trkRelIso:                 -0.089353                    1.0889   [                   -1.0945                    131.10 ]
+                         :   tracks_nValidPixelHits:                 -0.010570                   0.47715   [                   -5.3542                    1.9922 ]
+                         : tracks_nValidTrackerHits:                0.00011080                  0.010124   [                  -0.20855                   0.10990 ]
+                         : tracks_nMissingOuterHits:                0.00043859                 0.0079415   [                  -0.14097                   0.11345 ]
+                         :      tracks_ptErrOverPt2:                1.9912e-05                 0.0048934   [                  -0.11918                  0.090089 ]
+                         :       tracks_chi2perNdof:               -0.00030335                 0.0022964   [                  -0.14025                 0.0063724 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Preparing the Gaussian transformation...
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :            tracks_dxyVtx:                  0.063924                    1.0000   [                   -3.8273                    6.3911 ]
+                         :             tracks_dzVtx:                  0.021351                    1.0000   [                   -3.8530                    6.1701 ]
+                         :         tracks_trkRelIso:                   -1.3087                    1.0000   [                   -2.2102                    4.3383 ]
+                         :   tracks_nValidPixelHits:                   0.74620                    1.0000   [                   -2.4641                    13.030 ]
+                         : tracks_nValidTrackerHits:                  -0.26357                    1.0000   [                   -8.0037                    7.8441 ]
+                         : tracks_nMissingOuterHits:                  0.044697                    1.0000   [                   -4.2847                    8.3709 ]
+                         :      tracks_ptErrOverPt2:                  -0.11309                    1.0000   [                   -4.5556                    8.2153 ]
+                         :       tracks_chi2perNdof:                 -0.036995                    1.0000   [                   -6.8456                    6.7528 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : Ranking input variables (method unspecific)...
+IdTransformation         : Ranking result (top variable is best ranked)
+                         : -------------------------------------------------
+                         : Rank : Variable                 : Separation
+                         : -------------------------------------------------
+                         :    1 : tracks_dxyVtx            : 3.175e-01
+                         :    2 : tracks_chi2perNdof       : 2.485e-01
+                         :    3 : tracks_nValidTrackerHits : 1.947e-01
+                         :    4 : tracks_nValidPixelHits   : 1.679e-01
+                         :    5 : tracks_dzVtx             : 1.221e-01
+                         :    6 : tracks_ptErrOverPt2      : 6.552e-02
+                         :    7 : tracks_trkRelIso         : 6.506e-02
+                         :    8 : tracks_nMissingOuterHits : 3.276e-02
+                         : -------------------------------------------------
+Factory                  : Train method: BDT for Classification
+                         : 
+                         : Events with weight == 0 are going to be simply ignored 
+BDT                      : #events: (reweighted) sig: 887155 bkg: 887155
+                         : #events: (unweighted) sig: 1707656 bkg: 66654
+                         : Training 200 Decision Trees ... patience please
+                         : Elapsed time for training with 1869308 events: 497 sec         
+BDT                      : [dataset] : Evaluation of BDT on training sample (1869308 events)
+                         : Elapsed time for evaluation of 1869308 events: 29.5 sec       
+                         : Creating xml weight file: [0;36mdataset/weights/TMVAClassification_BDT.weights.xml[0m
+                         : Creating standalone class: [0;36mdataset/weights/TMVAClassification_BDT.class.C[0m
+Factory                  : Training finished
+                         : 
+                         : Ranking input variables (method specific)...
+BDT                      : Ranking result (top variable is best ranked)
+                         : ----------------------------------------------------------
+                         : Rank : Variable                 : Variable Importance
+                         : ----------------------------------------------------------
+                         :    1 : tracks_nValidTrackerHits : 1.710e-01
+                         :    2 : tracks_ptErrOverPt2      : 1.618e-01
+                         :    3 : tracks_chi2perNdof       : 1.484e-01
+                         :    4 : tracks_dxyVtx            : 1.416e-01
+                         :    5 : tracks_trkRelIso         : 1.405e-01
+                         :    6 : tracks_nValidPixelHits   : 8.092e-02
+                         :    7 : tracks_nMissingOuterHits : 7.829e-02
+                         :    8 : tracks_dzVtx             : 7.745e-02
+                         : ----------------------------------------------------------
+Factory                  : === Destroy and recreate all methods via weight files for testing ===
+                         : 
+Factory                  : [1mTest all methods[0m
+Factory                  : Test method: BDT for Classification performance
+                         : 
+BDT                      : [dataset] : Evaluation of BDT on testing sample (1869308 events)
+                         : Elapsed time for evaluation of 1869308 events: 25.8 sec       
+Factory                  : [1mEvaluate all methods[0m
+Factory                  : Evaluate classifier: BDT
+                         : 
+BDT                      : [dataset] : Loop over test events and fill histograms with classifier response...
+                         : 
+TFHandler_BDT            :                 Variable                        Mean                        RMS                [        Min                        Max ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         :            tracks_dxyVtx:                 0.0035137                 0.0073113   [                8.0366e-10                  0.099959 ]
+                         :             tracks_dzVtx:                 0.0060096                 0.0086542   [                2.1971e-09                  0.099995 ]
+                         :         tracks_trkRelIso:                 0.0026779                  0.011728   [                    0.0000                   0.19990 ]
+                         :   tracks_nValidPixelHits:                    2.9532                   0.52855   [                    2.0000                    9.0000 ]
+                         : tracks_nValidTrackerHits:                    9.2705                    3.6153   [                    3.0000                    30.000 ]
+                         : tracks_nMissingOuterHits:                    5.5586                    2.1278   [                    2.0000                    12.000 ]
+                         :      tracks_ptErrOverPt2:                 0.0026911                 0.0029210   [                0.00012724                  0.099137 ]
+                         :       tracks_chi2perNdof:                   0.62111                    1.5927   [                3.1598e-07                    136.27 ]
+                         : -------------------------------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Evaluation results ranked by best signal efficiency and purity (area)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet       MVA                       
+                         : Name:         Method:          ROC-integ
+                         : dataset       BDT            : 0.931
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Testing efficiency compared to training efficiency (overtraining check)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet              MVA              Signal efficiency: from test sample (from training sample) 
+                         : Name:                Method:          @B=0.01             @B=0.10            @B=0.30   
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : dataset              BDT            : 0.400 (0.423)       0.755 (0.762)      0.958 (0.954)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+Dataset:dataset          : Created tree 'TestTree' with 1869308 events
+                         : 
+Dataset:dataset          : Created tree 'TrainTree' with 1869308 events
+                         : 
+Factory                  : [1mThank you for using TMVA![0m
+                         : [1mFor citation information, please visit: http://tmva.sf.net/citeTMVA.html[0m
+Success

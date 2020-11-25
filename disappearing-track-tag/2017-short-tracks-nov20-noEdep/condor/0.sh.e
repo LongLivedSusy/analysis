@@ -1,0 +1,49 @@
+Error in <TSystem::ExpandFileName>: input: $HOME/.root.mimes, output: $HOME/.root.mimes
+0%, time left: unknown
+7%, time left: 252 sec
+13%, time left: 231 sec
+19%, time left: 224 sec
+25%, time left: 208 sec
+32%, time left: 190 sec
+38%, time left: 173 sec
+44%, time left: 156 sec
+50%, time left: 140 sec
+57%, time left: 122 sec
+63%, time left: 105 sec
+69%, time left: 86 sec
+75%, time left: 70 sec
+82%, time left: 51 sec
+88%, time left: 35 sec
+94%, time left: 16 sec
+0%, time left: unknown
+6%, time left: 17 sec
+12%, time left: 16 sec
+18%, time left: 15 sec
+25%, time left: 13 sec
+31%, time left: 12 sec
+37%, time left: 11 sec
+43%, time left: 10 sec
+50%, time left: 9 sec
+56%, time left: 7 sec
+62%, time left: 6 sec
+68%, time left: 5 sec
+75%, time left: 4 sec
+81%, time left: 3 sec
+87%, time left: 2 sec
+93%, time left: 1 sec
+0%, time left: unknown
+6%, time left: 14 sec
+12%, time left: 13 sec
+18%, time left: 12 sec
+25%, time left: 11 sec
+31%, time left: 10 sec
+37%, time left: 10 sec
+43%, time left: 9 sec
+50%, time left: 7 sec
+56%, time left: 6 sec
+62%, time left: 5 sec
+68%, time left: 4 sec
+75%, time left: 3 sec
+81%, time left: 2 sec
+87%, time left: 1 sec
+93%, time left: 0 sec
