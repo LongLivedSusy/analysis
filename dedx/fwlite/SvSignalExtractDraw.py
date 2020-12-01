@@ -1,3 +1,4 @@
+#!/bin/env python
 from ROOT import *
 from shared_utils import *
 import os, sys
@@ -6,62 +7,34 @@ gROOT.SetBatch(1)
 
 try: mode = sys.argv[1]
 except: 
-    mode = 'HE_0p001'
-    mode = 'SV'
     mode = 'LambdaSim'
+    #mode = 'LambdaData'
 
-simulation = True
 doublgaussmode = False
 if 'Lambda' in mode: doublgaussmode = True
 
-if simulation: datamc = 'MC'
-else: datamc = 'data'
+if 'Sim' in mode : 
+    simulation = True
+    datamc = 'MC'
+else : 
+    simulation = False
+    datamc = 'data'
 
 '''
 to draw full ensemble for study:
-python tools/SvSignalExtractDraw.py HE_0p001
-python tools/SvSignalExtractDraw.py HE_0p010
-python tools/SvSignalExtractDraw.py HE_0p100
-python tools/SvSignalExtractDraw.py HE_0p500
-python tools/SvSignalExtractDraw.py HE_1p000
-
-
-
-python tools/SvSignalExtractDraw.py HE_0p02
-python tools/SvSignalExtractDraw.py HE_0p05
-python tools/SvSignalExtractDraw.py HE_0p003638
-python tools/SvSignalExtractDraw.py HE_0p009431
+python SvSignalExtractDraw.py LambdaSim
+python SvSignalExtractDraw.py LambdaData
 '''
 
-if 'HE' in mode:
-    if simulation: name='/nfs/dust/cms/user/tewsalex/CMSSW_10_5_0/src/plots/2020_03_02_V0Fitter/Simulation/'+mode+'.root'    
-    else: name='/nfs/dust/cms/user/tewsalex/CMSSW_10_5_0/src/plots/2020_03_02_V0Fitter/HEToVoComparison/Comparison_'+mode+'.root'
-    infile=TFile(name)
-    hmass = infile.Get('h_tracksWithSV_invMass_KShort')
-
-if mode=='SV' or 'V0' in mode:
-    #infile = TFile('V0FitterResult_dcaLTp02.root')
-    #infile = TFile('v1fiter_kshort_nochi2.root')
-    #canvas = infile.Get('canvas')
-    #lops = canvas.GetListOfPrimitives()
-    #for p in lops:
-    #    print p.GetName()
-    #hmass = canvas.GetPrimitive('mass__1').Clone()
-    if simulation: infile = TFile('/nfs/dust/cms/user/tewsalex/CMSSW_10_5_0/src/plots/2020_03_02_V0Fitter/Simulation/V0_1p00.root')    
-    else: infile = TFile('/nfs/dust/cms/user/tewsalex/CMSSW_10_5_0/src/plots/2020_03_02_V0Fitter/HEToVoComparison/Comparison_V0_0p50.root')
-    hmass = infile.Get('mass').Clone('hmass')
-    
 if mode=='LambdaSim':
-    #iname = 'vertex_RunIISummer16DR80PremixB64B10BA-6BA5-E911-B5B2-AC1F6B0DE348SVstuff.root'
-    iname = './EDM_output/vertex_higgsino94x_susyall_mChipm100GeV_dm0p16GeV_pu35_SVstuff.root'
-    infile = TFile(iname)
-    hmass = infile.Get('mass_to1p5_Lambda')
+    iname = './SV_rootfiles/vertex_RunIISummer16DR80Premix_T2bt.root'
 if mode=='LambdaData':
-    iname = 'vertex_Run2016GC8DC13E5-2297-E711-B519-0090FAA597B4SVstuff.root'
-    infile = TFile(iname)
-    hmass = infile.Get('mass_to1p5_Lambda')    
+    iname = './SV_rootfiles/vertex_Run2016G.root'
 
+infile = TFile(iname)
+hmass = infile.Get('mass_Lambda')  
 
+hmass.Rebin(2)
 hmass.SetLineWidth(2)
 hmass.SetLineColor(kBlack)
 hmass.SetMarkerColor(kBlack)
@@ -69,10 +42,8 @@ if not hmass.GetSumw2N(): hmass.Sumw2()
 xax = hmass.GetXaxis()
 lowedge, highedge = xax.GetBinLowEdge(1), xax.GetBinUpEdge(xax.GetNbins())
 
-#newfile = TFile('rootfiles/kshorts_'+mode+'.root', 'recreate')
-newfile = TFile('rootfiles/Lambda_FastSim_higgsino94x_susyall_mChipm100GeV_dm0p16GeV_pu35.root', 'recreate')
 c1= mkcanvas('c1')
-leg = mklegend(x1=.52, y1=.55, x2=.88, y2=.78, color=kWhite)
+leg = mklegend_(x1=.52, y1=.55, x2=.88, y2=.78, color=kWhite)
 
 
 def funcBackground(x,par):
@@ -172,8 +143,8 @@ for i in range(int(nup*nsig)):
     hsig.Fill(fGaussian.GetRandom(),1./nup)   
 #hsig.GetListOfFunctions()[0].Delete()     
 
-if not ('Lambda' in mode or 'Data' in mode or simulation): hmass.SetTitle('data (2016G)')
-else: hmass.SetTitle('Summer16 MC')
+if not simulation: hmass.SetTitle('data (2016G)')
+else: hmass.SetTitle('Summer16 T2bt')
 hsig_ = hsig.Clone()
 #hratio, pad1, pad2 = FabDraw(c1,leg,hmass,[hbkg,hsig_],datamc=datamc,lumi=epsi, title = '', LinearScale=True, fractionthing='data / fit res.')
 hratio, [pad1, pad2] = FabDraw(c1,leg,hmass,[hbkg,hsig_],datamc=datamc,lumi=epsi, title = '', LinearScale=True, fractionthing='data / fit res.')
@@ -212,13 +183,10 @@ tl.DrawLatex(.15,.55, 'n(s) @ peak#pm#sigma= %.2f '%nsigPeak)
 tl.DrawLatex(.15,.5, 'n(b) @ peak#pm#sigma= %.2f '%nbkgPeak)
 tl.DrawLatex(.15,.44, 'sig. purity: %.4f '% (nsigPeak/(nsigPeak+nbkgPeak)))
 c1.Update()
-newfile.cd()
-c1.Write('./plots/c_Lambda_FastSim_higgsino94x_susyall_mChipm100GeV_dm0p16GeV_pu35')
-hsig.Write()
-fGaussian.Write('fsignal')
-c1.Print('./plots/Lambda_FastSim_higgsino94x_susyall_mChipm100GeV_dm0p16GeV_pu35.png')
-print 'just created', newfile.GetName()
-newfile.Close()
+#hsig.Write()
+#fGaussian.Write('fsignal')
+if mode == 'LambdaData' : c1.Print('./plots/goodLambda_Run2016G.png')
+else : c1.Print('./plots/goodLambda_Summer16_T2bt.png')
 
 
 
