@@ -16,7 +16,8 @@ try:
     inputfiles = glob(sys.argv[1])
 except: 
     #inputfiles = glob("./EDM_output_merged/edm_Run2016G*.root")
-    inputfiles = glob("./EDM_output_merged/edm_RunIISummer16DR80Premix_T2bt.root")
+    #inputfiles = glob("./EDM_output_merged/edm_RunIISummer16DR80Premix_T2bt.root")
+    inputfiles = glob("./EDM_output_merged/edm_RunIISummer16_DYJetsToLL.root")
     #inputfiles = glob("./EDM_output_merged/edm_higgsino94x_susyall_mChipm250GeV*.root")
     #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_*.root")
     #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_NoPU_SVstuff.root")
@@ -99,6 +100,7 @@ pt_good_proton_dedxexist_endcap = ROOT.TH1F("pt_good_proton_dedxexist_endcap", "
 eta_good_proton_nodedx = ROOT.TH1F("eta_good_proton_nodedx", "Pseudorapidity|proton;", 100,-2.5,2.5) 
 eta_good_proton_dedxexist = ROOT.TH1F("eta_good_proton_dedxexist", "Pseudorapidity|proton;", 100, -2.5, 2.5) 
 
+#pixel dedx
 dedxpixel_proton = ROOT.TH1F("dedxpixel_proton", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixelCalib_proton = ROOT.TH1F("dedxpixelCalib_proton", "Calibrated pixel dedx|proton;", 200, 0, 10) 
 dedxstrips_proton = ROOT.TH1F("dedxstrips_proton", "strips dedx|proton;", 200, 0, 10) 
@@ -106,13 +108,23 @@ dedxstrips_proton = ROOT.TH1F("dedxstrips_proton", "strips dedx|proton;", 200, 0
 dedxpixel_good_proton = ROOT.TH1F("dedxpixel_good_proton", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_nodedx = ROOT.TH1F("dedxpixel_good_proton_nodedx", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_dedxexist = ROOT.TH1F("dedxpixel_good_proton_dedxexist", "pixel dedx|proton;", 200, 0, 10) 
-dedxpixel_good_proton_dedxexist_P0to5 = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P0to5", "pixel dedx|proton;", 200, 0, 10) 
-dedxpixel_good_proton_dedxexist_P5toInf = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P5toInf", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_dedxexist_P0to0p5 = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P0to0p5", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_dedxexist_P0p5to1 = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P0p5to1", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_dedxexist_P1to1p5 = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P1to1p5", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_dedxexist_P1p5to2 = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P1p5to2", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_dedxexist_P2to3 = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P2to3", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixel_good_proton_dedxexist_P3toInf = ROOT.TH1F("dedxpixel_good_proton_dedxexist_P3toInf", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_dedxexist_barrel = ROOT.TH1F("dedxpixel_good_proton_dedxexist_barrel", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_dedxexist_endcap = ROOT.TH1F("dedxpixel_good_proton_dedxexist_endcap", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixelCalib_good_proton_dedxexist = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist", "Calibrated pixel dedx|proton;", 200, 0, 10) 
-dedxpixelCalib_good_proton_dedxexist_P0to5 = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P0to5", "Calibrated pixel dedx|proton;", 200, 0, 10) 
-dedxpixelCalib_good_proton_dedxexist_P5toInf = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P5toInf", "Calibrated pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton_dedxexist_P0to0p5 = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P0to0p5", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton_dedxexist_P0p5to1 = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P0p5to1", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton_dedxexist_P1to1p5 = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P1to1p5", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton_dedxexist_P1p5to2 = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P1p5to2", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton_dedxexist_P2to3   = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P2to3", "pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton_dedxexist_P3toInf = ROOT.TH1F("dedxpixelCalib_good_proton_dedxexist_P3toInf", "pixel dedx|proton;", 200, 0, 10) 
+
+# strips dedx
 dedxstrips_good_proton = ROOT.TH1F("dedxstrips_good_proton", "strips dedx|proton;", 200, 0, 10) 
 dedxstrips_good_proton_nodedx = ROOT.TH1F("dedxstrips_good_proton_nodedx", "strips dedx|proton;", 200, 0, 10) 
 dedxstrips_good_proton_dedxexist = ROOT.TH1F("dedxstrips_good_proton_dedxexist", "strips dedx|proton;", 200, 0, 10) 
@@ -245,10 +257,6 @@ for i, event in enumerate(events):
             massdedxpixel_good_proton.Fill(massfromdedxpixel)
             massdedxstrips_good_proton.Fill(massfromdedxstrips)
             
-            h2_P_protonVsDeDxPixel.Fill(protrack.p(),dedxpixel)
-            h2_P_protonVsDeDxPixelCalib.Fill(protrack.p(),dedxpixelCalib)
-            h2_P_protonVsDeDxStrips.Fill(protrack.p(),dedxstrips)
-    	
 	    if dedxpixel>0 and dedxstrips>0 : 
 		print 'both pixel/strips dedx exist'
 		radialDistance_good_Lambda_dedxexist.Fill(radDis)
@@ -262,12 +270,24 @@ for i, event in enumerate(events):
 	        eta_good_proton_dedxexist.Fill(protrack.eta())
 		dedxpixel_good_proton_dedxexist.Fill(dedxpixel)
 		dedxpixelCalib_good_proton_dedxexist.Fill(dedxpixelCalib)
-		if protrack.p() < 5 : 
-		    dedxpixel_good_proton_dedxexist_P0to5.Fill(dedxpixel)
-		    dedxpixelCalib_good_proton_dedxexist_P0to5.Fill(dedxpixelCalib)
-		if protrack.p() >=5 : 
-		    dedxpixel_good_proton_dedxexist_P5toInf.Fill(dedxpixel)
-		    dedxpixelCalib_good_proton_dedxexist_P5toInf.Fill(dedxpixelCalib)
+		if protrack.p() < 0.5 : 
+		    dedxpixel_good_proton_dedxexist_P0to0p5.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_dedxexist_P0to0p5.Fill(dedxpixelCalib)
+		elif protrack.p() >=0.5 and protrack.p() < 1.0: 
+		    dedxpixel_good_proton_dedxexist_P0p5to1.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_dedxexist_P0p5to1.Fill(dedxpixelCalib)
+		elif protrack.p() >=1.0 and protrack.p() < 1.5: 
+		    dedxpixel_good_proton_dedxexist_P1to1p5.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_dedxexist_P1to1p5.Fill(dedxpixelCalib)
+		elif protrack.p() >=1.5 and protrack.p() < 2.0: 
+		    dedxpixel_good_proton_dedxexist_P1p5to2.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_dedxexist_P1p5to2.Fill(dedxpixelCalib)
+		elif protrack.p() >=2.0 and protrack.p() < 3.0: 
+		    dedxpixel_good_proton_dedxexist_P2to3.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_dedxexist_P2to3.Fill(dedxpixelCalib)
+		elif protrack.p() >=3.0 : 
+		    dedxpixel_good_proton_dedxexist_P3toInf.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_dedxexist_P3toInf.Fill(dedxpixelCalib)
             	dedxstrips_good_proton_dedxexist.Fill(dedxstrips)
             	massdedxpixel_good_proton_dedxexist.Fill(massfromdedxpixel)
 	    	massdedxpixelCalib_good_proton_dedxexist.Fill(massfromdedxpixelCalib)
@@ -283,6 +303,11 @@ for i, event in enumerate(events):
 		    dedxpixel_good_proton_dedxexist_endcap.Fill(dedxpixel)
 		    dedxstrips_good_proton_dedxexist_endcap.Fill(dedxstrips)
 		else : print 'out of eta range, shouldnt see this message'
+		
+		h2_P_protonVsDeDxPixel.Fill(protrack.p(),dedxpixel)
+            	h2_P_protonVsDeDxPixelCalib.Fill(protrack.p(),dedxpixelCalib)
+            	h2_P_protonVsDeDxStrips.Fill(protrack.p(),dedxstrips)
+    	
 	    
 	    elif dedxpixel==0 or dedxstrips==0 : # when there are no dedx 
 		print 'dedx doesnt exist at least one of pixel or strips'

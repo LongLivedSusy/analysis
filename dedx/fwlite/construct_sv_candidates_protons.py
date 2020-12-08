@@ -17,10 +17,10 @@ except:
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/CMSSW_9_4_17/src/SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGIPREMIX_S2_DATAMIX_L1_DIGI2RAW_L1Reco_RECO_premix10000_10000evt.root"
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/CMSSW_9_4_17/src/SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGI_L1_DIGI2RAW_L1Reco_RECO_NoPU.root"
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/output/smallchunks/SUS-RunIISummer15GS-00734_T2btLLFastSim_200of200.root"
-    fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/CMSSW_9_4_17/src/20200831_040129897445869/SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_1of1.root"
+    #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/CMSSW_9_4_17/src/20200831_040129897445869/SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_1of1.root"
+    fname = "root://xrootd-cms.infn.it//store/data/Run2017F/SingleElectron/AOD/17Nov2017-v1/60000/B289F8E0-AEDE-E711-9D11-0CC47A7C3430.root"
 
-
-output_folder = './EDM_output'
+output_folder = '/nfs/dust/cms/user/spak/DisappearingTracks/CMSSW_10_5_0/src/analysis/dedx/fwlite/EDM_output/'
 if not os.path.exists(output_folder):
     print 'Making output folder : ', output_folder
     os.system('mkdir -p '+output_folder)
