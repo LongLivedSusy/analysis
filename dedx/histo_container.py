@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from ROOT import *
 
 # Histograms
@@ -29,6 +31,7 @@ hTrkPt_tightgenmumatch = TH1F('hTrkPt_tightgenmumatch','hTrkPt_tightgenmumatch',
 hTrkPt_tightgenmumatch_barrel = TH1F('hTrkPt_tightgenmumatch_barrel','hTrkPt_tightgenmumatch_barrel',1000,0,10000)
 hTrkPt_tightgenmumatch_endcap = TH1F('hTrkPt_tightgenmumatch_endcap','hTrkPt_tightgenmumatch_endcap',1000,0,10000)
 
+hTrkEta = TH1F('hTrkEta','Track eta',100,-2.5,2.5)
 hTrkEta_tightmumatch = TH1F('hTrkEta_tightmumatch','hTrkEta_tightmumatch',100,-2.5,2.5)
 hTrkEta_tightmumatch_barrel = TH1F('hTrkEta_tightmumatch_barrel','hTrkEta_tightmumatch_barrel',100,-2.5,2.5)
 hTrkEta_tightmumatch_endcap = TH1F('hTrkEta_tightmumatch_endcap','hTrkEta_tightmumatch_endcap',100,-2.5,2.5)
@@ -36,6 +39,7 @@ hTrkEta_tightgenmumatch = TH1F('hTrkEta_tightgenmumatch','hTrkEta_tightgenmumatc
 hTrkEta_tightgenmumatch_barrel = TH1F('hTrkEta_tightgenmumatch_barrel','hTrkEta_tightgenmumatch_barrel',100,-2.5,2.5)
 hTrkEta_tightgenmumatch_endcap = TH1F('hTrkEta_tightgenmumatch_endcap','hTrkEta_tightgenmumatch_endcap',100,-2.5,2.5)
 
+hTrkPhi = TH1F('hTrkPhi','Track Phi',100,-3.14,3.14)
 hTrkPt_tightelematch = TH1F('hTrkPt_tightelematch','hTrkPt_tightelematch',1000,0,10000)
 hTrkPt_tightelematch_barrel = TH1F('hTrkPt_tightelematch_barrel','hTrkPt_tightelematch_barrel',1000,0,10000)
 hTrkPt_tightelematch_endcap = TH1F('hTrkPt_tightelematch_endcap','hTrkPt_tightelematch_endcap',1000,0,10000)

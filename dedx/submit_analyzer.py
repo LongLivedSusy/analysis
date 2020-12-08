@@ -20,16 +20,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     test = args.test
 
-
-    #Inputfile txt path
-    path = "./inputs/"
+#Inputfile txt path path = "./inputs/"
     #inputfiles = sorted(glob(path+'/*.txt'))
     #inputfiles = sorted(glob(path+'/Run2016*.txt'))
     #inputfiles = sorted(glob(path+'/Run2017*.txt'))
     #inputfiles = sorted(glob(path+'/Summer16*.txt'))
     #inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
     #inputfiles = sorted(glob(path+'/RunIIFall17*.txt')+glob(path+'/Run2017*.txt'))
-    inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt'))
+    inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt')+glob(path+'/Run2018*-SingleMuon.txt'))
+    #inputfiles = sorted(glob(path+'/Run2018*-SingleMuon.txt'))
     #inputfiles = sorted(glob(path+'/Summer16*.txt')+glob(path+'/RunIIFall17*.txt'))
     #inputfiles = sorted(glob(path+'/RunIISummer16MiniAODv3.SMS*.txt'))
     #inputfiles = ["./inputs/Run2016H-SingleMuon.txt"]
@@ -40,11 +39,13 @@ if __name__ == "__main__":
     #inputfiles = ["./inputs/Summer16.DYJetsToLL_M-50_TuneCUETP8M1.txt"]
     #inputfiles = ["./inputs/RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5.txt"]
     #inputfiles = ["./inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.txt"]
+    #inputfiles = ["./inputs/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8.txt"]
    
-    condorDir = 'condor_data'
+    condorDir = 'condor_data_all'
     #condorDir = 'condor_MC'
     #condorDir = 'condor_RunIISignal'
-    output_dir = "./output_smallchunks/"
+    #condorDir = 'condor_RunIIFall17_FastSim_T1qqqq'
+    output_dir = "./output_smallchunks_localrun/"
     if not os.path.exists(output_dir):
 	os.system("mkdir -p "+output_dir)
 	print "Making output_dir :", output_dir
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     lines=[]
     for inputfile in sorted(inputfiles):
 	cnt = 0
-        if "SMS" in inputfile : split = False
+        #if "SMS" in inputfile : split = False
         if "FastSim" in inputfile : isfast = True
 	with open(inputfile) as f:
 	    lines = f.readlines()
@@ -68,7 +69,7 @@ if __name__ == "__main__":
 		for i,chunk in enumerate(input_chunks):
 		    output = inputfile.split('/')[-1].replace('.txt','_'+str(i)+'.root')
 		    chunk = str(chunk).replace('\\n','').replace(", "," ").replace("[","").replace("]","")
-		    command = "python analyzer_leptontrack.py --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
+		    command = "python analyzer.py --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
 		    if isfast : 
 			command += "--fast"
         	    commands.append(command)
@@ -76,7 +77,8 @@ if __name__ == "__main__":
 	    elif not split : 
 		output = inputfile.split('/')[-1].replace('.txt','.root')
 		chunk = str(lines).replace('\\n','').replace(", "," ").replace("[","").replace("]","")
-		command = "python analyzer_leptontrack.py --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
+		#command = "python analyzer_leptontrack.py --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
+		command = "python analyzer --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
 		if isfast :
 		    command += " --fast"
         	commands.append(command)
