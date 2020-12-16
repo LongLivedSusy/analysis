@@ -6,6 +6,7 @@ import multiprocessing
 from optparse import OptionParser
 import time
 import commands
+import getpass
 
 # grid submission tool for condor, with DAG support
 # comments: viktor.kutzner@desy.de
@@ -26,11 +27,20 @@ import commands
 # $ python GridEngineTools.py --resubmit  # resubmit failed jobs
 
 
+def shoot_cmds_into_sl6_singularity(commands): 
+    singularity_hull = "singularity exec --contain --bind /afs:/afs --bind /nfs:/nfs --bind /pnfs:/pnfs --bind /cvmfs:/cvmfs --bind /var/lib/condor:/var/lib/condor --bind /tmp:/tmp --pwd . ~/dust/slc6_latest.sif sh -c 'source /cvmfs/cms.cern.ch/cmsset_default.sh; $CMD'"
+    for i, command in enumerate(commands):
+        print commands[i]
+        commands[i] = singularity_hull.replace("$CMD", commands[i])
+        print commands[i]
+    return commands
+    
+
 def ShellExec(command):
     os.system(command)
 
 
-def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, confirm=True, babysit = True):
+def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit = True):
 
     print "jobs:", len(mycommands)
     print mycommands[0]
@@ -59,7 +69,7 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
 
         print "Using CMSSW base", cmsbase
 
-        return runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, confirm=confirm, babysit=babysit)
+        return runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit)
 
 
 def babysit_jobs(condorDir):
@@ -88,7 +98,7 @@ def babysit_jobs(condorDir):
     return 0
 
 
-def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, confirm=True, babysit=True):
+def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit=True):
 
     jobscript = '''#!/bin/bash
     echo "$QUEUE $JOB $HOST"
@@ -149,6 +159,8 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
         if use_more_mem == 1:
             use_more_mem = 4096
         additional_parameters += "RequestMemory = %s\n" % use_more_mem
+    if use_sl6:
+        additional_parameters += '+MySingularityImage="/nfs/dust/cms/user/%s/slc6_latest.sif"\n' % getpass.getuser()
     if use_more_time:
         if use_more_time == 1:
             use_more_time = 86400
