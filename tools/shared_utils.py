@@ -578,7 +578,8 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
 	#hFracDiff.Divide(hTruthCopy)
 	#hRatio.Divide(hTruthCopy)
 	hRatio.Divide(hComponents[0])
-	hRatio.GetYaxis().SetRangeUser(0.0,.1)###
+	#hRatio.GetYaxis().SetRangeUser(0.0,.1)###
+	hRatio.GetYaxis().SetRangeUser(0,2)###
 	hRatio.SetTitle('')
 	if 'prediction' in title0: hRatio.GetYaxis().SetTitle('(RS-#Delta#phi)/#Delta#phi')
 	else: hRatio.GetYaxis().SetTitle(fractionthing)

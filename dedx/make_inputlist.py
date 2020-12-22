@@ -3,8 +3,11 @@ from glob import glob
 
 def make_inputlist(samples):
     userlist = []
-    #hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
-    hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/FastSim/output/ntuples*"
+    hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
+    #hub_folders = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3"
+    #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16FS_T2bt_mLSP900_ctau200/ntuples*"
+    #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP1100and300/ntuples*"
+    #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP-1to200/ntuples*"
 
     print "Making input ntuples list.."
     if not os.path.exists("./inputs"):
@@ -134,6 +137,14 @@ if __name__ == "__main__" :
     Summer16_signal_fastsim = [
     "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1",
     ]
+    
+    Summer16_signal_fastsim_mStop1300 = [
+    "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300",
+    ]
+    
+    Summer16PrivateFastSim_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200 = [
+    "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1to200",
+    ]
 
     Fall17_bkg = [
     "RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5",
@@ -175,6 +186,12 @@ if __name__ == "__main__" :
     "RunIIFall17MiniAODv2.WZTo1L3Nu",
     "RunIIFall17MiniAODv2.ZZTo2L2Q",
     "RunIIFall17MiniAODv2.WZZ_TuneCP5",
+    ]
+
+    Fall17_FastSimSignal = [
+    "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8",
+    "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8",
+    "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8",
     ]
 
     Run2016_MET = [
@@ -241,14 +258,17 @@ if __name__ == "__main__" :
     samples=[]
     #samples.extend(Summer16_bkg)
     #samples.extend(Summer16_signal)
-    samples.extend(Summer16_signal_fastsim)
+    #samples.extend(Summer16_signal_fastsim)
+    #samples.extend(Summer16_signal_fastsim_mStop1300)
+    #samples.extend(Summer16PrivateFastSim_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200)
     #samples.extend(Fall17_bkg)
-    #samples.extend(Run2016_SingleMuon)
-    #samples.extend(Run2016_SingleElectron)
-    #samples.extend(Run2017_SingleMuon)
-    #samples.extend(Run2017_SingleElectron)
-    #samples.extend(Run2018_SingleMuon)
-    #samples.extend(Run2018_EGamma)
+    #samples.extend(Fall17_FastSimSignal)
+    samples.extend(Run2016_SingleMuon)
+    samples.extend(Run2016_SingleElectron)
+    samples.extend(Run2017_SingleMuon)
+    samples.extend(Run2017_SingleElectron)
+    samples.extend(Run2018_SingleMuon)
+    samples.extend(Run2018_EGamma)
     
     #Input list for each process
     make_inputlist(samples)

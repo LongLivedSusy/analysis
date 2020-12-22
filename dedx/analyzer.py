@@ -1,11 +1,48 @@
-import os
+import os as os_
 import sys
 import argparse
 import json
 from ROOT import *
 from shared_utils import *
+import numpy as np
 
 TH1.SetDefaultSumw2(True)
+
+_dxyVtx_ = array('f',[0])
+_dzVtx_ = array('f',[0])
+_matchedCaloEnergy_ = array('f',[0])
+_trkRelIso_ = array('f',[0])
+_nValidPixelHits_ = array('f',[0])
+_nValidTrackerHits_ = array('f',[0])
+_nMissingOuterHits_ = array('f',[0])
+_ptErrOverPt2_ = array('f',[0])
+_trkRelIsoSTARpt_ = array('f',[0])
+_neutralPtSum_ = array('f',[0])
+_chargedPtSum_ = array('f',[0])
+_pixelLayersWithMeasurement_ = array('f',[0])
+_trackerLayersWithMeasurement_ = array('f',[0])
+_nMissingMiddleHits_ = array('f',[0])
+_chi2perNdof_ = array('f',[0])
+
+def prepareReaderPixelStrips_loose(reader, xmlfilename):
+                reader.AddVariable("tracks_dzVtx",_dzVtx_)
+                reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+                reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
+                reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
+                reader.AddVariable("tracks_nValidTrackerHits",_nValidTrackerHits_)
+                reader.AddVariable("tracks_nMissingOuterHits",_nMissingOuterHits_)
+                reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
+                reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
+                reader.BookMVA("BDT", xmlfilename)
+
+def prepareReaderPixel_loose(reader, xmlfilename):
+                reader.AddVariable("tracks_dzVtx",_dzVtx_)
+                reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+                reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
+                reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
+                reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
+                reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
+                reader.BookMVA("BDT", xmlfilename)
 
 def passesUniversalSelection(t):
 	#if not bool(t.JetID): return False
@@ -131,6 +168,24 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
         print "Can't determine data/MC era!"
         quit(1)
 
+    # Load BDT
+    #print 'Loading BDTs'
+    #if phase==0:
+    #    pixelXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/current-phase0-shorttracks/dataset/weights/TMVAClassification_BDT.weights.xml'
+    #    pixelstripsXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/current-phase0-longtracks/dataset/weights/TMVAClassification_BDT.weights.xml'
+    #    #pixelXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'
+    #    #pixelstripsXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'
+    #else :
+    #    pixelXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-nov20-noEdep/weights/TMVAClassification_BDT.weights.xml'
+    #    pixelstripsXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-nov20-noEdep/weights/TMVAClassification_BDT.weights.xml'
+    #
+    #readerPixelOnly = TMVA.Reader()
+    #readerPixelStrips = TMVA.Reader()
+    #print 'going to process', pixelXml
+    #prepareReaderPixel_loose(readerPixelOnly, pixelXml)
+    #print 'going to process', pixelstripsXml
+    #prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
+
     # load and configure data mask:
     #fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
     #fMask = TFile('../disappearing-track-tag/Masks_mcal10to15.root')
@@ -194,28 +249,28 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
  	if not c.NVtx>0: continue
 	
 	# MET filters, etc
-	#if is_fastsim : 
-	#    #if not passesUniversalSelectionFastSim(c): continue
-	#    #if not bool(t.JetID): continue
- 	#    if not  passQCDHighMETFilter(c): continue
- 	#    if not passQCDHighMETFilter2(c): continue
-	#else : 
-	#    #if not passesUniversalSelection(c): continue
-	#    #if not bool(c.JetID): continue
-	#    if not c.NVtx>0: continue
-	#    if not  passQCDHighMETFilter(c): continue
-	#    if not passQCDHighMETFilter2(c): continue
-	#    #if not c.PFCaloMETRatio<5: continue # turned off now that we use muons
-	#    ###if not c.globalSuperTightHalo2016Filter: continue
-	#    if not c.HBHENoiseFilter: continue    
-	#    if not c.HBHEIsoNoiseFilter: continue
-	#    if not c.eeBadScFilter: continue      
-	#    if not c.BadChargedCandidateFilter: continue
-	#    if not c.BadPFMuonFilter: continue
-	#    if not c.CSCTightHaloFilter: continue
-	#    if not c.EcalDeadCellTriggerPrimitiveFilter: continue      ##I think this one makes a sizeable difference    
-	#    ##if not c.ecalBadCalibReducedExtraFilter: continue
-	#    ##if not c.ecalBadCalibReducedFilter: continue      
+	if is_fastsim : 
+	    #if not passesUniversalSelectionFastSim(c): continue
+	    #if not bool(t.JetID): continue
+ 	    if not  passQCDHighMETFilter(c): continue
+ 	    if not passQCDHighMETFilter2(c): continue
+	else : 
+	    #if not passesUniversalSelection(c): continue
+	    #if not bool(c.JetID): continue
+	    if not c.NVtx>0: continue
+	    if not  passQCDHighMETFilter(c): continue
+	    if not passQCDHighMETFilter2(c): continue
+	    #if not c.PFCaloMETRatio<5: continue # turned off now that we use muons
+	    ###if not c.globalSuperTightHalo2016Filter: continue
+	    if not c.HBHENoiseFilter: continue    
+	    if not c.HBHEIsoNoiseFilter: continue
+	    if not c.eeBadScFilter: continue      
+	    if not c.BadChargedCandidateFilter: continue
+	    if not c.BadPFMuonFilter: continue
+	    if not c.CSCTightHaloFilter: continue
+	    if not c.EcalDeadCellTriggerPrimitiveFilter: continue      ##I think this one makes a sizeable difference    
+	    ##if not c.ecalBadCalibReducedExtraFilter: continue
+	    ##if not c.ecalBadCalibReducedFilter: continue      
 	   
 	
 	# some preselection on event
@@ -391,21 +446,28 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	#fillth1(hNlepton,n_lepton,weight)
 
 	# Track
+	isShort=True
 	for itrack, track in enumerate(c.tracks):
 	    if not track.Pt()>15 : continue
 	    if not abs(track.Eta()) < 2.4 : continue
-	    if not bool(c.tracks_trackQualityHighPurity[itrack]) : continue
-	    if not c.tracks_ptError[itrack]/(track.Pt()*track.Pt())<10 : continue
-	    if not abs(c.tracks_dzVtx[itrack])<0.1 : continue
-	    #if not abs(c.tracks_dxyVtx[itrack]) < 0.1: continue
 	    if not c.tracks_trkRelIso[itrack]<0.1 : continue
-	    if not c.tracks_trackerLayersWithMeasurement[itrack]>=2 : continue
-	    if not c.tracks_nValidTrackerHits[itrack]>=2 : continue
+	    if not abs(c.tracks_dzVtx[itrack])<0.1 : continue
+	    if not c.tracks_ptError[itrack]/(track.Pt()*track.Pt())<10 : continue
 	    if not c.tracks_nMissingInnerHits[itrack]==0 : continue
+	    if not bool(c.tracks_passPFCandVeto[itrack]) : continue
+	    if not bool(c.tracks_trackQualityHighPurity[itrack]) : continue
 	    if not c.tracks_nValidPixelHits[itrack]>=3 : continue
-	    #if not bool(c.tracks_passPFCandVeto[itrack]) : continue
+	    #if not c.tracks_nValidTrackerHits[itrack]>=2 : continue
 	    
+	    if c.tracks_nValidPixelHits[itrack] == c.tracks_nValidTrackerHits[itrack] :
+		isShort = True
+	    elif track.Pt()>30 and c.tracks_nValidPixelHits[itrack] < c.tracks_nValidTrackerHits[itrack] :
+		isShort = False
+	    
+	    fillth1(hTrkP,track.P(),weight)
 	    fillth1(hTrkPt,track.Pt(),weight)
+	    fillth1(hTrkEta,track.Eta(),weight)
+	    fillth1(hTrkPhi,track.Phi(),weight)
 	    #print 'track pT : ', track.Pt()
 
 	    # Gen-chargino - track matching
