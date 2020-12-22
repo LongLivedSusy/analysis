@@ -8,6 +8,8 @@ dedxcutMid = 4.0
 
 dedxcutLow = 2.0
 dedxcutMid = 4.0
+#dedxcutMid = 5.0
+#dedxcutMid = 4.5
 
 #dedxcutLow = 3.4
 #dedxcutMid = 6
@@ -52,9 +54,11 @@ binning['Mht']=binning['Met']
 binning['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
 binning['TrkPt']=[15, 30, 60, 120, 130]#just seemed to work very well######comment out after studies
 binning['TrkPt']=[100,0,500]
+binning['TrkPt']=[0,25,30,40,50,75,100,150,300]
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 binning['TrkEta']=EtaBinEdges
 binning['TrkEta']=[30,-3,3]
+binning['TrkEta']=[90,-3,3]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
 binning['NJets']=[10,0,10]
@@ -67,6 +71,7 @@ binning['ElPt']=[60,0,600]
 binning['ElEta']=[30,-3,3]###comment out ater studies
 binning['MuEta']=[30,-3,3]###comment out ater studies
 binning['TrkEta']=[30,-3,3]###comment out ater studies
+binning['TrkEta']=[90,-3,3]###comment out ater studies
 binning['NTags']=[3,0,3]
 binning['NPix']=binning['NTags']
 binning['NPixStrips']=binning['NTags']
@@ -74,12 +79,12 @@ binning['BTags']=[4,0,4]
 binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['DPhiMhtDt'] = [32,0,3.2]
-binning['InvMass'] = [20,60,180]
-binning['LepMT'] = [20,0,160]
+binning['InvMass'] = [26,50,180]
+binning['LepMT'] = [14,15,150]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [58,0,58]
 binning['Log10DedxMass'] = [10,0,5]
-binning['DeDxAverage'] = [100,0,10]
+binning['DeDxAverage'] = [1.999999999,2,4.0,10.0]
 binning['MinDPhiMhtHemJet'] = [16,0,3.2]
 binning['MatchedCalo'] = [30,0,150]
 binning['LeadTrkMva'] = [44,-1.1,1.1]
@@ -92,30 +97,10 @@ binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [51,1,52]
 binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
-#binningAnalysis['InvMass'] = [25,0,200]
 binningAnalysis['LepMT'] = [16,0,160]
 binningAnalysis['DPhiMhtDt'] = [32,0,3.2]
+#binningAnalysis['TrkPt']=[0,25,30,40,60,120]
 
-'''
-binningAnalysis['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
-binningAnalysis['TrkEta']=EtaBinEdges
-binningAnalysis['TrkLen']=[2, 1, 3]
-binningAnalysis['NJets']=[1,2,6,8]
-binningAnalysis['NLeptons']=[3,0,3]
-binningAnalysis['NElectrons']=binningAnalysis['NLeptons']
-binningAnalysis['NMuons']=binningAnalysis['NLeptons']
-binningAnalysis['NPions']=binningAnalysis['NLeptons']
-binningAnalysis['NTags']=[3,0,3]
-binningAnalysis['NPix']=binningAnalysis['NTags']
-binningAnalysis['NPixStrips']=binningAnalysis['NTags']
-binningAnalysis['BTags']=[4,0,4]
-binningAnalysis['Ht']=[10,0,2000]
-binningAnalysis['MinDPhiMhtJets'] = [16,0,3.2]
-binningAnalysis['DeDxAverage'] = [20,0,10]
-binningAnalysis['Track1MassFromDedx'] = [25,0,1000]
-binningAnalysis['BinNumber'] = [50,1,51]
-binningAnalysis['Log10DedxMass'] = [10,0,5]
-'''
 
 def histoStyler(h,color=kBlack):
 	h.SetLineWidth(2)
@@ -291,7 +276,7 @@ def namewizard(name):
 	if 'TrkEta' == name:
 		return '|#eta|'
 	if 'MatchedCalo' == name:
-		return 'E_{matched}^{calo} [GeV]'
+		return 'f_{#text{dep}}=E_{#text{dep}}/p_{#text{track}}'
 	if 'NPix' == name:
 		return 'n(short DT)'
 	if 'BinNumber' == name:
@@ -326,7 +311,7 @@ def Struct(*args, **kwargs):
 def mkHistoStruct(hname, binning=binning):
 	if '_' in hname: var = hname[hname.find('_')+1:]
 	else: var =  hname
-	histoStruct = Struct('Truth','Control','Method1','Method2','Method3')
+	histoStruct = Struct('Truth','Control','Method1','Method2','Method3')#,
 	if len(binning[var])==3:
 		nbins = binning[var][0]
 		low = binning[var][1]
@@ -336,6 +321,7 @@ def mkHistoStruct(hname, binning=binning):
 		histoStruct.Method1 = TH1F('h'+hname+'Method1',hname+'Method1',nbins,low,high)
 		histoStruct.Method2 = TH1F('h'+hname+'Method2',hname+'Method2',nbins,low,high)
 		histoStruct.Method3 = TH1F('h'+hname+'Method3',hname+'Method3',nbins,low,high)		
+		#print 'f'
 
 	else:
 		nBin = len(binning[var])-1
@@ -344,17 +330,18 @@ def mkHistoStruct(hname, binning=binning):
 		histoStruct.Control = TH1F('h'+hname+'Control',hname+'Control',nBin,binArr)
 		histoStruct.Method1 = TH1F('h'+hname+'Method1',hname+'Method1',nBin,binArr)
 		histoStruct.Method2 = TH1F('h'+hname+'Method2',hname+'Method2',nBin,binArr)	
-		histoStruct.Method3 = TH1F('h'+hname+'Method3',hname+'Method3',nBin,binArr)				
+		histoStruct.Method3 = TH1F('h'+hname+'Method3',hname+'Method3',nBin,binArr)								
 	histoStyler(histoStruct.Truth,kBlack)
 	histoStyler(histoStruct.Control,kTeal-1)
 	histoStyler(histoStruct.Method1,kAzure-2)
 	histoStyler(histoStruct.Method2,kViolet-2)	
+	histoStyler(histoStruct.Method3,kViolet-3)
 	histoStruct.Method1.SetFillStyle(1001)
 	histoStruct.Method1.SetFillColor(histoStruct.Method1.GetLineColor()+1)
 	histoStruct.Method2.SetFillStyle(1001)
 	histoStruct.Method2.SetFillColor(histoStruct.Method2.GetLineColor()+1)	
 	histoStruct.Method3.SetFillStyle(1001)
-	histoStruct.Method3.SetFillColor(histoStruct.Method2.GetLineColor()+2)		
+	histoStruct.Method3.SetFillColor(histoStruct.Method3.GetLineColor()+2)		
 	return histoStruct
 
 
@@ -366,7 +353,18 @@ def writeHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
 		if 'control' in opt: hStructDict[key].Control.Write()
 		if 'method1' in opt: hStructDict[key].Method1.Write()
 		if 'method2' in opt: hStructDict[key].Method2.Write()
-		if 'method3' in opt: hStructDict[key].Method3.Write()		
+		if 'method3' in opt: hStructDict[key].Method3.Write()
+		
+		
+def resetHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
+	keys = sorted(hStructDict.keys())
+	for key in keys:
+		#print 'writing histogram structure:', key
+		if 'truth' in opt: hStructDict[key].Reset()
+		if 'control' in opt: hStructDict[key].Reset()
+		if 'method1' in opt: hStructDict[key].Reset()
+		if 'method2' in opt: hStructDict[key].Reset()
+		if 'method3' in opt: hStructDict[key].Method3.Write()						
 	
 def mkEfficiencyRatio(hPassList, hAllList,hName = 'hRatio'):#for weighted MC, you need TEfficiency!
 	hEffList = []
@@ -660,9 +658,10 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 		#h.SetFillStyle(3244)
 		print 'there are actually components here!'
 		h.Draw('hist same')
+		h.Draw('e1 sames')
 	ErrorHistogram = hComponents[0].Clone('ErrorHistogram')
 	ErrorHistogram.SetFillStyle(3244)
-	ErrorHistogram.SetFillColor(kGray)
+	ErrorHistogram.SetFillColor(kGray+1)
 	ErrorHistogram.Draw('e2 sames')		
 	cGold.Update()
 	#hComponents[0].Draw('same') 
@@ -716,12 +715,13 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 
 	histoMethodFracErrorNom = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystNom')
 	histoMethodFracErrorNom.SetLineColor(kBlack)
-	histoMethodFracErrorNom.SetFillStyle(1)
+	histoMethodFracErrorNom.SetFillStyle(3001)
+	histoMethodFracErrorNom.SetFillColor(kGray+1)
 	histoMethodFracErrorUp = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystUp')
 	histoMethodFracErrorUp.SetFillStyle(3001)
 	histoMethodFracErrorUp.SetLineColor(kWhite)	
-	histoMethodFracErrorUp.SetFillColor(kGray)#hComponents[0].GetFillColor())	
-	histoMethodFracErrorUp.SetFillStyle(3244)
+	histoMethodFracErrorUp.SetFillColor(kGray+1)#hComponents[0].GetFillColor())	
+	histoMethodFracErrorUp.SetFillStyle(3001)
 	histoMethodFracErrorDown = hComponents[0].Clone(hComponents[0].GetName()+'hMethodSystDown')
 	histoMethodFracErrorDown.SetLineColor(kWhite)
 	#histoMethodFracErrorDown.SetFillStyle(1001)
@@ -737,6 +737,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 		histoMethodFracErrorNom.SetBinContent(ibin, 1)		
 		histoMethodFracErrorNom.SetBinError(ibin, 0)
 	hRatio.GetYaxis().SetRangeUser(-0.2,2.7)	
+	hRatio.SetFillColor(kGray+1)
 	hRatio.Draw('e0')
 	histoMethodFracErrorUp.Draw('same hist')	
 	histoMethodFracErrorNom.Draw('same')
@@ -843,7 +844,7 @@ def prepareReaderPixel_loose(reader, xmlfilename):
 def prepareReaderPixelStrips_fullyinformed(reader, xmlfilename):
 		reader.AddVariable("tracks_dxyVtx",_dxyVtx_)
 		reader.AddVariable("tracks_dzVtx",_dzVtx_)		       
-		reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+		#reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
 		reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
 		reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
 		reader.AddVariable("tracks_nValidTrackerHits",_nValidTrackerHits_)
@@ -855,7 +856,7 @@ def prepareReaderPixelStrips_fullyinformed(reader, xmlfilename):
 def prepareReaderPixel_fullyinformed(reader, xmlfilename):
 		reader.AddVariable("tracks_dxyVtx",_dxyVtx_)
 		reader.AddVariable("tracks_dzVtx",_dzVtx_)		        
-		reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
+		#reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
 		reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
 		reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
 		reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
@@ -957,7 +958,7 @@ def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelS
 				return 0, mva_
 				
 				
-def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.1,-0.25]):###from Akshansh
+def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.2,-0.4]):###from Akshansh
 		moh_ = c.tracks_nMissingOuterHits[itrack]
 		phits = c.tracks_nValidPixelHits[itrack]
 		thits = c.tracks_nValidTrackerHits[itrack]
@@ -968,6 +969,7 @@ def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerP
 		pixelStrips = medium or long
 		if pixelStrips:
 			if not moh_>=2: return 0, -11
+			if not track.Pt()>40: return 0, -11
 
 		if not (pixelOnly or pixelStrips): return 0, -11                                                                                                    
 		if not c.tracks_passPFCandVeto[itrack]: return 0, -11
@@ -1019,17 +1021,62 @@ def isBaselineTrack(track, itrack, c, hMask=''):
 	return True
 
 
-def isBaselineTrackLoosetag(track, itrack, c, hMask=''):
+def passesExtraExoCuts(track, itrack, c):
+	if not track.Pt()>55: return False
+	if not abs(track.Eta())< 2.1: return False
+	if not (abs(track.Eta())> 0.35 or abs(track.Eta())< 0.15): return False	
+	if not (abs(track.Eta())> 1.65 or abs(track.Eta())< 1.42): return False	
+	if not (abs(track.Eta())> 1.85 or abs(track.Eta())< 1.55): return False
+	phits = c.tracks_nValidPixelHits[itrack]
+	thits = c.tracks_nValidTrackerHits[itrack]
+	tlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+	medium = tlayers< 7 and (thits-phits)>0
+	long   = tlayers>=7 and (thits-phits)>0
+	pixelStrips = medium or long
+	if pixelStrips:
+		if not c.tracks_nMissingOuterHits[itrack]>3: return False
+	return True
+		
+		
+'''
+            "tracks_is_pixel_track==1",
+            "abs(tracks_eta)<2.1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
+            "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
+            "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",                                 
+            "tracks_matchedCaloEnergy<10",                
+            "tracks_pt>55",
+'''
+
+
+def isBaselineTrackLoosetag(track, itrack, c, hMask=''):### could tracks_ptError be broken in fastsim###this could be broken in fastsim?
 	base_cuts = abs(track.Eta())<2.4 and \
 		bool(c.tracks_trackQualityHighPurity[itrack]) and \
 		c.tracks_ptError[itrack]/c.tracks[itrack].Pt()/c.tracks[itrack].Pt()<10 and \
 		c.tracks_dzVtx[itrack]<0.1 and \
-		c.tracks_trkRelIso[itrack]<0.01 and \
+		c.tracks_trkRelIso[itrack]<0.2 and \
 		c.tracks_trackerLayersWithMeasurement[itrack]>=2 and \
 		c.tracks_nValidTrackerHits[itrack]>=2 and \
 		c.tracks_nMissingInnerHits[itrack]==0 and \
 		c.tracks_nValidPixelHits[itrack]>=2 and \
 		bool(c.tracks_passPFCandVeto[itrack])
+	if not base_cuts: return False
+	if hMask!='':
+		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
+		ibinx, ibiny = xax.FindBin(track.Phi()), yax.FindBin(track.Eta())
+		if hMask.GetBinContent(ibinx, ibiny)==0: 
+			#print 'zeroing out this DT', ibinx, ibiny
+			return False	
 	return base_cuts
 		
 def overflow(h):
@@ -1137,31 +1184,31 @@ binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (0,0),(1,1),    (0
 binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (1,1),(0,0),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 23
 binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (1,1),(0,0),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 24
 #listagain =  ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 25
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 26
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 27
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 28
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 25
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 26
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 27
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 28
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 29
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
 #listagain =  ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 37
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 39
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 40
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 37
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 39
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 40
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 41
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
 #listagain =  ['Ht',  'Mht',      'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (0,0))]   = 49
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (1,inf))] = 50
