@@ -56,9 +56,6 @@ binning['TrkPt']=[15, 30, 60, 120, 130]#just seemed to work very well######comme
 binning['TrkPt']=[100,0,500]
 binning['TrkPt']=[0,25,30,40,50,75,100,150,300]
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
-binning['TrkEta']=EtaBinEdges
-binning['TrkEta']=[30,-3,3]
-binning['TrkEta']=[90,-3,3]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
 binning['NJets']=[10,0,10]
@@ -70,8 +67,9 @@ binning['MuPt']=[60,0,600]
 binning['ElPt']=[60,0,600]
 binning['ElEta']=[30,-3,3]###comment out ater studies
 binning['MuEta']=[30,-3,3]###comment out ater studies
-binning['TrkEta']=[30,-3,3]###comment out ater studies
-binning['TrkEta']=[90,-3,3]###comment out ater studies
+binning['TrkEta']=EtaBinEdges
+binning['TrkEta']=[15,0,3]###comment out ater studies
+binning['TrkEta']=[45,0,3]###comment out ater studies
 binning['NTags']=[3,0,3]
 binning['NPix']=binning['NTags']
 binning['NPixStrips']=binning['NTags']
@@ -89,6 +87,7 @@ binning['MinDPhiMhtHemJet'] = [16,0,3.2]
 binning['MatchedCalo'] = [30,0,150]
 binning['LeadTrkMva'] = [44,-1.1,1.1]
 binning['DtStatus'] = [6,-3,3]
+binning['DPhiLepDt'] = binning['DPhiMhtDt']
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
@@ -578,8 +577,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title = '', Line
 	#hFracDiff.Divide(hTruthCopy)
 	#hRatio.Divide(hTruthCopy)
 	hRatio.Divide(hComponents[0])
-	#hRatio.GetYaxis().SetRangeUser(0.0,.1)###
-	hRatio.GetYaxis().SetRangeUser(0,2)###
+	hRatio.GetYaxis().SetRangeUser(0.0,.1)###
 	hRatio.SetTitle('')
 	if 'prediction' in title0: hRatio.GetYaxis().SetTitle('(RS-#Delta#phi)/#Delta#phi')
 	else: hRatio.GetYaxis().SetTitle(fractionthing)
@@ -1189,10 +1187,10 @@ binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0
 binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 26
 binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 27
 binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 28
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 29
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 29
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
@@ -1202,10 +1200,10 @@ binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0
 binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
 binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 39
 binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 40
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 41
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 41
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
+binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
 binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
