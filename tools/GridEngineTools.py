@@ -97,7 +97,7 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
         runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit)
     
         summary = get_info(condorDir)
-        if summary["n_succeeded_jobs"] == summary["njobs"]:
+        if summary["success"] == summary["njobs"]:
             return 0
         else:
             return summary
