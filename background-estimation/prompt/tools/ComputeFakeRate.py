@@ -10,30 +10,38 @@ from time import sleep
 
 '''
 python tools/ComputeFakeRate.py 2016 MC
-python tools/ComputeFakeRate.py 2016 data
-
 python tools/ComputePromptRate.py 2016 MC
+
+python tools/ComputeFakeRate.py 2016 data
 python tools/ComputePromptRate.py 2016 data
 
-
-python tools/ComputeFakeRate.py 2017 MC
 python tools/ComputeFakeRate.py 2017 data
+python tools/ComputePromptRate.py 2017 data
+
+python tools/ComputeFakeRate.py 2018 data
+python tools/ComputePromptRate.py 2018 data
+
+python tools/ComputeFakeRate.py Phase1 data
+python tools/ComputePromptRate.py Phase1 data
+
 '''
 
+varname_thetaBinning = 'Ht'
+varname_thetaBinning = 'TrkEta'
 
 try: year = sys.argv[1]
 except: 
 	year = '2017'
 	year = '2016'
 	year = '2018'
+	year = 'Phase1'
 try: datamc = sys.argv[2]
 except:  datamc = 'MC'# year = 'data'
 
+isdata = bool(datamc=='data')
 
-if datamc=='data':
-	lumi = 35.9 #just for labeling. this weightw as already applied #must agree with lumi in merged...py!
-else:
-	lumi = 137.
+if isdata: lumi = 35.9 #just for labeling. this weightw as already applied #must agree with lumi in merged...py!
+else: lumi = 137.
 
 binning['MatchedCalo'] = [100,0,100]
 binning['DtStatus'] = [6,-3,3]
@@ -44,14 +52,15 @@ redoBinning['Met'] = [5,0,600]
 redoBinning['Mht'] = redoBinning['Met']
 redoBinning['InvMass'] = [5,50,170]
 redoBinning['ElPt'] = [5,0,300]
-redoBinning['TrkEta'] = [5,0,3]
+#redoBinning['TrkEta'] = [5,0,3]
+binning['TrkEta']=[5,0,3]
 redoBinning['MuPt'] = redoBinning['ElPt']
-redoBinning['DeDxAverage'] = [1.999999999,2,4,7]
+redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 
-redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
+#redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
 #redoBinning['DeDxAverage'] = [1.999999999,2,4,7]
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
-redoBinning['TrkPt']=[4,0,400]
+redoBinning['TrkPt']=[0,25,30,40,50,300]
 redoBinning['LepMT'] = [4,0,160]
 redoBinning['Ht']=[5,0,2000]
 redoBinning['NJets']=[-0.00000001,0,4,10]
@@ -65,40 +74,45 @@ calh = 25
 #calm = 20
 #calh = 30
 
-calm = 15
+calm = 17
 calh = 27
+
+calm = 20
+calh = 60
+
+calm = 12
+calh = 80
 
 makefolders = False
 
-
-
-
-if datamc=='MC': mycutedatatest = False
-else: mycutedatatest = True
 
 
 if year=='2016':	
 	fCentralMC = 'test.root'
 	fCentralMC = 'output/promptDataDrivenMCSummer16.root'
 	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
+	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
 
 if year=='2017': 
 	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal15to20.root'
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
+	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
 	
 if year=='2018': 
-	if mycutedatatest: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+str(calm)+'to'+str(calh)+'.root'	
+	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+str(calm)+'to'+str(calh)+'.root'	
+	
+if year=='Phase1': 
+	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenPhase1_mcal'+str(calm)+'to'+str(calh)+'.root'	
 	
 
 print 'going to use', fCentralMC
 infile = TFile(fCentralMC)
-infile.ls()
+#infile.ls()
 keys = infile.GetListOfKeys()
 
 
 fout = 'usefulthings/fakerateInfo_year'+str(year)+'.root'
-if mycutedatatest: fout = fout.replace('.root','_cute.root')
+if isdata: fout = fout.replace('.root','_data.root')
+else: fout = fout.replace('.root','_mc.root')
 fnew = TFile(fout,'recreate')
 
 
@@ -127,7 +141,7 @@ for key in sorted(keys):#[:241]:
 	hcontrolregion =   infile.Get(name)
 
 	
-	if not mycutedatatest: 
+	if not isdata: 
 		hcontrolregion_promptcontam = infile.Get(name.replace('hFake','hPrompt'))
 		htarget_promptcontam = infile.Get(name.replace('FakeCr_','_').replace('hFake','hPrompt'))
 		histoStyler(hcontrolregion_promptcontam, kTeal-5)
@@ -135,7 +149,7 @@ for key in sorted(keys):#[:241]:
 	
 	htarget = infile.Get(name.replace('FakeCr_','_').replace('Method1','Truth'))
 	
-	if not mycutedatatest: 
+	if not isdata: 
 		hcontrolregion.Add(infile.Get(name.replace('hFake','hPrompt')))
 		htarget.Add(infile.Get(name.replace('FakeCr_','_').replace('Method1','Truth').replace('hFake','hPrompt')))
 
@@ -153,21 +167,11 @@ for key in sorted(keys):#[:241]:
 		newxs = array('d',newbinning)
 	htarget = htarget.Rebin(nbins,'',newxs)
 	hcontrolregion = hcontrolregion.Rebin(nbins,'',newxs)
-	if not mycutedatatest:
+	if not isdata:
 		hcontrolregion_promptcontam = hcontrolregion_promptcontam.Rebin(nbins,'',newxs)
 		htarget_promptcontam = htarget_promptcontam.Rebin(nbins,'',newxs)		
-		
-	if datamc=='MC': 
-		if year=='2016':
-			htarget.SetTitle('fake obs. (Summer 16 MC)')	
-			hcontrolregion.SetTitle('pred. (Summer 16 MC)')		
-		if year=='2017':
-			htarget.SetTitle('fake obs. (Fall 17 MC)')
-			hcontrolregion.SetTitle('pred. (Fall 17 MC)')	
-		if year=='2018':			
-			htarget.SetTitle('fake obs. (Fall 18 MC)')
-			hcontrolregion.SetTitle('pred. (Fall 18 MC)')						
-	else:
+							
+	if isdata:
 		if year=='2016':
 			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2016)')
 			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2016)')
@@ -175,11 +179,24 @@ for key in sorted(keys):#[:241]:
 			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2017)')
 			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2018)')
 		if year=='2018':			
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2017)')
+			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2018)')
 			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2018)')
-
+		if year=='Phase1':			
+			htarget.SetTitle('low-E_{T}^{miss} SR-like (Phase 1 (2017+2018))')
+			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Phase 1)')			
+	else:
+		if year=='2016':
+			htarget.SetTitle('fake obs. (Summer 16 MC)')	
+			hcontrolregion.SetTitle('pred. (Summer 16 MC)')		
+		if year=='2017':
+			htarget.SetTitle('fake obs. (Fall 17 MC)')
+			hcontrolregion.SetTitle('pred. (Fall 17 MC)')	
+		if year=='2018':			
+			htarget.SetTitle('fake obs. (Autumn 18 MC)')
+			hcontrolregion.SetTitle('pred. (Fall 18 MC)')	
+			
 		
-	if mycutedatatest: 
+	if isdata: 
 		if kinvar=='InvMass':
 			xaxt = htarget.GetXaxis()
 			for ibin in range(1,xaxt.GetNbins()+1):
@@ -231,7 +248,7 @@ for key in sorted(keys):#[:241]:
 
 	
 	pad1.cd()
-	if not mycutedatatest:  hcontrolregion_promptcontam.Draw('hist same')
+	if not isdata:  hcontrolregion_promptcontam.Draw('hist same')
 	hcontrolregion.SetTitle('')
 	htarget.SetTitle('')	
 	
@@ -241,7 +258,7 @@ for key in sorted(keys):#[:241]:
 	pad2.cd()
 	leg2 = mklegend(x1=.65, y1=.85, x2=.91, y2=.965, color=kWhite)
 	
-	if not mycutedatatest: 
+	if not isdata: 
 		leg.AddEntry(hcontrolregion_promptcontam, 'prompt contrib. to pred.')
 		hpromptratio = hcontrolregion_promptcontam.Clone()
 		hpromptratio.Divide(hcontrolregion)		
@@ -258,7 +275,7 @@ for key in sorted(keys):#[:241]:
 		hfake = infile.Get(name.replace('hPrompt','hFake').replace('FakeCr_','_'))
 		hfake = hfake.Rebin(nbins,'',newxs)
 		hfake.Write()
-	if 'Ht' in name:
+	if varname_thetaBinning in name:
 		cnew = mkcanvas('cnew')	
 		#cnew.SetLogy()
 		htarget.SetBinContent(-1,0)
@@ -289,18 +306,47 @@ for key in sorted(keys):#[:241]:
 	#clist.append(c1)
 	shortname = shortname.replace('FakeCr','')
 	pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'.pdf'
-	if mycutedatatest: pdfname = pdfname.replace('.','_cute.')
+	if isdata: pdfname = pdfname.replace('.','_data.')
+	else: pdfname = pdfname.replace('.','_mc.')	
 	#c1.Print(pdfname)
 	c1.Delete()
 	hratios.append([hratio, hcontrolregionsyst])
 	#pause()
 
 	
-import os, sys
-print 'test b'
+	
+	
 print 'just created', fnew.GetName()
 fnew.Close()
-print 'test c'
+
+#now get the fake rate and stuff
+if isdata:  ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_data.root', 'update')
+else: ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_mc.root', 'update')
+	
+hnum = ffakerate.Get('hFakeShortHadMhtSideband_'+varname_thetaBinning+'Truth')
+hden = ffakerate.Get('hFakeShortHadMhtSidebandFakeCr_'+varname_thetaBinning+'Truth')
+hfrshort = hnum.Clone('hfrshort')
+hfrshort.Divide(hden)
+hnum = ffakerate.Get('hFakeLongHadMhtSideband_'+varname_thetaBinning+'Truth')
+hden = ffakerate.Get('hFakeLongHadMhtSidebandFakeCr_'+varname_thetaBinning+'Truth')
+hfrlong = hnum.Clone('hfrlong')
+hfrlong.Divide(hden)
+
+hfrlong.GetYaxis().SetRangeUser(0,2)
+hfrshort.GetYaxis().SetRangeUser(0,2)
+hfrlong.Write()
+hfrshort.Write()
+
+print 'just updated', ffakerate.GetName()
+ffakerate.Close()
+	
+	
+	
+	
+	
+	
+	
+
 
 
 
