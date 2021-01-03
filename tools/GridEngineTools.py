@@ -27,11 +27,11 @@ import getpass
 # $ python GridEngineTools.py --resubmit  # resubmit failed jobs
 
 
-def shoot_cmds_into_sl6_singularity(commands): 
-    singularity_hull = "singularity exec --contain --bind /afs:/afs --bind /nfs:/nfs --bind /pnfs:/pnfs --bind /cvmfs:/cvmfs --bind /var/lib/condor:/var/lib/condor --bind /tmp:/tmp --pwd . ~/dust/slc6_latest.sif sh -c 'source /cvmfs/cms.cern.ch/cmsset_default.sh; $CMD'"
+def runCommandsWithSL6(commands): 
+    singularity_wrapper = "singularity exec --contain --bind /afs:/afs --bind /nfs:/nfs --bind /pnfs:/pnfs --bind /cvmfs:/cvmfs --bind /var/lib/condor:/var/lib/condor --bind /tmp:/tmp --pwd . ~/dust/slc6_latest.sif sh -c 'source /cvmfs/cms.cern.ch/cmsset_default.sh; $CMD'"
     for i, command in enumerate(commands):
         print commands[i]
-        commands[i] = singularity_hull.replace("$CMD", commands[i])
+        commands[i] = singularity_wrapper.replace("$CMD", commands[i])
         print commands[i]
     return commands
     
@@ -40,7 +40,30 @@ def ShellExec(command):
     os.system(command)
 
 
+def get_info(condor_dir, showfailed = False):
+
+    #status, failed_jobs = commands.getstatusoutput("grep Failed %s/*.sh.o* | wc -l" % condor_dir)
+    status, failed_jobs = commands.getstatusoutput("grep -L 'Normal termination' %s/*.log | wc -l" % condor_dir)
+    #status, succeeded_jobs = commands.getstatusoutput("grep Success %s/*.sh.o* | wc -l" % condor_dir)
+    status, succeeded_jobs = commands.getstatusoutput("grep 'Normal termination' %s/*.log | wc -l" % condor_dir)
+    status, all_jobs = commands.getstatusoutput("wc -l %s/args" % condor_dir)
+    
+    n_failed_jobs = int(failed_jobs.split()[0])
+    n_succeeded_jobs = int(succeeded_jobs.split()[0])
+    n_all = int(all_jobs.split()[0])
+
+    print "%s / %s jobs succeeded (%s failed): %.2f done" % (n_succeeded_jobs, n_all, n_failed_jobs, float(n_succeeded_jobs)/n_all)
+
+    if showfailed and failed_jobs>0:
+        os.system("grep -L 'Normal termination' %s/*.log" % condor_dir)
+
+    return {"success": n_succeeded_jobs, "njobs": n_all, "fail": n_failed_jobs, "percent_done": float(n_succeeded_jobs)/n_all}
+
+
 def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit = True):
+
+    if use_sl6:
+        mycommands = runCommandsWithSL6(mycommands)
 
     print "jobs:", len(mycommands)
     print mycommands[0]
@@ -56,7 +79,9 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
         print "Using %i core(s)..." % nCores
 
         pool = multiprocessing.Pool(nCores)
-        return pool.map(ShellExec, mycommands)
+        pool.map(ShellExec, mycommands)
+
+        return 0
 
     elif runmode == "grid":
         
@@ -69,7 +94,13 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
 
         print "Using CMSSW base", cmsbase
 
-        return runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit)
+        runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit)
+    
+        summary = get_info(condorDir)
+        if summary["n_succeeded_jobs"] == summary["njobs"]:
+            return 0
+        else:
+            return summary
 
 
 def babysit_jobs(condorDir):
@@ -100,13 +131,39 @@ def babysit_jobs(condorDir):
 
 def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit=True):
 
+    # check VOMS proxy:
+    status, output = commands.getstatusoutput("voms-proxy-info | grep path | cut -b 13-")
+    if "not found" in output:
+        use_proxy = False
+    else:
+        use_proxy = True
+        proxyfile = output.split("\n")[0]
+        
+        # file not found workaround:
+        os.system("cp %s ~/proxy; chmod 600 ~/proxy" % proxyfile)
+        from os.path import expanduser
+        proxyfile = "%s/proxy" % expanduser("~")
+
     jobscript = '''#!/bin/bash
     echo "$QUEUE $JOB $HOST"
+    ls -l
+    pwd
+    # set up cmssw
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     export SCRAM_ARCH=slc6_amd64_gcc530
     cd CMSBASE
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
+    # set up proxy
+    cd ~
+    if [[ ! -f $(which voms-proxy-info) ]]
+     then
+      source /cvmfs/grid.desy.de/etc/profile.d/grid-ui-env.sh
+     fi
+    export X509_USER_PROXY=$(pwd)/proxy
+    echo X509_USER_PROXY $X509_USER_PROXY
+    voms-proxy-info
+    # all done, now prepare to run command
     cd CWD
     export PYTHONDONTWRITEBYTECODE=1
     export PYTHONPATH=$PYTHONPATH:$(pwd)/../
@@ -125,6 +182,9 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
         exit 112
     fi
     '''
+    
+    #if use_sl6:
+    #    additional_parameters += '+MySingularityImage="/nfs/dust/cms/user/%s/slc6_latest.sif"\n' % getpass.getuser()
     
     # make some adjustments for running at KNU:
     if 'knu' in os.uname()[1] :
@@ -159,18 +219,21 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
         if use_more_mem == 1:
             use_more_mem = 4096
         additional_parameters += "RequestMemory = %s\n" % use_more_mem
-    if use_sl6:
-        additional_parameters += '+MySingularityImage="/nfs/dust/cms/user/%s/slc6_latest.sif"\n' % getpass.getuser()
     if use_more_time:
         if use_more_time == 1:
             use_more_time = 86400
 
     def write_submission_file(queue_start_index, queue_length, file_name):
 
+        if use_proxy:
+            transfer_files = "should_transfer_files = YES\ntransfer_input_files = args,runjobs.sh,%s\n" % proxyfile
+        else:
+            transfer_files = "should_transfer_files = IF_NEEDED\n"
+            
         submission_file_content = """
             ModifiedProcess = %s + $(Process)
             universe = vanilla
-            should_transfer_files = IF_NEEDED
+            %s
             log = $INT(ModifiedProcess).log
             executable = /bin/bash
             arguments = runjobs.sh $INT(ModifiedProcess)
@@ -182,7 +245,7 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
             max_materialize = 1500
             priority = 0
             Queue %s
-        """ % (queue_start_index, cwd + "/" + condorDir, additional_parameters, queue_length)
+        """ % (queue_start_index, transfer_files, cwd + "/" + condorDir, additional_parameters, queue_length)
 
         with open(file_name, 'w') as outfile:
             outfile.write(submission_file_content)
@@ -235,26 +298,6 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     if babysit:
         status = babysit_jobs(condorDir)
         return status
-
-
-def get_info(condor_dir, showfailed = False):
-
-    #status, failed_jobs = commands.getstatusoutput("grep Failed %s/*.sh.o* | wc -l" % condor_dir)
-    status, failed_jobs = commands.getstatusoutput("grep -L 'Normal termination' %s/*.log | wc -l" % condor_dir)
-    #status, succeeded_jobs = commands.getstatusoutput("grep Success %s/*.sh.o* | wc -l" % condor_dir)
-    status, succeeded_jobs = commands.getstatusoutput("grep 'Normal termination' %s/*.log | wc -l" % condor_dir)
-    status, all_jobs = commands.getstatusoutput("wc -l %s/args" % condor_dir)
-
-    n_failed_jobs = int(failed_jobs.split()[0])
-    n_succeeded_jobs = int(succeeded_jobs.split()[0])
-    n_all = int(all_jobs.split()[0])
-
-    print "%s / %s jobs succeeded (%s failed): %.2f done" % (n_succeeded_jobs, n_all, n_failed_jobs, float(n_succeeded_jobs)/n_all)
-
-    if showfailed and failed_jobs>0:
-        os.system("grep -L 'Normal termination' %s/*.log" % condor_dir)
-
-    return {"success": n_succeeded_jobs, "njobs": n_all, "fail": n_failed_jobs, "percent_done": float(n_succeeded_jobs)/n_all}
 
 
 def get_list_of_missing_output_files(condor_dir):
