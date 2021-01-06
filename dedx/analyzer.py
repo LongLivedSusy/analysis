@@ -229,8 +229,8 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
                 runs[runnum].append(lumisec)
 	    weight = 1.0
 	else : 
-	    #weight = c.CrossSection * c.puWeight
-	    weight = c.puWeight
+	    weight = c.CrossSection * c.puWeight
+	    #weight = c.puWeight
 
 	# data trigger and mc madHT check
 	if is_data and "MET" in FileName :
@@ -279,8 +279,8 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	fillth1(hMET,c.MET,weight)
 	fillth1(hMHT,c.MHT,weight)
 	fillth1(hHT,c.HT,weight)
-  
-	# Specific stop and LSP mass
+	
+	# Specific stop and LSP mass for signal sample
 	if is_signal:
 	    #chosenStopMass, chosenLSPMass = 1300, 1
 	    #chosenStopMass, chosenLSPMass = 1300, 50
@@ -301,8 +301,8 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    for igp,gp in enumerate(c.GenParticles):
 	        if not abs(c.GenParticles_PdgId[igp])==1000006 : continue
 	        if not abs(c.GenParticles[igp].M()-chosenStopMass)<0.1:
-		   hasRightStopMass = False
-		   break
+		    hasRightStopMass = False
+		    break
 	        fillth1(hGenStopMass,gp.M(),weight)
 	    if not hasRightStopMass: continue
 
@@ -310,25 +310,26 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    for igp,gp in enumerate(c.GenParticles):
 	        if not abs(c.GenParticles_PdgId[igp])==1000022 : continue
 	        if not abs(c.GenParticles[igp].M()-chosenLSPMass)<0.1:
-		   hasRightLSPMass = False
-		   break
+		    hasRightLSPMass = False
+		    break
 	        fillth1(hGenLSPMass,gp.M(),weight)
 	    if not hasRightLSPMass: continue
 	    
 	    # Gen-chargino
 	    charginos=[]
-	    for igp,gp in enumerate(c.GenParticles):
-	        if not abs(c.GenParticles_PdgId[igp])==1000024 : continue
-	        if not gp.Pt() > 15 : continue
-	        
-	        charginos.append(gp)
-	        fillth1(hGenCharginoP,gp.P(),weight)
-	        fillth1(hGenCharginoPt,gp.Pt(),weight)
-	        fillth1(hGenCharginoEta,gp.Eta(),weight)
-	        fillth1(hGenCharginoPhi,gp.Phi(),weight)
+	    if hasRightStopMass and hasRightLSPMass : 
+	    	for igp,gp in enumerate(c.GenParticles):
+	    	    if not abs(c.GenParticles_PdgId[igp])==1000024 : continue
+	    	    if not gp.Pt() > 15 : continue
+	    	    
+	    	    charginos.append(gp)
+	    	    fillth1(hGenCharginoP,gp.P(),weight)
+	    	    fillth1(hGenCharginoPt,gp.Pt(),weight)
+	    	    fillth1(hGenCharginoEta,gp.Eta(),weight)
+	    	    fillth1(hGenCharginoPhi,gp.Phi(),weight)
 	
+  
 	# Muons
-	n_tightmuon = 0
 	tightmuons=[]
 	tightmuons_genmatch=[]
 	for imu, mu in enumerate(c.Muons):
@@ -338,7 +339,6 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    if not c.Muons_passIso[imu]: continue
 	    if not c.Muons_tightID[imu]: continue
 	    
-	    n_tightmuon+=1
 	    tightmuons.append(mu)
 	    
 	    beta_mu = mu.Beta()
@@ -441,12 +441,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 		    fillth1(hEleGamma_genmatch,gamma_ele_genmatch,weight)
 	    	    fillth1(hEleBetaGamma_genmatch,betagamma_ele_genmatch,weight)
 
-	# Number of tight leptons
-	n_lepton = n_tightmuon + n_tightelectron
-	#fillth1(hNlepton,n_lepton,weight)
-
 	# Track
-	isShort=True
 	for itrack, track in enumerate(c.tracks):
 	    if not track.Pt()>15 : continue
 	    if not abs(track.Eta()) < 2.4 : continue
@@ -454,67 +449,15 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    if not abs(c.tracks_dzVtx[itrack])<0.1 : continue
 	    if not c.tracks_ptError[itrack]/(track.Pt()*track.Pt())<10 : continue
 	    if not c.tracks_nMissingInnerHits[itrack]==0 : continue
-	    if not bool(c.tracks_passPFCandVeto[itrack]) : continue
 	    if not bool(c.tracks_trackQualityHighPurity[itrack]) : continue
 	    if not c.tracks_nValidPixelHits[itrack]>=3 : continue
 	    #if not c.tracks_nValidTrackerHits[itrack]>=2 : continue
-	    
-	    if c.tracks_nValidPixelHits[itrack] == c.tracks_nValidTrackerHits[itrack] :
-		isShort = True
-	    elif track.Pt()>30 and c.tracks_nValidPixelHits[itrack] < c.tracks_nValidTrackerHits[itrack] :
-		isShort = False
 	    
 	    fillth1(hTrkP,track.P(),weight)
 	    fillth1(hTrkPt,track.Pt(),weight)
 	    fillth1(hTrkEta,track.Eta(),weight)
 	    fillth1(hTrkPhi,track.Phi(),weight)
-	    #print 'track pT : ', track.Pt()
 
-	    # Gen-chargino - track matching
-	    drmin=99
-	    idx = -1
-	    match = False
-	    threshold = 0.01
-
-	    for ichi, chi in enumerate(charginos):
-                dr_track = chi.DeltaR(track)
-		if dr_track < drmin:
-		    drmin = dr_track
-		    idx = itrack
-		    track_charginomatch = track
-
-	    if drmin < threshold : 
-		match = True
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[idx]
-		dedx_strips = c.tracks_deDxHarmonic2strips[idx]
-		fillth1(hTrkP_charginomatch,track_charginomatch.P(),weight)
-		fillth1(hTrkPt_charginomatch,track_charginomatch.Pt(),weight)
-		fillth1(hTrkEta_charginomatch,track_charginomatch.Eta(),weight)
-		fillth1(hTrkPhi_charginomatch,track_charginomatch.Phi(),weight)
-		fillth1(hTrkPixelDedx_charginomatch,dedx_pixel,weight)
-		fillth1(hTrkStripsDedx_charginomatch,dedx_strips,weight)
-
-		fillth2(h2_Trk_P_vs_PixelDedx_charginomatch,track_charginomatch.P(),dedx_pixel,weight)
-		fillth2(h2_Trk_P_vs_StripsDedx_charginomatch,track_charginomatch.P(),dedx_strips,weight)
-		    
-		if abs(track_charginomatch.Eta())<=1.5 : 
-		    #print Identifier, ' barrel region(chargino matching) SF : ', DedxCorr_Pixel_barrel[Identifier]
-		    SF_dedx_pixel = DedxCorr_Pixel_barrel[Identifier]
-		    SF_dedx_strips = 1.0
-		    fillth1(hTrkPixelDedx_charginomatch_barrel,dedx_pixel,weight)
-		    fillth1(hTrkPixelDedxCalib_charginomatch_barrel,dedx_pixel*SF_dedx_pixel,weight)
-		    fillth1(hTrkStripsDedx_charginomatch_barrel,dedx_strips,weight)
-		    fillth1(hTrkStripsDedxCalib_charginomatch_barrel,dedx_strips*SF_dedx_strips,weight)
-		elif abs(track_charginomatch.Eta())>1.5 : 
-		    #print Identifier, ' endcap region(chargino matching) SF : ', DedxCorr_Pixel_endcap[Identifier]
-		    SF_dedx_pixel = DedxCorr_Pixel_endcap[Identifier]
-		    SF_dedx_strips = 1.0
-		    fillth1(hTrkPixelDedx_charginomatch_endcap,dedx_pixel,weight)
-		    fillth1(hTrkPixelDedxCalib_charginomatch_endcap,dedx_pixel*SF_dedx_pixel,weight)
-		    fillth1(hTrkStripsDedx_charginomatch_endcap,dedx_strips,weight)
-		    fillth1(hTrkStripsDedxCalib_charginomatch_endcap,dedx_strips*SF_dedx_strips,weight)
-		else : print 'should not see this'
-    
 	    # Muon-track matching
 	    drmin=99
 	    idx = -1
@@ -536,6 +479,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 		fillth1(hTrkPt_tightmumatch,track_mumatch.Pt(),weight)
 		fillth1(hTrkPixelDedx_tightmumatch,dedx_pixel,weight)
 		fillth1(hTrkStripsDedx_tightmumatch,dedx_strips,weight)
+		
 		
 		if abs(track_mumatch.Eta())<=1.5 : 
 		    #print 'barrel region(mu matching)'
@@ -701,7 +645,53 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 		    fillth1(hTrkPixelDedx_tightgenelematch_endcap,dedx_pixel,weight)
 		    fillth1(hTrkStripsDedx_tightgenelematch_endcap,dedx_strips,weight)
 		else : print 'should not see this'
-		    
+	    
+	    # Gen-chargino - track matching
+	    if is_signal:
+	        drmin=99
+	        idx = -1
+	        match = False
+	        threshold = 0.01
+
+	        for ichi, chi in enumerate(charginos):
+                    dr_track = chi.DeltaR(track)
+	    	if dr_track < drmin:
+	    	    drmin = dr_track
+	    	    idx = itrack
+	    	    track_charginomatch = track
+
+	        if drmin < threshold : 
+		    match = True
+	    	    dedx_pixel = c.tracks_deDxHarmonic2pixel[idx]
+	    	    dedx_strips = c.tracks_deDxHarmonic2strips[idx]
+	    	    fillth1(hTrkP_charginomatch,track_charginomatch.P(),weight)
+	    	    fillth1(hTrkPt_charginomatch,track_charginomatch.Pt(),weight)
+	    	    fillth1(hTrkEta_charginomatch,track_charginomatch.Eta(),weight)
+	    	    fillth1(hTrkPhi_charginomatch,track_charginomatch.Phi(),weight)
+	    	    fillth1(hTrkPixelDedx_charginomatch,dedx_pixel,weight)
+	    	    fillth1(hTrkStripsDedx_charginomatch,dedx_strips,weight)
+
+	    	    fillth2(h2_Trk_P_vs_PixelDedx_charginomatch,track_charginomatch.P(),dedx_pixel,weight)
+	    	    fillth2(h2_Trk_P_vs_StripsDedx_charginomatch,track_charginomatch.P(),dedx_strips,weight)
+	    	    
+	    	if abs(track_charginomatch.Eta())<=1.5 : 
+	    	    #print Identifier, ' barrel region(chargino matching) SF : ', DedxCorr_Pixel_barrel[Identifier]
+	    	    SF_dedx_pixel = DedxCorr_Pixel_barrel[Identifier]
+	    	    SF_dedx_strips = 1.0
+	    	    fillth1(hTrkPixelDedx_charginomatch_barrel,dedx_pixel,weight)
+	    	    fillth1(hTrkPixelDedxCalib_charginomatch_barrel,dedx_pixel*SF_dedx_pixel,weight)
+	    	    fillth1(hTrkStripsDedx_charginomatch_barrel,dedx_strips,weight)
+	    	    fillth1(hTrkStripsDedxCalib_charginomatch_barrel,dedx_strips*SF_dedx_strips,weight)
+	    	elif abs(track_charginomatch.Eta())>1.5 : 
+	    	    #print Identifier, ' endcap region(chargino matching) SF : ', DedxCorr_Pixel_endcap[Identifier]
+	    	    SF_dedx_pixel = DedxCorr_Pixel_endcap[Identifier]
+	    	    SF_dedx_strips = 1.0
+	    	    fillth1(hTrkPixelDedx_charginomatch_endcap,dedx_pixel,weight)
+	    	    fillth1(hTrkPixelDedxCalib_charginomatch_endcap,dedx_pixel*SF_dedx_pixel,weight)
+	    	    fillth1(hTrkStripsDedx_charginomatch_endcap,dedx_strips,weight)
+	    	    fillth1(hTrkStripsDedxCalib_charginomatch_endcap,dedx_strips*SF_dedx_strips,weight)
+	    	else : print 'should not see this'
+    
     fout.Write()
     fout.Close()
     print(output_dir+'/'+output+" just created")
