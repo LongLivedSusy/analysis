@@ -23,16 +23,16 @@ hProtonDedxCFs_barrel.SetBinContent(6,1.457) #Run2016G
 hProtonDedxCFs_endcap.SetBinContent(6,1.438) #Run2016G
 hProtonDedxCFs_barrel.SetBinContent(12,1.342) # Run2017F
 
-
-legend.AddEntry(hMuonDedxCFs_barrel,'muon barrel CF')
-legend.AddEntry(hMuonDedxCFs_endcap,'muon endcap CF')
-legend.AddEntry(hProtonDedxCFs_barrel,'proton(P>6) CF')
-
 histoStyler(hMuonDedxCFs_barrel,kBlue)
 histoStyler(hMuonDedxCFs_endcap,kGreen)
 histoStyler(hProtonDedxCFs_barrel,kRed)
-histoStyler(hProtonDedxCFs_endcap,kRed+2)
-stamp()
+histoStyler(hProtonDedxCFs_endcap,46)
+
+legend.AddEntry(hMuonDedxCFs_barrel,'muon barrel')
+legend.AddEntry(hMuonDedxCFs_endcap,'muon endcap')
+legend.AddEntry(hProtonDedxCFs_barrel,'proton(P>6) barrel')
+legend.AddEntry(hProtonDedxCFs_barrel,'proton(P>6) endcap')
+
 
 hMuonDedxCFs_barrel.SetTitle('pixel dE/dx correction factors')
 hMuonDedxCFs_barrel.GetXaxis().SetLabelSize(0.039)
@@ -44,6 +44,7 @@ hMuonDedxCFs_endcap.Draw('hsame')
 hProtonDedxCFs_barrel.Draw('hsame')
 hProtonDedxCFs_endcap.Draw('hsame')
 legend.Draw()
+stamp()
 #canvas.SaveAs("dEdxCF.png")
 canvas.SaveAs("dEdxCF.pdf")
 
