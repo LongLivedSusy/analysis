@@ -2,6 +2,7 @@ import os,sys
 from ROOT import *
 from glob import glob
 from natsort import natsorted,ns
+from Dict_datasets import *
 
 gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
@@ -10,114 +11,48 @@ gStyle.SetOptFit(1111)
 #format_c = 'pdf'
 format_c = 'png'
 
-
-dict_Run2016_SingleMuon = {
-		    'Run2016B-SingleMuon':'./output_mediumchunks/Run2016B-SingleMuon.root',
-		    'Run2016C-SingleMuon':'./output_mediumchunks/Run2016C-SingleMuon.root',
-	       	    'Run2016D-SingleMuon':'./output_mediumchunks/Run2016D-SingleMuon.root',
-               	    'Run2016E-SingleMuon':'./output_mediumchunks/Run2016E-SingleMuon.root',
-               	    'Run2016F-SingleMuon':'./output_mediumchunks/Run2016F-SingleMuon.root',
-               	    'Run2016G-SingleMuon':'./output_mediumchunks/Run2016G-SingleMuon.root',
-               	    'Run2016H-SingleMuon':'./output_mediumchunks/Run2016H-SingleMuon.root',
-		    }
-
-dict_Run2016_SingleElectron = {
-		    'Run2016B-SingleElectron':'./output_mediumchunks/Run2016B-SingleElectron.root',
-		    'Run2016C-SingleElectron':'./output_mediumchunks/Run2016C-SingleElectron.root',
-	       	    'Run2016D-SingleElectron':'./output_mediumchunks/Run2016D-SingleElectron.root',
-               	    'Run2016E-SingleElectron':'./output_mediumchunks/Run2016E-SingleElectron.root',
-               	    'Run2016F-SingleElectron':'./output_mediumchunks/Run2016F-SingleElectron.root',
-               	    'Run2016G-SingleElectron':'./output_mediumchunks/Run2016G-SingleElectron.root',
-               	    'Run2016H-SingleElectron':'./output_mediumchunks/Run2016H-SingleElectron.root',
-		    }
-
-dict_Run2017_SingleMuon = {
-		    'Run2017B-SingleMuon':'./output_mediumchunks/Run2017B-SingleMuon.root',
-		    'Run2017C-SingleMuon':'./output_mediumchunks/Run2017C-SingleMuon.root',
-	       	    'Run2017D-SingleMuon':'./output_mediumchunks/Run2017D-SingleMuon.root',
-               	    'Run2017E-SingleMuon':'./output_mediumchunks/Run2017E-SingleMuon.root',
-               	    'Run2017F-SingleMuon':'./output_mediumchunks/Run2017F-SingleMuon.root',
-		    }
-
-dict_Run2017_SingleElectron = {
-		    'Run2017B-SingleElectron':'./output_mediumchunks/Run2017B-SingleElectron.root',
-		    'Run2017C-SingleElectron':'./output_mediumchunks/Run2017C-SingleElectron.root',
-	       	    'Run2017D-SingleElectron':'./output_mediumchunks/Run2017D-SingleElectron.root',
-               	    'Run2017E-SingleElectron':'./output_mediumchunks/Run2017E-SingleElectron.root',
-               	    'Run2017F-SingleElectron':'./output_mediumchunks/Run2017F-SingleElectron.root',
-		    }
-
-dict_Run2018_SingleMuon = {
-		    'Run2018A-SingleMuon':'./output_mediumchunks/Run2018A-SingleMuon.root',
-		    'Run2018B-SingleMuon':'./output_mediumchunks/Run2018B-SingleMuon.root',
-		    'Run2018C-SingleMuon':'./output_mediumchunks/Run2018C-SingleMuon.root',
-	       	    'Run2018D-SingleMuon':'./output_mediumchunks/Run2018D-SingleMuon.root',
-		    }
-
-
-dict_Summer16 = {
-	'WJetsToLNu_TuneCUETP8M1':'./output_mediumchunks/Summer16.WJetsToLNu_TuneCUETP8M1.root',
-	'WJetsToLNu_HT-100To200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-100To200.root',
-	'WJetsToLNu_HT-200To400':'./output_mediumchunks/Summer16.WJetsToLNu_HT-200To400.root',
-	'WJetsToLNu_HT-400To600':'./output_mediumchunks/Summer16.WJetsToLNu_HT-400To600.root',
-	'WJetsToLNu_HT-600To800':'./output_mediumchunks/Summer16.WJetsToLNu_HT-600To800.root',
-	'WJetsToLNu_HT-800To1200':'./output_mediumchunks/Summer16.WJetsToLNu_HT-800To1200.root',
-	'WJetsToLNu_HT-1200To2500':'./output_mediumchunks/Summer16.WJetsToLNu_HT-1200To2500.root',
-	'WJetsToLNu_HT-2500ToInf':'./output_mediumchunks/Summer16.WJetsToLNu_HT-2500ToInf.root',
-	'DYJetsToLL_M-50_TuneCUETP8M1':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_TuneCUETP8M1.root',
-	'DYJetsToLL_M-50_HT-100to200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-100to200.root',
-	'DYJetsToLL_M-50_HT-200to400':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-200to400.root',
-	'DYJetsToLL_M-50_HT-400to600':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-400to600.root',
-	'DYJetsToLL_M-50_HT-600to800':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-600to800.root',
-	'DYJetsToLL_M-50_HT-800to1200':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-800to1200.root',
-	'DYJetsToLL_M-50_HT-1200to2500':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-1200to2500.root',
-	'DYJetsToLL_M-50_HT-2500toInf':'./output_mediumchunks/Summer16.DYJetsToLL_M-50_HT-2500toInf.root',
-	'QCD_HT200to300':'./output_mediumchunks/Summer16.QCD_HT200to300.root',
-	'QCD_HT300to500':'./output_mediumchunks/Summer16.QCD_HT300to500.root',
-	'QCD_HT500to700':'./output_mediumchunks/Summer16.QCD_HT500to700.root',
-	'QCD_HT700to1000':'./output_mediumchunks/Summer16.QCD_HT700to1000.root',
-	'QCD_HT1000to1500':'./output_mediumchunks/Summer16.QCD_HT1000to1500.root',
-	'QCD_HT1500to2000':'./output_mediumchunks/Summer16.QCD_HT1500to2000.root',
-	'QCD_HT2000toInf':'./output_mediumchunks/Summer16.QCD_HT2000toInf.root',
-	'TTJets':'./output_mediumchunks/Summer16.TTJets.root',
-	'WW':'./output_mediumchunks/Summer16.WW.root',
-	'WZ':'./output_mediumchunks/Summer16.WZ.root',
-	'ZZ':'./output_mediumchunks/Summer16.ZZ.root',
-	'ZJetsToNuNu_HT-100To200':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-100To200.root',
-	'ZJetsToNuNu_HT-200To400':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-200To400.root',
-	'ZJetsToNuNu_HT-400To600':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-400To600.root',
-	'ZJetsToNuNu_HT-600To800':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-600To800.root',
-	'ZJetsToNuNu_HT-800To1200':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-800To1200.root',
-	'ZJetsToNuNu_HT-1200To2500':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-1200To2500.root',
-	'ZJetsToNuNu_HT-2500ToInf':'./output_mediumchunks/Summer16.ZJetsToNuNu_HT-2500ToInf.root',
-	}
-
 def main(SelectedData,SelectedMC,hist,outputdir):
 
     print 'SelectedData : %s, SelectedMC : %s, hist : %s, outputdir : %s'%(SelectedData,SelectedMC,hist,outputdir)
-
-    if 'Pixel' in hist and 'ele' in hist:
-	ctitle = 'Electron track Pixel dEdx'
-    elif 'Pixel' in hist and 'mu' in hist:
-	ctitle = 'Muon track Pixel dEdx'
-    elif 'Strips' in hist and 'ele' in hist:
-	ctitle = 'Electron track Strips dEdx'
-    elif 'Strips' in hist and 'mu' in hist:
-	ctitle = 'Muon track Strips dEdx'
-    else :
-	print 'Something wrong : hist does not contain proper strings'
-	quit()
-
-    c = TCanvas(ctitle,ctitle,800,600)
-    c2 = TCanvas(ctitle+' all period',ctitle+' all period',800,600)
+    
+    print 'Drawing for ',hist
+    c = TCanvas('c','',800,600)
+    c_mc = TCanvas('c_mc','',800,600)
+    c2 = TCanvas('c2','',800,600)
     tl = TLegend(0.5,0.6,0.9,0.9)
     
     fin={}
     hDedx={}
     mean={}
      
-    #Data Intercalib
+    c_mc.cd() 
+    # Standard candle MC : Summer16
+    i = 0
+    for name,f in natsorted(SelectedMC.items()):
+        fin[name] = TFile(f)
+        hDedx[name] = fin[name].Get("hTrkPixelDedx_fromZ_barrel") # pixel barrel is standard candle
+	if i==0:
+	    print 'Cloning ',name
+	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
+	else : 
+	    print 'Adding ',name
+	    hDedx_standard.Add(hDedx[name])
+	i+=1
+
+    hDedx_standard.SetTitle('Summer16 MC hTrkPixelDedx_fromZ_barrel')
+    hDedx_standard.SetLineWidth(2)
+    hDedx_standard.Scale(1.0/hDedx_standard.Integral())
+    hDedx_standard.GetXaxis().SetTitle('MeV/cm')
+    hDedx_standard.GetYaxis().SetTitle('Normalized')
+    #fitres = hDedx_standard.Fit('gaus','S0','',2.5,3.5)
+    fitres = hDedx_standard.Fit('gaus','S','',2.5,3.5)
+    fitres.Print()
+    mean_mc = hDedx_standard.GetFunction('gaus').GetParameter(1)
+    hDedx_standard.Draw('HIST E SAME')
+    c_mc.SaveAs(outputdir+'/Intercalib_standardMC.'+format_c)
+    
     c.cd()
+    #Data Intercalib
     for name,f in natsorted(SelectedData.items()):
 	print 'name',name
         fin[name] = TFile(f)
@@ -180,13 +115,19 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	hDedx[name].Draw('HIST E SAME')
     	c.SaveAs(outputdir+'/Intercalib_'+name+'_'+hist+'.'+format_c)
      
-    # Data all period
+    # Data all period and MC
     c2.cd()
+    hDedx_standard.SetFillStyle(3002)
+    hDedx_standard.SetFillColor(kBlue)
+    hDedx_standard.GetYaxis().SetRangeUser(0,0.2)
+    hDedx_standard.Draw('HIST E SAME')
+    tl.AddEntry(hDedx_standard, 'Summer16 MC barrel, mu=%s'%(round(mean_mc,3)))
+    
     i=0
     for name,f in natsorted(SelectedData.items()):
         fin[name] = TFile(f)
         hDedx[name] = fin[name].Get(hist)
-        hDedx[name].SetTitle(ctitle+' all period')
+        hDedx[name].SetTitle('data period')
         hDedx[name].GetXaxis().SetTitle('MeV/cm')
         hDedx[name].GetYaxis().SetTitle('Normalized')
         hDedx[name].SetLineWidth(2)
@@ -200,40 +141,15 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         tl.AddEntry(hDedx[name],'%s, mu=%s'%(name,round(mean[name],3)),'l')
         i=i+1
     
-    
-    # Standard candle MC : Summer16
-    i = 0
-    for name,f in natsorted(SelectedMC.items()):
-        fin[name] = TFile(f)
-        #hDedx[name] = fin[name].Get(hist)
-        hDedx[name] = fin[name].Get("hTrkPixelDedx_tightgenmumatch_barrel") # pixel barrel is standard candle
-	if i==0:
-	    print 'Cloning ',name
-	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
-	else : 
-	    print 'Adding ',name
-	    hDedx_standard.Add(hDedx[name])
-	i+=1
-
-    hDedx_standard.SetTitle('Summer16 MC background '+hist)
-    hDedx_standard.SetFillStyle(3002)
-    hDedx_standard.SetFillColor(kBlue)
-    hDedx_standard.Scale(1.0/hDedx_standard.Integral())
-    fitres = hDedx_standard.Fit('gaus','S0','',2.5,3.5)
-    fitres.Print()
-    mean_mc = hDedx_standard.GetFunction('gaus').GetParameter(1)
-    hDedx_standard.Draw('HIST E SAME')
-    tl.AddEntry(hDedx_standard, 'Summer16 MC bkg, mu=%s'%(round(mean_mc,3)))
     tl.Draw('SAME')
-     
     c2.SaveAs(outputdir+'/Intercalib_AllPeriod_'+hist+'.'+format_c)
     
     
     # Extract Scale Factor 
     if not 'Calib' in hist : 
-        with open(outputdir+"/datacalib_dict"+hist+".txt",'w') as txt:
+        with open(outputdir+"/CF_"+hist+".txt",'w') as txt:
 	    for name,f in natsorted(SelectedData.items()):
-		SF = mean_mc / mean[name]
+		SF = round(mean_mc / mean[name],3)
                 print "'%s' : %s,"%(name.split('_')[0], SF)
 		txt.write("'%s' : %s,\n"%(name.split('_')[0], SF))
      
@@ -242,24 +158,19 @@ if __name__ == '__main__' :
 
     #DataSets = ["Run2016-SingleMuon"]
     #DataSets = ["Run2017-SingleMuon"]
-    DataSets = ["Run2018-SingleMuon"]
+    #DataSets = ["Run2018-SingleMuon"]
+    DataSets = ["Run2016-SingleMuon","Run2017-SingleMuon","Run2018-SingleMuon"]
 
     for	data in DataSets:
-        outputdir = './plots/InterCalib_'+data
+        outputdir = './DedxInterCalib_'+data
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Run2016-SingleMuon":
 	    SelectedMC = dict_Summer16
 	    SelectedData = dict_Run2016_SingleMuon
-	elif data == "Run2016-SingleElectron":
-	    SelectedMC = dict_Summer16
-	    SelectedData = dict_Run2016_SingleElectron
 	elif data == "Run2017-SingleMuon":
 	    SelectedMC = dict_Summer16
     	    SelectedData = dict_Run2017_SingleMuon
-	elif data == "Run2017-SingleElectron":
-	    SelectedMC = dict_Summer16
-    	    SelectedData = dict_Run2017_SingleElectron
 	elif data == "Run2018-SingleMuon":
 	    SelectedMC = dict_Summer16
     	    SelectedData = dict_Run2018_SingleMuon
@@ -269,10 +180,12 @@ if __name__ == '__main__' :
 
 	hists=[
 		# before calibration
-		'hTrkPixelDedx_tightmumatch_barrel',
-		'hTrkPixelDedx_tightmumatch_endcap',
+		#'hTrkPixelDedx_tightmumatch_barrel',
+		#'hTrkPixelDedx_tightmumatch_endcap',
 		#'hTrkStripsDedx_tightmumatch_barrel',
 		#'hTrkStripsDedx_tightmumatch_endcap',
+		'hTrkPixelDedx_fromZ_barrel',
+		'hTrkPixelDedx_fromZ_endcap',
 
 		# after calibration
 		#'hTrkPixelDedxCalib_tightmumatch',
