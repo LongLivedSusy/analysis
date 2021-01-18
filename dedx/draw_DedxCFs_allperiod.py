@@ -1,6 +1,7 @@
 from ROOT import *
 from shared_utils import * 
 
+gROOT.SetBatch(True)
 gStyle.SetOptStat(0)
 canvas = mkcanvas()
 legend = mklegend_(x1=0.55, y1=0.7, x2=0.9, y2=0.9)
@@ -22,6 +23,7 @@ for index, key in enumerate(sorted(DedxCorr_Pixel_endcap)):
 hProtonDedxCFs_barrel.SetBinContent(6,1.457) #Run2016G
 hProtonDedxCFs_endcap.SetBinContent(6,1.438) #Run2016G
 hProtonDedxCFs_barrel.SetBinContent(12,1.342) # Run2017F
+hProtonDedxCFs_endcap.SetBinContent(12,1.342) # Run2017F
 
 histoStyler(hMuonDedxCFs_barrel,kBlue)
 histoStyler(hMuonDedxCFs_endcap,kGreen)
@@ -45,6 +47,6 @@ hProtonDedxCFs_barrel.Draw('hsame')
 hProtonDedxCFs_endcap.Draw('hsame')
 legend.Draw()
 stamp()
-#canvas.SaveAs("dEdxCF.png")
-canvas.SaveAs("dEdxCF.pdf")
+canvas.SaveAs("dEdxCF.png")
+#canvas.SaveAs("dEdxCF.pdf")
 
