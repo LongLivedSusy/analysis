@@ -5,6 +5,7 @@ import json
 from ROOT import *
 from shared_utils import *
 import numpy as np
+from histo_container import *
 
 TH1.SetDefaultSumw2(True)
 
@@ -200,6 +201,16 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
     #fMask = TFile('../disappearing-track-tag/Masks_mcal10to15.root')
     #hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
     #print "Loaded mask:", hMask
+
+    # dEdx smear histo
+    if Identifier == 'Summer16' :
+	fSmear_barrel = TFile('./DedxSmear/dedx_for_smear_barrel.root')
+    	fSmear_endcap = TFile('./DedxSmear/dedx_for_smear_endcap.root')
+    	hSmear_barrel = fSmear_barrel.Get('hsmear')
+    	hSmear_endcap = fSmear_endcap.Get('hsmear')
+	func_smear_barrel = fSmear_barrel.Get('fsmear')
+	func_smear_endcap = fSmear_endcap.Get('fsmear')
+
     
     # Output file
     fout = TFile(output_dir+'/'+output, "recreate")
@@ -210,9 +221,6 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
     h_nev.Fill(0, nev)
     h_nev.Write()
 
-    ## Load Histograms
-    execfile('./histo_container.py')
-    
     # Event loop
     updateevery = 1000
     for ientry in range(nentries):
@@ -395,6 +403,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    	    fillth1(hMuBetaGamma_genmatch,betagamma_mu_genmatch,weight)
 	#print 'n tightmuons:{}, genmatched:{}'.format(len(tightmuons),len(tightmuons_genmatch))
 	# Track
+	goodtracks=[]
 	for itrack, track in enumerate(c.tracks):
 	    if not track.Pt()>15 : continue
 	    if not abs(track.Eta()) < 2.2 : continue
@@ -407,14 +416,32 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    if not c.tracks_nValidPixelHits[itrack]>=3 : continue
 	    #if not c.tracks_nValidTrackerHits[itrack]>=2 : continue
 
-	    #print '{}th event {}th track pT:{}'.format(ientry,itrack,track.Pt())
-	    
 	    fillth1(hTrkP,track.P(),weight)
 	    fillth1(hTrkPt,track.Pt(),weight)
 	    fillth1(hTrkEta,track.Eta(),weight)
 	    fillth1(hTrkPhi,track.Phi(),weight)
+
+	    goodtracks.append([itrack,track])
+
+	    # muon-track matcing
+	    drmin=99
+	    idx = -1
+	    match = False
+	    threshold = 0.01
+
+	    for imu, mu in tightmuons:
+		dr = mu.DeltaR(track)
+		if dr < drmin:
+		    drmin=dr
+		    idx = itrack
+		    track_mumatch = track
 	    
-	    # Z mass reconstruction
+	    if drmin < threshold : 
+		match = True
+		
+	    if not match : continue
+	    
+	    # Z mass reconstruction (muon + traack invariant mass)
 	    for imu, mu in tightmuons:
 		if not c.Muons_charge[imu] * c.tracks_charge[itrack] == -1 : continue  # require opposite charge
 		invmass = (track+mu).M()
@@ -425,6 +452,9 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 		beta_mu = mu.Beta()
 	    	gamma_mu = mu.E()/0.105
 	    	betagamma_mu = beta_mu*gamma_mu
+	
+		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 		
 		fillth1(hMuP_fromZ,mu.P(),weight)
 	    	fillth1(hMuPt_fromZ,mu.Pt(),weight)
@@ -438,23 +468,34 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 		fillth1(hTrkEta_fromZ,track.Eta(),weight)
 		fillth1(hTrkPhi_fromZ,track.Phi(),weight)
 
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
-		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 		fillth1(hTrkPixelDedx_fromZ,dedx_pixel,weight)
 		fillth1(hTrkStripsDedx_fromZ,dedx_strips,weight)
 
 		if abs(track.Eta())<=1.5 :
-		    CF_dedx_pixel = DedxCorr_Pixel_barrel[Identifier]
+		    scalefactor = DedxCorr_Pixel_barrel[Identifier]
+		    dedx_pixel_corrected= dedx_pixel * scalefactor
+		    if Identifier == 'Summer16' :
+			#smearfactor = hSmear_barrel.GetRandom()
+			smearfactor = func_smear_barrel.GetRandom()
+			dedx_pixel_corrected = dedx_pixel_corrected * smearfactor
+		    
 		    fillth1(hTrkPixelDedx_fromZ_barrel,dedx_pixel,weight)
-		    fillth1(hTrkPixelDedxCalib_fromZ_barrel,dedx_pixel*CF_dedx_pixel,weight)
+		    fillth1(hTrkPixelDedxScale_fromZ_barrel,dedx_pixel*scalefactor,weight)
+		    fillth1(hTrkPixelDedxCalib_fromZ_barrel,dedx_pixel_corrected,weight)
 		    fillth1(hTrkStripsDedx_fromZ_barrel,dedx_strips,weight)
+		
 		elif abs(track.Eta())>1.5 :
-		    CF_dedx_pixel = DedxCorr_Pixel_endcap[Identifier]
+		    scalefactor = DedxCorr_Pixel_endcap[Identifier]
+		    dedx_pixel_corrected = dedx_pixel * scalefactor
+		    if Identifier == 'Summer16' :
+			#smearfactor = hSmear_endcap.GetRandom()
+			smearfactor = func_smear_endcap.GetRandom()
+			dedx_pixel_corrected = dedx_pixel_corrected * smearfactor
+		    
 		    fillth1(hTrkPixelDedx_fromZ_endcap,dedx_pixel,weight)
-		    fillth1(hTrkPixelDedxCalib_fromZ_endcap,dedx_pixel*CF_dedx_pixel,weight)
+		    fillth1(hTrkPixelDedxScale_fromZ_endcap,dedx_pixel*scalefactor,weight)
+		    fillth1(hTrkPixelDedxCalib_fromZ_endcap,dedx_pixel_corrected,weight)
 		    fillth1(hTrkStripsDedx_fromZ_endcap,dedx_strips,weight)
-
-
 
 	    
     fout.Write()
