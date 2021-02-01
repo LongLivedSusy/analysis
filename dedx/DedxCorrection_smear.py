@@ -43,23 +43,16 @@ def main(SelectedData,hist,outputdir,foutname):
     hDedx.Scale(1.0/hDedx.Integral())
     if 'data' in foutname:
         if 'barrel' in hist : 
-	   fitres = hDedx.Fit('gaus','S','',1.4,3.2)
-	   foutname = foutname+'_barrel.root'
-    	   pngname = foutname.replace('root','png')
+	   fitres = hDedx.Fit('gaus','S','',2.0,3.8)
         elif 'endcap' in hist : 
-	   fitres = hDedx.Fit('gaus','S','',1.6,3.0)
-    	   foutname = foutname+'_endcap.root'
-    	   pngname = foutname.replace('root','png')
+	   fitres = hDedx.Fit('gaus','S','',2.0,3.8)
     elif 'mc' in foutname:
         if 'barrel' in hist : 
 	   fitres = hDedx.Fit('gaus','S','',2.2,3.6)
-	   foutname = foutname+'_barrel.root'
-    	   pngname = foutname.replace('root','png')
         elif 'endcap' in hist : 
 	   fitres = hDedx.Fit('gaus','S','',2.2,3.8)
-    	   foutname = foutname+'_endcap.root'
-    	   pngname = foutname.replace('root','png')
     else : print 'something wrong'; quit()
+    	   
     
     fitres.Print()
     mean = hDedx.GetFunction('gaus').GetParameter(1)
@@ -68,6 +61,7 @@ def main(SelectedData,hist,outputdir,foutname):
     fout = TFile(outputdir+'/'+foutname,'recreate')
     fitres.Write()
    
+    pngname = foutname.replace('root','png')
     c.cd()
     hDedx.Draw()
     c.SaveAs(outputdir+'/'+pngname)
@@ -78,7 +72,7 @@ if __name__ == '__main__' :
     if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     
     # Run
-    main(dict_Run2016_SingleMuon,"hTrkPixelDedx_fromZ_barrel",outputdir,"phase0_data_dedxsmear_barrel")
-    main(dict_Run2016_SingleMuon,"hTrkPixelDedx_fromZ_endcap",outputdir,"phase0_data_dedxsmear_endcap")
-    main(dict_Summer16_DYJetsToLL,"hTrkPixelDedx_fromZ_barrel",outputdir,"phase0_mc_dedxsmear_barrel")
-    main(dict_Summer16_DYJetsToLL,"hTrkPixelDedx_fromZ_endcap",outputdir,"phase0_mc_dedxsmear_endcap")
+    main(dict_Run2016_SingleMuon,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase0_data_dedxsmear_barrel.root")
+    main(dict_Run2016_SingleMuon,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase0_data_dedxsmear_endcap.root")
+    main(dict_Summer16_DYJetsToLL,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase0_mc_dedxsmear_barrel.root")
+    main(dict_Summer16_DYJetsToLL,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase0_mc_dedxsmear_endcap.root")

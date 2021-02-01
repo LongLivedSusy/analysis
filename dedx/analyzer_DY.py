@@ -5,79 +5,61 @@ import json
 from ROOT import *
 from shared_utils import *
 import numpy as np
-from histo_container import *
 
 TH1.SetDefaultSumw2(True)
 
-_dxyVtx_ = array('f',[0])
-_dzVtx_ = array('f',[0])
-_matchedCaloEnergy_ = array('f',[0])
-_trkRelIso_ = array('f',[0])
-_nValidPixelHits_ = array('f',[0])
-_nValidTrackerHits_ = array('f',[0])
-_nMissingOuterHits_ = array('f',[0])
-_ptErrOverPt2_ = array('f',[0])
-_trkRelIsoSTARpt_ = array('f',[0])
-_neutralPtSum_ = array('f',[0])
-_chargedPtSum_ = array('f',[0])
-_pixelLayersWithMeasurement_ = array('f',[0])
-_trackerLayersWithMeasurement_ = array('f',[0])
-_nMissingMiddleHits_ = array('f',[0])
-_chi2perNdof_ = array('f',[0])
+def Load_SmearFunc():
+    print 'Loading smearing stuffs'
+    fphase0_data_barrel = TFile("./DedxSmear/phase0_data_dedxsmear_barrel.root")
+    fphase0_data_endcap = TFile("./DedxSmear/phase0_data_dedxsmear_endcap.root")
+    fphase0_mc_barrel = TFile("./DedxSmear/phase0_mc_dedxsmear_barrel.root")
+    fphase0_mc_endcap = TFile("./DedxSmear/phase0_mc_dedxsmear_endcap.root")
 
-def prepareReaderPixelStrips_loose(reader, xmlfilename):
-                reader.AddVariable("tracks_dzVtx",_dzVtx_)
-                reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
-                reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
-                reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
-                reader.AddVariable("tracks_nValidTrackerHits",_nValidTrackerHits_)
-                reader.AddVariable("tracks_nMissingOuterHits",_nMissingOuterHits_)
-                reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
-                reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
-                reader.BookMVA("BDT", xmlfilename)
+    sigma_data_barrel = fphase0_data_barrel.Get("TFitResult-hTrkPixelDedxScale_fromZ_barrel-gaus").Parameters()[2]
+    sigma_data_endcap = fphase0_data_endcap.Get("TFitResult-hTrkPixelDedxScale_fromZ_endcap-gaus").Parameters()[2]
+    sigma_mc_barrel = fphase0_mc_barrel.Get("TFitResult-hTrkPixelDedxScale_fromZ_barrel-gaus").Parameters()[2]
+    sigma_mc_endcap = fphase0_mc_endcap.Get("TFitResult-hTrkPixelDedxScale_fromZ_endcap-gaus").Parameters()[2]
 
-def prepareReaderPixel_loose(reader, xmlfilename):
-                reader.AddVariable("tracks_dzVtx",_dzVtx_)
-                reader.AddVariable("tracks_matchedCaloEnergy",_matchedCaloEnergy_)
-                reader.AddVariable("tracks_trkRelIso",_trkRelIso_)
-                reader.AddVariable("tracks_nValidPixelHits",_nValidPixelHits_)
-                reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
-                reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
-                reader.BookMVA("BDT", xmlfilename)
+    print 'sigma_data_barrel : ', sigma_data_barrel
+    print 'sigma_data_endcap : ', sigma_data_endcap
+    print 'sigma_mc_barrel : ', sigma_mc_barrel
+    print 'sigma_mc_endcap : ', sigma_mc_endcap
+    
+    sigma_smear_phase0_barrel = TMath.Sqrt(sigma_data_barrel*sigma_data_barrel - sigma_mc_barrel*sigma_mc_barrel)
+    sigma_smear_phase0_endcap = TMath.Sqrt(sigma_data_endcap*sigma_data_endcap - sigma_mc_endcap*sigma_mc_endcap)
 
-def passesUniversalSelection(t):
-	#if not bool(t.JetID): return False
-	if not t.NVtx>0: return False
-	#print 'made a'
-	if not  passQCDHighMETFilter(t): return False
-	if not passQCDHighMETFilter2(t): return False
-	#print 'made b'    
-	#if not t.PFCaloMETRatio<5: return False # turned off now that we use muons
-	###if not t.globalSuperTightHalo2016Filter: return False
-	#print 'made c'    
-	if not t.HBHENoiseFilter: return False    
-	if not t.HBHEIsoNoiseFilter: return False
-	if not t.eeBadScFilter: return False      
-	#print 'made d'    
-	if not t.BadChargedCandidateFilter: return False
-	if not t.BadPFMuonFilter: return False
-	#print 'made e'    
-	if not t.CSCTightHaloFilter: return False
-	#print 'made f'        
-	if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
-	##if not t.ecalBadCalibReducedExtraFilter: return False
-	##if not t.ecalBadCalibReducedFilter: return False      
-	   
-	return True
+    fsmear1_phase0_barrel = TF1('fsmear1_phase0_barrel','gaus',0,2)
+    fsmear1_phase0_barrel.SetParameter(0,1)
+    fsmear1_phase0_barrel.SetParameter(1,1)
+    fsmear1_phase0_barrel.SetParameter(2,sigma_smear_phase0_barrel)
+    
+    fsmear1_phase0_endcap = TF1('fsmear1_phase0_endcap','gaus',0,2)
+    fsmear1_phase0_endcap.SetParameter(0,1)
+    fsmear1_phase0_endcap.SetParameter(1,1)
+    fsmear1_phase0_endcap.SetParameter(2,sigma_smear_phase0_endcap)
 
-def passesUniversalSelectionFastSim(t):
- 	#if not bool(t.JetID): return False
- 	if not t.NVtx>0: return False
- 	#print 'made a'
- 	if not  passQCDHighMETFilter(t): return False
- 	if not passQCDHighMETFilter2(t): return False
- 	return True	
+    fsmear2_phase0_barrel = TF1('fsmear2_phase0_barrel','gaus',0,2)
+    fsmear2_phase0_barrel.SetParameter(0,1)
+    fsmear2_phase0_barrel.SetParameter(1,1)
+    fsmear2_phase0_barrel.SetParameter(2,sigma_smear_phase0_barrel/sigma_mc_barrel)
+    
+    fsmear2_phase0_endcap = TF1('fsmear2_phase0_endcap','gaus',0,2)
+    fsmear2_phase0_endcap.SetParameter(0,1)
+    fsmear2_phase0_endcap.SetParameter(1,1)
+    fsmear2_phase0_endcap.SetParameter(2,sigma_smear_phase0_endcap/sigma_mc_endcap)
 
+    fsmear3_phase0_barrel = TF1('fsmear3_phase0_barrel','gaus',-1,1)
+    fsmear3_phase0_barrel.SetParameter(0,1)
+    fsmear3_phase0_barrel.SetParameter(1,0)
+    fsmear3_phase0_barrel.SetParameter(2,sigma_smear_phase0_barrel)
+    
+    fsmear3_phase0_endcap = TF1('fsmear3_phase0_endcap','gaus',-1,1)
+    fsmear3_phase0_endcap.SetParameter(0,1)
+    fsmear3_phase0_endcap.SetParameter(1,0)
+    fsmear3_phase0_endcap.SetParameter(2,sigma_smear_phase0_endcap)
+
+    return fsmear1_phase0_barrel, fsmear1_phase0_endcap, fsmear2_phase0_barrel, fsmear2_phase0_endcap, fsmear3_phase0_barrel, fsmear3_phase0_endcap
+    
 def pass_background_stitching(current_file_name, madHT, phase):
     if (madHT>0) and \
        ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
@@ -178,48 +160,23 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
         print "Can't determine data/MC era!"
         quit(1)
 
-    # Load BDT
-    #print 'Loading BDTs'
-    #if phase==0:
-    #    pixelXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/current-phase0-shorttracks/dataset/weights/TMVAClassification_BDT.weights.xml'
-    #    pixelstripsXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/current-phase0-longtracks/dataset/weights/TMVAClassification_BDT.weights.xml'
-    #    #pixelXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'
-    #    #pixelstripsXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'
-    #else :
-    #    pixelXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-nov20-noEdep/weights/TMVAClassification_BDT.weights.xml'
-    #    pixelstripsXml = os_.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-nov20-noEdep/weights/TMVAClassification_BDT.weights.xml'
-    #
-    #readerPixelOnly = TMVA.Reader()
-    #readerPixelStrips = TMVA.Reader()
-    #print 'going to process', pixelXml
-    #prepareReaderPixel_loose(readerPixelOnly, pixelXml)
-    #print 'going to process', pixelstripsXml
-    #prepareReaderPixelStrips_loose(readerPixelStrips, pixelstripsXml)
-
+    # dEdx smear histo
+    doSmear = False
+    if not is_data :
+	doSmear = True
+	if doSmear : 
+	    fsmear1_phase0_barrel, fsmear1_phase0_endcap, fsmear2_phase0_barrel, fsmear2_phase0_endcap, fsmear3_phase0_barrel, fsmear3_phase0_endcap = Load_SmearFunc()
+    
     # load and configure data mask:
     #fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to15.root')
     #fMask = TFile('../disappearing-track-tag/Masks_mcal10to15.root')
     #hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
     #print "Loaded mask:", hMask
 
-    # dEdx smear histo
-    if Identifier == 'Summer16' :
-	fSmear_barrel = TFile('./DedxSmear/dedx_for_smear_barrel.root')
-    	fSmear_endcap = TFile('./DedxSmear/dedx_for_smear_endcap.root')
-    	hSmear_barrel = fSmear_barrel.Get('hsmear')
-    	hSmear_endcap = fSmear_endcap.Get('hsmear')
-	func_smear_barrel = fSmear_barrel.Get('fsmear')
-	func_smear_endcap = fSmear_endcap.Get('fsmear')
-
-    
     # Output file
     fout = TFile(output_dir+'/'+output, "recreate")
-
-    # write number of events to histogram:
-    nev = c.GetEntries()
-    h_nev = TH1F("nev", "nev", 1, 0, 1)
-    h_nev.Fill(0, nev)
-    h_nev.Write()
+    
+    execfile("./histo_container.py")
 
     # Event loop
     updateevery = 1000
@@ -231,11 +188,12 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	c.GetEntry(ientry)
 	
 	# Counting histogram
-	fillth1(hHT_unweighted,c.HT)
+	h_nev.Fill(0)
+	hHT_unweighted.Fill(c.HT)
 
 	# store runs for JSON output:
     	runs = {}
-
+	
 	# Weight
 	if is_data:
             runnum = c.RunNum
@@ -256,7 +214,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    # madHT check
 	    if c.GetBranch("madHT"):
 		madHT = c.madHT
-	    	if not pass_background_stitching(FileName, madHT, phase): continue
+	    	#if not pass_background_stitching(FileName, madHT, phase): continue
 	
 	# Requiring vertex in the event
  	if not c.NVtx>0: continue
@@ -268,29 +226,28 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	if is_data and data_period == 'Run2018' and c.RunNum > 319077 : 
 	    if event_in_HEM_region(c.Muons) : continue
 	
-	# MET filters, etc
-	if is_fastsim : 
-	    #if not passesUniversalSelectionFastSim(c): continue
-	    #if not bool(t.JetID): continue
- 	    if not  passQCDHighMETFilter(c): continue
- 	    if not passQCDHighMETFilter2(c): continue
-	else : 
-	    #if not passesUniversalSelection(c): continue
-	    #if not bool(c.JetID): continue
-	    if not c.NVtx>0: continue
-	    if not  passQCDHighMETFilter(c): continue
-	    if not passQCDHighMETFilter2(c): continue
-	    #if not c.PFCaloMETRatio<5: continue # turned off now that we use muons
-	    ###if not c.globalSuperTightHalo2016Filter: continue
-	    if not c.HBHENoiseFilter: continue    
-	    if not c.HBHEIsoNoiseFilter: continue
-	    if not c.eeBadScFilter: continue      
-	    if not c.BadChargedCandidateFilter: continue
-	    if not c.BadPFMuonFilter: continue
-	    if not c.CSCTightHaloFilter: continue
-	    if not c.EcalDeadCellTriggerPrimitiveFilter: continue      ##I think this one makes a sizeable difference    
-	    ##if not c.ecalBadCalibReducedExtraFilter: continue
-	    ##if not c.ecalBadCalibReducedFilter: continue      
+	## MET filters, etc
+	#if is_fastsim : 
+	#    #if not passesUniversalSelectionFastSim(c): continue
+	#    #if not bool(t.JetID): continue
+ 	#    if not  passQCDHighMETFilter(c): continue
+ 	#    if not passQCDHighMETFilter2(c): continue
+	#else : 
+	#    #if not passesUniversalSelection(c): continue
+	#    #if not bool(c.JetID): continue
+	#    if not  passQCDHighMETFilter(c): continue
+	#    if not passQCDHighMETFilter2(c): continue
+	#    #if not c.PFCaloMETRatio<5: continue # turned off now that we use muons
+	#    ###if not c.globalSuperTightHalo2016Filter: continue
+	#    if not c.HBHENoiseFilter: continue    
+	#    if not c.HBHEIsoNoiseFilter: continue
+	#    if not c.eeBadScFilter: continue      
+	#    if not c.BadChargedCandidateFilter: continue
+	#    if not c.BadPFMuonFilter: continue
+	#    if not c.CSCTightHaloFilter: continue
+	#    if not c.EcalDeadCellTriggerPrimitiveFilter: continue      ##I think this one makes a sizeable difference    
+	#    ##if not c.ecalBadCalibReducedExtraFilter: continue
+	#    ##if not c.ecalBadCalibReducedFilter: continue      
 	   
 	
 	# some preselection on event
@@ -422,6 +379,12 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    fillth1(hTrkPhi,track.Phi(),weight)
 
 	    goodtracks.append([itrack,track])
+	
+	    # Harmonic-2 dE/dx
+	    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
+	    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
+
+	    if dedx_pixel==0 or dedx_strips==0 : continue
 
 	    # muon-track matcing
 	    drmin=99
@@ -446,16 +409,13 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 		if not c.Muons_charge[imu] * c.tracks_charge[itrack] == -1 : continue  # require opposite charge
 		invmass = (track+mu).M()
 		fillth1(hTrkMuInvMass,invmass,weight)
-		if invmass < 86 or invmass > 106 : continue
+		if invmass < 76 or invmass > 106 : continue
 		fillth1(hTrkMuInvMass_ZmassWindow,invmass,weight)
 
 		beta_mu = mu.Beta()
 	    	gamma_mu = mu.E()/0.105
 	    	betagamma_mu = beta_mu*gamma_mu
 	
-		dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
-		dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
-		
 		fillth1(hMuP_fromZ,mu.P(),weight)
 	    	fillth1(hMuPt_fromZ,mu.Pt(),weight)
 	    	fillth1(hMuEta_fromZ,mu.Eta(),weight)
@@ -473,31 +433,50 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 
 		if abs(track.Eta())<=1.5 :
 		    scalefactor = DedxCorr_Pixel_barrel[Identifier]
-		    dedx_pixel_corrected= dedx_pixel * scalefactor
+		    dedx_pixel_scale= dedx_pixel * scalefactor
 		    if Identifier == 'Summer16' :
-			#smearfactor = hSmear_barrel.GetRandom()
-			smearfactor = func_smear_barrel.GetRandom()
-			dedx_pixel_corrected = dedx_pixel_corrected * smearfactor
+			smearfactor1 = fsmear1_phase0_barrel.GetRandom()
+			smearfactor2 = fsmear2_phase0_barrel.GetRandom()
+			smearfactor3 = fsmear3_phase0_barrel.GetRandom()
+			print 'in barrel smear1 : {}, smear2:{}, smear3:{}'.format(smearfactor1,smearfactor2,smearfactor3)
+			dedx_pixel_scalesmear1 = dedx_pixel_scale * smearfactor1
+			dedx_pixel_scalesmear2 = dedx_pixel_scale * smearfactor2
+			dedx_pixel_scalesmear3 = dedx_pixel_scale + smearfactor3
+		    else : 
+			dedx_pixel_scalesmear1 = dedx_pixel_scale
+			dedx_pixel_scalesmear2 = dedx_pixel_scale
+			dedx_pixel_scalesmear3 = dedx_pixel_scale
 		    
 		    fillth1(hTrkPixelDedx_fromZ_barrel,dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxScale_fromZ_barrel,dedx_pixel*scalefactor,weight)
-		    fillth1(hTrkPixelDedxCalib_fromZ_barrel,dedx_pixel_corrected,weight)
+		    fillth1(hTrkPixelDedxScaleSmear1_fromZ_barrel,dedx_pixel_scalesmear1,weight)
+		    fillth1(hTrkPixelDedxScaleSmear2_fromZ_barrel,dedx_pixel_scalesmear2,weight)
+		    fillth1(hTrkPixelDedxScaleSmear3_fromZ_barrel,dedx_pixel_scalesmear3,weight)
 		    fillth1(hTrkStripsDedx_fromZ_barrel,dedx_strips,weight)
 		
 		elif abs(track.Eta())>1.5 :
 		    scalefactor = DedxCorr_Pixel_endcap[Identifier]
-		    dedx_pixel_corrected = dedx_pixel * scalefactor
+		    dedx_pixel_scale = dedx_pixel * scalefactor
 		    if Identifier == 'Summer16' :
-			#smearfactor = hSmear_endcap.GetRandom()
-			smearfactor = func_smear_endcap.GetRandom()
-			dedx_pixel_corrected = dedx_pixel_corrected * smearfactor
+			smearfactor1 = fsmear1_phase0_endcap.GetRandom()
+			smearfactor2 = fsmear2_phase0_endcap.GetRandom()
+			smearfactor2 = fsmear3_phase0_endcap.GetRandom()
+			print 'in endcap smear1:{}, smear2:{}, smear3:{}'.format(smearfactor1,smearfactor2,smearfactor3)
+			dedx_pixel_scalesmear1 = dedx_pixel_scale * smearfactor1
+			dedx_pixel_scalesmear2 = dedx_pixel_scale * smearfactor2
+			dedx_pixel_scalesmear3 = dedx_pixel_scale + smearfactor3
+		    else : 
+			dedx_pixel_scalesmear1 = dedx_pixel_scale
+			dedx_pixel_scalesmear2 = dedx_pixel_scale
+			dedx_pixel_scalesmear3 = dedx_pixel_scale
 		    
 		    fillth1(hTrkPixelDedx_fromZ_endcap,dedx_pixel,weight)
 		    fillth1(hTrkPixelDedxScale_fromZ_endcap,dedx_pixel*scalefactor,weight)
-		    fillth1(hTrkPixelDedxCalib_fromZ_endcap,dedx_pixel_corrected,weight)
+		    fillth1(hTrkPixelDedxScaleSmear1_fromZ_endcap,dedx_pixel_scalesmear1,weight)
+		    fillth1(hTrkPixelDedxScaleSmear2_fromZ_endcap,dedx_pixel_scalesmear2,weight)
+		    fillth1(hTrkPixelDedxScaleSmear3_fromZ_endcap,dedx_pixel_scalesmear3,weight)
 		    fillth1(hTrkStripsDedx_fromZ_endcap,dedx_strips,weight)
-
-	    
+    
     fout.Write()
     fout.Close()
     print(output_dir+'/'+output+" just created")

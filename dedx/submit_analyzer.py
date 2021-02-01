@@ -4,12 +4,12 @@ from glob import glob
 from GridEngineTools import runParallel
 import argparse
 
-def do_submission(commands, output_folder, condorDir = "condor", executable = "analyzer_leptontrack.py", runmode = "grid", dontCheckOnJobs=True, confirm=True):
+def do_submission(commands, output_folder, condorDir = "condor", executable = "analyzer.py", runmode = "grid", dontCheckOnJobs=True, confirm=True):
 
     print "Submitting \033[1m%s jobs\033[0m, output folder will be \033[1m%s\033[0m." % (len(commands), output_folder)
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
-    return runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm)
+    return runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm, babysit=False)
 
 
 if __name__ == "__main__":
@@ -20,12 +20,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     test = args.test
 
+    executable = 'analyzer_DY.py'
+
 #Inputfile txt path 
     path = "./inputs/"
     #inputfiles = sorted(glob(path+'/*.txt'))
-    #inputfiles = sorted(glob(path+'/Run2016*.txt'))
+    inputfiles = sorted(glob(path+'/Run2016*.txt'))
     #inputfiles = sorted(glob(path+'/Run2017*.txt'))
-    inputfiles = sorted(glob(path+'/Summer16*.txt'))
+    #inputfiles = sorted(glob(path+'/Summer16.DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt'))
+    #inputfiles = sorted(glob(path+'/Summer16*.txt'))
     #inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
     #inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt')+glob(path+'/Run2018*-SingleMuon.txt'))
     #inputfiles = sorted(glob(path+'/Run2018*-SingleMuon.txt'))
@@ -42,7 +45,9 @@ if __name__ == "__main__":
     #inputfiles = ["./inputs/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8.txt"]
    
     #condorDir = 'condor_data_all'
-    condorDir = 'condor_Summer16'
+    condorDir = 'condor_Run2016'
+    #condorDir = 'condor_DYJetsToLL'
+    #condorDir = 'condor_Summer16'
     #condorDir = 'condor_RunIISignal'
     #condorDir = 'condor_RunIIFall17_FastSim_T1qqqq'
     
@@ -70,7 +75,7 @@ if __name__ == "__main__":
 		for i,chunk in enumerate(input_chunks):
 		    output = inputfile.split('/')[-1].replace('.txt','_'+str(i)+'.root')
 		    chunk = str(chunk).replace('\\n','').replace(", "," ").replace("[","").replace("]","")
-		    command = "python analyzer.py --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
+		    command = "python {} --input {} --output_dir {} --output {} ".format(executable, chunk, output_dir, output)
 		    if isfast : 
 			command += "--fast"
         	    commands.append(command)
@@ -78,8 +83,7 @@ if __name__ == "__main__":
 	    elif not split : 
 		output = inputfile.split('/')[-1].replace('.txt','.root')
 		chunk = str(lines).replace('\\n','').replace(", "," ").replace("[","").replace("]","")
-		#command = "python analyzer_leptontrack.py --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
-		command = "python analyzer --input {} --output_dir {} --output {} ".format(chunk, output_dir, output)
+		command = "python {} --input {} --output_dir {} --output {} ".format(executable, chunk, output_dir, output)
 		if isfast :
 		    command += " --fast"
         	commands.append(command)
@@ -88,4 +92,4 @@ if __name__ == "__main__":
 		quit()
     
     # Submit
-    do_submission(commands, output_dir, condorDir=condorDir)
+    do_submission(commands, output_dir, condorDir=condorDir, executable=executable)

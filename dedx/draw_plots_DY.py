@@ -49,24 +49,35 @@ def makePlots(histodir, outputdir, samples, variable, logx=False, logy=True, suf
             f.Close()
         histos[sample_process]=h_combined
     
-    stack_histograms(histos, outputdir, samples, variable, variable, "Events", logx=logx, logy=logy, suffix=suffix, outformat=outformat, save_shape=save_shape)
+    stack_histograms(histos, outputdir, samples, variable, variable, "Events", logx=logx, logy=logy, suffix=suffix, outformat=outformat)
     
 if __name__=="__main__":
     
+    # Folder for histograms and plots
+    histodir = "output_mediumchunks/"
+    plotdir = "plots_2016_DY"
+    #plotdir = "plots_2017_DY"
+    #plotdir = "plots_2018_DY"
+    ##############################
+
     # Samples
     samples = {
-        "WJetsToLNu":	{"select": "Summer16.WJetsToLNu_Tune|Summer16.WJetsToLNu_HT", "type": "bg", "color": 85},
+        #"WJetsToLNu":	{"select": "Summer16.WJetsToLNu_Tune|Summer16.WJetsToLNu_HT", "type": "bg", "color": 85},
         "DYJetsToLL":	{"select": "Summer16.DYJetsToLL_M-50_Tune|Summer16.DYJetsToLL_M-50_HT", "type": "bg", "color": 62},
-        "TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
-        "QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
-        "ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
-        "Diboson":	{"select": "Summer16.WW_Tune|Summer16.WZ_Tune|Summer16.ZZ_Tune", "type": "bg", "color": 51},
-        "Triboson":	{"select": "Summer16.WWW|Summer16.WZZ|Summer16.ZZZ", "type": "bg", "color": 46},
-        "rare":		{"select": "Summer16.ST", "type": "bg", "color": 15},
+        #"TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
+        #"Diboson":	{"select": "Summer16.WW_Tune|Summer16.WZ_Tune|Summer16.ZZ_Tune", "type": "bg", "color": 51},
+        #"QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
+        #"ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
+        #"Triboson":	{"select": "Summer16.WWW|Summer16.WZZ|Summer16.ZZZ", "type": "bg", "color": 46},
+        #"rare":		{"select": "Summer16.ST", "type": "bg", "color": 15},
               }
     
     # Variables to draw
     variables_mu =	[
+	    "hMET",
+	    "hMHT",
+	    "hHT",
+	    "hHT_unweighted",
 	    "hMuP_fromZ",
 	    "hMuPt_fromZ",
 	    "hMuEta_fromZ",
@@ -81,28 +92,27 @@ if __name__=="__main__":
 	    "hTrkPhi_fromZ",
 	    "hTrkPixelDedx_fromZ",
 	    "hTrkPixelDedx_fromZ_barrel",
-	    "hTrkPixelDedxCalib_fromZ_barrel",
+	    "hTrkPixelDedxScale_fromZ_barrel",
+	    "hTrkPixelDedxScaleSmear1_fromZ_barrel",
+	    "hTrkPixelDedxScaleSmear2_fromZ_barrel",
+	    "hTrkPixelDedxScaleSmear3_fromZ_barrel",
 	    "hTrkPixelDedx_fromZ_endcap",
-	    "hTrkPixelDedxCalib_fromZ_endcap",
+	    "hTrkPixelDedxScale_fromZ_endcap",
+	    "hTrkPixelDedxScaleSmear1_fromZ_endcap",
+	    "hTrkPixelDedxScaleSmear2_fromZ_endcap",
+	    "hTrkPixelDedxScaleSmear3_fromZ_endcap",
 	    "hTrkStripsDedx_fromZ",
 	    "hTrkStripsDedx_fromZ_barrel",
 	    "hTrkStripsDedx_fromZ_endcap",
 	    ]
     
     
-    # Folder for histograms and plots
-    histodir = "output_mediumchunks/"
-    plotdir = "plots_2016_DY"
-    #plotdir = "plots_2017_DY"
-    #plotdir = "plots_2018_DY"
-    ##############################
-
     # Draw plots
     for variable in variables_mu:
 	samples["Run2016_SingleMuon"]={"select": "Run2016B-SingleMuon|Run2016C-SingleMuon|Run2016D-SingleMuon|Run2016E-SingleMuon|Run2016F-SingleMuon|Run2016G-SingleMuon|Run2016H-SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
 	#samples["Run2017_SingleMuon"]={"select": "Run2017B-SingleMuon|Run2017C-SingleMuon|Run2017D-SingleMuon|Run2017E-SingleMuon|Run2017F-SingleMuon", "type": "data", "color": kBlack, "lumi": 41470}
 	#samples["Run2018_SingleMuon"]={"select": "Run2018A-SingleMuon|Run2018B-SingleMuon|Run2018C-SingleMuon|Run2018D-SingleMuon", "type": "data", "color": kBlack, "lumi": 55550}
-	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
+	makePlots(histodir, plotdir, samples, variable, logx=False, logy=False, suffix="", outformat="png")
 	del samples["Run2016_SingleMuon"]
 	#del samples["Run2017_SingleMuon"]
 	#del samples["Run2018_SingleMuon"]

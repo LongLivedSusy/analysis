@@ -11,7 +11,7 @@ import os
 gStyle.SetOptStat(0);
 gROOT.SetBatch(True)
 
-def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True, save_shape=False):
+def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signal_scaling_factor=0.00276133, suffix="", outformat="pdf", logx=False, logy=True):
 
     canvas = TCanvas("canvas", "canvas", 900, 800)
 
@@ -40,7 +40,6 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
    
     legend = TLegend(0.60, 0.65, 0.85, 0.90)
     legend.SetTextSize(0.03)
-    minimum_y_value = 1e6
 
     global_minimum = 1e10
     global_maximum = 1e-10
@@ -149,7 +148,8 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     
     # set minimum/maximum ranges   
     if global_minimum != 0:
-        mcstack.SetMinimum(0.1 * global_minimum)
+        #mcstack.SetMinimum(0.1 * global_minimum)
+        mcstack.SetMinimum(0)
     else:
         mcstack.SetMinimum(1e-5)
    
@@ -199,7 +199,6 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
 	ratio = combined_mc_background.Clone()
 	ratio.Divide(combined_mc_background)
 	ratio.Draw("same e2")
-    #ratio.GetXaxis().SetRangeUser(xmin, xmax)
 
 
     ratio.SetTitle(";%s;Data/MC" % xlabel)
@@ -216,20 +215,3 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     
     os.system("mkdir -p %s" % (outputdir))
     canvas.SaveAs("%s/%s%s.%s" % (outputdir, variable, suffix, outformat))
-
-    # Save combined MC histogram for fitting
-    if save_shape == True : 
-	os.system("mkdir -p ./shapes")
-	fout = TFile("./shapes/shape_%s.root"%variable,"recreate")
-    	combined_mc_background.SetName("combined_mc_background")
-    	combined_mc_background.Write()
-    	for label in sorted(histos):
-    	    if samples[label]["type"] == "sg":
-    	        histos[label].SetName(label)
-    	        histos[label].Write()
-    	    #if samples[label]["type"] == "bg":
-    	    #    histos[label].SetName(label)
-    	    #    histos[label].Write()
-    	    if samples[label]["type"] == "data":
-    	        histos[label].SetName(label)
-    	        histos[label].Write()

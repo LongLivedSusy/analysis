@@ -31,6 +31,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     for name,f in natsorted(SelectedMC.items()):
         fin[name] = TFile(f)
         hDedx[name] = fin[name].Get("hTrkPixelDedx_fromZ_barrel") # pixel barrel is standard candle
+	if 'Strips' in hist : hDedx[name] = fin[name].Get("hTrkStripsDedx_fromZ_barrel") # pixel barrel is standard candle
 	if i==0:
 	    print 'Cloning ',name
 	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
@@ -39,7 +40,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	    hDedx_standard.Add(hDedx[name])
 	i+=1
 
-    hDedx_standard.SetTitle('Summer16 MC hTrkPixelDedx_fromZ_barrel')
+    hDedx_standard.SetTitle('Summer16 MC')
     hDedx_standard.SetLineWidth(2)
     hDedx_standard.Scale(1.0/hDedx_standard.Integral())
     hDedx_standard.GetXaxis().SetTitle('MeV/cm')
@@ -119,9 +120,9 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     c2.cd()
     hDedx_standard.SetFillStyle(3002)
     hDedx_standard.SetFillColor(kBlue)
-    hDedx_standard.GetYaxis().SetRangeUser(0,0.2)
+    hDedx_standard.GetYaxis().SetRangeUser(0,0.15)
     hDedx_standard.Draw('HIST E SAME')
-    tl.AddEntry(hDedx_standard, 'Summer16 MC barrel, mu=%s'%(round(mean_mc,3)))
+    tl.AddEntry(hDedx_standard, 'Summer16 MC, mu=%s'%(round(mean_mc,3)))
     
     i=0
     for name,f in natsorted(SelectedData.items()):
@@ -156,13 +157,14 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     
 if __name__ == '__main__' :
 
-    #DataSets = ["Run2016-SingleMuon"]
+    DataSets = ["Run2016-SingleMuon"]
     #DataSets = ["Run2017-SingleMuon"]
     #DataSets = ["Run2018-SingleMuon"]
-    DataSets = ["Run2016-SingleMuon","Run2017-SingleMuon","Run2018-SingleMuon"]
+    #DataSets = ["Run2016-SingleMuon","Run2017-SingleMuon","Run2018-SingleMuon"]
 
     for	data in DataSets:
-        outputdir = './DedxInterCalib_'+data
+        #outputdir = './DedxInterCalib_'+data
+        outputdir = './DedxInterScale_'+data
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Run2016-SingleMuon":
@@ -186,6 +188,8 @@ if __name__ == '__main__' :
 		#'hTrkStripsDedx_tightmumatch_endcap',
 		'hTrkPixelDedx_fromZ_barrel',
 		'hTrkPixelDedx_fromZ_endcap',
+		#'hTrkStripsDedx_fromZ_barrel',
+		#'hTrkStripsDedx_fromZ_endcap',
 
 		# after calibration
 		#'hTrkPixelDedxCalib_tightmumatch',
@@ -194,6 +198,8 @@ if __name__ == '__main__' :
 		#'hTrkStripsDedxCalib_tightmumatch',
 		#'hTrkStripsDedxCalib_tightmumatch_barrel',
 		#'hTrkStripsDedxCalib_tightmumatch_endcap',
+		'hTrkPixelDedxScale_fromZ_barrel',
+		'hTrkPixelDedxScale_fromZ_endcap',
 		]
 	
 	# Run

@@ -12,7 +12,6 @@ def makePlots(histodir, outputdir, samples, variable, logx=False, logy=True, suf
     for process, sample in samples.iteritems():
 	sample_files = []
         selectors = sample['select'].split("*")
-	print "selectors:",selectors
         for file_name in file_names :
 	    identifier = file_name
 	    for selector in selectors :
@@ -61,8 +60,9 @@ if __name__=="__main__":
         "TT":		{"select": "Summer16.TTJets", "type": "bg", "color": 8}, 
         "QCD":		{"select": "Summer16.QCD_HT", "type": "bg", "color": 97},
         "ZJetsToNuNu":	{"select": "Summer16.ZJetsToNuNu_HT", "type": "bg", "color": 67},
-        "Diboson":	{"select": "Summer16.WW|Summer16.WZ|Summer16.ZZ", "type": "bg", "color": 51},
-        #"rare":		{"select": "Summer16.ST|Summer16.GJets|RunIIFall17MiniAODv2.ST", "type": "bg", "color": 15},
+        "Diboson":	{"select": "Summer16.WW_Tune|Summer16.WZ_Tune|Summer16.ZZ_Tune", "type": "bg", "color": 51},
+        "Triboson":	{"select": "Summer16.WWW|Summer16.WZZ|Summer16.ZZZ", "type": "bg", "color": 46},
+        "rare":		{"select": "Summer16.ST", "type": "bg", "color": 15},
 	
 	## Fall17 Bkgs
 	#"WJetsToLNu":	{"select": "RunIIFall17MiniAODv2.WJetsToLNu_HT", "type": "bg", "color": 85},
@@ -84,8 +84,6 @@ if __name__=="__main__":
     variables_mu =	[
 	    "hMuP",
 	    "hMuPt",
-	    "hMuPt_fromZ_leading",
-	    "hMuPt_fromZ_trailing",
 	    "hMuEta",
 	    "hMuPhi",
 	    "hMuGamma",
@@ -99,20 +97,14 @@ if __name__=="__main__":
 	    "hMuBetaGamma_genmatch",
 	    
 	    "hTrkPt_tightmumatch",
-	    "hTrkPt_tightmumatch_fromZ",
 	    "hTrkPt_tightgenmumatch",
 
 	    "hTrkPt_tightgenmumatch_barrel",
-	    "hTrkPt_tightgenmumatch_fromZ_barrel",
 	    "hTrkPt_tightgenmumatch_endcap",
-	    "hTrkPt_tightgenmumatch_fromZ_endcap",
 	    
 	    "hTrkPixelDedx_tightmumatch",
-	    "hTrkPixelDedx_tightmumatch_fromZ",
 	    "hTrkPixelDedx_tightmumatch_barrel",
-	    "hTrkPixelDedx_tightmumatch_fromZ_barrel",
 	    "hTrkPixelDedx_tightmumatch_endcap",
-	    "hTrkPixelDedx_tightmumatch_fromZ_endcap",
 	    "hTrkPixelDedx_tightgenmumatch",
 	    "hTrkPixelDedx_tightgenmumatch_barrel",
 	    "hTrkPixelDedx_tightgenmumatch_endcap",
@@ -121,11 +113,8 @@ if __name__=="__main__":
 	    "hTrkPixelDedxCalib_tightmumatch_endcap",
 	    
 	    "hTrkStripsDedx_tightmumatch",
-	    "hTrkStripsDedx_tightmumatch_fromZ",
 	    "hTrkStripsDedx_tightmumatch_barrel",
-	    "hTrkStripsDedx_tightmumatch_fromZ_barrel",
 	    "hTrkStripsDedx_tightmumatch_endcap",
-	    "hTrkStripsDedx_tightmumatch_fromZ_endcap",
 	    "hTrkStripsDedx_tightgenmumatch",
 	    "hTrkStripsDedx_tightgenmumatch_barrel",
 	    "hTrkStripsDedx_tightgenmumatch_endcap",
@@ -185,23 +174,26 @@ if __name__=="__main__":
     
     # Folder for histograms and plots
     histodir = "output_mediumchunks/"
-    #histodir = sys.argv[1]
     plotdir = "plots_2016"
     #plotdir = "plots_2017"
+    #plotdir = "plots_2018"
     ##############################
 
     # Draw plots
     for variable in variables_mu:
-	samples["SingleMuon"]={"select": "Run2016B-SingleMuon|Run2016C-SingleMuon|Run2016D-SingleMuon|Run2016E-SingleMuon|Run2016F-SingleMuon|Run2016G-SingleMuon|Run2016H-SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
-	#samples["SingleMuon"]={"select": "Run2017B-SingleMuon|Run2017C-SingleMuon|Run2017D-SingleMuon|Run2017E-SingleMuon|Run2017F-SingleMuon", "type": "data", "color": kBlack, "lumi": 40805.1454}
+	samples["Run2016_SingleMuon"]={"select": "Run2016B-SingleMuon|Run2016C-SingleMuon|Run2016D-SingleMuon|Run2016E-SingleMuon|Run2016F-SingleMuon|Run2016G-SingleMuon|Run2016H-SingleMuon", "type": "data", "color": kBlack, "lumi": 35200.41639}
+	#samples["Run2017_SingleMuon"]={"select": "Run2017B-SingleMuon|Run2017C-SingleMuon|Run2017D-SingleMuon|Run2017E-SingleMuon|Run2017F-SingleMuon", "type": "data", "color": kBlack, "lumi": 41470}
+	#samples["Run2018_SingleMuon"]={"select": "Run2018A-SingleMuon|Run2018B-SingleMuon|Run2018C-SingleMuon|Run2018D-SingleMuon", "type": "data", "color": kBlack, "lumi": 55550}
 	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
-	del samples["SingleMuon"]
+	del samples["Run2016_SingleMuon"]
+	#del samples["Run2017_SingleMuon"]
+	#del samples["Run2018_SingleMuon"]
     
-    for variable in variables_ele:
-	samples["SingleElectron"]={"select": "Run2016B-SingleElectron|Run2016C-SingleElectron|Run2016D-SingleElectron|Run2016E-SingleElectron|Run2016F-SingleElectron|Run2016G-SingleElectron|Run2016H-SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
-	#samples["SingleElectron"]={"select": "Run2017B-SingleElectron|Run2017C-SingleElectron|Run2017D-SingleElectron|Run2017E-SingleElectron|Run2017F-SingleElectron", "type": "data", "color": kBlack, "lumi": 40805.1454}
-	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
-	del samples["SingleElectron"]
+#    for variable in variables_ele:
+#	samples["SingleElectron"]={"select": "Run2016B-SingleElectron|Run2016C-SingleElectron|Run2016D-SingleElectron|Run2016E-SingleElectron|Run2016F-SingleElectron|Run2016G-SingleElectron|Run2016H-SingleElectron", "type": "data", "color": kBlack, "lumi": 34331.72766}
+#	#samples["SingleElectron"]={"select": "Run2017B-SingleElectron|Run2017C-SingleElectron|Run2017D-SingleElectron|Run2017E-SingleElectron|Run2017F-SingleElectron", "type": "data", "color": kBlack, "lumi": 40805.1454}
+#	makePlots(histodir, plotdir, samples, variable, logx=False, logy=True, suffix="", outformat="png", save_shape=False)
+#	del samples["SingleElectron"]
     
 #    for variable in variables_met:
 #	samples["MET"]={"select": "Run2016B_MET|Run2016C_MET|Run2016D_MET|Run2016E_MET|Run2016F_MET|Run2016G_MET|Run2016H_MET", "type": "data", "color": kBlack, "lumi": 35767.77446}

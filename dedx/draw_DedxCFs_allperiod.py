@@ -13,17 +13,31 @@ hProtonDedxCFs_endcap = TH1F('hProtonDedxCFs_endcap','',16,0,16)
 for index, key in enumerate(sorted(DedxCorr_Pixel_barrel)):
     if not 'Run' in key: continue
     hMuonDedxCFs_barrel.SetBinContent(index,DedxCorr_Pixel_barrel[key])
+    hMuonDedxCFs_barrel.SetBinError(index,0)
     hMuonDedxCFs_barrel.GetXaxis().SetBinLabel(index,key)
 
 for index, key in enumerate(sorted(DedxCorr_Pixel_endcap)):
     if not 'Run' in key: continue
     hMuonDedxCFs_endcap.SetBinContent(index,DedxCorr_Pixel_endcap[key])
+    hMuonDedxCFs_endcap.SetBinError(index,0)
     hMuonDedxCFs_endcap.GetXaxis().SetBinLabel(index,key)
 
+hProtonDedxCFs_barrel.SetBinContent(1,1.212) #Run2016B
+hProtonDedxCFs_barrel.SetBinError(1,0) #Run2016B
+hProtonDedxCFs_endcap.SetBinContent(1,1.273) #Run2016B
+hProtonDedxCFs_endcap.SetBinError(1,0) #Run2016B
 hProtonDedxCFs_barrel.SetBinContent(6,1.457) #Run2016G
+hProtonDedxCFs_barrel.SetBinError(6,0) #Run2016G
 hProtonDedxCFs_endcap.SetBinContent(6,1.438) #Run2016G
-hProtonDedxCFs_barrel.SetBinContent(12,1.342) # Run2017F
-hProtonDedxCFs_endcap.SetBinContent(12,1.342) # Run2017F
+hProtonDedxCFs_endcap.SetBinError(6,0) #Run2016G
+hProtonDedxCFs_barrel.SetBinContent(12,1.143) # Run2017F
+hProtonDedxCFs_barrel.SetBinError(12,0) # Run2017F
+hProtonDedxCFs_endcap.SetBinContent(12,1.380) # Run2017F
+hProtonDedxCFs_endcap.SetBinError(12,0) # Run2017F
+hProtonDedxCFs_barrel.SetBinContent(15,1.223) # Run2018C
+hProtonDedxCFs_barrel.SetBinError(15,0) # Run2018C
+hProtonDedxCFs_endcap.SetBinContent(15,1.391) # Run2018C
+hProtonDedxCFs_endcap.SetBinError(15,0) # Run2018C
 
 histoStyler(hMuonDedxCFs_barrel,kBlue)
 histoStyler(hMuonDedxCFs_endcap,kGreen)

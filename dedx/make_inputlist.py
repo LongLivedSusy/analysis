@@ -5,7 +5,6 @@ def make_inputlist(samples):
     userlist = []
     hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
     #hub_folders = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3"
-    #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16FS_T2bt_mLSP900_ctau200/ntuples*"
     #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP1100and300/ntuples*"
     #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP-1to200/ntuples*"
 
@@ -28,40 +27,55 @@ if __name__ == "__main__" :
     # Sample name for globbing
 
     Summer16_bkg = [
-    "Summer16.DYJetsToLL_M-50_TuneCUETP8M1",
-    "Summer16.DYJetsToLL_M-50_HT-100to200",
-    "Summer16.DYJetsToLL_M-50_HT-200to400",
-    "Summer16.DYJetsToLL_M-50_HT-400to600",
-    "Summer16.DYJetsToLL_M-50_HT-600to800",
-    "Summer16.DYJetsToLL_M-50_HT-800to1200",
-    "Summer16.DYJetsToLL_M-50_HT-1200to2500",
-    "Summer16.DYJetsToLL_M-50_HT-2500toInf",
-    "Summer16.QCD_HT200to300",
-    "Summer16.QCD_HT300to500",
-    "Summer16.QCD_HT500to700",
-    "Summer16.QCD_HT700to1000",
-    "Summer16.QCD_HT1000to1500",
-    "Summer16.QCD_HT1500to2000",
-    "Summer16.QCD_HT2000toInf",
+    "Summer16.DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
     "Summer16.TTJets_TuneCUETP8M1_13TeV",
-    "Summer16.WJetsToLNu_TuneCUETP8M1",
-    "Summer16.WJetsToLNu_HT-100To200",
-    "Summer16.WJetsToLNu_HT-200To400",
-    "Summer16.WJetsToLNu_HT-400To600",
-    "Summer16.WJetsToLNu_HT-600To800",
-    "Summer16.WJetsToLNu_HT-800To1200",
-    "Summer16.WJetsToLNu_HT-1200To2500",
-    "Summer16.WJetsToLNu_HT-2500ToInf",
-    "Summer16.ZJetsToNuNu_HT-100To200",
-    "Summer16.ZJetsToNuNu_HT-200To400",
-    "Summer16.ZJetsToNuNu_HT-400To600",
-    "Summer16.ZJetsToNuNu_HT-600To800",
-    "Summer16.ZJetsToNuNu_HT-800To1200",
-    "Summer16.ZJetsToNuNu_HT-1200To2500",
-    "Summer16.ZJetsToNuNu_HT-2500ToInf",
-    "Summer16.WW_TuneCUETP8M1",
-    "Summer16.WZ_TuneCUETP8M1",
-    "Summer16.ZZ_TuneCUETP8M1",
+    "Summer16.TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1",
+    "Summer16.ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1",
+    "Summer16.ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1",
+    "Summer16.ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1",
+    "Summer16.ST_tW_antitop_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1",
+    "Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+    "Summer16.ZJetsToNuNu_HT-100To200_13TeV-madgraph",
+    "Summer16.ZJetsToNuNu_HT-200To400_13TeV-madgraph",
+    "Summer16.ZJetsToNuNu_HT-400To600_13TeV-madgraph",
+    "Summer16.ZJetsToNuNu_HT-600To800_13TeV-madgraph",
+    "Summer16.ZJetsToNuNu_HT-800To1200_13TeV-madgraph",
+    "Summer16.ZJetsToNuNu_HT-1200To2500_13TeV-madgraph",
+    "Summer16.ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph",
+    "Summer16.WW_TuneCUETP8M1_13TeV-pythia8",
+    "Summer16.WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",
+    "Summer16.WWTo2L2Nu_13TeV-powheg",
+    "Summer16.WZ_TuneCUETP8M1_13TeV-pythia8",
+    "Summer16.WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",
+    "Summer16.WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8",
+    "Summer16.ZZ_TuneCUETP8M1_13TeV-pythia8",
+    "Summer16.WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",
+    "Summer16.WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",
+    "Summer16.ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",
     ]
     
     Summer16_signal = [
@@ -138,11 +152,11 @@ if __name__ == "__main__" :
     "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1",
     ]
     
-    Summer16_signal_fastsim_mStop1300 = [
+    Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1100and300 = [
     "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300",
     ]
     
-    Summer16PrivateFastSim_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200 = [
+    Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200 = [
     "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1to200",
     ]
 
@@ -256,19 +270,19 @@ if __name__ == "__main__" :
 
 	    
     samples=[]
-    #samples.extend(Summer16_bkg)
+    samples.extend(Summer16_bkg)
     #samples.extend(Summer16_signal)
     #samples.extend(Summer16_signal_fastsim)
-    #samples.extend(Summer16_signal_fastsim_mStop1300)
-    #samples.extend(Summer16PrivateFastSim_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200)
+    #samples.extend(Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1100and300)
+    #samples.extend(Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200)
     #samples.extend(Fall17_bkg)
     #samples.extend(Fall17_FastSimSignal)
-    samples.extend(Run2016_SingleMuon)
-    samples.extend(Run2016_SingleElectron)
-    samples.extend(Run2017_SingleMuon)
-    samples.extend(Run2017_SingleElectron)
-    samples.extend(Run2018_SingleMuon)
-    samples.extend(Run2018_EGamma)
+    #samples.extend(Run2016_SingleMuon)
+    #samples.extend(Run2016_SingleElectron)
+    #samples.extend(Run2017_SingleMuon)
+    #samples.extend(Run2017_SingleElectron)
+    #samples.extend(Run2018_SingleMuon)
+    #samples.extend(Run2018_EGamma)
     
     #Input list for each process
     make_inputlist(samples)
