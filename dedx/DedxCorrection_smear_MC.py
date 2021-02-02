@@ -74,5 +74,5 @@ if __name__ == '__main__' :
     # Run
     main(dict_Run2016_SingleMuon,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase0_data_dedxsmear_barrel.root")
     main(dict_Run2016_SingleMuon,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase0_data_dedxsmear_endcap.root")
-    main(dict_Summer16_DYJetsToLL,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase0_mc_dedxsmear_barrel.root")
-    main(dict_Summer16_DYJetsToLL,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase0_mc_dedxsmear_endcap.root")
+    main(dict_Summer16,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase0_mc_dedxsmear_barrel.root")
+    main(dict_Summer16,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase0_mc_dedxsmear_endcap.root")

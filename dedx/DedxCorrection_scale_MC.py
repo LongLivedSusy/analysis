@@ -40,8 +40,14 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     hDedx_standard.GetXaxis().SetTitle('MeV/cm')
     hDedx_standard.GetYaxis().SetTitle('Normalized')
     hDedx_standard.Scale(1.0/hDedx_standard.Integral())
-    print 'hahahaha'
-
+    
+    fitres_standard = hDedx_standard.Fit('gaus','S','',2.3,3.5)
+    fitres_standard.Print()
+    mean_standard = hDedx_standard.GetFunction('gaus').GetParameter(1)
+    tl.AddEntry(hDedx_standard, 'Summer16 MC barrel, mu=%s'%(round(mean_standard,3)))
+    hDedx_standard.Draw('HIST E SAME')
+    c.SaveAs(outputdir+'/Intercalib_Summer16_'+hist+'.'+format_c)
+    
      
     # MCs to be corrected
     i=0
@@ -66,7 +72,7 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     elif isFastSim and 'Calib' in hist: 
         fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.5,3.5)
     else :
-        fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.5,3.5)
+        fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',2.3,3.5)
     
     fitres_totalMC.Print()
     mean_totalMC = hDedx_totalMC.GetFunction('gaus').GetParameter(1)
@@ -74,34 +80,26 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     hDedx_totalMC.Draw('HIST E SAME')
     c.SaveAs(outputdir+'/Intercalib_totalMC_'+hist+'.'+format_c)
     
-    fitres_standard = hDedx_standard.Fit('gaus','S','',2.3,3.5)
-    fitres_standard.Print()
-    mean_standard = hDedx_standard.GetFunction('gaus').GetParameter(1)
-    tl.AddEntry(hDedx_standard, 'Summer16 MC barrel, mu=%s'%(round(mean_standard,3)))
-    
-    hDedx_standard.Draw('HIST E SAME')
-    c.SaveAs(outputdir+'/Intercalib_Summer16_'+hist+'.'+format_c)
-
-    c2.cd()
-    rp = TRatioPlot(hDedx_standard,hDedx_totalMC)
-    rp.Draw()
-    hDedx_totalMC.SetTitle('harmonic-2 pixel dEdx')
-    hDedx_standard.SetTitle('harmonic-2 pixel dEdx')
-    hDedx_totalMC.SetLineColor(kRed)
-    hDedx_standard.SetFillStyle(3002)
-    hDedx_standard.SetFillColor(kBlue)
-    rp.GetUpperRefYaxis().SetTitle("Normalized");
-    rp.GetUpperRefYaxis().SetRangeUser(0,0.15);
-    rp.GetLowerRefYaxis().SetTitle("ratio");
-    rp.GetLowerRefYaxis().SetRangeUser(0,2);
-    tl.AddEntry(hDedx_totalMC,'FastSim MC, mu=%s'%(round(mean_totalMC,3)),'l')
-    #tl.AddEntry(hDedx_totalMC,'Fall17 MC, mu=%s'%(round(mean_totalMC,3)),'l')
-    tl.Draw()
-    c2.SaveAs(outputdir+'/RatioPlot_'+hist+'.'+format_c)
+    #c2.cd()
+    #rp = TRatioPlot(hDedx_standard,hDedx_totalMC)
+    #rp.Draw()
+    #hDedx_totalMC.SetTitle('harmonic-2 pixel dEdx')
+    #hDedx_standard.SetTitle('harmonic-2 pixel dEdx')
+    #hDedx_totalMC.SetLineColor(kRed)
+    #hDedx_standard.SetFillStyle(3002)
+    #hDedx_standard.SetFillColor(kBlue)
+    #rp.GetUpperRefYaxis().SetTitle("Normalized");
+    #rp.GetUpperRefYaxis().SetRangeUser(0,0.15);
+    #rp.GetLowerRefYaxis().SetTitle("ratio");
+    #rp.GetLowerRefYaxis().SetRangeUser(0,2);
+    ##tl.AddEntry(hDedx_totalMC,'FastSim MC, mu=%s'%(round(mean_totalMC,3)),'l')
+    ##tl.AddEntry(hDedx_totalMC,'Fall17 MC, mu=%s'%(round(mean_totalMC,3)),'l')
+    #tl.Draw()
+    #c2.SaveAs(outputdir+'/RatioPlot_'+hist+'.'+format_c)
    
     # Extract Scale Factor 
     with open(outputdir+"/datacalib_dict"+hist+".txt",'w') as txt:
-	SF = mean_standard / mean_totalMC
+	SF = round(mean_standard / mean_totalMC, 3)
         print "'This MC' : %s,"%(SF)
 	txt.write("'This MC' : %s,\n"%(SF))
 
@@ -115,7 +113,7 @@ if __name__ == '__main__' :
     #DataSets = ["Fall17"]
 
     for	data in DataSets:
-        outputdir = './DedxInterCalib_'+data
+        outputdir = './DedxScale_'+data
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Summer16":
@@ -135,21 +133,9 @@ if __name__ == '__main__' :
 	    quit()
 
 	hists=[
-		 # before calibration
-		#'hTrkPixelDedx_tightgenmumatch_barrel',
-		#'hTrkPixelDedx_tightgenmumatch_endcap',
-		#'hTrkStripsDedx_tightgenmumatch_barrel',
-		#'hTrkStripsDedx_tightgenmumatch_endcap',
+		# before calibration
 		'hTrkPixelDedx_fromZ_barrel',
 		'hTrkPixelDedx_fromZ_endcap',
-
-		# after calibration
-		#'hTrkPixelDedxCalib_tightgenmumatch',
-		#'hTrkPixelDedxCalib_tightgenmumatch_barrel',
-		#'hTrkPixelDedxCalib_tightgenmumatch_endcap',
-		#'hTrkStripsDedxCalib_tightgenmumatch',
-		#'hTrkStripsDedxCalib_tightgenmumatch_barrel',
-		#'hTrkStripsDedxCalib_tightgenmumatch_endcap',
 		]
 	
 	# Run
