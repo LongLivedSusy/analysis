@@ -64,7 +64,9 @@ else: phase = 1
 
 candPtCut = 15
 candPtUpperCut = 6499
-if is2016: BTAG_deepCSV = 0.6324
+hiptcut = 40
+
+if is2016: BTAG_deepCSV = 0.6321
 if is2017: BTAG_deepCSV = 0.4941
 if is2018: BTAG_deepCSV = 0.4184
 btag_cut = BTAG_deepCSV
@@ -87,7 +89,7 @@ if model=='PureHiggsino': newfileEachsignal = False
 #counter histogram:
 holdingbay = 'bay_'+model
 
-	
+
 
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('Summer16.','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
@@ -108,10 +110,10 @@ elif 'Fall17' in identifier:
 else: 
 	dedxcalib_barrel = 1.0
 	dedxcalib_endcap = 1.0	
-	
-	
+
+
 thejet = TLorentzVector()
-	
+
 '''
 if 'Run201' in identifier: 
 	dedxcalib_barrel = datacalibdict_SingleElectron_barrel[identifier.split('-')[0]]/datacalibdict_SingleElectron_barrel['Summer16']
@@ -148,28 +150,56 @@ calm = 25
 calh = 150
 
 
-call = 20
-calm = 20
-calh = 90
+call = 15
+calm = 15
+calh = 60
 
 dphiboundary = TMath.Pi()*2./3#/2#3.14159*2/3
 
+
+#from before	
+extra = 0.05
+#FutureCuts
+if is2016: 
+	mvaLoose = -0.5
+	#mvaLoose = -1	
+	mvaTightLong = 0.05+extra
+	mvaTightShort = 0.00+extra
+else:
+	mvaLoose = -0.5
+	#mvaLoose = -1	
+	mvaTightLong = 0.00+extra
+	mvaTightShort = -0.1+extra
+	
 	
 	
 if is2016: 
 	mvaLoose = -0.5
-	#mvaLoose = -1	
-	mvaTightLong = 0.05
-	mvaTightShort = 0.00
+	mvaLooseFake = -0.20
+	mvaTightLong = 0.1
+	mvaTightShort = 0.2
 else:
-	mvaLoose = -0.6
-	#mvaLoose = -1	
-	mvaTightLong = 0.00
-	mvaTightShort = -0.1	
+	mvaLoose = -0.5
+	mvaLooseFake = -0.20
+	mvaTightLong = 0.05
+	mvaTightShort = 0.15
+
+extra = 0.0
+if is2016: 
+	mvaLoose = -0.5
+	mvaLooseFake = -0.20
+	mvaTightLong = 0.1+extra
+	mvaTightShort = 0.25+extra
+else:
+	mvaLoose = -0.5
+	mvaLooseFake = -0.20
+	mvaTightLong = 0.05+extra
+	mvaTightShort = 0.25+extra
 	
-varlist_                                  = ['Ht',       'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
-regionCuts['ShortBaseline']                          = [(lowht,inf),   (30,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),  (0,call),   (1,1),   (0,dphiboundary), (mvaTightShort,inf)]
-regionCuts['LongBaseline']                           = [(lowht,inf),   (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),   (0,inf),  (120,inf), (110,inf), (30,inf),       (0,2.4),  (0,call),   (2,2),   (0,dphiboundary), (mvaTightLong,inf)]
+	
+varlist_                                       = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber','DPhiLepDt','MinDPhiMhtHemJet','Log10DedxMass']
+regionCuts['ShortBaselineSystNom']            = [(lowht,inf), (30,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (0.0,inf),   (dedxcutLow,inf),         (0,inf),     (0,inf),  (120,inf), (110,inf), (candPtCut,inf), (0,2.4),  (0,call),      (-inf,inf),   (0,inf), (mvaTightShort,inf)]
+regionCuts['LongBaselineSystNom']             = [(lowht,inf), (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),   (0.0,inf),   (dedxcutLow,inf),         (0,inf),     (0,inf),  (120,inf), (110,inf), (hiptcut,inf),       (0,2.4),  (0,call),   (-inf,inf),   (0,inf), (mvaTightLong,inf)]
 
 
 dedxidx = varlist_.index('DeDxAverage')
@@ -184,6 +214,7 @@ for key in regionkeys:
 	break
 
 	#for prompt measurement
+	'''
 	newlist2 = list(regionCuts[key])
 	newlist2[mcalidx] = (calm,calh)
 	newlist2[mvaidx] = (mvaLoose,inf)		
@@ -197,8 +228,9 @@ for key in regionkeys:
 	else: newlist1[mvaidx] = (mvaTightLong,inf)	
 	newkey = key.replace('SystNom','FakeCrSystNom')	
 	regionCuts[newkey] = newlist1
+	'''
 
-	
+
 #collectionsysts = ['JecNom','JecUp','JecDown']
 weightsysts = ['BTagUp','BTagDown','IsrUp','IsrDown']
 
@@ -207,8 +239,9 @@ for key in regionkeys:
 	for syst in weightsysts: 
 		newkey = key.replace('Nom',syst)
 		regionCuts[newkey] = list(regionCuts[key])
-	
-	
+
+
+
 ncuts = 19
 def selectionFeatureVector(fvector, regionkey='', omitcuts=''):
 	if not fvector[0]>=fvector[1]: return False
@@ -229,7 +262,7 @@ def getBinNumber(fv):
 			if not (fv[iwindow]>=window[0] and fv[iwindow]<=window[1]): foundbin = False
 		if foundbin: return binnumbers[binkey]
 	return -1
-		
+	
 
 #counter histogram:
 hHt = TH1F('hHt','hHt',200,0,10000)
@@ -242,7 +275,10 @@ for region in regionCuts:
 		histname = region+'_'+var
 		histoStructDict[histname] = mkHistoStruct(histname, thebinning)
 		print 'histname', histname
-		
+	
+print 'histoStructDict', histoStructDict.keys()
+
+	
 if model=='PureHiggsino':
 	mothermass = float(inputFileNames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
 	higgsinoxsecfile = TFile('usefulthings/CN_hino_13TeV.root')
@@ -272,19 +308,19 @@ nentries = c.GetEntries()
 c.Show(0)
 
 
-fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal10to13.root')
-hMask = fMask.Get('h_Mask_allyearsLongSElValidationZLLCaloSideband_EtaVsPhiDT')
+fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal13to30_Data2016.root')
+hMask = fMask.Get('h_Mask_allyearsLongHadMhtSideband_EtaVsPhiDT')
 
 if exomode: hMask = ''
 
 
 import os
 if phase==0:
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml'	
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2016-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'	
 else:
-	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml'
-	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml'	
+	pixelXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'
+	pixelstripsXml = os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/2017-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml'	
 
 readerPixelOnly = TMVA.Reader("")
 readerPixelOnly.SetName('Reader1')
@@ -314,8 +350,8 @@ for ientry in range(nentries):
 
 	if verbose: print 'getting entry', ientry
 	c.GetEntry(ientry) 
-	
-	
+
+
 	if newfileEachsignal:
 		susymasses = []
 		susies = []
@@ -326,10 +362,10 @@ for ientry in range(nentries):
 			if not pid in susies:				
 				susies.append(pid)
 				susymasses.append([pid,round(gp.M(),2)])
-						
+					
 		orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
 		orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
-		
+	
 		if not orderedmasses==orderedmasses_:
 			print 'looks like a model transition from', orderedmasses, 'to', orderedmasses_
 			orderedmasses = orderedmasses_
@@ -353,24 +389,23 @@ for ientry in range(nentries):
 			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',200,0,10000)
 			indexVar = {}
 			for ivar, var in enumerate(varlist_): indexVar[var] = ivar
-			histoStructDict = {}
+			#histoStructDict = {}
 			for region in regionCuts:
 				for var in varlist_:
 					histname = region+'_'+var
 					histoStructDict[histname] = mkHistoStruct(histname, thebinning)
-									
+								
 			if 'T1' in model or 'T2tt' in model:
 				mothermass = orderedmasses[0][1]#inputFileNames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
 				xsecpb = CrossSectionsPb[model][str(int(5*round(mothermass/5)))]
-					
+				
 				print 'got xsec', xsecpb, 'for mothermass', str(int(5*round(mothermass/5)))
 			else:
 				xsecpb = 1
-				
-	signalweight = xsecpb
-						
+			
+					
 	if not (model=='PureHiggsino'): hHt.Fill(c.HT)
-				
+			
 	'''
 	#genchis = []
 	#for igp, gp in enumerate(c.GenParticles):
@@ -378,22 +413,21 @@ for ientry in range(nentries):
 	#	if not abs(c.GenParticles_PdgId[igp])==1000024: continue
 	#	print igp, 'we got ', c.GenParticles_PdgId[igp], 'with pT=', gp.Pt(), gp.Eta()	
 	#	genchis.append(gp)
-	
+
 	'''	
-	basicTracks = []
 	disappearingTracks = []    
 	nShort, nLong = 0, 0
 	for itrack, track in enumerate(c.tracks):
 		if not track.Pt() > 15 : continue		
 		if not abs(track.Eta()) < 2.4: continue
+		if not abs(track.Eta()) < 2.2: continue
 
 		if not isBaselineTrackLoosetag(track, itrack, c, hMask):  continue
-		basicTracks.append([track,c.tracks_charge[itrack], itrack])
-		if not (track.Pt() > candPtCut and track.Pt()<candPtUpperCut): continue     	
-		
+		if not (track.Pt() > candPtCut): continue     	# and track.Pt()<candPtUpperCut
+	
 		dtstatus, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaLoose,mvaLoose])
 		if dtstatus==0: continue
-			
+		
 		drlep = 99
 		passeslep = True
 		for ilep, lep in enumerate(list(c.Electrons)+list(c.Muons)+list(c.TAPPionTracks)): 
@@ -402,7 +436,7 @@ for ientry in range(nentries):
 				passeslep = False
 				break            
 		if not passeslep: 
-			print 'losing this thing to a lepton', c.tracks_nMissingOuterHits[itrack]	
+			print ientry, 'losing this thing to a lepton', c.tracks_nMissingOuterHits[itrack]	
 			continue
 		isjet = False
 		for jet in c.Jets:
@@ -412,9 +446,10 @@ for ientry in range(nentries):
 				thejet = jet
 				break
 		if isjet: 
-			print ientry, 'losing to a jet', thejet.Pt()
-			continue
-			
+			a = 2
+			#print ientry, 'losing to a jet', thejet.Pt()
+			#continue
+		
 		ischargino = False
 		for igp, gp in enumerate(c.GenParticles):
 			if not abs(c.GenParticles_PdgId[igp])==1000024: continue			
@@ -423,7 +458,7 @@ for ientry in range(nentries):
 				ischargino = True
 				break
 		if not ischargino: continue	
-		
+	
 	
 		'''
 		print '=============charging at it with a particle with pdgid, pt =', c.GenParticles_PdgId[igp], c.GenParticles[igp].Pt(), c.GenParticles[igp].Eta()
@@ -441,13 +476,19 @@ for ientry in range(nentries):
 			dedx = c.tracks_deDxHarmonic2pixel[itrack]
 		if abs(track.Eta())<1.5: dedxcalib = dedxcalib_barrel
 		else: dedxcalib = dedxcalib_endcap
-
-		disappearingTracks.append([track,dtstatus,dedxcalib*c.tracks_deDxHarmonic2pixel[itrack], mva, itrack])
+	
+		if exomode:
+			print 'here we are'
+			if not passesExtraExoCuts(track, itrack, c): continue
+			print 'we made it'
+		  
+		dedx = dedxcalib*c.tracks_deDxHarmonic2pixel[itrack]
+		if not dedx>2: continue
+		disappearingTracks.append([track,dtstatus,dedx, mva, itrack])
 
 
 	if not len(disappearingTracks)>0: continue
-	
-	
+
 	RecoElectrons = []
 	for iel, ele in enumerate(c.Electrons):
 		if debugmode: print ientry, iel,'ele with Pt' , ele.Pt()
@@ -470,14 +511,14 @@ for ientry in range(nentries):
 
 	metvec = TLorentzVector()
 	metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
-				  
-				  
+			  
+			  
 	dt, status, dedxPixel, mvascore, itrack = disappearingTracks[0]
-	
+
 	pt = dt.Pt()
 	eta = abs(dt.Eta()) 
 	log10dedxmass = TMath.Log10(TMath.Sqrt((dedxPixel-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
-		
+	
 	adjustedBTags = 0        
 	adjustedJets = []
 	adjustedHt = 0
@@ -500,61 +541,72 @@ for ientry in range(nentries):
 	adjustedNJets = len(adjustedJets)
 	mindphi = 4
 	for jet in adjustedJets: mindphi = min(mindphi, abs(jet.DeltaPhi(adjustedMht))) 
-	
+
 	if len(RecoElectrons)>0: 
 		mT = c.Electrons_MTW[RecoElectrons[0][1]]
+		dphilepdt = abs(RecoElectrons[0][0].DeltaPhi(dt__))
 		if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoElectrons[0][0]+dt).M()
 		else: invmass = 999			
 	elif len(RecoMuons)>0: 
 		mT = c.Muons_MTW[RecoMuons[0][1]]
+		dphilepdt = abs(RecoMuons[0][0].DeltaPhi(dt__))
 		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoMuons[0][0]+dt).M()
 		else: invmass = 999			
 	else: 
 		mT, invmass = 999, 999
-	
+		dphilepdt = 999
+
 	#matchedcalo = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]#/TMath.CosH(c.tracks[disappearingTracks[0][-1]].Eta())
-	matchedcalofrac = 100*c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]/(dt.P())
-		
+	#matchedcalofrac = 100*c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]/(dt.P())
+	
+	if abs(disappearingTracks[0][1])==1: matchedcalofrac = c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]
+	else: matchedcalofrac = 100*c.tracks_matchedCaloEnergy[disappearingTracks[0][-1]]/(dt.P())			
+
 	dphiMhtDt = abs(adjustedMht.DeltaPhi(dt))
 
 	fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, status, dphiMhtDt, mvascore]
 	fv.append(getBinNumber(fv))
-	fv.extend([c.MET, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),log10dedxmass])
-	
-	
+	fv.extend([dphilepdt, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),log10dedxmass])
+
+
 	if isdata: weight = 1
 	elif len(RecoElectrons)+len(RecoMuons)>0: 
-		weight = 0.9*signalweight#*c.puWeight
+		weight = 0.9*xsecpb#*c.puWeight
 	else: 
-		weight = signalweight*gtrig.Eval(c.MHT)#*c.puWeight
+		weight = xsecpb*gtrig.Eval(c.MHT)#*c.puWeight
 		#weight = 1.0
-	hHtWeighted.Fill(c.HT,signalweight)
 		
+	weight*=1.25
+	hHtWeighted.Fill(c.HT,weight)
+	
 	#print fv
 	#for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]	
 	sfbtagnom = get_btag_weight(c,nSigmaBtagSF=0,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
 	sfbtagup = get_btag_weight(c,nSigmaBtagSF=1,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
 	sfbtagdown = get_btag_weight(c,nSigmaBtagSF=-1,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
+
 	
-		
 	isrnom = get_isr_weight(c,0)
 	isrup = get_isr_weight(c,1)
 	isrdown = get_isr_weight(c,-1)
-	
+
+	#if c.MHT>150: print 'njetsISR', c.NJetsISR, c.NJets, 'the noms', sfbtagnom, isrnom, sfbtagnom*isrnom
 	for regionkey in regionCuts:
 		if not 'Nom' in regionkey: continue
 		for ivar, varname in enumerate(varlist_):
 			if selectionFeatureVector(fv,regionkey,varname):
 				#weightsysts = ['Nom','BTagUp','BTagDown','IsrUp','IsrDown']
-				
-				
+			
+			
 				fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*weight)
 				fillth1(histoStructDict[regionkey.replace('Nom','BTagUp')+'_'+varname].Truth,fv[ivar], sfbtagup*isrnom*weight)
 				fillth1(histoStructDict[regionkey.replace('Nom','BTagDown')+'_'+varname].Truth,fv[ivar], sfbtagdown*isrnom*weight)
 				fillth1(histoStructDict[regionkey.replace('Nom','IsrUp')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrup*weight)
 				fillth1(histoStructDict[regionkey.replace('Nom','IsrDown')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrdown*weight)				
-				
-		
+			
+
+
+
 fnew_.cd()
 hHt.Write()
 hHtWeighted.Write()
@@ -562,4 +614,7 @@ writeHistoStruct(histoStructDict, 'truth')
 print 'just created', fnew_.GetName()
 fnew_.Close()	
 fMask.Close()
-os.abort
+os.abort()
+
+
+
