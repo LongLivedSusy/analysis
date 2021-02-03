@@ -187,14 +187,16 @@ else:
 extra = 0.0
 if is2016: 
 	mvaLoose = -0.5
-	mvaLooseFake = -0.20
+	mvaLooseFake = -0.50
 	mvaTightLong = 0.1+extra
 	mvaTightShort = 0.25+extra
 else:
 	mvaLoose = -0.5
-	mvaLooseFake = -0.20
+	mvaLooseFake = -0.50
 	mvaTightLong = 0.05+extra
 	mvaTightShort = 0.25+extra
+	
+
 	
 	
 varlist_                                       = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber','DPhiLepDt','MinDPhiMhtHemJet','Log10DedxMass']
