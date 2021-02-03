@@ -88,6 +88,10 @@ for ish, shfile in enumerate(shlist):
 		#print 'command', command
 		if not istest: os.system(command)
 		os.chdir('..')	
+		
+		if istest: 
+			print 'exiting upon', command
+			exit(0)
 	else: print shfile, 'successfully completed'
 	#pause()
 	

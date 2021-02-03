@@ -55,6 +55,8 @@ binning['TrkPt']=PtBinEdges#[15, 30, 60, 120, 130]#just seemed to work very well
 binning['TrkPt']=[15, 30, 60, 120, 130]#just seemed to work very well######comment out after studies
 binning['TrkPt']=[100,0,500]
 binning['TrkPt']=[0,25,30,40,50,75,100,150,300]
+binning['TrkPt']=[0,15,25,30,40,50,75,100,150,200,250,300]
+binning['TrkPt']=[0,15,30,40,75,300]#try to synchronize with kappa
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
@@ -69,7 +71,7 @@ binning['ElEta']=[30,-3,3]###comment out ater studies
 binning['MuEta']=[30,-3,3]###comment out ater studies
 binning['TrkEta']=EtaBinEdges
 binning['TrkEta']=[15,0,3]###comment out ater studies
-binning['TrkEta']=[45,0,3]###comment out ater studies
+binning['TrkEta']=[30,0,3]###comment out ater studies
 binning['NTags']=[3,0,3]
 binning['NPix']=binning['NTags']
 binning['NPixStrips']=binning['NTags']
@@ -275,7 +277,7 @@ def namewizard(name):
 	if 'TrkEta' == name:
 		return '|#eta|'
 	if 'MatchedCalo' == name:
-		return 'f_{#text{dep}}=E_{#text{dep}}/p_{#text{track}}'
+		return 'f_{dep}=E_{dep}/p_{track}#times100'
 	if 'NPix' == name:
 		return 'n(short DT)'
 	if 'BinNumber' == name:
@@ -651,6 +653,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	#hComponentsUp.Draw('hist')
 	hComponents[0].SetLineColor(kGray+1)
 	hComponents[0].SetLineWidth(2)
+	hComponents[0].GetYaxis().SetTitleSize(0.075)
 	hComponents[0].Draw('hist e')
 	#hComponentsDown.Draw('hist same')
 	for h in hComponents[1:]: 

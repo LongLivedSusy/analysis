@@ -1,6 +1,3 @@
-
-
-
 import sys
 from glob import glob
 
@@ -16,19 +13,21 @@ def main():
     flist = sorted(glob(fileskey))
     print 'will describe', flist[:3], '...'
     content = ''
-    for fname in flist:
-        shortishname = '/'.join(fname.split('/')[-1:])
+    someexample = ''
+    for fname_ in flist:
+        shortishname = '/'.join(fname_.split('/')[-1:])
         #content+="<h2>"+shortishname+'</h2>\n'
         if '{' in shortishname or '}' in shortishname: continue
         content+=image_skeleton.replace('IMAGENAME',shortishname)
-    text = skeleton.replace('CONTENT',content).replace('TITLE','/'.join(fname.split('/')[1:-1]))
+        print 'these are the things', '/'.join(fname_.split('/')[1:-1])
+        someexample = fname_
+    text = skeleton.replace('CONTENT',content).replace('TITLE','/'.join(someexample.split('/')[1:-1]))
     print text
     fnew = open(directory+'/index.html','w')
     fnew.write(text)
     fnew.close()
     print 'just created index.html'
     exit(0)
-
 
 
 skeleton = '''
@@ -54,8 +53,6 @@ image_skeleton = '''
 </div>'''
 
 main()
-
-
 
 #example:
 '''

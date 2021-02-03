@@ -53,14 +53,17 @@ redoBinning['Mht'] = redoBinning['Met']
 redoBinning['InvMass'] = [5,50,170]
 redoBinning['ElPt'] = [5,0,300]
 #redoBinning['TrkEta'] = [5,0,3]
-binning['TrkEta']=[5,0,3]
+redoBinning['TrkEta']=[9,0,3]#tried 5 before
+redoBinning['TrkEta']=[10,0,3]#tried 5 before
+redoBinning['TrkEta']=[0,1.9,2.2,3.0]#tried 5 before
 redoBinning['MuPt'] = redoBinning['ElPt']
 redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 
 #redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
 #redoBinning['DeDxAverage'] = [1.999999999,2,4,7]
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
-redoBinning['TrkPt']=[0,25,30,40,50,300]
+#redoBinning['TrkPt']=[0,25,30,40,50,300]
+redoBinning['TrkPt']=[0,15,30,40,300]
 redoBinning['LepMT'] = [4,0,160]
 redoBinning['Ht']=[5,0,2000]
 redoBinning['NJets']=[-0.00000001,0,4,10]
@@ -158,6 +161,7 @@ for key in sorted(keys):#[:241]:
 	if len(redoBinning[kinvar])!=3: 
 		nbins = len(redoBinning[kinvar])-1
 		newxs = array('d',redoBinning[kinvar])
+		print 'newbinss', redoBinning[kinvar]
 	else:
 		newbinning = []
 		print kinvar, name
@@ -165,6 +169,7 @@ for key in sorted(keys):#[:241]:
 		for ibin in range(redoBinning[kinvar][0]+1): newbinning.append(redoBinning[kinvar][1]+ibin*stepsize)
 		nbins = len(newbinning)-1
 		newxs = array('d',newbinning)
+		print 'newbins', newbinning
 	htarget = htarget.Rebin(nbins,'',newxs)
 	hcontrolregion = hcontrolregion.Rebin(nbins,'',newxs)
 	if not isdata:
@@ -173,27 +178,27 @@ for key in sorted(keys):#[:241]:
 							
 	if isdata:
 		if year=='2016':
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2016)')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2016)')
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')
 		if year=='2017':
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2017)')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2018)')
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')
 		if year=='2018':			
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2018)')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2018)')
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')
 		if year=='Phase1':			
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Phase 1 (2017+2018))')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Phase 1)')			
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')			
 	else:
 		if year=='2016':
-			htarget.SetTitle('fake obs. (Summer 16 MC)')	
-			hcontrolregion.SetTitle('pred. (Summer 16 MC)')		
+			htarget.SetTitle('')	
+			hcontrolregion.SetTitle('')		
 		if year=='2017':
-			htarget.SetTitle('fake obs. (Fall 17 MC)')
-			hcontrolregion.SetTitle('pred. (Fall 17 MC)')	
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')	
 		if year=='2018':			
-			htarget.SetTitle('fake obs. (Autumn 18 MC)')
-			hcontrolregion.SetTitle('pred. (Fall 18 MC)')	
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')	
 			
 		
 	if isdata: 

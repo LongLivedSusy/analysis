@@ -12,6 +12,9 @@ from time import sleep
 python tools/ComputeFakeRate.py 2016 MC
 python tools/ComputePromptRate.py 2016 MC
 
+python tools/ComputeFakeRate.py Phase1 data
+python tools/ComputePromptRate.py Phase1 data
+
 python tools/ComputeFakeRate.py 2016 data
 python tools/ComputePromptRate.py 2016 data
 
@@ -21,8 +24,6 @@ python tools/ComputePromptRate.py 2017 data
 python tools/ComputeFakeRate.py 2018 data
 python tools/ComputePromptRate.py 2018 data
 
-python tools/ComputeFakeRate.py Phase1 data
-python tools/ComputePromptRate.py Phase1 data
 '''
 
 varname_kappaBinning = 'TrkEta'
@@ -47,7 +48,7 @@ else:
 binning['MatchedCalo'] = [100,0,100]
 binning['DtStatus'] = [6,-3,3]
 
-redoBinning = binning
+redoBinning = dict(binning)
 
 redoBinning['Met'] = [5,0,600]
 redoBinning['Mht'] = redoBinning['Met']
@@ -65,6 +66,7 @@ redoBinning['TrkPt']=[25,0,250]
 redoBinning['TrkPt']=[0,25,30,35,40,45,50,55,60,120]
 #redoBinning['TrkPt']=[0,25,30,40,50,110]
 redoBinning['TrkPt']=[0,25,30,40,50,75,100,150,300]
+redoBinning['TrkPt']=[0,25,30,40,50,75,100,300]
 redoBinning['LepMT'] = [4,0,160]
 redoBinning['Ht']=[5,0,2000]
 redoBinning['NJets']=[-0.00000001,0,4,10]
@@ -73,6 +75,14 @@ redoBinning['MatchedCalo'] = [0,10,15,20,25,30,60]
 redoBinning['BTags'] = [-0.000000000001,0,1,4]
 
 
+coarserBinningPatch = {}
+coarserBinningPatch['TrkPt']=[0,15,40,300]
+coarseBinningPatch = {}
+coarseBinningPatch['TrkPt']=[0,40,75,300]##[0,40,75,300]#give everything the shorties
+
+
+#coarseBinningPatch['TrkPt'] = [0,25,30,40,50,75,100,150,200,250,300]#identical to shared_utils.py to debug short zell
+#coarserBinningPatch['TrkPt'] = coarseBinningPatch['TrkPt']
 makefolders = False
 
 
@@ -161,11 +171,18 @@ for key in sorted(keys):#[:241]:
 	htarget = infile.Get(name.replace('CaloSideband_','_'))
 	
 	if not isdata: 
+		print 'we do see MC'
 		hcontrolregion.Add(infile.Get(name.replace('hPrompt','hFake')))
 		htarget.Add(infile.Get(name.replace('CaloSideband_','_').replace('hPrompt','hFake')))
 
 	#if hcontrolregion.Integral()>0: hcontrolregion.Scale(htarget.Integral()/hcontrolregion.Integral())
 			
+	if 'Short' in name and 'TrkPt' in name: 
+		backuplist = list(redoBinning[kinvar])
+		redoBinning[kinvar] = coarserBinningPatch[kinvar]
+	if 'Long' in name and 'TrkPt' in name:
+		backuplist = list(redoBinning[kinvar])
+		redoBinning[kinvar] = coarseBinningPatch[kinvar]		
 	if len(redoBinning[kinvar])!=3: 
 		nbins = len(redoBinning[kinvar])-1
 		newxs = array('d',redoBinning[kinvar])
@@ -177,30 +194,31 @@ for key in sorted(keys):#[:241]:
 		newxs = array('d',newbinning)
 	htarget = htarget.Rebin(nbins,'',newxs)
 	hcontrolregion = hcontrolregion.Rebin(nbins,'',newxs)
-		
+	if 'Short' in name and 'TrkPt' in name: redoBinning[kinvar] = backuplist
+	
 	if datamc=='MC': 
 		if year=='2016':
-			htarget.SetTitle('fake obs. (Summer 16 MC)')	
-			hcontrolregion.SetTitle('pred. (Summer 16 MC)')		
+			htarget.SetTitle('')	
+			hcontrolregion.SetTitle('')		
 		if year=='2017':
-			htarget.SetTitle('fake obs. (Fall 17 MC)')
-			hcontrolregion.SetTitle('pred. (Fall 17 MC)')	
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')	
 		if year=='2018':			
-			htarget.SetTitle('fake obs. (Fall 18 MC)')
-			hcontrolregion.SetTitle('pred. (Fall 18 MC)')						
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')						
 	else:
 		if year=='2016':
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2016)')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2016)')
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')
 		if year=='2017':
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2017)')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2018)')
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')
 		if year=='2018':			
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Run2018)')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Run2018)')
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')
 		if year=='Phase1':			
-			htarget.SetTitle('low-E_{T}^{miss} SR-like (Phase 1 (2017+2018))')
-			hcontrolregion.SetTitle('low-E_{T}^{miss} fake CR (Phase 1)')			
+			htarget.SetTitle('')
+			hcontrolregion.SetTitle('')			
 
 		
 	if isdata: 
@@ -258,20 +276,15 @@ for key in sorted(keys):#[:241]:
 	fnew.cd()
 	c1.Write('c_'+plotname)
 
-	if 'BinNumber' in name:
-		hcontrolregion.Write(hcontrolregion.GetName().replace('CaloSideband_','_'))
-		hfake = infile.Get(name.replace('hPrompt','hFake').replace('CaloSideband_','_'))
-		hfake = hfake.Rebin(nbins,'',newxs)
-		hfake.Write()
 	#if 'TrkEta' in name:
 	if varname_kappaBinning in name:	
 		htarget.SetBinContent(-1,0)
 		htarget.SetBinContent(99,0)		
-		htarget.GetYaxis().SetTitle('low-MHT nL=0; numerator events')
+		htarget.GetYaxis().SetTitle('')
 		htarget.GetYaxis().SetRangeUser(0.0,2*max(htarget.GetBinContent(1),htarget.GetBinContent(3)))
 		htarget.Draw('hist text')
 		htarget.Write()		
-		hcontrolregion.GetYaxis().SetTitle('low-MHT nL=0; denominator events')		
+		hcontrolregion.GetYaxis().SetTitle('')		
 		hcontrolregion.SetBinContent(-1,0)
 		hcontrolregion.SetBinContent(99,0)
 		hcontrolregion.GetYaxis().SetRangeUser(0.0,2*max(hcontrolregion.GetBinContent(1),hcontrolregion.GetBinContent(3)))
