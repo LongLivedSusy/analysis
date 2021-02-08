@@ -5,10 +5,8 @@ process = cms.Process("DisplacedThings")
 
 try: 
     fname = sys.argv[2]
+    outputdir = sys.argv[3]
 except: 
-    #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/120000/8678DD46-3DB2-E611-A53A-008CFA1974D8.root"
-    #fname = "file:/nfs/dust/cms/user/wolfmor/Run2016GSingleElectronAOD07Aug17-v1/D25CC9A3-5787-E711-AD38-20CF3027A589.root"
-    #fname = "file:T2bt-AOD_F219C63C-8A8A-E911-A7CA-008CFAF292B2.root"
     #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/F219C63C-8A8A-E911-A7CA-008CFAF292B2.root"#run over
     #fname = "/store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/ECF10E5A-6B8A-E911-BB0D-3417EBE528B5.root"#run over
     #fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/SMS-T2bt-LLChipm_ctau-50_mLSP-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_longlived_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/40000/B6BB1B78-9D8A-E911-B1E0-2047478D3908.root" # done
@@ -18,32 +16,29 @@ except:
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/CMSSW_9_4_17/src/SUS-RunIISummer15GS-00734-fragment_py_GEN_SIM_RECOBEFMIX_DIGI_L1_DIGI2RAW_L1Reco_RECO_NoPU.root"
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/output/smallchunks/SUS-RunIISummer15GS-00734_T2btLLFastSim_200of200.root"
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/CMSSW_9_4_17/src/20200831_040129897445869/SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_1of1.root"
-    fname = "root://xrootd-cms.infn.it//store/data/Run2017F/SingleElectron/AOD/17Nov2017-v1/60000/B289F8E0-AEDE-E711-9D11-0CC47A7C3430.root"
-
-output_folder = '/nfs/dust/cms/user/spak/DisappearingTracks/CMSSW_10_5_0/src/analysis/dedx/fwlite/EDM_output/'
-if not os.path.exists(output_folder):
-    print 'Making output folder : ', output_folder
-    os.system('mkdir -p '+output_folder)
+    #fname = "root://xrootd-cms.infn.it//store/data/Run2017F/SingleElectron/AOD/17Nov2017-v1/60000/B289F8E0-AEDE-E711-9D11-0CC47A7C3430.root"
+    fname = "root://xrootd-cms.infn.it///store/data/Run2017C/SingleMuon/AOD/09Aug2019_UL2017-v1/50000/D335A134-4746-D542-97C7-CE1591F12BFF.root"
+    #fname = "file:./AODs/B289F8E0-AEDE-E711-9D11-0CC47A7C3430.root"
+    outputdir = "EDM_output_UL"
 
 print 'will use', fname
 
-fnameout = output_folder+"/edm_"+(fname.split('/')[-1]).replace('.root','_SVstuff.root')
+fnameout = outputdir+"/edm_"+(fname.split('/')[-1]).replace('.root','_SVstuff.root')
 if 'Run2' in fname:
     fnameout = fnameout.replace('edm_', 'edm_'+fname.split('/')[-6])
 else:
     if 'Summer16' in fname:
-	fnameout = fnameout.replace('edm_', 'edm_'+'Summer16')
+	fnameout = fnameout.replace('edm_', 'edm_Summer16_')
 
 # Use the tracks_and_vertices.root file as input.
 process.source = cms.Source("PoolSource",
-#fileNames = cms.untracked.vstring("root://cmsxrootd.fnal.gov//store/data/Run2016G/SingleElectron/AOD/07Aug17-v1/110000/D25CC9A3-5787-E711-AD38-20CF3027A589.root")
 fileNames =  cms.untracked.vstring(fname)
     )
 
 #more data file names for the example SingleEl 2016G are in the fileinfo directory
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 # Suppress messages that are less important than ERRORs.
 process.MessageLogger = cms.Service("MessageLogger",
@@ -55,7 +50,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 # shapes of tracks through the detector.
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-if '/mc/' in fname or 'T2' in fname or 'higgsino' in fname or 'SUS' in fname: process.GlobalTag =  GlobalTag(process.GlobalTag, "auto:run2_mc")
+if '/mc/' in fname or 'T2' in fname or 'higgsino' in fname or 'SUS' in fname or 'SMS' in fname: process.GlobalTag =  GlobalTag(process.GlobalTag, "auto:run2_mc")
 else: process.GlobalTag =  GlobalTag(process.GlobalTag, "auto:run2_data")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
