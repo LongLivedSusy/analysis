@@ -1343,6 +1343,72 @@ DedxCorr_Pixel_endcap = {
 	'Fall17' : 0.955,
 	}
 
+DedxCorr_Pixel_barrel_drop1stlayer = {
+	# Run2016
+	'Run2016B' : 1.113,
+	'Run2016C' : 1.115,
+	'Run2016D' : 1.107,
+	'Run2016E' : 1.122,
+	'Run2016F' : 1.189,
+	'Run2016G' : 1.2,
+	'Run2016H' : 1.162,
+
+	# Run2017
+	'Run2017B' : 0.948,
+	'Run2017C' : 1.064,
+	'Run2017D' : 1.127,
+	'Run2017E' : 0.968,
+	'Run2017F' : 1.035,
+
+	# Run2018
+	'Run2018A' : 1.116,
+	'Run2018B' : 1.169,
+	'Run2018C' : 1.191,
+	'Run2018D' : 1.173,
+
+	# Summer16 MC
+	'Summer16' : 1.0,
+	
+	# Summer16 Private fastsim signal
+	'Summer16PrivateFastSim' : 0.630164946858,
+
+	# Fall17 MC
+	'Fall17' : 0.970,
+	}
+
+DedxCorr_Pixel_endcap_drop1stlayer = {
+	# Run2016
+	'Run2016B' : 1.159,
+	'Run2016C' : 1.161,
+	'Run2016D' : 1.152,
+	'Run2016E' : 1.149,
+	'Run2016F' : 1.215,
+	'Run2016G' : 1.215,
+	'Run2016H' : 1.201,
+
+	# Run2017
+	'Run2017B' : 1.061,
+	'Run2017C' : 1.14,
+	'Run2017D' : 1.208,
+	'Run2017E' : 1.226,
+	'Run2017F' : 1.3,
+
+	# Run2018
+	'Run2018A' : 1.227,
+	'Run2018B' : 1.282,
+	'Run2018C' : 1.306,
+	'Run2018D' : 1.241,
+
+	# Summer16 MC
+	'Summer16' : 0.949,
+	
+	# Summer16 Private fastsim signal
+	'Summer16FastSim' : 0.630,
+
+	# Fall17 MC
+	'Fall17' : 0.955,
+	}
+
 
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
