@@ -2,7 +2,6 @@ import os,sys
 from ROOT import *
 from glob import glob
 from natsort import natsorted,ns
-from Dict_datasets import *
 
 gROOT.SetBatch(1)
 gStyle.SetOptStat(0)
@@ -13,8 +12,6 @@ format_c = 'png'
 
 def main(SelectedData,SelectedMC,hist,outputdir):
 
-    print 'SelectedData : %s, SelectedMC : %s, hist : %s, outputdir : %s'%(SelectedData,SelectedMC,hist,outputdir)
-    
     print 'Drawing for ',hist
     c = TCanvas('c','',800,600)
     c_mc = TCanvas('c_mc','',800,600)
@@ -26,6 +23,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     mean={}
      
     c_mc.cd() 
+    gStyle.SetOptFit(1111)
     # Standard candle MC : Summer16
     i = 0
     for name,f in natsorted(SelectedMC.items()):
@@ -40,7 +38,6 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	    hDedx_standard.Add(hDedx[name])
 	i+=1
 
-    hDedx_standard.SetTitle('Summer16 MC')
     hDedx_standard.SetLineWidth(2)
     hDedx_standard.Scale(1.0/hDedx_standard.Integral())
     hDedx_standard.GetXaxis().SetTitle('MeV/cm')
@@ -53,6 +50,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     c_mc.SaveAs(outputdir+'/Intercalib_standardMC.'+format_c)
     
     c.cd()
+    gStyle.SetOptFit(1111)
     #Data Intercalib
     for name,f in natsorted(SelectedData.items()):
 	print 'name',name
@@ -61,55 +59,12 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         hDedx[name].SetTitle(name+' '+hist)
         hDedx[name].SetLineWidth(2)
         hDedx[name].Scale(1.0/hDedx[name].Integral())
-
-	# PIXEL barrel
-	if 'Pixel' in hist and 'barrel' in hist:
-	    if   'Run2016B' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
-	    elif 'Run2016C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2016D' in name: fitres = hDedx[name].Fit('gaus','S','',1.7,3.0)
-	    elif 'Run2016E' in name: fitres = hDedx[name].Fit('gaus','S','',1.5,3.0)
-	    elif 'Run2016F' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
-	    elif 'Run2016G' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	    elif 'Run2016H' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	    elif 'Run2017B' in name: fitres = hDedx[name].Fit('gaus','S','',2.4,3.6)
-	    elif 'Run2017C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2017D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2017E' in name: fitres = hDedx[name].Fit('gaus','S','',2.2,3.2)
-	    elif 'Run2017F' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.2)
-	    elif 'Run2018A' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.6)
-	    elif 'Run2018B' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.4)
-	    elif 'Run2018C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2018D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    else : print 'Data period is not matched'; quit()
-
-	# PIXEL endcap
-	elif 'Pixel' in hist and 'endcap' in hist:
-	    if   'Run2016B' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
-	    elif 'Run2016C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2016D' in name: fitres = hDedx[name].Fit('gaus','S','',1.7,3.0)
-	    elif 'Run2016E' in name: fitres = hDedx[name].Fit('gaus','S','',1.5,3.0)
-	    elif 'Run2016F' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
-	    elif 'Run2016G' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	    elif 'Run2016H' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,2.6)
-	    elif 'Run2017B' in name: fitres = hDedx[name].Fit('gaus','S','',2.2,3.4)
-	    elif 'Run2017C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2017D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2017E' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2017F' in name: fitres = hDedx[name].Fit('gaus','S','',1.6,3.0)
-	    elif 'Run2018A' in name: fitres = hDedx[name].Fit('gaus','S','',2.0,3.0)
-	    elif 'Run2018B' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,3.0)
-	    elif 'Run2018C' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
-	    elif 'Run2018D' in name: fitres = hDedx[name].Fit('gaus','S','',1.8,2.6)
-	    else : print 'Data period is not matched'; quit()
 	
-	# STRIP
-    	elif 'Strips' in hist:
-	    fitres = hDedx[name].Fit('gaus','S','',2.8,3.8)
-	else : 
-	    print 'Hist string or data period unmatched'
-	    quit()
-
-        fitres.Print()
+	fitrangemin = hDedx[name].GetXaxis().GetBinCenter(hDedx[name].GetMaximumBin())-0.3
+	fitrangemax = hDedx[name].GetXaxis().GetBinCenter(hDedx[name].GetMaximumBin())+0.3
+	hDedx[name].Fit('gaus','S','',fitrangemin,fitrangemax)
+	
+	fitres.Print()
         mean[name] = hDedx[name].GetFunction('gaus').GetParameter(1)
 	hDedx[name].GetXaxis().SetTitle('MeV/cm')
 	hDedx[name].GetYaxis().SetTitle('Normalized')
@@ -117,6 +72,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     	c.SaveAs(outputdir+'/Intercalib_'+name+'_'+hist+'.'+format_c)
      
     # Data all period and MC
+    gStyle.SetOptFit(0)
     c2.cd()
     hDedx_standard.SetFillStyle(3002)
     hDedx_standard.SetFillColor(kBlue)
@@ -147,7 +103,7 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     
     
     # Extract Scale Factor 
-    if not 'Calib' in hist : 
+    if not 'Scale' in hist : 
         with open(outputdir+"/CF_"+hist+".txt",'w') as txt:
 	    for name,f in natsorted(SelectedData.items()):
 		SF = round(mean_mc / mean[name],3)
@@ -157,23 +113,26 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     
 if __name__ == '__main__' :
 
-    DataSets = ["Run2016-SingleMuon"]
-    #DataSets = ["Run2017-SingleMuon"]
-    #DataSets = ["Run2018-SingleMuon"]
-    #DataSets = ["Run2016-SingleMuon","Run2017-SingleMuon","Run2018-SingleMuon"]
+    #from Dict_datasets import *
+    from Dict_datasets_MIH import *
+
+    #DataSets = ["Run2016"]
+    #DataSets = ["Run2017"]
+    #DataSets = ["Run2018"]
+    DataSets = ["Run2016","Run2017","Run2018"]
 
     for	data in DataSets:
-        #outputdir = './DedxInterCalib_'+data
-        outputdir = './DedxInterScale_'+data
+        #outputdir = './DedxScale_'+data
+        outputdir = './DedxScale_'+data+'_MIH'
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
-	if data == "Run2016-SingleMuon":
+	if data == "Run2016":
 	    SelectedMC = dict_Summer16
 	    SelectedData = dict_Run2016_SingleMuon
-	elif data == "Run2017-SingleMuon":
+	elif data == "Run2017":
 	    SelectedMC = dict_Summer16
     	    SelectedData = dict_Run2017_SingleMuon
-	elif data == "Run2018-SingleMuon":
+	elif data == "Run2018":
 	    SelectedMC = dict_Summer16
     	    SelectedData = dict_Run2018_SingleMuon
 	else : 
@@ -182,24 +141,13 @@ if __name__ == '__main__' :
 
 	hists=[
 		# before calibration
-		#'hTrkPixelDedx_tightmumatch_barrel',
-		#'hTrkPixelDedx_tightmumatch_endcap',
-		#'hTrkStripsDedx_tightmumatch_barrel',
-		#'hTrkStripsDedx_tightmumatch_endcap',
 		'hTrkPixelDedx_fromZ_barrel',
 		'hTrkPixelDedx_fromZ_endcap',
 		#'hTrkStripsDedx_fromZ_barrel',
 		#'hTrkStripsDedx_fromZ_endcap',
 
-		# after calibration
-		#'hTrkPixelDedxCalib_tightmumatch',
-		#'hTrkPixelDedxCalib_tightmumatch_barrel',
-		#'hTrkPixelDedxCalib_tightmumatch_endcap',
-		#'hTrkStripsDedxCalib_tightmumatch',
-		#'hTrkStripsDedxCalib_tightmumatch_barrel',
-		#'hTrkStripsDedxCalib_tightmumatch_endcap',
-		'hTrkPixelDedxScale_fromZ_barrel',
-		'hTrkPixelDedxScale_fromZ_endcap',
+		#'hTrkPixelDedxScale_fromZ_barrel',
+		#'hTrkPixelDedxScale_fromZ_endcap',
 		]
 	
 	# Run
