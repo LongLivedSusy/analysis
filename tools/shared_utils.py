@@ -1369,11 +1369,11 @@ DedxCorr_Pixel_barrel_drop1stlayer = {
 	# Summer16 MC
 	'Summer16' : 1.0,
 	
-	# Summer16 Private fastsim signal
-	'Summer16PrivateFastSim' : 0.630164946858,
+	## Summer16 Private fastsim signal
+	#'Summer16PrivateFastSim' : 0.630164946858,
 
-	# Fall17 MC
-	'Fall17' : 0.970,
+	## Fall17 MC
+	#'Fall17' : 0.970,
 	}
 
 DedxCorr_Pixel_endcap_drop1stlayer = {
@@ -1402,11 +1402,11 @@ DedxCorr_Pixel_endcap_drop1stlayer = {
 	# Summer16 MC
 	'Summer16' : 0.949,
 	
-	# Summer16 Private fastsim signal
-	'Summer16FastSim' : 0.630,
+	## Summer16 Private fastsim signal
+	#'Summer16FastSim' : 0.630,
 
-	# Fall17 MC
-	'Fall17' : 0.955,
+	## Fall17 MC
+	#'Fall17' : 0.955,
 	}
 
 
