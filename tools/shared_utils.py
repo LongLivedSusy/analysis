@@ -1,4 +1,5 @@
 #import pdb; pdb.set_trace()
+import os, sys
 from ROOT import *
 from array import array
 import collections
@@ -1373,7 +1374,7 @@ DedxCorr_Pixel_barrel_drop1stlayer = {
 	#'Summer16PrivateFastSim' : 0.630164946858,
 
 	## Fall17 MC
-	#'Fall17' : 0.970,
+	'Fall17' : 0.967,
 	}
 
 DedxCorr_Pixel_endcap_drop1stlayer = {
@@ -1406,9 +1407,23 @@ DedxCorr_Pixel_endcap_drop1stlayer = {
 	#'Summer16FastSim' : 0.630,
 
 	## Fall17 MC
-	#'Fall17' : 0.955,
+	'Fall17' : 0.956,
 	}
 
+def Load_DedxSmear(phase):
+    print 'Loading dEdx smear function for phase:',phase
+    if phase==0 :
+        f_barrel = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase0_dedxsmear_barrel.root")
+        f_endcap = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase0_dedxsmear_endcap.root")
+    elif phase==1 :
+        f_barrel = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase1_dedxsmear_barrel.root")
+        f_endcap = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase1_dedxsmear_endcap.root")
+    else : print 'put correct phase', quit()
+
+    fsmear_barrel = f_barrel.Get('fsmear')
+    fsmear_endcap = f_endcap.Get('fsmear')
+
+    return fsmear_barrel, fsmear_endcap
 
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
