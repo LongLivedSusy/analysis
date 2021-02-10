@@ -8,21 +8,6 @@ import numpy as np
 
 TH1.SetDefaultSumw2(True)
 
-def Load_DedxSmear(phase):
-    print 'Loading dEdx smear for phase ',phase
-    if phase==0 : 
-        f_barrel = TFile("./DedxSmear_wip/phase0_dedxsmear_barrel.root")
-    	f_endcap = TFile("./DedxSmear_wip/phase0_dedxsmear_endcap.root")
-    elif phase==1 :
-        f_barrel = TFile("./DedxSmear_wip/phase1_dedxsmear_barrel.root")
-    	f_endcap = TFile("./DedxSmear_wip/phase1_dedxsmear_endcap.root")
-    else : print 'put correct phase', quit()
-
-    fsmear_barrel = f_barrel.Get('fsmear')
-    fsmear_endcap = f_endcap.Get('fsmear')
-    
-    return fsmear_barrel, fsmear_endcap
-
 def pass_background_stitching(current_file_name, madHT, phase):
     if (madHT>0) and \
        ("DYJetsToLL_M-50_Tune" in current_file_name and madHT>100) or \
@@ -127,9 +112,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
     doDedxSmear = False
     if not is_data :
 	doDedxSmear = True
-	if doDedxSmear : 
-	    #fsmear_barrel, fsmear_endcap = Load_DedxSmear(phase)
-	    fsmear_barrel, fsmear_endcap = Load_DedxSmear(1)
+	fsmear_barrel, fsmear_endcap = Load_DedxSmear(phase)
     
     # Output file
     fout = TFile(output_dir+'/'+output, "recreate")
@@ -342,9 +325,9 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    fillth1(hTrkStripsDedx_fromZ,dedx_strips,weight)
 
 	    if abs(track.Eta())<=1.5 :
-	        scalefactor = DedxCorr_Pixel_barrel[Identifier]
+	        scalefactor = DedxCorr_Pixel_barrel_drop1stlayer[Identifier]
 	        dedx_pixel_scale= dedx_pixel * scalefactor
-	        if not is_data and Identifier == 'Summer16':
+	        if not is_data and doDedxSmear:
 		    smearfactor = fsmear_barrel.GetRandom()
 		    dedx_pixel_scalesmear = dedx_pixel_scale + smearfactor
 	        else : 
@@ -356,9 +339,9 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	        fillth1(hTrkStripsDedx_fromZ_barrel,dedx_strips,weight)
 	    
 	    elif abs(track.Eta())>1.5 :
-	        scalefactor = DedxCorr_Pixel_endcap[Identifier]
+	        scalefactor = DedxCorr_Pixel_endcap_drop1stlayer[Identifier]
 	        dedx_pixel_scale = dedx_pixel * scalefactor
-	        if not is_data and Identifier == 'Summer16' :
+	        if not is_data and doDedxSmear:
 		    smearfactor = fsmear_endcap.GetRandom()
 		    dedx_pixel_scalesmear = dedx_pixel_scale + smearfactor
 	        else : 

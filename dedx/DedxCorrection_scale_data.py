@@ -60,8 +60,8 @@ def main(SelectedData,SelectedMC,hist,outputdir):
         hDedx[name].SetLineWidth(2)
         hDedx[name].Scale(1.0/hDedx[name].Integral())
 	
-	fitrangemin = hDedx[name].GetXaxis().GetBinCenter(hDedx[name].GetMaximumBin())-0.3
-	fitrangemax = hDedx[name].GetXaxis().GetBinCenter(hDedx[name].GetMaximumBin())+0.3
+	fitrangemin = hDedx[name].GetXaxis().GetBinCenter(hDedx[name].GetMaximumBin())-0.4
+	fitrangemax = hDedx[name].GetXaxis().GetBinCenter(hDedx[name].GetMaximumBin())+0.4
 	hDedx[name].Fit('gaus','S','',fitrangemin,fitrangemax)
 	
 	fitres.Print()
@@ -141,13 +141,13 @@ if __name__ == '__main__' :
 
 	hists=[
 		# before calibration
-		'hTrkPixelDedx_fromZ_barrel',
-		'hTrkPixelDedx_fromZ_endcap',
+		#'hTrkPixelDedx_fromZ_barrel',
+		#'hTrkPixelDedx_fromZ_endcap',
 		#'hTrkStripsDedx_fromZ_barrel',
 		#'hTrkStripsDedx_fromZ_endcap',
 
-		#'hTrkPixelDedxScale_fromZ_barrel',
-		#'hTrkPixelDedxScale_fromZ_endcap',
+		'hTrkPixelDedxScale_fromZ_barrel',
+		'hTrkPixelDedxScale_fromZ_endcap',
 		]
 	
 	# Run

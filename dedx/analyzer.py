@@ -339,7 +339,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    if not c.Muons_passIso[imu]: continue
 	    if not c.Muons_tightID[imu]: continue
 	    
-	    tightmuons.append(mu)
+	    tightmuons.append([imu,mu])
 	    
 	    beta_mu = mu.Beta()
 	    gamma_mu = mu.E()/0.105
@@ -371,7 +371,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	
 		if drmin < threshold :
 		    match = True
-		    tightmuons_genmatch.append(mu_genmatch)
+		    tightmuons_genmatch.append([idx,mu_genmatch])
 		    gamma_mu_genmatch = mu_genmatch.E()/0.105
 		    betagamma_mu_genmatch = mu_genmatch.Beta()*gamma_mu_genmatch
 

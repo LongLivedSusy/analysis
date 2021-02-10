@@ -2,7 +2,6 @@ import os,sys
 from ROOT import *
 from glob import glob
 from natsort import natsorted,ns
-from Dict_datasets import *
 
 gROOT.SetBatch(1)
 gStyle.SetOptStat(False)
@@ -12,8 +11,6 @@ gStyle.SetOptStat(False)
 format_c = 'png'
 
 def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
-
-    print 'SelectedData : %s, SelectedMC : %s, hist : %s, outputdir : %s, isFastSim: %s'%(SelectedData,SelectedMC,hist,outputdir,isFastSim)
 
     c = TCanvas('c','',800,600)
     c2 = TCanvas('c2','',800,600)
@@ -28,7 +25,7 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     i = 0
     for name,f in sorted(SelectedMC.items()):
         fin[name] = TFile(f)
-	hDedx[name] = fin[name].Get('hTrkPixelDedx_fromZ_barrel') #MC : FullSim gen-matched muon dEdx at barrel region as standard candle
+	hDedx[name] = fin[name].Get('hTrkPixelDedx_fromZ_barrel') #MC : FullSim muon-matched track dEdx at barrel region as standard candle
 	if i==0:
 	    print 'Cloning ',name
 	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
@@ -108,12 +105,16 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     
 if __name__ == '__main__' :
 
-    DataSets = ["Summer16"]
+    #from Dict_datasets import *
+    from Dict_datasets_MIH import *
+    
+    #DataSets = ["Summer16"]
     #DataSets = ["Summer16PrivateFastSim"]
-    #DataSets = ["Fall17"]
+    DataSets = ["Fall17"]
 
     for	data in DataSets:
-        outputdir = './DedxScale_'+data
+        #outputdir = './DedxScale_'+data
+        outputdir = './DedxScale_'+data+'_MIH'
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Summer16":
