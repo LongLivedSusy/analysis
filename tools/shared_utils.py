@@ -1436,6 +1436,31 @@ def Load_DedxSmear(phase):
     
     return fsmear_barrel, fsmear_endcap
 
+def Load_DedxSmear_MIH(phase):
+    print 'Loading dEdx smear function for phase:',phase
+    if phase==0 :
+	sigma_data_barrel = 0.533
+	sigma_data_endcap = 0.5114
+	sigma_mc_barrel = 0.5084
+	sigma_mc_endcap = 0.4182
+
+    elif phase==1 :
+	sigma_data_barrel = 0.4403
+	sigma_data_endcap = 0.4647
+	sigma_mc_barrel = 0.3824
+	sigma_mc_endcap = 0.3104
+    else : print 'put correct phase', quit()
+    
+    sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
+    sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
+    
+    fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
+    fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
+
+    fsmear_endcap = TF1("fsmear_endcap","gaus",-1,1)
+    fsmear_endcap.SetParameters(1,0,sigma_smear_endcap)
+    
+    return fsmear_barrel, fsmear_endcap
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
 1 HLT_AK8DiPFJet280_200_TrimMass30_v 0 10
