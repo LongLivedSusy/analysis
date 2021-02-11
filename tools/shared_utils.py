@@ -1413,16 +1413,27 @@ DedxCorr_Pixel_endcap_drop1stlayer = {
 def Load_DedxSmear(phase):
     print 'Loading dEdx smear function for phase:',phase
     if phase==0 :
-        f_barrel = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase0_dedxsmear_barrel.root")
-        f_endcap = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase0_dedxsmear_endcap.root")
+	sigma_data_barrel = 0.5796
+	sigma_data_endcap = 0.4885
+	sigma_mc_barrel = 0.4403
+	sigma_mc_endcap = 0.4049
+
     elif phase==1 :
-        f_barrel = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase1_dedxsmear_barrel.root")
-        f_endcap = TFile(os.environ['CMSSW_BASE']+"/src/analysis/dedx/DedxSmear_MIH/phase1_dedxsmear_endcap.root")
+	sigma_data_barrel = 0.5796
+	sigma_data_endcap = 0.4885
+	sigma_mc_barrel = 0.4403
+	sigma_mc_endcap = 0.4049
     else : print 'put correct phase', quit()
+    
+    sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
+    sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
+    
+    fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
+    fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
 
-    fsmear_barrel = f_barrel.Get('fsmear')
-    fsmear_endcap = f_endcap.Get('fsmear')
-
+    fsmear_endcap = TF1("fsmear_endcap","gaus",-1,1)
+    fsmear_endcap.SetParameters(1,0,sigma_smear_endcap)
+    
     return fsmear_barrel, fsmear_endcap
 
 '''
