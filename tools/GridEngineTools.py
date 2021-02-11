@@ -151,15 +151,15 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     # set up cmssw
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     export SCRAM_ARCH=slc6_amd64_gcc530
+    if [[ ! -f $(which voms-proxy-info) ]]
+     then
+      source /cvmfs/grid.desy.de/etc/profile.d/grid-ui-env.sh
+     fi
     cd CMSBASE
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
     # set up proxy
     cd ~
-    if [[ ! -f $(which voms-proxy-info) ]]
-     then
-      source /cvmfs/grid.desy.de/etc/profile.d/grid-ui-env.sh
-     fi
     export X509_USER_PROXY=$(pwd)/proxy
     echo X509_USER_PROXY $X509_USER_PROXY
     voms-proxy-info
