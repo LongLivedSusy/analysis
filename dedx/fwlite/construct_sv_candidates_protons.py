@@ -17,7 +17,10 @@ except:
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/output/smallchunks/SUS-RunIISummer15GS-00734_T2btLLFastSim_200of200.root"
     #fname = "file:/afs/desy.de/user/s/spak/dust/DisappearingTracks/FastSim/CMSSW_9_4_17/src/20200831_040129897445869/SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_1of1.root"
     #fname = "root://xrootd-cms.infn.it//store/data/Run2017F/SingleElectron/AOD/17Nov2017-v1/60000/B289F8E0-AEDE-E711-9D11-0CC47A7C3430.root"
-    fname = "root://xrootd-cms.infn.it///store/data/Run2017C/SingleMuon/AOD/09Aug2019_UL2017-v1/50000/D335A134-4746-D542-97C7-CE1591F12BFF.root"
+    #fname = "root://xrootd-cms.infn.it///store/data/Run2017C/SingleMuon/AOD/09Aug2019_UL2017-v1/50000/D335A134-4746-D542-97C7-CE1591F12BFF.root"
+    #fname = "root://xrootd-cms.infn.it///store/mc/RunIISummer20UL17RECO/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/106X_mc2017_realistic_v6-v1/280000/454B5BA9-37B2-0E44-B930-31F4D4607393.root"
+    #fname = "root://xrootd-cms.infn.it////store/mc/RunIISummer19UL16RECO/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/106X_mcRun2_asymptotic_v13-v2/100000/DA4701A6-454D-C543-A39B-918CAA84B621.root"
+    fname = "root://xrootd-cms.infn.it///store/mc/RunIISummer19UL17RECO/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/AODSIM/106X_mc2017_realistic_v6-v2/280000/E1791345-1D4D-6A42-98A0-15467E3E88AA.root"
     #fname = "file:./AODs/B289F8E0-AEDE-E711-9D11-0CC47A7C3430.root"
     outputdir = "EDM_output_UL"
 
@@ -37,8 +40,8 @@ fileNames =  cms.untracked.vstring(fname)
 
 #more data file names for the example SingleEl 2016G are in the fileinfo directory
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 # Suppress messages that are less important than ERRORs.
 process.MessageLogger = cms.Service("MessageLogger",
