@@ -123,7 +123,8 @@ if __name__ == '__main__' :
 
     for	data in DataSets:
         #outputdir = './DedxScale_'+data
-        outputdir = './DedxScale_'+data+'_MIH'
+        #outputdir = './DedxScale_'+data+'_MIH'
+        outputdir = './DedxScale_'+data+'_MIH_afterscalesmear'
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Run2016":
@@ -146,8 +147,10 @@ if __name__ == '__main__' :
 		#'hTrkStripsDedx_fromZ_barrel',
 		#'hTrkStripsDedx_fromZ_endcap',
 
-		'hTrkPixelDedxScale_fromZ_barrel',
-		'hTrkPixelDedxScale_fromZ_endcap',
+		#'hTrkPixelDedxScale_fromZ_barrel',
+		#'hTrkPixelDedxScale_fromZ_endcap',
+		'hTrkPixelDedxScaleSmear_fromZ_barrel',
+		'hTrkPixelDedxScaleSmear_fromZ_endcap',
 		]
 	
 	# Run

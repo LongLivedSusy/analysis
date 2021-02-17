@@ -112,7 +112,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
     doDedxSmear = False
     if not is_data :
 	doDedxSmear = True
-	fsmear_barrel, fsmear_endcap = Load_DedxSmear(phase)
+	fsmear_barrel, fsmear_endcap = Load_DedxSmear_MIH(phase)
     
     # Output file
     fout = TFile(output_dir+'/'+output, "recreate")
@@ -299,8 +299,6 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 
 	    if dedx_pixel==0 or dedx_strips==0 : continue
 
-	    #print 'nMIH:{}, mMMH:{}'.format(c.tracks_nMissingInnerHits[itrack],c.tracks_nMissingMiddleHits[itrack])
-	    
 	    goodtracks.append([itrack,track])
 
 	    # muon-track matcing

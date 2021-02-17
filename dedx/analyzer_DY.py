@@ -358,8 +358,9 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    if not abs(c.tracks_dxyVtx[itrack])<0.02 : continue
 	    if not abs(c.tracks_dzVtx[itrack])<0.1 : continue
 	    if not c.tracks_ptError[itrack]/(track.Pt()*track.Pt())<10 : continue
-	    if not c.tracks_nMissingInnerHits[itrack]==0 : continue
 	    if not bool(c.tracks_trackQualityHighPurity[itrack]) : continue
+	    if not c.tracks_nMissingInnerHits[itrack]==0 : continue
+	    if not c.tracks_nMissingMiddleHits[itrack]==0 : continue
 	    if not c.tracks_nValidPixelHits[itrack]>=3 : continue
 	    #if not c.tracks_nValidTrackerHits[itrack]>=2 : continue
 	    
