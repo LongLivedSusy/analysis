@@ -1419,10 +1419,10 @@ def Load_DedxSmear(phase):
 	sigma_mc_endcap = 0.4049
 
     elif phase==1 :
-	sigma_data_barrel = 0.5796
-	sigma_data_endcap = 0.4885
-	sigma_mc_barrel = 0.4403
-	sigma_mc_endcap = 0.4049
+	sigma_data_barrel = 0.5487
+	sigma_data_endcap = 0.4456
+	sigma_mc_barrel = 0.4517
+	sigma_mc_endcap = 0.3870
     else : print 'put correct phase', quit()
     
     sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
