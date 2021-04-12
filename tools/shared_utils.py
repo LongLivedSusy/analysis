@@ -7,7 +7,8 @@ import collections
 dedxcutLow = 2.1
 dedxcutMid = 4.0
 
-dedxcutLow = 2.0
+dedxcutLow = 0.0
+#dedxcutLow = 0.0
 dedxcutMid = 4.0
 #dedxcutMid = 5.0
 #dedxcutMid = 4.5
@@ -16,7 +17,7 @@ dedxcutMid = 4.0
 #dedxcutMid = 6
 
 #PtBinEdges = [0,20, 30,40, 50, 60, 90, 120, 180, 250, 350, 400,500,600,700]
-PtBinEdges = [0,20,24,27,30,31,32,34,36,38,40,45,50,60,90,120,180,250]#best
+PtBinEdges = [0,20,24,27,30,31,22,34,36,38,40,45,50,60,90,120,180,250]#best
 #PtBinEdges = [32,250]#for inv. mass plots
 EtaBinEdges = [0, 2.4]#best
 
@@ -46,7 +47,7 @@ epsilon = 0.0001
 
 
 binning = {}
-#binning['Met']=[0,20,50,100,150,250,400,650,800,900,1000]
+#binning['Met']=[0,20,50,100,150,300,400,650,800,900,1000]
 binning['Met']=[400,0,1200]
 binning['Mht']=binning['Met']
 #binning['TrkPt']=[15,30,50,100,300]
@@ -57,11 +58,12 @@ binning['TrkPt']=[15, 30, 60, 120, 130]#just seemed to work very well######comme
 binning['TrkPt']=[100,0,500]
 binning['TrkPt']=[0,25,30,40,50,75,100,150,300]
 binning['TrkPt']=[0,15,25,30,40,50,75,100,150,200,250,300]
-binning['TrkPt']=[0,15,30,40,75,300]#try to synchronize with kappa
+binning['TrkPt']=[0,15,30,40,100,225,300]#try to synchronize with kappa
+binning['TrkPt']=[0,15,30,40,50,60,100,225,300]#try to synchronize with kappa
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
-binning['NJets']=[10,0,10]
+binning['NJets']=[7,0,6]
 binning['NLeptons']=[5,0,5]
 binning['NElectrons']=binning['NLeptons']
 binning['NMuons']=binning['NLeptons']
@@ -86,11 +88,14 @@ binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [58,0,58]
 binning['Log10DedxMass'] = [10,0,5]
 binning['DeDxAverage'] = [1.999999999,2,4.0,10.0]
+binning['DeDxAverage'] = [0,2,4.0,10.0]
+binning['DeDxAverage'] = [40,0,10]
 binning['MinDPhiMhtHemJet'] = [16,0,3.2]
 binning['MatchedCalo'] = [30,0,150]
 binning['LeadTrkMva'] = [44,-1.1,1.1]
 binning['DtStatus'] = [6,-3,3]
 binning['DPhiLepDt'] = binning['DPhiMhtDt']
+binning['MTauTau'] = [26,50,180]
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
@@ -228,7 +233,7 @@ selectionsets = {}
 inf = 9999
 #selectionsets order: HT,MET,NJets,DeltaPhi1,DeltaPhi2
 selectionsets['nocuts'] = [(0,inf),(0,inf),(0,inf),(0,inf),(0,inf)]
-selectionsets['highmet'] = [(0,inf),(250,inf),(0,inf),(0,inf),(0,inf)]
+selectionsets['highmet'] = [(0,inf),(300,inf),(0,inf),(0,inf),(0,inf)]
 CutStages = {}
 CutStages[1] = 'All tracks'
 CutStages[2] = 'pt>15, |eta|<2.4'
@@ -356,8 +361,8 @@ def writeHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
 		if 'method1' in opt: hStructDict[key].Method1.Write()
 		if 'method2' in opt: hStructDict[key].Method2.Write()
 		if 'method3' in opt: hStructDict[key].Method3.Write()
-		
-		
+	
+	
 def resetHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
 	keys = sorted(hStructDict.keys())
 	for key in keys:
@@ -367,7 +372,7 @@ def resetHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
 		if 'method1' in opt: hStructDict[key].Reset()
 		if 'method2' in opt: hStructDict[key].Reset()
 		if 'method3' in opt: hStructDict[key].Method3.Write()						
-	
+
 def mkEfficiencyRatio(hPassList, hAllList,hName = 'hRatio'):#for weighted MC, you need TEfficiency!
 	hEffList = []
 	for i in range(len(hPassList)):
@@ -414,15 +419,18 @@ def pause(str_='push enter key when ready'):
 		raw_input('')
 
 datamc = 'Data'
-def stamp(lumi='35.9', showlumi = False, WorkInProgress = True):
+def stamp(lumi='35.9', datamc_ = 'data', showlumi = False, WorkInProgress = False):
+	datamc = datamc_.lower()
 	tl.SetTextFont(cmsTextFont)
 	tl.SetTextSize(0.98*tl.GetTextSize())
 	tl.DrawLatex(0.15,0.845, 'CMS')
 	tl.SetTextFont(extraTextFont)
 	tl.SetTextSize(1.0/0.98*tl.GetTextSize())
 	xlab = 0.235
+	if ('mc' in datamc): thing = 'simulation'
+	else: thing = 'preliminary'
 	if WorkInProgress: tl.DrawLatex(xlab,0.845, ' internal')
-	else: tl.DrawLatex(xlab,0.845, ('MC' in datamc)*' simulation '+'preliminary')
+	else: tl.DrawLatex(xlab,0.845, thing)
 	tl.SetTextFont(regularfont)
 	tl.SetTextSize(0.81*tl.GetTextSize())    
 	thingy = ''
@@ -754,12 +762,13 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 
 	return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hComponentsDown, ErrorHistogram,pad1, pad2]
 
-def stampFab(lumi,datamc='MC'):
+def stampFab(lumi,datamc_='MC'):
+	datamc = datamc_.lower()
 	tl.SetTextFont(cmsTextFont)
 	tl.SetTextSize(1.6*tl.GetTextSize())
 	tl.DrawLatex(0.152,0.82, 'CMS')
 	tl.SetTextFont(extraTextFont)
-	tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
+	tl.DrawLatex(0.14,0.74, ('mc' in datamc)*' simulation'+' internal')
 	tl.SetTextFont(regularfont)
 	if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
 	else: tl.DrawLatex(0.55,0.82,'L = '+str(lumi)+' fb^{-1} (13 TeV)')
@@ -842,8 +851,8 @@ def prepareReaderPixel_loose(reader, xmlfilename):
 		reader.AddVariable("tracks_ptErrOverPt2",_ptErrOverPt2_)
 		reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
 		reader.BookMVA("BDT", xmlfilename)  
-		
-		
+	
+	
 def prepareReaderPixelStrips_fullyinformed(reader, xmlfilename):
 		reader.AddVariable("tracks_dxyVtx",_dxyVtx_)
 		reader.AddVariable("tracks_dzVtx",_dzVtx_)		       
@@ -897,7 +906,7 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 		if not c.tracks_chi2perNdof[itrack]<2.88: 
 			#print 'loss to chi2'
 			return 0,-11
-		
+	
 		if not dxyVtx < 0.1: return 0,-11
 		if not c.tracks_trkRelIso[itrack]<0.01: 
 			return 0,-11
@@ -917,8 +926,8 @@ def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, t
 					return 0, mva_
 		else:
 				return 0, mva_
-				
-				
+			
+			
 def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
 		moh_ = c.tracks_nMissingOuterHits[itrack]
 		phits = c.tracks_nValidPixelHits[itrack]
@@ -936,13 +945,13 @@ def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelS
 		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
 		dxyVtx = abs(c.tracks_dxyVtx[itrack])
 		dzVtx = abs(c.tracks_dzVtx[itrack])                        
-		
+	
 		nhits = c.tracks_nValidTrackerHits[itrack]
 		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
 		if not (nlayers>=2 and nhits>=2): return 0,-11
 		matchedCalo = c.tracks_matchedCaloEnergy[itrack]
 		chi2  = c.tracks_chi2perNdof[itrack]
-		
+	
 		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
 
 		if pixelOnly:
@@ -959,8 +968,9 @@ def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelS
 					return 0, mva_
 		else:
 				return 0, mva_
-				
-				
+			
+		
+			
 def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.2,-0.4]):###from Akshansh
 		moh_ = c.tracks_nMissingOuterHits[itrack]
 		phits = c.tracks_nValidPixelHits[itrack]
@@ -979,13 +989,13 @@ def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerP
 		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
 		dxyVtx = abs(c.tracks_dxyVtx[itrack])
 		dzVtx = abs(c.tracks_dzVtx[itrack])                        
-		
+	
 		nhits = c.tracks_nValidTrackerHits[itrack]
 		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
 		if not (nlayers>=2 and nhits>=2): return 0,-11
 		matchedCalo = c.tracks_matchedCaloEnergy[itrack]
 		chi2  = c.tracks_chi2perNdof[itrack]
-		
+	
 		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
 		if pixelOnly:
 				mva_ = evaluateBDT(readerPixelOnly, trackfv)
@@ -999,9 +1009,9 @@ def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerP
 				else: return 0, mva_ ##this -2 was nominally 0
 		else:
 				return 0, mva_								
-		
+	
 #just changed a couple of lines above to loosen the tag
-		
+	
 def isBaselineTrack(track, itrack, c, hMask=''):
 	if not abs(track.Eta())< 2.4: return False
 	if not (abs(track.Eta()) < 1.4442 or abs(track.Eta()) > 1.566): return False
@@ -1039,26 +1049,26 @@ def passesExtraExoCuts(track, itrack, c):
 	if pixelStrips:
 		if not c.tracks_nMissingOuterHits[itrack]>3: return False
 	return True
-		
-		
+	
+	
 '''
-            "tracks_is_pixel_track==1",
-            "abs(tracks_eta)<2.1",
-            "tracks_exo_trackiso==1",
-            "tracks_exo_jetiso==1",
-            "tracks_dxyVtx<0.02",
-            "tracks_dzVtx<0.5",
-            "tracks_nMissingInnerHits==0",
-            "tracks_nMissingMiddleHits==0",
-            "tracks_nValidPixelHits>=3",
-            "tracks_exo_leptoniso==1",
-            "(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
-            "(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
-            "(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
-            "tracks_trkRelIso<0.05",
-            "tracks_nMissingOuterHits>=3",                                 
-            "tracks_matchedCaloEnergy<10",                
-            "tracks_pt>55",
+			"tracks_is_pixel_track==1",
+			"abs(tracks_eta)<2.1",
+			"tracks_exo_trackiso==1",
+			"tracks_exo_jetiso==1",
+			"tracks_dxyVtx<0.02",
+			"tracks_dzVtx<0.5",
+			"tracks_nMissingInnerHits==0",
+			"tracks_nMissingMiddleHits==0",
+			"tracks_nValidPixelHits>=3",
+			"tracks_exo_leptoniso==1",
+			"(abs(tracks_eta)<0.15 || abs(tracks_eta)>0.35)",
+			"(abs(tracks_eta)<1.42 || abs(tracks_eta)>1.65)",
+			"(abs(tracks_eta)<1.55 || abs(tracks_eta)>1.85)",
+			"tracks_trkRelIso<0.05",
+			"tracks_nMissingOuterHits>=3",                                 
+			"tracks_matchedCaloEnergy<10",                
+			"tracks_pt>55",
 '''
 
 
@@ -1081,7 +1091,7 @@ def isBaselineTrackLoosetag(track, itrack, c, hMask=''):### could tracks_ptError
 			#print 'zeroing out this DT', ibinx, ibiny
 			return False	
 	return base_cuts
-		
+	
 def overflow(h):
 	bin = h.GetNbinsX()+1
 	c = h.GetBinContent(bin)
@@ -1131,17 +1141,17 @@ def passesUniversalSelection(t):
 	if not t.EcalDeadCellTriggerPrimitiveFilter: return False      ##I think this one makes a sizeable difference    
 	##if not t.ecalBadCalibReducedExtraFilter: return False
 	##if not t.ecalBadCalibReducedFilter: return False      
-	   
+   
 	return True
 
 
 def passesUniversalSelectionFastSim(t):
- 	if not bool(t.JetID): return False
- 	if not t.NVtx>0: return False
- 	#print 'made a'
- 	if not  passQCDHighMETFilter(t): return False
- 	if not passQCDHighMETFilter2(t): return False
- 	return True	
+	if not bool(t.JetID): return False
+	if not t.NVtx>0: return False
+	#print 'made a'
+	if not  passQCDHighMETFilter(t): return False
+	if not passQCDHighMETFilter2(t): return False
+	return True	
 
 def passesUniversalDataSelection(t):
 	if not (bool(t.JetID) and  t.NVtx>0): return False
@@ -1162,60 +1172,60 @@ def passesUniversalDataSelection(t):
 binnumbers = collections.OrderedDict()
 #varlist_  = ['Ht',   'Mht',     'NJets', 'BTags', 'NTags','NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
 listagain = ['Ht',    'Mht',     'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets', 'DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
-binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
-binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
-binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 3
-binnumbers[((0,inf),    (150,300),(1,3),    (0,0),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 4
-binnumbers[((0,inf),    (150,300),(4,inf),  (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 5
-binnumbers[((0,inf),    (150,300),(4,inf),  (0,0),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 6
-binnumbers[((0,inf),    (150,300),(4,inf),  (0,0),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 7
-binnumbers[((0,inf),    (150,300),(4,inf),  (0,0),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 8
-binnumbers[((0,inf),    (150,300),(1,3),    (1,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 9
-binnumbers[((0,inf),    (150,300),(1,3),    (1,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 10
-binnumbers[((0,inf),    (150,300),(1,3),    (1,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 11
-binnumbers[((0,inf),    (150,300),(1,3),    (1,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 12
-binnumbers[((0,inf),    (150,300),(4,inf),  (1,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 13
-binnumbers[((0,inf),    (150,300),(4,inf),  (1,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 14
-binnumbers[((0,inf),    (150,300),(4,inf),  (1,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 15
-binnumbers[((0,inf),    (150,300),(4,inf),  (1,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 16
-binnumbers[((0,inf),    (300,inf),(1,3),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 17
-binnumbers[((0,inf),    (300,inf),(1,3),    (0,inf),(1,1),  (0,0),(1,1),      (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 18
-binnumbers[((0,inf),    (300,inf),(1,3),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 19
-binnumbers[((0,inf),    (300,inf),(1,3),    (0,inf),(1,1),  (1,1),(0,0),      (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 20
-binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (0,0),(1,1),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 21
-binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (0,0),(1,1),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 22
-binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (1,1),(0,0),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 23
-binnumbers[((0,inf),    (300,inf),(4,inf),  (0,inf),  (1,1),  (1,1),(0,0),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 24
-#listagain =  ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 25
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 26
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 27
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 28
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 29
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
-#listagain =  ['Ht',  'Mht',    'NJets',  'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 37
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 39
-binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 40
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 41
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
-binnumbers[((0,inf),   (0,inf),   (1,inf),  (1,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
-#listagain =  ['Ht',  'Mht',      'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (0,0))]   = 49
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (1,inf))] = 50
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),(2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (1,inf), (0,inf))] = 51
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1),  (0,0),  (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1),  (0,0),  (1,1),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1),  (1,1),  (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 3
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1),  (1,1),  (0,0),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 4
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1),  (0,0),  (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 5
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1),  (0,0),  (1,1),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 6
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1),  (1,1),  (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 7
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1),  (1,1),  (0,0),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 8
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 9
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 10
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 11
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 12
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 13
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 14
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 15
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 16
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 17
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 18
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 19
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 20
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 21
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 22
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 23
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 24
+#listagain =  ['Ht',  'Mht',    'NJets',  'BTags',  'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),    (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 25
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),    (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 26
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),    (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 27
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),    (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 28
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 29
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),  (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),  (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
+#listagain =  ['Ht',  'Mht',    'NJets',  'BTags',   'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),   (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 37
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),   (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),   (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 39
+binnumbers[((0,inf),   (0,150),   (0,inf),  (0,0),   (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 40
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 41
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
+binnumbers[((0,inf),   (0,150),   (1,inf),  (1,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (1,1), (0,0),  (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (1,1), (1,1),  (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
+#listagain =  ['Ht',  'Mht',      'NJets', 'BTags', 'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (0,0))]   = 49
+binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf), (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (1,inf))] = 50
+binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf), (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (1,inf), (0,inf))] = 51
 
 
 def GetMinDeltaPhiMhtHemJets(jets, mht):
@@ -1303,7 +1313,7 @@ DedxCorr_Pixel_barrel = {
 
 	# Summer16 MC
 	'Summer16' : 1.0,
-	
+
 	# Summer16 Private fastsim signal
 	'Summer16PrivateFastSim' : 0.630164946858,
 
@@ -1336,7 +1346,7 @@ DedxCorr_Pixel_endcap = {
 
 	# Summer16 MC
 	'Summer16' : 0.956,
-	
+
 	# Summer16 Private fastsim signal
 	'Summer16FastSim' : 0.630,
 
@@ -1369,7 +1379,7 @@ DedxCorr_Pixel_barrel_drop1stlayer = {
 
 	# Summer16 MC
 	'Summer16' : 1.0,
-	
+
 	## Summer16 Private fastsim signal
 	#'Summer16PrivateFastSim' : 0.630164946858,
 
@@ -1402,7 +1412,7 @@ DedxCorr_Pixel_endcap_drop1stlayer = {
 
 	# Summer16 MC
 	'Summer16' : 0.949,
-	
+
 	## Summer16 Private fastsim signal
 	#'Summer16FastSim' : 0.630,
 
@@ -1411,56 +1421,74 @@ DedxCorr_Pixel_endcap_drop1stlayer = {
 	}
 
 def Load_DedxSmear(phase):
-    print 'Loading dEdx smear function for phase:',phase
-    if phase==0 :
-	sigma_data_barrel = 0.5796
-	sigma_data_endcap = 0.4885
-	sigma_mc_barrel = 0.4403
-	sigma_mc_endcap = 0.4049
+	print 'Loading dEdx smear function for phase:',phase
+	if phase==0 :
+		sigma_data_barrel = 0.5796
+		sigma_data_endcap = 0.4885
+		sigma_mc_barrel = 0.4403
+		sigma_mc_endcap = 0.4049
 
-    elif phase==1 :
-	sigma_data_barrel = 0.5487
-	sigma_data_endcap = 0.4456
-	sigma_mc_barrel = 0.4517
-	sigma_mc_endcap = 0.3870
-    else : print 'put correct phase', quit()
-    
-    sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
-    sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
-    
-    fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
-    fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
+	elif phase==1 :
+		sigma_data_barrel = 0.5487
+		sigma_data_endcap = 0.4456
+		sigma_mc_barrel = 0.4517
+		sigma_mc_endcap = 0.3870
+	else : print 'put correct phase', quit()
 
-    fsmear_endcap = TF1("fsmear_endcap","gaus",-1,1)
-    fsmear_endcap.SetParameters(1,0,sigma_smear_endcap)
-    
-    return fsmear_barrel, fsmear_endcap
+	sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
+	sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
+
+	fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
+	fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
+
+	fsmear_endcap = TF1("fsmear_endcap","gaus",-1,1)
+	fsmear_endcap.SetParameters(1,0,sigma_smear_endcap)
+
+	return fsmear_barrel, fsmear_endcap
 
 def Load_DedxSmear_MIH(phase):
-    print 'Loading dEdx smear function for phase:',phase
-    if phase==0 :
+	print 'Loading dEdx smear function for phase:',phase
+	if phase==0 :
 	sigma_data_barrel = 0.533
 	sigma_data_endcap = 0.5114
 	sigma_mc_barrel = 0.5084
 	sigma_mc_endcap = 0.4182
 
-    elif phase==1 :
+	elif phase==1 :
 	sigma_data_barrel = 0.4403
 	sigma_data_endcap = 0.4647
 	sigma_mc_barrel = 0.3824
 	sigma_mc_endcap = 0.3104
-    else : print 'put correct phase', quit()
-    
-    sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
-    sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
-    
-    fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
-    fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
+	else : print 'put correct phase', quit()
 
-    fsmear_endcap = TF1("fsmear_endcap","gaus",-1,1)
-    fsmear_endcap.SetParameters(1,0,sigma_smear_endcap)
-    
-    return fsmear_barrel, fsmear_endcap
+	sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
+	sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
+
+	fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
+	fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
+
+	fsmear_endcap = TF1("fsmear_endcap","gaus",-1,1)
+	fsmear_endcap.SetParameters(1,0,sigma_smear_endcap)
+
+	return fsmear_barrel, fsmear_endcap
+
+
+def mttsam1(metvec, l1vec, l2vec):
+				pxmiss, pymiss = metvec.Px(), metvec.Py()
+				pxv1, pyv1 = l1vec.Px(), l1vec.Py()
+				pxv2, pyv2 = l2vec.Px(), l2vec.Py()
+				z1 = (-(pxv2*(pymiss + pyv1)) + (pxmiss + pxv1)*pyv2)/(-(pxv2*pyv1) + pxv1*pyv2)#(pxv2*pymiss-pyv2*pxmiss)/(pxv2*pyv1-pyv2*pxv1)+1
+				z2 = 1 + (pxv1*pymiss - pxmiss*pyv1)/(-(pxv2*pyv1) + pxv1*pyv2)#(pxv1*pymiss-pyv1*pxmiss)/(pxv1*pyv2-pyv1*pxv2)+1
+				#print z2, 'sam got visible, invisible px of', l2vec.Px(), (z2-1)*l2vec.Px()                
+				tau1 = TLorentzVector()
+				tau1.SetPtEtaPhiE(z1*l1vec.Pt(), l1vec.Eta(), l1vec.Phi(), z1*l1vec.E())
+				tau2 = TLorentzVector()
+				tau2.SetPtEtaPhiE(z2*l2vec.Pt(), l2vec.Eta(), l2vec.Phi(), z2*l2vec.E())
+				#print 'sam tau mass 1', (tau1).M(), tau1.Pt()
+				#print 'sam tau mass 2', (tau2).M(), tau2.Pt()        
+				IMleplep = (tau1 + tau2).M()
+				return IMleplep
+			
 '''
 0 HLT_AK8DiPFJet250_200_TrimMass30_v 0 15
 1 HLT_AK8DiPFJet280_200_TrimMass30_v 0 10
