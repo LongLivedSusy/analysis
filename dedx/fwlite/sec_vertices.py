@@ -15,12 +15,14 @@ ROOT.TH1.SetDefaultSumw2(True)
 try: 
     inputfiles = glob(sys.argv[1])
 except: 
+    #inputfiles = glob("./EDM_output_Run2017C_UL_MIH/*.root")
+    inputfiles = glob("./EDM_output_DYJetsToLL_M-50_TuneCP5_Summer19UL17/*.root")
     #inputfiles = glob("./EDM_output_Run2016B_SingleElectron/*.root")
     #inputfiles = glob("./EDM_output_Run2016G_SingleElectron/edm_Run2016G*.root")
     #inputfiles = glob("./EDM_output_Run2017F_SingleElectron/*.root")
     #inputfiles = glob("./EDM_output_Run2017F_SingleElectron_more/*.root")
     #inputfiles = glob("./EDM_output_Run2018C_EGamma/*.root")
-    inputfiles = glob("./EDM_output_SMS-T2bt-LLChipm_ctau-200_mLSP-900and1000/*.root")
+    #inputfiles = glob("./EDM_output_SMS-T2bt-LLChipm_ctau-200_mLSP-900and1000/*.root")
     #inputfiles = glob("./EDM_output_merged/edm_higgsino94x_susyall_mChipm250GeV*.root")
     #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_*.root")
     #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_NoPU_SVstuff.root")
@@ -33,7 +35,8 @@ if not os.path.exists('./SV_rootfiles'):
 #fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2016G_SingleElectron.root', 'recreate')
 #fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2017F_SingleElectron.root', 'recreate')
 #fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2018C_EGamma.root', 'recreate')
-fnew = ROOT.TFile('./SV_rootfiles/vertex_Summer16_T2bt.root', 'recreate')
+#fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2017C_SingleMuon_UL.root', 'recreate')
+fnew = ROOT.TFile('./SV_rootfiles/vertex_DYJetsToLL_M-50_UL17.root', 'recreate')
 
 
 if 'Run2016B' in inputfiles[0] : 
@@ -46,6 +49,11 @@ elif 'Run2016G' in inputfiles[0] :
     dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2016G']
     dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2016G']
     radDisCutHigh = 4.2
+elif 'Run2017C' in inputfiles[0] : 
+    print 'Running Run2017C data'
+    dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2017C']
+    dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2017C']
+    radDisCutHigh = 2.7
 elif 'Run2017F' in inputfiles[0] : 
     print 'Running Run2017F data'
     dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2017F']
@@ -55,6 +63,11 @@ elif 'Run2018C' in inputfiles[0] :
     print 'Running Run2018C data'
     dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2018C']
     dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2018C']
+    radDisCutHigh = 2.7
+elif 'UL17' in inputfiles[0] : 
+    print 'Running UL17 MC'
+    dedxcalib_barrel = 1
+    dedxcalib_endcap = 1
     radDisCutHigh = 2.7
 else: 
     print 'Running MC'

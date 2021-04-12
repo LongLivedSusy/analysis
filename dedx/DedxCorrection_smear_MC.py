@@ -100,14 +100,17 @@ def main(SelectedData,SelectedMC,hist,outputdir,foutname):
 
 if __name__ == '__main__' :
     
-    #from Dict_datasets import *
-    from Dict_datasets_MIH import *
+    from Dict_datasets import *
+    #from Dict_datasets_MIH import *
     
-    outputdir = './DedxSmear_MIH/'
+    outputdir = './DedxSmear/'
+    #outputdir = './DedxSmear_MIH/'
     if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     
     # Run
     main(dict_Run2016_SingleMuon,dict_Summer16,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase0_dedxsmear_barrel.root")
     main(dict_Run2016_SingleMuon,dict_Summer16,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase0_dedxsmear_endcap.root")
-    main(dict_Run2017_SingleMuon,dict_Fall17,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase1_dedxsmear_barrel.root")
-    main(dict_Run2017_SingleMuon,dict_Fall17,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase1_dedxsmear_endcap.root")
+    main(dict_Run2017_SingleMuon,dict_Summer16,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase1_dedxsmear_barrel.root")
+    main(dict_Run2017_SingleMuon,dict_Summer16,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase1_dedxsmear_endcap.root")
+    #main(dict_Run2017_SingleMuon,dict_Fall17,"hTrkPixelDedxScale_fromZ_barrel",outputdir,"phase1_dedxsmear_barrel.root")
+    #main(dict_Run2017_SingleMuon,dict_Fall17,"hTrkPixelDedxScale_fromZ_endcap",outputdir,"phase1_dedxsmear_endcap.root")
