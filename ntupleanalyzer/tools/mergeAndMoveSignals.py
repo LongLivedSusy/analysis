@@ -33,6 +33,7 @@ if not os.path.isdir(outdir):
 	os.system(dircmd)
 
 infilelist = glob(infiles)
+
 keywords = []
 
 for fname in infilelist:
@@ -41,6 +42,8 @@ for fname in infilelist:
 	if not fkey in keywords:
 		keywords.append(fkey)
 
+print 'we have the following keywords'
+print keywords
 
 for fkey in keywords:
 
@@ -69,7 +72,15 @@ for fkey in keywords:
 			ffinal.cd()
 			hHt.Write()		
 			continue
+		if not ('hLong' in name or 'hShort' in name):
+			hist = fintermediate.Get(name)
+			hist.Write()
+			continue
+		if not 'hLongBaseline' in name: continue
+		if not 'BinNumber' in name: continue
 		hist = fintermediate.Get(name)
+		hist2 = fintermediate.Get(name.replace('Long','Short'))
+		hist.Add(hist2)
 		
 		
 		if 'BinNumber' in name:

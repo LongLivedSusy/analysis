@@ -39,24 +39,27 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--updateevery", type=int, default=1000,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
+parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
 parser.add_argument("-numberOfFilesPerJob", "--nfpj", type=int, default=100)
+parser.add_argument("-outdir", "--outdir", type=str, default=100)
 args = parser.parse_args()
 nfpj = args.nfpj
-inputFileNames = args.fnamekeyword
-if ',' in inputFileNames: inputFiles = inputFileNames.split(',')
-else: inputFiles = glob(inputFileNames)
+filenames = args.fnamekeyword
+if ',' in filenames: inputFiles = filenames.split(',')
+else: inputFiles = glob(filenames)
 analyzer = args.analyzer
 updateevery = args.updateevery
 verbose = False
-
+smearvar = args.smearvar
+outdir = args.outdir
 
 is2016, is2017, is2018 = True, False, False
-isdata = 'Run20' in inputFileNames
-if 'Run2016' in inputFileNames or 'Summer16' in inputFileNames or 'aksingh' in inputFileNames: 
+isdata = 'Run20' in filenames
+if 'Run2016' in filenames or 'Summer16' in filenames or 'aksingh' in filenames: 
 	is2016, is2017, is2018 = True, False, False
-elif 'Run2017' in inputFileNames or 'Fall17' in inputFileNames or 'somethingelse' in inputFileNames: 
+elif 'Run2017' in filenames or 'Fall17' in filenames or 'somethingelse' in filenames: 
 	is2016, is2017, is2018 = False, True, False
-elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or other' in inputFileNames: 
+elif 'Run2018' in filenames or 'Autumn18' in filenames or 'somthin or other' in filenames: 
 	is2016, is2017, is2018 = False, True, True
 
 if is2016: phase = 0
@@ -75,19 +78,19 @@ btag_cut = BTAG_deepCSV
 
 
 from CrossSectionDictionary import *
-if 'Lifetime_' in inputFileNames or 'Signal' in inputFileNames or 'T1' in inputFileNames: model = 'T1'
-elif 'iggsino' in inputFileNames:  model = 'PureHiggsino'
-elif 'T2bt' in inputFileNames: model = 'T2tt'
+if 'Lifetime_' in filenames or 'Signal' in filenames or 'T1' in filenames: model = 'T1'
+elif 'iggsino' in filenames:  model = 'PureHiggsino'
+elif 'T2bt' in filenames: model = 'T2tt'
 else: model = 'Other'
 print 'were considering model', model
 loadCrossSections(model)
 hard_coded_higgsino_events_per_file = 20000# shoot, can't get this info from the ntuple
-newfileEachsignal = True
-if model=='PureHiggsino': newfileEachsignal = False
+newfileEachSignal = True
+if model=='PureHiggsino': newfileEachSignal = False
 
 
 #counter histogram:
-holdingbay = 'bay_'+model
+if outdir=='': outdir = 'bay_'+model
 
 
 
@@ -112,6 +115,12 @@ else:
 	dedxcalib_endcap = 1.0	
 
 
+doDedxSmear = False
+if not isdata :
+	doDedxSmear = True
+	if smearvar=='Nom': fsmear_barrel, fsmear_endcap = Load_DedxSmear(1)
+	if smearvar=='Drop1st': fsmear_barrel, fsmear_endcap = Load_DedxSmear_MIH(1)
+
 thejet = TLorentzVector()
 
 '''
@@ -133,26 +142,20 @@ htotal = ttrig.GetTotalHistogram().Clone('htotal')
 gtrig = TGraphAsymmErrors(hpass, htotal)
 
 
-if not newfileEachsignal:
+if not newfileEachSignal:
 	newfname = 'Hists_'+identifier+'.root'
-	if not os.path.isdir(holdingbay): os.system('mkdir '+holdingbay)
-	fnew_ = TFile(holdingbay+'/'+newfname,'recreate')
+	if not os.path.isdir(outdir): os.system('mkdir '+outdir)
+	fnew_ = TFile(outdir+'/'+newfname,'recreate')
 	print 'creating file', fnew_.GetName()
 
 
-lowht = 0
+lowht = 100
 inf = 999999
 #varlist_                        = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage','NElectrons', 'NMuons', 'InvMass', 'LepMT', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
 regionCuts = {}
 
 call = 20
-calm = 25
-calh = 150
 
-
-call = 15
-calm = 15
-calh = 60
 
 dphiboundary = TMath.Pi()*2./3#/2#3.14159*2/3
 
@@ -215,21 +218,13 @@ regionkeys = regionCuts.keys()
 for key in regionkeys:
 	break
 
-	#for prompt measurement
+	#for bkg control regions
 	'''
 	newlist2 = list(regionCuts[key])
 	newlist2[mcalidx] = (calm,calh)
 	newlist2[mvaidx] = (mvaLoose,inf)		
 	newkey = key.replace('SystNom','CaloSidebandSystNom')
 	regionCuts[newkey] = newlist2
-
-	#for fake measurement (trivial with pi/2)
-	newlist1 = list(regionCuts[key])
-	newlist1[dphiidx] = (dphiboundary,3.2)
-	if 'Short' in key: newlist1[mvaidx] = (mvaTightShort,inf)
-	else: newlist1[mvaidx] = (mvaTightLong,inf)	
-	newkey = key.replace('SystNom','FakeCrSystNom')	
-	regionCuts[newkey] = newlist1
 	'''
 
 
@@ -282,7 +277,7 @@ print 'histoStructDict', histoStructDict.keys()
 
 	
 if model=='PureHiggsino':
-	mothermass = float(inputFileNames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
+	mothermass = float(filenames.split('/')[-1].split('mChipm')[-1].split('GeV')[0])
 	higgsinoxsecfile = TFile('usefulthings/CN_hino_13TeV.root')
 	if mothermass<150:
 		xsecpb = 0.001*higgsinoxsecfile.Get('fit_nom_0').Eval(max(100,mothermass))
@@ -310,8 +305,10 @@ nentries = c.GetEntries()
 c.Show(0)
 
 
-fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal13to30_Data2016.root')
-hMask = fMask.Get('h_Mask_allyearsLongHadMhtSideband_EtaVsPhiDT')
+fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal13to30_Data2016.root')	
+
+hMask = fMask.Get('h_Mask_allyearsLongBaseline_EtaVsPhiDT')
+
 
 if exomode: hMask = ''
 
@@ -354,7 +351,7 @@ for ientry in range(nentries):
 	c.GetEntry(ientry) 
 
 
-	if newfileEachsignal:
+	if newfileEachSignal:
 		susymasses = []
 		susies = []
 		for igp, gp in enumerate(c.GenParticles):		
@@ -383,9 +380,9 @@ for ientry in range(nentries):
 			for ip, susypid in enumerate(orderedmasses):
 				print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
 				newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
-			newfname+='_time'+str(round(time.time(),4)).replace('.','p')+'.root'
-			if not os.path.isdir(holdingbay): os.system('mkdir '+holdingbay)
-			fnew_ = TFile(holdingbay+'/'+newfname,'recreate')
+			newfname+='_time'+str(round(time.time(),4)).replace('.','p').replace('Chi1pm','Chi1ne')+'.root'
+			if not os.path.isdir(outdir): os.system('mkdir '+outdir)
+			fnew_ = TFile(outdir+'/'+newfname,'recreate')
 			print 'creating file', fnew_.GetName()				
 			hHt = TH1F('hHt','hHt',200,0,10000)
 			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',200,0,10000)
@@ -398,7 +395,7 @@ for ientry in range(nentries):
 					histoStructDict[histname] = mkHistoStruct(histname, thebinning)
 								
 			if 'T1' in model or 'T2tt' in model:
-				mothermass = orderedmasses[0][1]#inputFileNames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
+				mothermass = orderedmasses[0][1]#filenames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
 				xsecpb = CrossSectionsPb[model][str(int(5*round(mothermass/5)))]
 				
 				print 'got xsec', xsecpb, 'for mothermass', str(int(5*round(mothermass/5)))
@@ -484,8 +481,14 @@ for ientry in range(nentries):
 			if not passesExtraExoCuts(track, itrack, c): continue
 			print 'we made it'
 		  
+		#dedx = dedxcalib*c.tracks_deDxHarmonic2pixel[itrack]
+		#if not dedx>1: continue
+		
 		dedx = dedxcalib*c.tracks_deDxHarmonic2pixel[itrack]
-		if not dedx>2: continue
+		if not isdata and doDedxSmear:
+			smearfactor = fsmear_barrel.GetRandom()
+			dedx = dedx + smearfactor
+					
 		disappearingTracks.append([track,dtstatus,dedx, mva, itrack])
 
 
@@ -546,12 +549,12 @@ for ientry in range(nentries):
 
 	if len(RecoElectrons)>0: 
 		mT = c.Electrons_MTW[RecoElectrons[0][1]]
-		dphilepdt = abs(RecoElectrons[0][0].DeltaPhi(dt__))
+		dphilepdt = abs(RecoElectrons[0][0].DeltaPhi(dt_[0]))
 		if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoElectrons[0][0]+dt).M()
 		else: invmass = 999			
 	elif len(RecoMuons)>0: 
 		mT = c.Muons_MTW[RecoMuons[0][1]]
-		dphilepdt = abs(RecoMuons[0][0].DeltaPhi(dt__))
+		dphilepdt = abs(RecoMuons[0][0].DeltaPhi(dt_[0]))
 		if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[disappearingTracks[0][-1]]==-1: invmass = (RecoMuons[0][0]+dt).M()
 		else: invmass = 999			
 	else: 
