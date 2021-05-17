@@ -6,7 +6,6 @@ import plotting
 from natsort import natsorted,ns
 import uuid
 import os
-#from fitter import *
 
 gStyle.SetOptStat(0);
 gROOT.SetBatch(True)
@@ -148,8 +147,8 @@ def stack_histograms(histos, outputdir, samples, variable, xlabel, ylabel, signa
     
     # set minimum/maximum ranges   
     if global_minimum != 0:
-        #mcstack.SetMinimum(0.1 * global_minimum)
-        mcstack.SetMinimum(0)
+        mcstack.SetMinimum(0.1 * global_minimum)
+        #mcstack.SetMinimum(0)
     else:
         mcstack.SetMinimum(1e-5)
    

@@ -138,7 +138,9 @@ Data.append('Run2018D-SingleMuon')
 
 if __name__ == "__main__" : 
     
-    folder = "./output_smallchunks_MIH/"
+    #folder = "./output_smallchunks/"
+    folder = "./output_smallchunks_doublesmear/"
+    #folder = "./output_smallchunks_MIH/"
     outdir = folder.replace('smallchunks','mediumchunks')
     
     if not os.path.exists(outdir):

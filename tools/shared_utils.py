@@ -1348,7 +1348,7 @@ DedxCorr_Pixel_endcap = {
 	'Summer16' : 0.956,
 
 	# Summer16 Private fastsim signal
-	'Summer16FastSim' : 0.630,
+	'Summer16PrivateFastSim' : 0.630,
 
 	# Fall17 MC
 	'Fall17' : 0.955,

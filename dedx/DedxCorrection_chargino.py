@@ -1,104 +1,120 @@
 import os,sys
 from ROOT import *
 from glob import glob
-#from natsort import natsorted,ns
+from shared_utils import *
+from natsort import natsorted,ns
 
 gROOT.SetBatch(1)
 gStyle.SetOptStat(False)
-#gStyle.SetOptFit(1111)
+gStyle.SetOptFit(1111)
 
 #format_c = 'pdf'
 format_c = 'png'
 
-rebin = 10
+rebin = 2
 
 dict_Summer16_FullSimSignal = {
-	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-50':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-50_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-200':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-400':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-400_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-600':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-600_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-800':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-800_TuneCUETP8M1.root',
+	'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1000':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1.root',
+	#'Summer16FullSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1100_TuneCUETP8M1.root',
         }
 
 dict_Summer16_FastSimSignal = {
-	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-50':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-50.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-200':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-200.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-400':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-400.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-600':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-600.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-800':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-800.root',
+	'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1000':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1000.root',
+	#'Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100':'./output_chargino/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100.root',
 	}
 
 
 def main(SelectedFastSim,SelectedFullSim,hist,outputdir):
 
-    ctitle = 'Dedx'
-    c = TCanvas(ctitle,ctitle,800,600)
-    tl = TLegend(0.6,0.6,0.85,0.9)
+    c = mkcanvas()
+    stamp()
+    tl = mklegend()
     
     fin={}
     hDedx={}
      
-    c.cd()
-
-     
-    # MCs to be corrected
+    # Adding Fastsim 
     i=0
     for name,f in sorted(SelectedFastSim.items()):
         fin[name] = TFile(f)
         hDedx[name] = fin[name].Get(hist)
 	if i==0 :
 	    print 'Cloning ',name
-	    hDedx_totalMC = hDedx[name].Clone('hDedx_totalMC')
+	    hDedx_fastsim = hDedx[name].Clone('hDedx_fastsim')
 	else : 
 	    print 'Adding ',name
-	    hDedx_totalMC.Add(hDedx[name])
+	    hDedx_fastsim.Add(hDedx[name])
 	i+=1
     
-    hDedx_totalMC.GetXaxis().SetTitle('MeV/cm')
-    hDedx_totalMC.GetYaxis().SetTitle('Normalized')
-    hDedx_totalMC.Scale(1.0/hDedx_totalMC.Integral())
-
-
-    # standard candle MC
+    # Adding fullsim 
     i = 0
     for name,f in sorted(SelectedFullSim.items()):
         fin[name] = TFile(f)
-	hDedx[name] = fin[name].Get(hist) #MC : FullSim gen-matched muon dEdx at barrel region as standard candle
+	hDedx[name] = fin[name].Get(hist)
 	if i==0:
 	    print 'Cloning ',name
-	    hDedx_standard = hDedx[name].Clone('hDedx_standard')
+	    hDedx_fullsim = hDedx[name].Clone('hDedx_fullsim')
 	else : 
 	    print 'Adding ',name
-	    hDedx_standard.Add(hDedx[name])
+	    hDedx_fullsim.Add(hDedx[name])
 	i+=1
 
-    hDedx_standard.GetXaxis().SetTitle('MeV/cm')
-    hDedx_standard.GetYaxis().SetTitle('Normalized')
-    hDedx_standard.Scale(1.0/hDedx_standard.Integral())
+    # Normalize Fastsim and Fullsim histogram
+    hDedx_fullsim.Scale(1.0/hDedx_fullsim.Integral())
+    hDedx_fastsim.Scale(1.0/hDedx_fastsim.Integral())
 
-    c.cd()
-    hDedx_standard.Rebin(rebin)
-    hDedx_totalMC.Rebin(rebin)
-    rp = TRatioPlot(hDedx_standard,hDedx_totalMC)
-    rp.Draw()
-    if 'Pixel' in hist : 
-        hDedx_totalMC.SetTitle('harmonic-2 pixel dEdx')
-        hDedx_standard.SetTitle('harmonic-2 pixel dEdx')
-    elif 'Strips' in hist : 
-        hDedx_totalMC.SetTitle('harmonic-2 strips dEdx')
-        hDedx_standard.SetTitle('harmonic-2 strips dEdx')
-    else : print 'no pixel/strips?'
+    hDedx_fullsim.Rebin(rebin)
+    hDedx_fastsim.Rebin(rebin)
+    
+    c_fullsim = mkcanvas()
+    c_fullsim.cd()
+    #fitres_fullsim = hDedx_fullsim.Fit('gaus','S','',2.5,3.5) #mLSP1
+    #fitres_fullsim = hDedx_fullsim.Fit('gaus','S','',2.2,3.0) #mLSP50
+    #fitres_fullsim = hDedx_fullsim.Fit('gaus','S','',2.4,3.4) #mLSP200
+    #fitres_fullsim = hDedx_fullsim.Fit('gaus','S','',3.6,4.2) #mLSP1100
+    hDedx_fullsim.Draw('HIST E SAME')
+    c_fullsim.SaveAs(outputdir+'/'+hist+'_fullsim.'+format_c)
+    
+    c_fastsim = mkcanvas()
+    c_fastsim.cd()
+    #fitres_fastsim = hDedx_fastsim.Fit('gaus','S','',4.0,4.6) #mLSP1
+    #fitres_fastsim = hDedx_fastsim.Fit('gaus','S','',2.6,3.2) #mLSP50
+    #fitres_fastsim = hDedx_fastsim.Fit('gaus','S','',2.6,3.2) #mLSP200
+    #fitres_fastsim = hDedx_fastsim.Fit('gaus','S','',3.6,4.2) #mLSP1100
+    hDedx_fastsim.Draw('HIST E SAME')
+    c_fastsim.SaveAs(outputdir+'/'+hist+'_fastsim.'+format_c)
 
-
-    hDedx_totalMC.SetLineColor(kRed)
-    hDedx_standard.SetFillStyle(3002)
-    hDedx_standard.SetFillColor(kBlue)
-    rp.GetUpperRefYaxis().SetTitle("Normalized");
-    rp.GetUpperRefYaxis().SetRangeUser(0,0.1);
-    rp.GetLowerRefYaxis().SetTitle("ratio");
-    rp.GetLowerRefYaxis().SetRangeUser(0,2);
-    tl.AddEntry(hDedx_standard, 'Summer16 T2bt Fullsim')
-    tl.AddEntry(hDedx_totalMC,'Summer16 T2bt FastSim','l')
-    tl.Draw()
-    c.SaveAs(outputdir+'/RatioPlot_'+hist+'.'+format_c)
+#    mean_fullsim = hDedx_fullsim.GetFunction('gaus').GetParameter(1)
+#    mean_fastsim = hDedx_fastsim.GetFunction('gaus').GetParameter(1)
+#    with open(outputdir+'/SF_'+hist+'.txt','w') as txt:
+#	SF = round(mean_fullsim/mean_fastsim,3)
+#	print 'SF : ',SF
+#	txt.write('Summer16PrivateFastsim:%s,\n'%(SF))
    
     
 if __name__ == '__main__' :
 
 
-    outputdir = './plots/Charginotrack'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP1'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP50'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP200'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP400'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP600'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP800'
+    outputdir = './DedxScale_chargino_mStop1300_mLSP1000'
+    #outputdir = './DedxScale_chargino_mStop1300_mLSP1100'
     if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
        
     SelectedFullSim = dict_Summer16_FullSimSignal
@@ -108,8 +124,11 @@ if __name__ == '__main__' :
     	 # before calibration
     	'hTrkPixelDedx_charginomatch_barrel',
     	'hTrkPixelDedx_charginomatch_endcap',
-    	'hTrkStripsDedx_charginomatch_barrel',
-    	'hTrkStripsDedx_charginomatch_endcap',
+	#'hGenCharginoP',
+	#'hGenCharginoPt',
+	#'hGenCharginoEta',
+	#'hGenCharginoPhi',
+	#'hGenCharginoMass',
     	]
     
     # Run
