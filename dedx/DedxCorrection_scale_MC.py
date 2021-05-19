@@ -5,7 +5,7 @@ from natsort import natsorted,ns
 
 gROOT.SetBatch(1)
 gStyle.SetOptStat(False)
-#gStyle.SetOptFit(1111)
+gStyle.SetOptFit(1111)
 
 #format_c = 'pdf'
 format_c = 'png'
@@ -62,8 +62,7 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     hDedx_totalMC.GetXaxis().SetTitle('MeV/cm')
     hDedx_totalMC.GetYaxis().SetTitle('Normalized')
     hDedx_totalMC.Scale(1.0/hDedx_totalMC.Integral())
-
-
+    
     if isFastSim and not 'Calib' in hist : 
         fitres_totalMC = hDedx_totalMC.Fit('gaus','S','',4.0,5.5)
     elif isFastSim and 'Calib' in hist: 
@@ -95,7 +94,7 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     #c2.SaveAs(outputdir+'/RatioPlot_'+hist+'.'+format_c)
    
     # Extract Scale Factor 
-    with open(outputdir+"/datacalib_dict"+hist+".txt",'w') as txt:
+    with open(outputdir+"/ScaleFactor"+hist+".txt",'w') as txt:
 	SF = round(mean_standard / mean_totalMC, 3)
         print "'This MC' : %s,"%(SF)
 	txt.write("'This MC' : %s,\n"%(SF))
@@ -105,16 +104,17 @@ def main(SelectedData,SelectedMC,hist,outputdir,isFastSim):
     
 if __name__ == '__main__' :
 
-    #from Dict_datasets import *
-    from Dict_datasets_MIH import *
+    from Dict_datasets import *
+    #from Dict_datasets_MIH import *
     
     #DataSets = ["Summer16"]
-    #DataSets = ["Summer16PrivateFastSim"]
-    DataSets = ["Fall17"]
+    DataSets = ["Summer16PrivateFastSim"]
+    #DataSets = ["Fall17"]
+    #DataSets = ["Summer16","Fall17"]
 
     for	data in DataSets:
-        #outputdir = './DedxScale_'+data
-        outputdir = './DedxScale_'+data+'_MIH'
+        outputdir = './DedxScale_'+data
+        #outputdir = './DedxScale_'+data+'_MIH'
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Summer16":

@@ -71,35 +71,35 @@ def main(SelectedData,SelectedMC,hist,outputdir):
 	hDedx[name].Draw('HIST E SAME')
     	c.SaveAs(outputdir+'/Intercalib_'+name+'_'+hist+'.'+format_c)
      
-    # Data all period and MC
-    gStyle.SetOptFit(0)
-    c2.cd()
-    hDedx_standard.SetFillStyle(3002)
-    hDedx_standard.SetFillColor(kBlue)
-    hDedx_standard.GetYaxis().SetRangeUser(0,0.15)
-    hDedx_standard.Draw('HIST E SAME')
-    tl.AddEntry(hDedx_standard, 'Summer16 MC, mu=%s'%(round(mean_mc,3)))
-    
-    i=0
-    for name,f in natsorted(SelectedData.items()):
-        fin[name] = TFile(f)
-        hDedx[name] = fin[name].Get(hist)
-        hDedx[name].SetTitle('data period')
-        hDedx[name].GetXaxis().SetTitle('MeV/cm')
-        hDedx[name].GetYaxis().SetTitle('Normalized')
-        hDedx[name].SetLineWidth(2)
-        hDedx[name].SetLineColor(i+1)
-        hDedx[name].Scale(1.0/hDedx[name].Integral())
-	if 'Pixel' in hist:
-	    hDedx[name].GetYaxis().SetRangeUser(0,0.15)
-    	elif 'Strips' in hist:
-	    hDedx[name].GetYaxis().SetRangeUser(0,0.2)
-    	hDedx[name].Draw('HIST E SAME')
-        tl.AddEntry(hDedx[name],'%s, mu=%s'%(name,round(mean[name],3)),'l')
-        i=i+1
-    
-    tl.Draw('SAME')
-    c2.SaveAs(outputdir+'/Intercalib_AllPeriod_'+hist+'.'+format_c)
+    ## Data all period and MC
+    #gStyle.SetOptFit(0)
+    #c2.cd()
+    #hDedx_standard.SetFillStyle(3002)
+    #hDedx_standard.SetFillColor(kBlue)
+    #hDedx_standard.GetYaxis().SetRangeUser(0,0.15)
+    #hDedx_standard.Draw('HIST E SAME')
+    #tl.AddEntry(hDedx_standard, 'Summer16 MC, mu=%s'%(round(mean_mc,3)))
+    #
+    #i=0
+    #for name,f in natsorted(SelectedData.items()):
+    #    fin[name] = TFile(f)
+    #    hDedx[name] = fin[name].Get(hist)
+    #    hDedx[name].SetTitle('data period')
+    #    hDedx[name].GetXaxis().SetTitle('MeV/cm')
+    #    hDedx[name].GetYaxis().SetTitle('Normalized')
+    #    hDedx[name].SetLineWidth(2)
+    #    hDedx[name].SetLineColor(i+1)
+    #    hDedx[name].Scale(1.0/hDedx[name].Integral())
+    #    if 'Pixel' in hist:
+    #        hDedx[name].GetYaxis().SetRangeUser(0,0.15)
+    #	elif 'Strips' in hist:
+    #        hDedx[name].GetYaxis().SetRangeUser(0,0.2)
+    #	hDedx[name].Draw('HIST E SAME')
+    #    tl.AddEntry(hDedx[name],'%s, mu=%s'%(name,round(mean[name],3)),'l')
+    #    i=i+1
+    #
+    #tl.Draw('SAME')
+    #c2.SaveAs(outputdir+'/Intercalib_AllPeriod_'+hist+'.'+format_c)
     
     
     # Extract Scale Factor 
@@ -113,18 +113,18 @@ def main(SelectedData,SelectedMC,hist,outputdir):
     
 if __name__ == '__main__' :
 
-    #from Dict_datasets import *
-    from Dict_datasets_MIH import *
+    from Dict_datasets import *
+    #from Dict_datasets_MIH import *
 
     #DataSets = ["Run2016"]
     #DataSets = ["Run2017"]
-    #DataSets = ["Run2018"]
-    DataSets = ["Run2016","Run2017","Run2018"]
+    DataSets = ["Run2018"]
+    #DataSets = ["Run2016","Run2017","Run2018"]
 
     for	data in DataSets:
-        #outputdir = './DedxScale_'+data
+        outputdir = './DedxScale_'+data
         #outputdir = './DedxScale_'+data+'_MIH'
-        outputdir = './DedxScale_'+data+'_MIH_afterscalesmear'
+        #outputdir = './DedxScale_'+data+'_MIH_afterscalesmear'
 	if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     	   
 	if data == "Run2016":
@@ -142,15 +142,15 @@ if __name__ == '__main__' :
 
 	hists=[
 		# before calibration
-		#'hTrkPixelDedx_fromZ_barrel',
-		#'hTrkPixelDedx_fromZ_endcap',
+		'hTrkPixelDedx_fromZ_barrel',
+		'hTrkPixelDedx_fromZ_endcap',
 		#'hTrkStripsDedx_fromZ_barrel',
 		#'hTrkStripsDedx_fromZ_endcap',
 
 		#'hTrkPixelDedxScale_fromZ_barrel',
 		#'hTrkPixelDedxScale_fromZ_endcap',
-		'hTrkPixelDedxScaleSmear_fromZ_barrel',
-		'hTrkPixelDedxScaleSmear_fromZ_endcap',
+		#'hTrkPixelDedxScaleSmear_fromZ_barrel',
+		#'hTrkPixelDedxScaleSmear_fromZ_endcap',
 		]
 	
 	# Run
