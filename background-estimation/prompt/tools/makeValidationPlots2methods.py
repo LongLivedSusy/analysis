@@ -137,13 +137,322 @@ tag = 'Dx4Et22ed40Two3Hv2bin'
 tag = 'Dx4Et22Two3Hv2bin2'
 tag = 'Dx4Et22Two3Hv2bin2chns'
 tag = 'Dx4Et22Two3Hv2bin2numsk'
+tag = 'Dx4Et22SmearPhase1nom'
+tag = 'Dx4Et22SmearPhase1drop1'
+tag = 'Dx4Et22SmearPhase1nomagain'
 
-
+tag = '2021_02_23bweights'
+tag = '2021_02_23a_ttbar'
+tag = '2021_02_23c_tightenFbdt'
+tag = '2021_02_23d_tightenFbdtmore'
+tag = '2021_02_23d_tightenBoth'
+tag = '2021_02_23d_loosenMainBdt'
+tag = '2021_02_23e_lsnMainBMore'
+tag = '2021_02_23f_lsnMnCnsntBning'
+tag = '2021_02_23g_lsnMnEvnLsr'
+tag = '2021_02_23g_1morePtBin'
+tag = '2021_02_23h_evenhigherpt'
+tag = '2021_02_24h_highnreal'
+tag = '2021_02_24h_etaLT2p0'
+tag = '2021_02_24h_etaLT2p0Pt225'
+tag = '2021_02_24h_etaLT2p0Met250'
+tag = '2021_02_24h_eta2Met150WHnj'
+tag = '2021_02_24h_etaStraightJacket1p8'
+tag = '2021_02_25h_etaStrtJckt1p8HiMet'
+tag = '2021_02_25h_etaStrtJcktOpnUpFk'
+tag = '2021_02_26a_etaStrtJcktOpnMorePt'
+tag = '2021_02_26b_etaStrtJcktOpnMorePt'
+tag = '2021_02_26b_fakeonly'
+tag = '2021_02_26b_nomuonnopi'
+tag = '2021_02_26b_jetpt15'
+tag = '2021_02_28a_nopion'
+tag = '2021_02_28a_justpion'
+tag = '2021_02_28a_justpion2'
+tag = '2021_02_28b_stdMtautau'
+tag = '2021_03_1a_includeInclusive'
+tag = '2021_03_1b_nomuon'
+tag = '2021_03_1b_pipi'
+tag = '2021_03_1b_isgenpi'
+tag = '2021_03_2_matchedjeten'
+tag = '2021_03_2_mcalo30to200mdpGTp3'
+tag = '2021_03_2_mcalo30to200ttnMvaL'
+tag = '2021_03_2_mcalo30to300EdgeUpPrMva'
+tag = '2021_03_2_mcalo30to300tweak2'
+tag = '2021_03_2_mcalo30to300Ege2'
+tag = '2021_03_2_finededx'
+tag = '2021_03_2_moreThanEdge'
+tag = '2021_03_2_justTry2makesense'
+tag = '2021_03_2_vlooseMcal'
+tag = '2021_03_4_tweakMva'
+tag = '2021_03_4_tightenPromptMva'
+tag = '2021_03_4_flushPromptLsEta'
+tag = '2021_03_4_lsnMcal4fksLsnBdt4fks'
+tag = '2021_03_4_fixshorthighnjet'
+tag = '2021_03_4_deanglifyPromptFake'
+tag = '2021_03_4_update2dedx'
+tag = '2021_03_4_try4ratioerror'
+tag = '2021_03_5_frankensteinEmerges2'
+tag = '2021_03_5_mcmcalh80'
+tag = '2021_03_5_mcmcalh40'
+tag = '2021_03_5_afterMcmcalh40'
+tag = '2021_03_5_mcmcalh60'
+tag = '2021_03_5_mcmcalh40again'
+tag = '2021_03_5_mcmcalh60again'
+tag = '2021_03_5_mcmcal20to80'
+tag = '2021_03_8_mcmcal20to60'
+tag = '2021_03_8_mcmcal20to60crsept'
+tag = '2021_03_8_mcmcal23to60'
+tag = '2021_03_8_mcal23to60flush'
+tag = '2021_03_8_mcal30to60flush'
+tag = '2021_03_8_mcal25to60flush'
+tag = '2021_03_8_mcal25to60pio3'
+tag = '2021_03_9_mcal25to60LsnLsBmcp5'
+tag = '2021_03_9_mcal25to60LsnFlnP'
+tag = '2021_03_9_mcal60to150'
+tag = '2021_03_10_do2mcAs2data'
+tag = '2021_03_9_mcal25to150LsnFlnP'
+tag = '2021_03_11_mcal25to90LsnFlnP'
+tag = '2021_03_11_mcal30to90LsnFlnP'
+tag = '2021_03_11_mcal30to60tttf1bs'
+tag = '2021_03_11_mcal30to60tweakin'
+tag = '2021_03_15_mcal30to60revamp'
+tag = '2021_03_15_mcal30to60revamp3'
+tag = '2021_03_15_mcal25to90revamp'
+tag = '2021_03_15_mcal25to80pt60'
+tag = '2021_03_16_mcl25to80pt60bfkmc'
+tag = '2021_03_17_mcl30_reprocess'
+tag = '2021_03_18_mcl30_mcdatasame'
+tag = '2021_03_18_mcl30_afterspotbug'
+tag = '2021_03_19_narrowworld'
+tag = '2021_03_19_narrow4quality'
+tag = '2021_03_19_narrow4qualLssfFxMet'
+tag = '2021_03_19_narrow4qual2ddx0'
+tag = '2021_03_23_mcal35hcal80'
+tag = '2021_03_23_mcal30hcal80'
+tag = '2021_03_23_mcal30hcal90'
+tag = '2021_03_23_mcal30hcal80'
+tag = '2021_03_23_mcal25hcal75'
+tag = '2021_03_23_mcal25hcal60'
+tag = '2021_03_23_mcal25hcal50'
+tag = '2021_03_23_mcal25hcal50TtnFklBdt'
+tag = '2021_03_23_mcal25hcal40'
+tag = '2021_03_23_mcal23hcal30'
+tag = '2021_03_23_mcal18hcal25'
+tag = '2021_03_23_mcal18hcal25ttnall'
+tag = '2021_03_23_mcal18hcal25tnlndphiph1'
+tag = '2021_03_25_exploreMc'
+tag = '2021_03_25_exploreMcNoPi'
+tag = '2021_03_25_exploreMcNoPiNoMu'
+tag = '2021_03_25_exploreBuildUpPt'
+tag = '2021_03_25_exploreAdjustDatMht'
+tag = '2021_03_25_explorAdjstLsnFkLng'
+tag = '2021_03_25_explorJuiceFkLng'
+tag = '2021_03_25_explorMcWeights'
+tag = '2021_03_25_explorMcNoWNj3'
+tag = '2021_03_25_Nj3_mcm25tomch40'
+tag = '2021_03_25_Nj3_mcm30tomch60'
+tag = '2021_03_25_Nj3_mcm40tomch70'
+tag = '2021_03_25_Nj3_mcm50tomch120'
+tag = '2021_03_25_Nj3_mcm40tomch100'
+tag = '2021_03_25_Nj3_mcm40mch100lsnFs'
+tag = '2021_03_25_Nj3_mcm40mch90lsnFs'
+tag = '2021_03_25_Nj3_mcm40mch90ttns'
+tag = '2021_03_25_Nj3_mcm40mch90tnlnfs'
+tag = '2021_03_25_Nj3_mcm40mch90linShort'
+tag = '2021_03_25_Nj3_mcm40mch90linrzed'
+tag = '2021_03_25_Nj3_mcm40mch90lin2'
+tag = '2021_03_25_Nj3_mcm40mch90lin3'
+tag = '2021_03_29_Nj3_mcm40mch90lin4'
+tag = '2021_03_29_Nj3_mcm40mch90lin5'
+tag = '2021_03_30_l61stw2thrds'
+tag = '2021_03_29_Nj3_mcm40mch90lin6'
+tag = '2021_03_30_Nj3_mcm40mch90lin7'
+tag = '2021_03_30_Nj3_newloose2'
+tag = '2021_03_30_Nj3_newloose3'
+tag = '2021_03_30_Nj3_newloose4'
+tag = '2021_03_30_Nj3_newloose5'
+tag = '2021_03_30_Nj3_newloose6'
+tag = '2021_03_30_Nj3_newloose8'
+tag = '2021_03_30_Nj3_newloose10'
+tag = '2021_03_30_Nj3_newloose11'
+tag = '2021_03_30_Nj3_NoResetPh1'
+tag = '2021_03_30_Nj3_YesResetPh1'
+tag = '2021_03_30_Nj3_55to105'
+tag = '2021_03_30_Nj3_55to105ttn17'
+tag = '2021_03_30_Nj3_55to105ttn2'
+tag = '2021_03_30_Nj3_55to105ttn3'
+tag = '2021_04_10_Nj3_45to85'
+tag = '2021_04_10_Nj3_45to65'
+tag = '2021_04_10_Nj3_homeAtLast'
+tag = '2021_04_10_Nj3_thiknup'
+tag = '2021_04_10_Nj3_ripen4mc1'
+tag = '2021_04_10_Nj3_reskim'
+tag = '2021_04_11_Nj3_makeDPhiSmler'
+tag = '2021_04_11_Nj3_makeCrBigr2'
+tag = '2021_04_11_Nj3_lrgCrLsnSr'
+tag = '2021_04_11_Nj3_LsnSrRdcCnt'
+tag = '2021_04_11_Nj3_LsnSrCmprms'
+tag = '2021_04_11_Nj3_Comp2'
+tag = '2021_04_11_Nj3_Comp3'
+tag = '2021_04_11_Nj3_Comp4'
+tag = '2021_04_11_Nj3_Comp5b'
+tag = '2021_04_11_Nj3_Comp6'
+tag = '2021_04_11_Nj3_Comp7'
+tag = '2021_04_11_Nj3_Comp8'
+tag = '2021_04_11_Nj3_Comp9'
+tag = '2021_04_14_Tbdt0p5'
+tag = '2021_04_14_Tbdt0p1'
+tag = '2021_04_14_Tbdt0p15'
+tag = '2021_04_15_Try2MaxOnp7'
+tag = '2021_04_15_LsnLngsAgn'
+tag = '2021_04_15_BrngBalance'
+tag = '2021_04_16_TtnShrtAbit'
+tag = '2021_04_16_Titrate'
+tag = '2021_04_16_Titrate2'
+tag = '2021_04_16_SupposedBest'
+tag = '2021_04_16_BestBut0p1'
+tag = '2021_04_16_0p1GetTight'
+tag = '2021_04_16_0p1GetTighten2'
+tag = '2021_04_16_0p05GetTighten2'#JUST SET THIS	 up for tomorrow
+tag = '2021_04_16_0p05Mc40to60'
+tag = '2021_04_16_0p05Mc45to75'
+tag = '2021_04_16_0p05Mc45to95'
+tag = '2021_04_16_0p05Mc45to100'
+tag = '2021_04_19_0p05Mc45to95'
+tag = '2021_04_19_0p05Mc45to90'
+tag = '2021_04_20_Mc45to90mvaLm1'
+tag = '2021_04_21_0p0Mc45to90Lmvm1'
+tag = '2021_04_21_0p0Mc35to90Lmvm1'
+tag = '2021_04_21_0p0Mc30to90Lmvm1'
+tag = '2021_04_21_0p0Mc30to90tryagain'
+tag = '2021_04_21_TghtMc25to50'
+tag = '2021_04_21_TghtMc25to50ttnfk'
+tag = '2021_04_21_TghtMc25to50taf'
+tag = '2021_04_21_TghtMc25to50tbl'
+tag = '2021_04_21_TghtMc25to50twk'
+tag = '2021_04_21_Bk2bestAttemptFail1'
+tag = '2021_04_21_Bk2bestAttempt2'
+tag = '2021_04_21_Bk2bestAttempt2p0'
+tag = '2021_04_21_BgrStepMc25to90'
+tag = '2021_04_21_BgrStepMc25to90wts'
+tag = '2021_04_21_TghtMc15to25to90'
+tag = '2021_04_21_TghterMc15to25to90'
+tag = '2021_04_22_RefineMc15to25to90'
+tag = '2021_04_22_B4teachMc15to25to90'
+tag = '2021_04_22_PostmeetMc15to25to90'
+tag = '2021_04_22_TUpTfMc15to25to90'
+tag = '2021_04_22_MkPredMc15to25to90'
+tag = '2021_04_22_Mc15to50toUp'
+tag = '2021_04_22_Mc15to30toUp'
+tag = '2021_04_22_Mc15to60for16'
+tag = '2021_04_22_Mc15to60for16finegrain'
+tag = '2021_04_22_Mc15to60for16Short25'
+tag = '2021_04_29_Short25lottaeta'
+tag = '2021_04_29_Shortfrptbinned'
+tag = '2021_04_29_Shortfrfineptbinned'
+tag = '2021_04_29_ShortfrfineHighPt3'
+tag = '2021_04_29_ShortfrfineHighPt4'
+tag = '2021_04_29_ShortfrfineHighPt5'
+tag = '2021_04_29_ShortfrfineHighPt6'
+tag = '2021_05_1_Back2Sea'
+tag = '2021_05_1_QuarterPrompt'
+tag = '2021_05_1_QuarterPromptEtafk'
+tag = '2021_05_1_Enlarge2016FakeCr'
+tag = '2021_05_1_EdgeFakeCr'
+tag = '2021_05_1_EdgeFakeCrHalfPrshrt'
+tag = '2021_05_1_EdgeFakeCrQuarterPrshrt'
+tag = '2021_05_1_EdgeFakeSmash'
+tag = '2021_05_3_EdgeFakeQuarter'
+tag = '2021_05_3_EdgeFkThrdPurifyMc'
+tag = '2021_05_3_EdgeFkReallyPurifyMc'
+tag = '2021_05_3_EdgeFkReallyPurMc55'
+tag = '2021_05_3_EdgeFkReallyPurMc60to75'
+tag = '2021_05_3_EdgeFkReallyPurMc65to110'
+tag = '2021_05_3_EdgeFkMc65to110NoPiNoMu'
+tag = '2021_05_3_EdgeFkMc65to110Add25'
+tag = '2021_05_3_EdgeFkMc65to110Add25b'
+tag = '2021_05_3_EdgeFkMc65to110Rummage'
+tag = '2021_05_3_EdgeFkMc65to110ot2twot'
+tag = '2021_05_3_EdgeFkMc65to110LooseFk'
+tag = '2021_05_3_EdgeFkMc65to110PtDep'
+tag = '2021_05_3_EdgeFkMc65to110MinDrJet'
+tag = '2021_05_6_MinDrLJetTfkL2' ##to dooooo
+tag = '2021_05_6_MinDrLJetTfkL20'
+tag = '2021_05_6_MinDrLJetTfkL15'
+tag = '2021_05_6_NotJet15'
+tag = '2021_05_6_NotJet15mc20forLs'
+tag = '2021_05_6_TightJetIsoCombMc20forLs'
+tag = '2021_05_6_TighterJetIsoCombMc20forLs'
+tag = '2021_05_6_TighterJetIsoCombFkEta'
+tag = '2021_05_6_TighterJetIsoCombTtrFkEta'
+tag = '2021_05_6_TighterJetIsoComb2TtrFkEta'
+tag = '2021_05_6_TighterJetIsoComb2TtrFkEtaNoPr'
+tag = '2021_05_7_TtrJetIsoTwkThtaKpaAdd19rc1'
+tag = '2021_05_7_TtrJetIsoTwkThtaKpa2'
+tag = '2021_05_7_TtrJetIsoTwkThtaKpaPuweights'
+tag = '2021_05_8_TtrJetIsoTwkThtaKpaPuwtsFkEta'
+tag = '2021_05_8_TtrJetIsoTwkShortFrac'
+tag = '2021_05_8_TtrJetIsoTwkShortFracTt'
+tag = '2021_05_9_LsrJetIsoTtnShortFrac'
+tag = '2021_05_9_LsrJetIsoTtnDropSmDr'
+tag = '2021_05_9_LsrJetIsoTtnPrmptShrt'
+tag = '2021_05_9_LsrNarrowJetVeto10TtnPs'
+tag = '2021_05_9_PureStat'
+tag = '2021_05_9_LsrNrw0p3JetVeto10Mtv1'
+tag = '2021_05_9_LsrNrw0p3JetVeto10Mtv2'
+tag = '2021_05_9_LsrNrw0p3JetVeto10Mtv3'
+tag = '2021_05_10_ReinstateDphi2'
+tag = '2021_05_10_ReinstateDphi3'
+tag = '2021_05_10_ReinstateDphi3TuneUp'
+tag = '2021_05_10_ReinstateDphi4TuneUpNoPrompt'
+tag = '2021_05_10_ReinstateDphi4TuneUpEta2p0'
+tag = '2021_05_11_IncludeBin47Eta2p0'
+tag = '2021_05_11_IncludeBin47Eta2p0NoPrompt'
+tag = '2021_05_11_ReinstatePromptPt'
+tag = '2021_05_11_ReinstatePromptPtTtn1'
+tag = '2021_05_11_ReinstatePromptPtTtn2'
+tag = '2021_05_11_ReremovePromptPt'
+tag = '2021_05_11_ThatTookAWhileDropShrtFrac'
+tag = '2021_05_11_ThatTookAWhileDropShrtFrac2'
+tag = '2021_05_12_ReinstateShrtFrac0p05'
+tag = '2021_05_12_ReinstateShrtFrac15b'
+tag = '2021_05_12_ReinstateShrtFrac15wB23'
+tag = '2021_05_12_ReinstateShrtFrac15ttn'
+tag = '2021_05_12_RemoveFracTrimShortPr'
+tag = '2021_05_12_RemoveFracTrimShortPr2'
+tag = '2021_05_13_MCalFracHybridMax'
+tag = '2021_05_13_ReinstateNonFrac15'
+tag = '2021_05_13_RereinstateHybrid15'
+tag = '2021_05_13_RereinstateHybrid15Flushish'
+tag = '2021_05_13_ReHyb15FlushishDPhi0p3thingB'
+tag = '2021_05_13_ReHyb15TightenFakeCrsB'
+tag = '2021_05_13_RestoreHybrid15Attempt1'
+tag = '2021_05_13_Hybrid20'
+tag = '2021_05_13_Hybrid20b'
+tag = '2021_05_13_Hybrid20Eta2p2'
+tag = '2021_05_13_Hybrid20EtaTtnMtDt'
+tag = '2021_05_13_Hybrid15Eta2p2'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0TtnFkPh1'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0TtnFkPh1JI'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0JI0p2Still2lse'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0JI0p2Rfnd3'
+tag = '2021_05_13_Hybrid15Eta2p1Prize'
+tag = '2021_05_13_Hybrid15Eta2p1Lsn2Accomodate1'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0JI0p2Rfnd2'
+tag = '2021_05_13_Hybrid15Eta2p1Ht0JI0p2Rfnd1'
+tag = '2021_05_17_Hybrid15Eta2p1Prize'
+tag = '2021_05_17_Hybrid15Eta2p1Ht0JI0p2'
+tag = '2021_05_17_Hybrid15Eta2p0JI0p3'
+tag = '2021_05_17_Hybrid15Eta2p0JI0p3NoDphiTwk'
+tag = '2021_05_17_Hybrid15Eta2p0JI0p3TtnPh1Sh'
+tag = '2021_05_17_Hybrid15Eta2p0JI0p3TtnPh1ShNoStat'
 
 '''
-rm -rf pdfs/Validation/prompt-bkg/*
-python tools/makeValidationPlots2methods.py Summer16 MC
-python tools/makeValidationPlots2methods.py Run2016
+rm -rf pdfs/Validation/prompt-bkg/* 
+python tools/makeValidationPlots2methods.py Summer16 MC & 
+python tools/makeValidationPlots2methods.py Fall17 MC &
+python tools/makeValidationPlots2methods.py Run2016 &
 python tools/makeValidationPlots2methods.py Phase1
 
 
@@ -176,8 +485,9 @@ binning['FakeCrNr'] = [6,-3,3]
 
 redoBinning = binning
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
-redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
-redoBinning['DeDxAverage'] = [1.999999999,2,4.0,10.0]
+#redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
+#redoBinning['DeDxAverage'] = [1.999999999,2,4.0,10.0]
+redoBinning['DeDxAverage'] = [-0.000001,0,4.0,10.0]
 #redoBinning['InvMass'] = [15,50,170]
 ##redoBinning['InvMass'] = [50,0,200]
 #redoBinning['InvMass'] = [24,60,180]
@@ -186,9 +496,10 @@ redoBinning['Ht']=[5,0,2000]
 redoBinning['Met'] = [20,0,600]
 redoBinning['Mht'] = redoBinning['Met']
 redoBinning['TrkEta']=[30,0,3]
-redoBinning['NJets'] = [6,1,7]
-redoBinning['NJets'] = [0.999999,1,4,7]
+#redoBinning['NJets'] = [6,1,7]
+#redoBinning['NJets'] = [0.999999,1,3,6]
 redoBinning['BTags'] = [-0.0000000001,0,1,4]
+redoBinning['LepMT'] = [7,15,150]
 #redoBinning['MatchedCalo'] = [0,10,13,23,40]
 #redoBinning['InvMass'] = [25,0,200]#same as analysis
 
@@ -249,9 +560,10 @@ for key in sorted(keys):#[:241]:
 	infile.cd()
 	name = key.GetName()
 	
+	
 	if 'hFake' in name: continue
 	
-	if not ('Valid' in name or 'MhtSideband' in name or 'Baseline' in name): continue#): continue# 
+	if not ('Low' in name or 'Valid' in name or 'MhtSideband' in name or 'Baseline' in name or 'Bin23' in name): continue#): continue# 
 	
 	
 	if not 'Truth' in name: continue
@@ -259,6 +571,7 @@ for key in sorted(keys):#[:241]:
 	if not 'CaloSideband' in name: continue
 	if not 'hPrompt' in name: continue
 	if 'FakeCr' in name: continue
+	print 'still taking', name
 	
 	if makePredictionMode:
 		if not 'BinNumber' in name: continue
@@ -272,9 +585,12 @@ for key in sorted(keys):#[:241]:
 	hsideband.Scale(extrascale)
 	
 	htruth =                  infile.Get(name.replace('CaloSideband','')).Clone()
+	#htruth.Reset()##this gets rid true prompt
 	if not isdata: htruth.Add(infile.Get(name.replace('CaloSideband','').replace('hPrompt','hFake')))
 	
 	htruth.Scale(extrascale)
+	
+
 	
 	if isdata:
 		if 'Baseline' in name:
@@ -290,7 +606,7 @@ for key in sorted(keys):#[:241]:
 		if kinvar=='LepMT':
 			xaxt = htruth.GetXaxis()
 			for ibin in range(1,xaxt.GetNbins()+1):
-				if xaxt.GetBinLowEdge(ibin)>=105: htruth.SetBinContent(ibin, 0)	
+				if xaxt.GetBinLowEdge(ibin)>=110: htruth.SetBinContent(ibin, 0)	
 			
 			
 	
@@ -348,11 +664,12 @@ for key in sorted(keys):#[:241]:
 	hfakemethod = hfakemethod.Rebin(nbins,'',newxs)####
 	
 	for ibin in range(1,hfakemethod.GetXaxis().GetNbins()+1):
-	  if isdata:
+	  if isdata or True:
 		if 'Short' in name:
 			binc = hpromptmethod.GetBinContent(ibin)
 			bine = hpromptmethod.GetBinError(ibin)
 			hpromptmethod.SetBinError(ibin, TMath.Sqrt(pow(binc,2)))
+			#hpromptmethod.SetBinContent(ibin, 0)
 			
 			binc = hfakemethod.GetBinContent(ibin)
 			bine = hfakemethod.GetBinError(ibin)
@@ -361,16 +678,15 @@ for key in sorted(keys):#[:241]:
 		if 'Long' in name:
 			binc = hfakemethod.GetBinContent(ibin)
 			bine = hfakemethod.GetBinError(ibin)
-			hfakemethod.SetBinError(ibin, TMath.Sqrt(pow(0.5*binc,2)+pow(bine,2)))			
+			###hfakemethod.SetBinError(ibin, TMath.Sqrt(pow(0.5*binc,2)+pow(bine,2)))			
 			
 			binc = hpromptmethod.GetBinContent(ibin)
 			bine = hpromptmethod.GetBinError(ibin)
-			hpromptmethod.SetBinError(ibin, TMath.Sqrt(pow(0.2*binc,2)+pow(bine,2)))				
+			###hpromptmethod.SetBinError(ibin, TMath.Sqrt(pow(0.2*binc,2)+pow(bine,2)))				
 			
 		if hfakemethod.GetBinContent(ibin)<=0: 
 			hfakemethod.SetBinContent(ibin, 0)
 			hfakemethod.SetBinError(ibin, 1)			
-				
 			
 
 		
@@ -381,7 +697,7 @@ for key in sorted(keys):#[:241]:
 	if year == 'Summer16':			
 			htruth.SetTitle('obs. (Summer16 MC)')	
 			hpromptmethod.SetTitle('prompt pred. (Summer16 MC)')
-			hfakemethod.SetTitle('prompt pred. (Summer16 MC)')			
+			hfakemethod.SetTitle('fake pred. (Summer16 MC)')			
 	if year=='Run2017':
 			htruth.SetTitle('data (2017)')
 			hpromptmethod.SetTitle('prompt prediction (2017)')
@@ -439,6 +755,8 @@ for key in sorted(keys):#[:241]:
 			if 'Short' in name: searchbinresults[regionkey]['Short'] = [htruth.Clone(), hpromptmethod.Clone(), hfakemethod.Clone()]
 				
 	hratio, hpromptmethodsyst = FabDrawSystyRatio(c1,leg,htruth,[hfakemethod,hpromptmethod],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+	
+			
 	pad1, pad2 = hpromptmethodsyst[-2:]
 	hratio.GetYaxis().SetRangeUser(0.0,2.125)	
 	hratio.GetYaxis().SetTitle('data/pred.')
@@ -461,11 +779,18 @@ for key in sorted(keys):#[:241]:
 	hpromptmethod.SetTitle('')
 	htruth.SetTitle('')	
 	hpromptmethod.SetLineWidth(3)
-						
-	c1.Update()
-	fnew.cd()
-	c1.Write('c_'+plotname)
 
+
+	#p1 = c1.FindObject('pad1')
+	#p2 = c1.FindObject('pad2')	
+	#for p in p1.GetListOfPrimitives():
+	#	print p.GetName()
+		
+	#pave = p1.FindObject('TPave')
+	#pave.Delete()
+	#c1.Update()
+
+	c1.Write('c_'+plotname)
 		
 	shortname = shortname.replace('CaloSideband','')
 	pdfname = 'pdfs/Validation/prompt-bkg/'+year+'/'+directory+'/'+shortname.replace('_','')+'.png'
@@ -479,11 +804,15 @@ for key in sorted(keys):#[:241]:
 
 print 'searchbinresults', searchbinresults.keys()
 for regionkey in searchbinresults:
-	
 	print 'doing regionkey', regionkey
 	htruthLong, hpromptmethodLong, hfakemethodLong = searchbinresults[regionkey]['Long']
 	htruthShort, hpromptmethodShort, hfakemethodShort = searchbinresults[regionkey]['Short']	
 	htruthLong.Add(htruthShort)
+	
+	for ibin in range(1, htruthLong.GetXaxis().GetNbins()+1):
+		if htruthLong.GetBinContent(ibin)==0:
+			htruthLong.SetBinError(ibin, 1)
+				
 	hpromptmethodLong.Add(hpromptmethodShort)
 	hfakemethodLong.Add(hfakemethodShort)	
 	
@@ -514,18 +843,20 @@ for regionkey in searchbinresults:
 			hfakemethodLong.SetTitle('fake prediction (Phase 1)')
 			
 
-	themax = 100*max([htruthLong.GetMaximum(),hpromptmethodLong.GetMaximum()])
-	hpromptmethodLong.GetYaxis().SetRangeUser(0.01,themax)
-	htruthLong.GetYaxis().SetRangeUser(0.01,themax)
+	themax = 500*max([htruthLong.GetMaximum(),hpromptmethodLong.GetMaximum()])
 		
-		
+	fnew.cd()
 	hpromptmethodLong.Write(hpromptmethodLong.GetName().replace('CaloSideband','MASTER'))
 	hfakemethodLong.Write(hfakemethodLong.GetName().replace('FakeCr','MASTER'))	
 
 	plotname = regionkey.replace('_','').replace('CaloSideband','')
 	c1 = mkcanvas('c1')
 	leg = mklegend(x1=.49, y1=.54, x2=.91, y2=.78, color=kWhite)
-	hratio, hpromptmethodsyst = FabDraw(c1,leg,htruthLong,[hpromptmethodLong,hfakemethodLong],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+	hrattot = htruthLong.Clone()
+	hdenom = hpromptmethodLong.Clone()
+	hdenom.Add(hfakemethodLong)
+	hrattot.Add(hdenom, -1)
+	hratio, hpromptmethodsyst = FabDrawSystyRatio(c1,leg,htruthLong,[hpromptmethodLong,hfakemethodLong],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
 	pad1, pad2 = hpromptmethodsyst[-2:]
 	hratio.GetYaxis().SetRangeUser(0.0,3.4)	
 	hratio.GetYaxis().SetTitle('(B/A*C)/D')
@@ -541,16 +872,28 @@ for regionkey in searchbinresults:
 
 	leg2.Draw()
 	pad1.cd()
+	hpromptmethodLong.GetYaxis().SetRangeUser(0.01,themax)
+	hfakemethodLong.GetYaxis().SetRangeUser(0.01,themax)	
+	htruthLong.GetYaxis().SetRangeUser(0.01,themax)	
 	hpromptmethod.SetTitle('')
 	htruth.SetTitle('')	
 	hpromptmethod.SetLineWidth(3)
-	histoStyler(hsideband, kViolet)
-	hsideband.Draw('same hist')		
 			
 
 	c1.Update()
-	fnew.cd()
+	
 	c1.Write('c_'+plotname+'BinNumber_merged')
+	
+
+	hres = TH1F('resid_'+plotname+'BinNumber_merged','resid_'+plotname+'BinNumber_merged',32,-4,4)
+	hres.GetYaxis().SetTitle('number of signal regions')
+	hres.GetXaxis().SetTitle('pull')
+	for ibin in range(1,hrattot.GetXaxis().GetNbins()+1):
+		print ibin, 'doing residuals', hrattot.GetBinContent(ibin)
+		if hrattot.GetBinError(ibin)>0:
+			hres.Fill(hrattot.GetBinContent(ibin)/hrattot.GetBinError(ibin))
+				
+	
 	directory_ = 'SearchBins'
 	if not directory_ in directories:
 		directories.append(directory_)
@@ -562,18 +905,29 @@ for regionkey in searchbinresults:
 	pdfname = 'pdfs/Validation/prompt-bkg/'+str(year)+'/'+directory_+'/'+str(year)+'_'+shortname.replace('_','')+'.png'
 	c1.Print(pdfname)	
 	if makepdfs: c1.Print(pdfname.replace('.png','.pdf'))
+	
+
+	#gStyle.SetOptFit(1111)	
+	c2 = mkcanvas('c2')
+	hres.Draw('hist e')
+	#hres.Fit('gaus')
+	c2.Update()
+
+	c2.Print(pdfname.replace('.png','Pull.png'))
+	c2.Delete()
 		
 	c1.Delete()
 	
 	
 import os, sys
-os.system('echo echo hello > htmlwhippy.sh')
+whippyname = 'htmlwhippy'+year+'.sh'
+os.system('echo echo hello > '+whippyname)
 pipe = '>'
 print 'reached the end of things'
 for directory_ in directories:
-	os.system('echo python tools/whiphtml.py \\"pdfs/Validation/prompt-bkg/'+year+'/'+directory_+'/*.png\\" '+pipe+' htmlwhippy.sh')
+	os.system('echo python tools/whiphtml.py \\"pdfs/Validation/prompt-bkg/'+year+'/'+directory_+'/*.png\\" '+pipe+' '+whippyname)
 	pipe = '>>'
-os.system('bash htmlwhippy.sh')
+os.system('bash '+whippyname)
 thename = fnew.GetName()
 print 'just created', os.getcwd()+'/'+thename
 fnew.Close()
@@ -583,8 +937,11 @@ print copycommand
 os.system(copycommand)
 
 
-if makePredictionMode: 
+if True: 
 	print 'you might want to hadd these end products together', thename
 	print 'a la'
-	print 'hadd -f predictionRun2.root Valid_year2016.root Valid_yearPhase1.root'
+	print 'hadd -f predictionRun2.root Valid_yearRun2016.root Valid_yearPhase1.root'
+	print 'cp predictionRun2.root /afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Indium/v9/'
+	print 'cp predictionRun2.root /afs/desy.de/user/b/beinsam/www/DisappearingTracks/Validation/'+tag+'_'+year
+	
 

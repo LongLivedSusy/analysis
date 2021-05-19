@@ -9,20 +9,23 @@ from time import sleep
 
 
 '''
-python tools/ComputeFakeRate.py 2016 MC
-python tools/ComputePromptRate.py 2016 MC
+python tools/ComputeFakeRate.py 2016 MC &
+python tools/ComputePromptRate.py 2016 MC &
 
-python tools/ComputeFakeRate.py Phase1 data
-python tools/ComputePromptRate.py Phase1 data
+python tools/ComputeFakeRate.py Phase1 data &
+python tools/ComputePromptRate.py Phase1 data &
 
-python tools/ComputeFakeRate.py 2016 data
-python tools/ComputePromptRate.py 2016 data
+python tools/ComputeFakeRate.py 2016 data &
+python tools/ComputePromptRate.py 2016 data &
 
-python tools/ComputeFakeRate.py 2017 data
-python tools/ComputePromptRate.py 2017 data
+python tools/ComputeFakeRate.py 2017 data &
+python tools/ComputePromptRate.py 2017 data &
 
-python tools/ComputeFakeRate.py 2018 data
-python tools/ComputePromptRate.py 2018 data
+python tools/ComputeFakeRate.py 2018 data &
+python tools/ComputePromptRate.py 2018 data &
+
+python tools/ComputeFakeRate.py 2017 MC &
+python tools/ComputePromptRate.py 2017 MC &
 
 '''
 
@@ -45,6 +48,8 @@ if datamc=='data':
 else:
 	lumi = 137.
 
+drawcanvs = False
+c1 = mkcanvas('c1')
 binning['MatchedCalo'] = [100,0,100]
 binning['DtStatus'] = [6,-3,3]
 
@@ -66,7 +71,7 @@ redoBinning['TrkPt']=[25,0,250]
 redoBinning['TrkPt']=[0,25,30,35,40,45,50,55,60,120]
 #redoBinning['TrkPt']=[0,25,30,40,50,110]
 redoBinning['TrkPt']=[0,25,30,40,50,75,100,150,300]
-redoBinning['TrkPt']=[0,25,30,40,50,75,100,300]
+redoBinning['TrkPt']=[0,25,30,40,50,75,150,300]
 redoBinning['LepMT'] = [4,0,160]
 redoBinning['Ht']=[5,0,2000]
 redoBinning['NJets']=[-0.00000001,0,4,10]
@@ -76,9 +81,13 @@ redoBinning['BTags'] = [-0.000000000001,0,1,4]
 
 
 coarserBinningPatch = {}
-coarserBinningPatch['TrkPt']=[0,15,40,300]
+coarserBinningPatch['TrkPt']=[0,14,15,300]
+coarserBinningPatch['TrkPt']=[0,14,15,300]
 coarseBinningPatch = {}
-coarseBinningPatch['TrkPt']=[0,40,75,300]##[0,40,75,300]#give everything the shorties
+#coarseBinningPatch['TrkPt']=[0,15,30,40,50,60,100,225,300]
+coarseBinningPatch['TrkPt']=[0,40,60,300]
+coarseBinningPatch['TrkPt']=[0,25,40,300]##[0,40,75,300]
+#coarseBinningPatch['TrkPt']=[0,14,15,300]#same as other thing
 
 
 #coarseBinningPatch['TrkPt'] = [0,25,30,40,50,75,100,150,200,250,300]#identical to shared_utils.py to debug short zell
@@ -125,9 +134,9 @@ if year=='Phase1':
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenPhase1_mcal'+str(calm)+'to'+str(calh)+'.root'		
 	
 	
-	
 print 'fsource', fsource
-	
+
+
 #hack for test:
 #fsource = 'PromptBkgTree_Summer16DYJetsPrompt-processskimsTrue.root'
 
@@ -165,10 +174,10 @@ for key in sorted(keys):#[:241]:
 	
 	print 'processing', name, 'got kinvar', kinvar
 	
-	hcontrolregion =   infile.Get(name)
+	hcontrolregion =   infile.Get(name).Clone()
 
 		
-	htarget = infile.Get(name.replace('CaloSideband_','_'))
+	htarget = infile.Get(name.replace('CaloSideband_','_')).Clone()
 	
 	if not isdata: 
 		print 'we do see MC'
@@ -255,26 +264,39 @@ for key in sorted(keys):#[:241]:
 	#hcontrolregion.SetLineColor(kGray+2)
 	fnew.cd()
 	plotname = shortname.replace('_','').replace('FakeCr','')
-	c1 = mkcanvas('c1')
-
-
-	hratio, hcontrolregionsyst = FabDraw(c1,leg,htarget,[hcontrolregion],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
-	hratio.GetYaxis().SetRangeUser(0,0.12)	
-	hratio.GetYaxis().SetTitle('n(SR)/n(CR)')
-	hratio.SetLineColor(kBlack)
-	for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
-		if hratio.GetBinContent(ibin)==0:
-			hratio.SetBinContent(ibin,-999)
-	hratio.SetMarkerColor(kBlack)
-	hratio.SetDirectory(0)
-	pad1, pad2 = hcontrolregionsyst[-2:]
-	pad2.SetGridx()
-	pad2.SetGridy()	
+	if drawcanvs:
+		c1 = mkcanvas('c1')
+		hratio, hcontrolregionsyst = FabDraw(c1,leg,htarget,[hcontrolregion],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+		hratio.GetYaxis().SetRangeUser(0,0.12)	
+		hratio.GetYaxis().SetTitle('n(SR)/n(CR)')
+		hratio.SetLineColor(kBlack)
+		for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
+			if hratio.GetBinContent(ibin)==0:
+				hratio.SetBinContent(ibin,-999)
+		hratio.SetMarkerColor(kBlack)
+		hratio.SetDirectory(0)
+		pad1, pad2 = hcontrolregionsyst[-2:]
+		pad2.SetGridx()
+		pad2.SetGridy()	
 
 						
-	c1.Update()
-	fnew.cd()
-	c1.Write('c_'+plotname)
+		c1.Update()
+		fnew.cd()
+		c1.Write('c_'+plotname)
+
+
+		#c1.Print('pdfs/closure/prompt-bkg/ZShape/year'+str(year)+shortname.replace('_','')+'.png')
+	
+		#clist.append(c1)
+		shortname = shortname.replace('FakeCr','')
+		pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'.pdf'
+		if isdata: pdfname = pdfname.replace('.','_data.')
+		else: pdfname = pdfname.replace('.','_mc.')	
+		#c1.Print(pdfname)
+		c1.Delete()
+		hratios.append([hratio, hcontrolregionsyst])
+		#pause()
+
 
 	#if 'TrkEta' in name:
 	if varname_kappaBinning in name:	
@@ -292,17 +314,6 @@ for key in sorted(keys):#[:241]:
 		hcontrolregion.Write()				
 
 	
-	#c1.Print('pdfs/closure/prompt-bkg/ZShape/year'+str(year)+shortname.replace('_','')+'.png')
-	
-	#clist.append(c1)
-	shortname = shortname.replace('FakeCr','')
-	pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'.pdf'
-	if isdata: pdfname = pdfname.replace('.','_data.')
-	else: pdfname = pdfname.replace('.','_mc.')	
-	#c1.Print(pdfname)
-	c1.Delete()
-	hratios.append([hratio, hcontrolregionsyst])
-	#pause()
 
 	
 import os, sys
@@ -318,16 +329,22 @@ else:       fpromptrate = TFile('usefulthings/promptrateInfo_year'+year+'_mc.roo
 print 'gonna look for', 'hPromptShortSElValidZLL_'+varname_kappaBinning+'Truth'
 print 'in ', fpromptrate.GetName()
 
-hnum = fpromptrate.Get('hPromptShortSElValidZLL_'+varname_kappaBinning+'Truth')
-hden = fpromptrate.Get('hPromptShortSElValidZLLCaloSideband_'+varname_kappaBinning+'Truth')
+hnum = fpromptrate.Get('hPromptShortSElValidZLL_'+varname_kappaBinning+'Truth').Clone()
+
+
+hden = fpromptrate.Get('hPromptShortSElValidZLLCaloSideband_'+varname_kappaBinning+'Truth').Clone()
+
+
+
 #if not isdata:# this might be needed for the true final closure test...................#these already added above
 #	hnum.Add(fpromptrate.Get('hFakeShortSElValidZLL_'+varname_kappaBinning+'Truth'))
 #	hden.Add(fpromptrate.Get('hFakeShortSElValidZLLCaloSideband_'+varname_kappaBinning+'Truth'))
 #	a=2
 hprshort = hnum.Clone('hprshort')
 hprshort.Divide(hden)
-hnum = fpromptrate.Get('hPromptLongSElValidZLL_'+varname_kappaBinning+'Truth')
-hden = fpromptrate.Get('hPromptLongSElValidZLLCaloSideband_'+varname_kappaBinning+'Truth')
+hnum = fpromptrate.Get('hPromptLongSElValidZLL_'+varname_kappaBinning+'Truth').Clone()
+
+hden = fpromptrate.Get('hPromptLongSElValidZLLCaloSideband_'+varname_kappaBinning+'Truth').Clone()
 #if not isdata:
 #	hnum.Add(fpromptrate.Get('hFakeLongSElValidZLL_'+varname_kappaBinning+'Truth'))
 #	hden.Add(fpromptrate.Get('hFakeLongSElValidZLLCaloSideband_'+varname_kappaBinning+'Truth'))	

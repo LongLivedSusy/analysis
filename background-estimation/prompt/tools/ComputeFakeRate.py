@@ -24,9 +24,14 @@ python tools/ComputePromptRate.py 2018 data
 python tools/ComputeFakeRate.py Phase1 data
 python tools/ComputePromptRate.py Phase1 data
 
+python tools/ComputeFakeRate.py 2017 MC
+python tools/ComputePromptRate.py 2017 MC
+
 '''
 
 varname_thetaBinning = 'Ht'
+varname_thetaBinning = 'TrkEta'
+varname_thetaBinning = 'TrkPt'
 varname_thetaBinning = 'TrkEta'
 
 try: year = sys.argv[1]
@@ -55,7 +60,7 @@ redoBinning['ElPt'] = [5,0,300]
 #redoBinning['TrkEta'] = [5,0,3]
 redoBinning['TrkEta']=[9,0,3]#tried 5 before
 redoBinning['TrkEta']=[10,0,3]#tried 5 before
-redoBinning['TrkEta']=[0,1.9,2.2,3.0]#tried 5 before
+redoBinning['TrkEta']=[0,1.6,2.4,3.0]#tried 5 before
 redoBinning['MuPt'] = redoBinning['ElPt']
 redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 
@@ -63,7 +68,7 @@ redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 #redoBinning['DeDxAverage'] = [1.999999999,2,4,7]
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
 #redoBinning['TrkPt']=[0,25,30,40,50,300]
-redoBinning['TrkPt']=[0,15,30,40,300]
+#redoBinning['TrkPt']=[0,15,30,40,300]
 redoBinning['LepMT'] = [4,0,160]
 redoBinning['Ht']=[5,0,2000]
 redoBinning['NJets']=[-0.00000001,0,4,10]
@@ -97,7 +102,7 @@ if year=='2016':
 	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
 
 if year=='2017': 
-	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal15to20.root'
+	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
 	
 if year=='2018': 
