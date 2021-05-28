@@ -3,10 +3,12 @@ from glob import glob
 
 def make_inputlist(samples):
     userlist = []
-    hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
+    #hub_folders = "/pnfs/desy.de/cms/tier2/store/user/*/NtupleHub/ProductionRun2v3*"
     #hub_folders = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3"
     #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP1100and300/ntuples*"
     #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP-1to200/ntuples*"
+    #hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-1300_mLSP-400to1000/ntuples/"
+    hub_folders = "/nfs/dust/cms/user/spak/DisappearingTracks/SampleProduction/output_Summer16PrivateFastSim_T2bt_LLChipm_ctau-200_mStop-2500_mLSP-1200to2000/ntuples/"
 
     print "Making input ntuples list.."
     if not os.path.exists("./inputs"):
@@ -159,6 +161,15 @@ if __name__ == "__main__" :
     Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200 = [
     "Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1to200",
     ]
+    
+    Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_400to1000 = [
+    "Summer16_SMS-T2btLL-PrivateFastSim",
+    ]
+
+    Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_2500_mLSP_1200to2000 = [
+    "Summer16_SMS-T2btLL-PrivateFastSim",
+    ]
+
 
     Fall17_bkg = [
     "RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5",
@@ -207,7 +218,7 @@ if __name__ == "__main__" :
     "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8",
     "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8",
     ]
-
+    
     Run2016_MET = [
     "Run2016B*MET",
     "Run2016C*MET",
@@ -275,8 +286,11 @@ if __name__ == "__main__" :
     #samples.extend(Summer16_signal_fastsim)
     #samples.extend(Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1100and300)
     #samples.extend(Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_1to200)
-    samples.extend(Fall17_bkg)
+    #samples.extend(Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_1300_mLSP_400to1000)
+    samples.extend(Summer16PrivateFastSim_SMS_T2bt_LLChipm_ctau_200_mStop_2500_mLSP_1200to2000)
+    #samples.extend(Fall17_bkg)
     #samples.extend(Fall17_FastSimSignal)
+    #samples.extend(Autumn18_bkg)
     #samples.extend(Run2016_SingleMuon)
     #samples.extend(Run2016_SingleElectron)
     #samples.extend(Run2017_SingleMuon)

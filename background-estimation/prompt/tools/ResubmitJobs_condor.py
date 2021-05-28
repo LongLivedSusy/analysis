@@ -18,6 +18,9 @@ istest = False
 
 logfileversion = True
 filecheckversion = True
+fperjob = 10
+
+doitlocal = False
 
 shlist = glob(shkeys)
 shuffle(shlist)
@@ -43,6 +46,7 @@ for io, o in enumerate(olist):
 '''
 
 listofmatchedfiles = []
+iactive = 0
 for ish, shfile in enumerate(shlist):
 	#print '=='*10, shfile
 	noendgame = False
@@ -66,7 +70,7 @@ for ish, shfile in enumerate(shlist):
 		#print 'foutpiece', foutpiece
 		keypiece = 'output/smallchunks/'+foutpiece
 		keypiece = keypiece.replace('Anal','Hists')
-		keypiece = keypiece.replace('Hist','Tree')
+		#keypiece = keypiece.replace('Hist','Tree')###this may be needed for ntuple resubmission
 		foutlist = glob(keypiece+'*')
 		nofilethere = len(foutlist)==0
 		if nofilethere: print 'no file for glob("'+keypiece+'*'+'")', len(foutlist)	
@@ -76,21 +80,28 @@ for ish, shfile in enumerate(shlist):
 		errf = open(ferr[-1])
 		errtext = errf.read()
 		errf.close()
-		if 'does not exist' in errtext:
+		if 'does not exist' in errtext or "basket's WriteBuffer failed" in errtext:
 			somethingmissing = True
 	#pause()					
-	if (not recoerr in elist) or noendgame or somethingmissing or nofilethere:
+	#if (not recoerr in elist) or noendgame or somethingmissing or nofilethere:
+	if nofilethere:
 		print 'resubmitting on grounds', (not recoerr in elist), noendgame, somethingmissing, nofilethere, shfile
 		if filecheckversion: print 'searched file was', keypiece, glob(keypiece+'*')
 		jobname = shfile.split('/')[-1].replace('.sh','')
 		os.chdir('jobs')
-		command = 'condor_qsub -cwd '+jobname+'.sh &'
-		#print 'command', command
-		if not istest: os.system(command)
-		os.chdir('..')	
+		if doitlocal:
+			command_ = 'bash '+jobname+'.sh > localJob'+jobname+'.out'
+			if not iactive%fperjob==(fperjob-1): command_+=' &'
+			iactive+=1
+			if not istest: os.system(command_)
+		else:
+			command_ = 'condor_qsub -cwd '+jobname+'.sh &'
+			if not istest: os.system(command_)			
+		print 'command_', command_
 		
+		os.chdir('..')	
 		if istest: 
-			print 'exiting upon', command
+			print 'exiting upon', command_
 			exit(0)
 	else: print shfile, 'successfully completed'
 	#pause()

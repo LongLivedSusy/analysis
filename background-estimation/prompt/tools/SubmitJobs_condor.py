@@ -14,9 +14,10 @@ parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultfkey,help=
 parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
 parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
-parser.add_argument("-gk", "--useGenKappa", type=bool, default=False,help="use gen-kappa")
+parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
 parser.add_argument("-ps", "--processskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
+parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
 args = parser.parse_args()
 nfpj = args.nfpj
 fnamekeyword = args.fnamekeyword.strip()
@@ -25,7 +26,8 @@ analyzer = args.analyzer
 processskims = args.processskims
 analyzer = analyzer.replace('python/','').replace('tools/','')
 JerUpDown = args.JerUpDown
-useGenKappa = args.useGenKappa
+smearvar = args.smearvar
+outdir = args.outdir
 
 
 
@@ -65,7 +67,7 @@ def main():
 				jobname = jobname+args4name.replace(' ','-').replace('---','-').replace('--','-')
 			fjob = open('jobs/'+jobname+'.sh','w')
 			files = files[:-1]#this just drops the comma
-			fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname))
+			fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname).replace('OUTDIR',outdir))
 			fjob.close()
 			os.chdir('jobs')
 			command = 'condor_qsub -cwd '+jobname+'.sh &'
@@ -81,7 +83,7 @@ def main():
 			#sys.stdout.flush() 
 			#raw_input('')
 	print 'submitted', jobcounter_, 'jobs'
-	
+
 jobscript = '''#!/bin/zsh
 source /etc/profile.d/modules.sh
 source /afs/desy.de/user/b/beinsam/.bash_profile
@@ -101,8 +103,8 @@ cp -r CWD/usefulthings .
 echo doing a good old pwd:
 pwd
 python tools/ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
-mv *.root CWD/output/smallchunks
-mv *.json CWD/output/smallchunks
+mv *.root CWD/OUTDIR
+mv *.json CWD/OUTDIR
 cd ../
 rm -rf $timestamp
 '''

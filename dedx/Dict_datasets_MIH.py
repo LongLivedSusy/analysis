@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-folder = './output_mediumchunks/'
+folder = './output_mediumchunks_MIH/'
 
 dict_Run2016_SingleMuon = {
 		    'Run2016B':folder+'/Run2016B-SingleMuon.root',
@@ -70,8 +70,7 @@ dict_Summer16_FullSimSignal = {
         }
 
 dict_Summer16_PrivateFastSimSignal = {
-	#'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':folder+'/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
-	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300':folder+'/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-1100and300.root',
+	'Summer16FastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900':folder+'/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.root',
 	}
 
 dict_Fall17 = {

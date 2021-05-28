@@ -4,7 +4,7 @@ from glob import glob
 try: fileskey = sys.argv[1]
 except: 
     print 'please run like'
-    print 'python tools/whiphtml.py figures/*.pdf'
+    print 'python tools/whiphtml.py figures/*.png'
     exit(0)
     
 directory = '/'.join(fileskey.split('/')[:-1])

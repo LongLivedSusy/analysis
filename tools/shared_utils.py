@@ -48,7 +48,7 @@ epsilon = 0.0001
 
 binning = {}
 #binning['Met']=[0,20,50,100,150,300,400,650,800,900,1000]
-binning['Met']=[400,0,1200]
+binning['Met']=[200,0,600]
 binning['Mht']=binning['Met']
 #binning['TrkPt']=[15,30,50,100,300]
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,400,410]#good for gen check, and two eta bins
@@ -59,7 +59,8 @@ binning['TrkPt']=[100,0,500]
 binning['TrkPt']=[0,25,30,40,50,75,100,150,300]
 binning['TrkPt']=[0,15,25,30,40,50,75,100,150,200,250,300]
 binning['TrkPt']=[0,15,30,40,100,225,300]#try to synchronize with kappa
-binning['TrkPt']=[0,15,30,40,50,60,100,225,300]#try to synchronize with kappa
+binning['TrkPt']=[0,15,30,40,50,60,70,100,225,300]#try to synchronize with kappa
+binning['TrkPt']=[0,15,20,25,30,40,50,60,70,100,225,300]#try to synchronize with kappa
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
@@ -94,8 +95,9 @@ binning['MinDPhiMhtHemJet'] = [16,0,3.2]
 binning['MatchedCalo'] = [30,0,150]
 binning['LeadTrkMva'] = [44,-1.1,1.1]
 binning['DtStatus'] = [6,-3,3]
-binning['DPhiLepDt'] = binning['DPhiMhtDt']
+binning['DrJetDt'] = binning['DPhiMhtDt']
 binning['MTauTau'] = [26,50,180]
+binning['MtDtMht'] = [20,0,200]
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
@@ -104,7 +106,6 @@ binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [51,1,52]
 binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
-binningAnalysis['LepMT'] = [16,0,160]
 binningAnalysis['DPhiMhtDt'] = [32,0,3.2]
 #binningAnalysis['TrkPt']=[0,25,30,40,60,120]
 
@@ -629,7 +630,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	else: hComponents[0].GetYaxis().SetTitle('Events/bin')
 	cGold.Update()
 	hTruth.GetYaxis().SetTitle('Normalized')
-	hTruth.GetYaxis().SetTitleOffset(1.2)
+	hTruth.GetYaxis().SetTitleOffset(0.85)
 	hTruth.SetMarkerStyle(20)
 	histheight = 1.5*max(hComponents[0].GetMaximum(),hTruth.GetMaximum())
 	if LinearScale: low, high = 0, histheight
@@ -677,7 +678,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	cGold.Update()
 	#hComponents[0].Draw('same') 
 	hTruth.Draw('p same')
-	hTruth.Draw('e same')    
+	hTruth.Draw('e0 same')    
 	cGold.Update()
 	hComponents[0].Draw('axis same')           
 	leg.Draw()        
@@ -747,7 +748,7 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 		histoMethodFracErrorDown.SetBinError(ibin, 0)		
 		histoMethodFracErrorNom.SetBinContent(ibin, 1)		
 		histoMethodFracErrorNom.SetBinError(ibin, 0)
-	hRatio.GetYaxis().SetRangeUser(-0.2,2.7)	
+	hRatio.GetYaxis().SetRangeUser(0.0,2.7)	
 	hRatio.SetFillColor(kGray+1)
 	hRatio.Draw('e0')
 	histoMethodFracErrorUp.Draw('same hist')	
@@ -1348,7 +1349,7 @@ DedxCorr_Pixel_endcap = {
 	'Summer16' : 0.956,
 
 	# Summer16 Private fastsim signal
-	'Summer16FastSim' : 0.630,
+	'Summer16PrivateFastSim' : 0.630,
 
 	# Fall17 MC
 	'Fall17' : 0.955,

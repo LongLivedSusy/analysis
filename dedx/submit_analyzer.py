@@ -21,8 +21,8 @@ if __name__ == "__main__":
     test = args.test
 
     #executable = 'analyzer_DY.py'
-    #executable = 'analyzer_DY_wip.py'
-    executable = 'analyzer_DY_MIH.py'
+    executable = 'analyzer_DY_doublesmear.py'
+    #executable = 'analyzer_DY_MIH.py'
 
 #Inputfile txt path 
     path = "./inputs/"
@@ -31,8 +31,8 @@ if __name__ == "__main__":
     #inputfiles = sorted(glob(path+'/Run2016*.txt'))
     #inputfiles = sorted(glob(path+'/Run2017*.txt'))
     #inputfiles = sorted(glob(path+'/Summer16*.txt'))
-    inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
-    #inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt')+glob(path+'/Run2018*-SingleMuon.txt'))
+    #inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
+    inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt')+glob(path+'/Run2018*-SingleMuon.txt'))
     #inputfiles = sorted(glob(path+'/Summer16*.txt')+glob(path+'/RunIIFall17*.txt'))
     #inputfiles = sorted(glob(path+'/RunIISummer16MiniAODv3.SMS*.txt'))
     #inputfiles = ["./inputs/Run2016H-SingleMuon.txt"]
@@ -45,15 +45,17 @@ if __name__ == "__main__":
     #inputfiles = ["./inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.txt"]
     #inputfiles = ["./inputs/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8.txt"]
    
-    #condorDir = 'condor_data'
+    condorDir = 'condor_data'
+    #condorDir = 'condor_mc'
     #condorDir = 'condor_2016'
     #condorDir = 'condor_2017'
     #condorDir = 'condor_Summer16'
-    condorDir = 'condor_Fall17'
+    #condorDir = 'condor_Fall17'
     #condorDir = 'condor_RunIISignal'
     #condorDir = 'condor_RunIIFall17_FastSim_T1qqqq'
     
-    output_dir = "./output_smallchunks_MIH/"
+    output_dir = "./output_smallchunks/"
+    #output_dir = "./output_smallchunks_MIH/"
     if not os.path.exists(output_dir):
 	os.system("mkdir -p "+output_dir)
 	print "Making output_dir :", output_dir
