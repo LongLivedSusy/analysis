@@ -8,40 +8,33 @@ import numpy as np
 
 TH1.SetDefaultSumw2(True)
 
-def main(inputfiles,output_dir,output,nev,mstop,mlsp,dedxcalibfactor,dedxsmearfactor):
+def main(inputfile,outputdir,outputfile,nev,mstop,mlsp,dedxcalibfactor):
+    
+    if not os_.path.exists(inputfile):
+	print 'Cannot find inputfile.. quitting..'
+	quit()
+    else :
+	with open(inputfile) as f:
+	    print 'Successfully open inputfile:',inputfile
+	    fin = f.readlines()
     
     # Adding Trees
     c = TChain("TreeMaker2/PreSelection")
-    for i,inputfile in enumerate(inputfiles):
-        print 'adding {}th file:{}'.format(i,inputfile)
-    	c.Add(inputfile)
+    for i,ifile in enumerate(fin):
+        print 'adding {}th file:{}'.format(i,ifile)
+    	c.Add(str(ifile).rstrip())
     
     nentries = c.GetEntries()
     if nev != -1: nentries = nev
     
-    FileName = c.GetFile().GetName().split('/')[-1]
-    
-    # check if data:
-    phase = 0
-    for label in ["Summer16", "Fall17", "Autumn18"]:
-        if label in FileName:
-            if label == "Summer16":
-                phase = 0
-            elif label == "Fall17" or label == "Autumn18":
-                phase = 1
-    
-    print "FileName : ",FileName
-    print "Phase:", phase
     print "Total Entries : ",nentries 
+    print "Dedx calibration factor : ",dedxcalibfactor
     #c.Show(0)
 
-    # dEdx smear histo
-    doDedxSmear = False
-    #doDedxSmear = True
-    fsmear_barrel, fsmear_endcap = Load_DedxSmear(phase)
-    
     # Output file
-    fout = TFile(output_dir+'/'+output, "recreate")
+    if not os_.path.exists(outputdir):
+	os_.system('mkdir -p '+outputdir)
+    fout = TFile(outputdir+'/'+outputfile, "recreate")
     
     execfile("./histo_container_signal.py")
 
@@ -166,13 +159,15 @@ def main(inputfiles,output_dir,output,nev,mstop,mlsp,dedxcalibfactor,dedxsmearfa
 	    if dedx_pixel<4.0 : fillth1(hTrkPixelDedx_charginomatch_SR,0,weight)
 	    else : fillth1(hTrkPixelDedx_charginomatch_SR,1,weight)
 	    
+	    dedx_pixel_scale= dedx_pixel * dedxcalibfactor
+	    if dedx_pixel_scale<4.0 : fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
+	    else : fillth1(hTrkPixelDedxScale_charginomatch_SR,1,weight)
+	    
 	    # Barrel calibration
 	    if abs(track.Eta())<=1.5 :
-	        dedx_pixel_scale= dedx_pixel * dedxcalibfactor
 	        
 	        fillth1(hTrkPixelDedx_charginomatch_barrel,dedx_pixel,weight)
 	        fillth1(hTrkPixelDedxScale_charginomatch_barrel,dedx_pixel_scale,weight)
-	        fillth1(hTrkPixelDedxScaleSmear_charginomatch_barrel,dedx_pixel_scalesmear,weight)
 		if dedx_pixel_scale<4.0 : 
 		    fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
 		    fillth1(hTrkPixelDedxScale_charginomatch_barrel_SR,0,weight)
@@ -184,17 +179,8 @@ def main(inputfiles,output_dir,output,nev,mstop,mlsp,dedxcalibfactor,dedxsmearfa
 	    
 	    # Endcap calibration
 	    elif abs(track.Eta())>1.5 :
-	        scalefactor =1.125
-	        dedx_pixel_scale = dedx_pixel * dedxcalibfactor
-	        if doDedxSmear:
-		    smearfactor = fsmear_endcap.GetRandom()
-		    dedx_pixel_scalesmear = dedx_pixel_scale + smearfactor
-	        else : 
-		    dedx_pixel_scalesmear = dedx_pixel_scale
-	        
 	        fillth1(hTrkPixelDedx_charginomatch_endcap,dedx_pixel,weight)
 	        fillth1(hTrkPixelDedxScale_charginomatch_endcap,dedx_pixel_scale,weight)
-	        fillth1(hTrkPixelDedxScaleSmear_charginomatch_endcap,dedx_pixel_scalesmear,weight)
 		if dedx_pixel_scale<4.0 : 
 		    fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
 		    fillth1(hTrkPixelDedxScale_charginomatch_endcap_SR,0,weight)
@@ -207,32 +193,28 @@ def main(inputfiles,output_dir,output,nev,mstop,mlsp,dedxcalibfactor,dedxsmearfa
 
     fout.Write()
     fout.Close()
-    print(output_dir+'/'+output+" just created")
+    print(outputdir+'/'+outputfile+" just created")
 
 if __name__ == "__main__":
     
     print 'Running signal analyzer'
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", nargs="*", dest="inputfiles", required=True)
-    parser.add_argument("--output_dir",default="outputs_smallchunks",dest="output_dir")
-    parser.add_argument("--output",default="output.root",dest="output")
+    parser.add_argument("--inputfile", dest="inputfile", required=True)
+    parser.add_argument("--outputdir",default="outputs_smallchunks",dest="outputdir")
+    parser.add_argument("--outputfile",default="output.root",dest="outputfile")
     parser.add_argument("--nev",default=-1,dest="nev")
-    #parser.add_argument("--mgluino",default=-1,dest="mgluino")
     parser.add_argument("--mstop",default=-1,dest="mstop")
     parser.add_argument("--mlsp",default=-1,dest="mlsp")
     parser.add_argument("--dedxcalibfactor",default=1,dest="dedxcalibfactor")
-    parser.add_argument("--dedxsmearfactor",default=1,dest="dedxsmearfactor")
 
     args = parser.parse_args()
-    inputfiles = args.inputfiles
-    output_dir = args.output_dir
-    output = args.output
+    inputfile = args.inputfile
+    outputdir = args.outputdir
+    outputfile = args.outputfile
     nev = int(args.nev)
-    #mgluino = int(args.mgluino)
     mstop = int(args.mstop)
     mlsp = int(args.mlsp)
-    dedxcalibfactor = int(args.dedxcalibfactor)
-    dedxsmearfactor = int(args.dedxsmearfactor)
+    dedxcalibfactor = float(args.dedxcalibfactor)
 
-    main(inputfiles,output_dir,output,nev,mstop,mlsp,dedxcalibfactor,dedxsmearfactor)
+    main(inputfile,outputdir,outputfile,nev,mstop,mlsp,dedxcalibfactor)

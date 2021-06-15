@@ -7,9 +7,6 @@ from shared_utils import *
 gROOT.SetBatch(True)
 gStyle.SetOptStat(True)
 
-format_c = 'png'
-rebin = 1
-
 def main(inputfile, hist, outputdir, outputfile):
     if not os_.path.exists(inputfile) : print 'Cannot found input file : {}, quit'.format(inputfile); quit()
     
@@ -29,6 +26,9 @@ def main(inputfile, hist, outputdir, outputfile):
 
 
 if __name__ == '__main__' :
+
+    format_c = 'png'
+    rebin = 1
 
     hists=[
 	'hGenCharginoP',
@@ -55,7 +55,7 @@ if __name__ == '__main__' :
     
     # Run
     for hist in hists:
-        main(inputfile='./output_smallchunks_T2btLL_mstop1300_mlsp200/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1.root', hist=hist, outputdir='./plots_chargino_mStop1300_mLSP200/', outputfile='RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-200_'+hist+'.'+format_c)
+        main(inputfile='./output_smallchunks_T2btLL_mstop1300_mlsp200/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-200_TuneCUETP8M1.root', hist=hist, outputdir='./plots_chargino_mStop1300_mLSP200/', outputfile=hist+'.'+format_c)
         #main(inputfile='./output_smallchunks_T2btLL_mstop2500_mlsp1200/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1200_TuneCUETP8M1.root', hist=hist, outputdir='./plots_chargino_mStop2500_mLSP1200/', outputfile='RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mStop-2500_mLSP-1200_'+hist+'.'+format_c)
         #main(inputfile='./output_smallchunks_T2btLL_mstop2500_mlsp1400/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1400_TuneCUETP8M1.root', hist=hist, outputdir='./plots_chargino_mStop2500_mLSP1400/', outputfile='RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mStop-2500_mLSP-1400_'+hist+'.'+format_c)
         #main(inputfile='./output_smallchunks_T2btLL_mstop2500_mlsp1600/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1600_TuneCUETP8M1.root', hist=hist, outputdir='./plots_chargino_mStop2500_mLSP1600/', outputfile='RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mStop-2500_mLSP-1600_'+hist+'.'+format_c)
