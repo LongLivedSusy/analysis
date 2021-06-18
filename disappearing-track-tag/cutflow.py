@@ -16,8 +16,9 @@ cuts = {}
 cuts["BDT_short"] = [
             "tracks_is_pixel_track==1",
             "tracks_pt>15",
+            "tracks_passmask==1",
             "tracks_trackQualityHighPurity==1",
-            "abs(tracks_eta)<2.4",
+            "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
@@ -29,7 +30,7 @@ cuts["BDT_short"] = [
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
             "tracks_passjetveto==1",
-            "tracks_deDxHarmonic2pixel>2.0",
+            #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=0",
             "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
@@ -37,9 +38,10 @@ cuts["BDT_short"] = [
 
 cuts["BDT_long"] = [
             "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
-            "tracks_pt>30",
+            "tracks_pt>40",
+            "tracks_passmask==1",
             "tracks_trackQualityHighPurity==1",
-            "abs(tracks_eta)<2.4",
+            "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
@@ -51,7 +53,7 @@ cuts["BDT_long"] = [
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
             "tracks_passjetveto==1",
-            "tracks_deDxHarmonic2pixel>2.0",
+            #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=2",
             "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
@@ -60,8 +62,9 @@ cuts["BDT_long"] = [
 cuts["BDT_noJetVeto_short"] = [
             "tracks_is_pixel_track==1",
             "tracks_pt>15",
+            "tracks_passmask==1",
             "tracks_trackQualityHighPurity==1",
-            "abs(tracks_eta)<2.4",
+            "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
@@ -73,17 +76,19 @@ cuts["BDT_noJetVeto_short"] = [
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
             #"tracks_passjetveto==1",
-            "tracks_deDxHarmonic2pixel>2.0",
+            #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=0",
             "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
+
 ]
 
 cuts["BDT_noJetVeto_long"] = [
             "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
-            "tracks_pt>30",
+            "tracks_pt>40",
+            "tracks_passmask==1",
             "tracks_trackQualityHighPurity==1",
-            "abs(tracks_eta)<2.4",
+            "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
@@ -95,7 +100,7 @@ cuts["BDT_noJetVeto_long"] = [
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
             #"tracks_passjetveto==1",
-            "tracks_deDxHarmonic2pixel>2.0",
+            #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=2",
             "tracks_matchedCaloEnergy/tracks_p<0.2",
             "tracks_mva_tight_may20_chi2_pt10>0",
@@ -103,6 +108,7 @@ cuts["BDT_noJetVeto_long"] = [
 
 cuts["MT2_short"] = [
             "tracks_is_pixel_track==1",
+            "tracks_passPFCandVeto==1",
             "tracks_pt>15",
             "abs(tracks_eta)<2.4",
             "(abs(tracks_eta)<1.38 || abs(tracks_eta)>1.6)",
@@ -116,17 +122,16 @@ cuts["MT2_short"] = [
             "tracks_pixelLayersWithMeasurement>=3",
             "tracks_nMissingInnerHits==0",
             "tracks_nMissingOuterHits>=2",
-            "tracks_passPFCandVeto==1",
             "tracks_mt2_leptoniso==1",
-            #"tracks_mt2_trackiso==1",
 ]
 
 cuts["MT2_long"] = [
             "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "tracks_passPFCandVeto==1",
             "tracks_pt>15",
             "abs(tracks_eta)<2.4",
             "(abs(tracks_eta)<1.38 || abs(tracks_eta)>1.6)",
-            "tracks_ptErrOverPt2<0.005",
+            "tracks_ptErrOverPt2<0.02",
             "tracks_dxyVtx<0.01",
             "tracks_dzVtx<0.05",
             "tracks_neutralPtSum<10",
@@ -136,9 +141,7 @@ cuts["MT2_long"] = [
             "tracks_pixelLayersWithMeasurement>=2",
             "tracks_nMissingInnerHits==0",
             "tracks_nMissingOuterHits>=2",
-            "tracks_passPFCandVeto==1",
             "tracks_mt2_leptoniso==1",
-            #"tracks_mt2_trackiso==1",
 ]
 
 cuts["EXO_short"] = [
@@ -213,6 +216,38 @@ cuts["EXO_noeta_long"] = [
             "tracks_pt>55",
 ]
 
+cuts["EXO_noetapt_short"] = [
+            "tracks_is_pixel_track==1",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",                                 
+            "tracks_matchedCaloEnergy<10",                
+            #"tracks_pt>55",
+]
+
+cuts["EXO_noetapt_long"] = [
+            "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2",
+            "tracks_exo_trackiso==1",
+            "tracks_exo_jetiso==1",
+            "tracks_dxyVtx<0.02",
+            "tracks_dzVtx<0.5",
+            "tracks_nMissingInnerHits==0",
+            "tracks_nMissingMiddleHits==0",
+            "tracks_nValidPixelHits>=3",
+            "tracks_exo_leptoniso==1",
+            "tracks_trkRelIso<0.05",
+            "tracks_nMissingOuterHits>=3",
+            "tracks_matchedCaloEnergy<10",                
+            #"tracks_pt>55",
+]
+
 cuts["EXO_pt15_short"] = [
             "tracks_is_pixel_track==1",
             "abs(tracks_eta)<2.1",
@@ -252,6 +287,8 @@ cuts["EXO_pt15_long"] = [
             "tracks_matchedCaloEnergy<10",                
             "tracks_pt>15",
 ]
+
+
 
 
 def plot_cutflow(files, header, is_signal, prefix):
@@ -303,16 +340,17 @@ def plot_cutflow(files, header, is_signal, prefix):
                 
                 binlabel = cuts[label][i-1]
                 if "tracks_is_pixel_track" in binlabel: binlabel = "category"
-                elif "tracks_ptErrOverPt2" in binlabel: binlabel = "#Delta pT"
-                elif "tracks_neutralPtSum/tracks_pt" in binlabel: binlabel = "nt. pTSum/pT"
+                elif "tracks_ptErrOverPt2" in binlabel: binlabel = "#Delta p_{T}"
+                elif "tracks_neutralPtSum/tracks_pt" in binlabel: binlabel = "nt. #Sigma p_{T}/pT"
                 elif "tracks_neutralPtSum" in binlabel: binlabel = "nt. pTSum"
-                elif "tracks_chargedPtSum/tracks_pt" in binlabel: binlabel = "ch. pTSum/pT"
-                elif "tracks_chargedPtSum" in binlabel: binlabel = "ch. pTSum"
-                elif "tracks_pt" in binlabel: binlabel = "pT"
+                elif "tracks_chargedPtSum/tracks_pt" in binlabel: binlabel = "ch. #Sigma p_{T}/pT"
+                elif "tracks_chargedPtSum" in binlabel: binlabel = "ch. #Sigma p_{T}"
+                elif "tracks_pt" in binlabel: binlabel = "p_{T}"
+                elif "tracks_passmask" in binlabel: binlabel = "mask"
                 elif "tracks_trackQualityHighPurity" in binlabel: binlabel = "purity"
-                elif "tracks_eta" in binlabel: binlabel = "eta"
-                elif "tracks_dzVtx" in binlabel: binlabel = "dz"
-                elif "tracks_dxyVtx" in binlabel: binlabel = "dxy"
+                elif "tracks_eta" in binlabel: binlabel = "#eta"
+                elif "tracks_dzVtx" in binlabel: binlabel = "d_{z}"
+                elif "tracks_dxyVtx" in binlabel: binlabel = "d_{xy}"
                 elif "tracks_trkRelIso" in binlabel: binlabel = "relIso"
                 elif "tracks_trackerLayersWithMeasurement" in binlabel: binlabel = "layers"
                 elif "tracks_nValidTrackerHits" in binlabel: binlabel = "tracker hits"
