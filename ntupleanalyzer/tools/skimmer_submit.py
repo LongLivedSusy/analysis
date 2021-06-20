@@ -45,12 +45,13 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
     return commands
 
 
-def do_submission(commands, output_folder, condorDir = "bird", executable = "looper.py", runmode = "grid", dontCheckOnJobs=True, confirm=True):
+def do_submission(commands, output_folder, condorDir = "bird", executable = "looper.py", runmode = "grid", dontCheckOnJobs=False, confirm=True):
 
     print "Submitting \033[1m%s jobs\033[0m, output folder will be \033[1m%s\033[0m." % (len(commands), output_folder)
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
-    return runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm)
+    os.system("cp ../../tools/shared_utils.py %s/" % (output_folder))
+    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm, cmsbase="/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_4_patch1/src")
 
 
 def get_data_sample_names(folder, globstring = "*"):
@@ -86,6 +87,14 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
         for i_globstring in globstrings:
             ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
     
+        if user == "vkutzner":
+            print "Adding NtupleHub contents from Akshansh..."
+            folder = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh"
+            if folder not in ntuples:
+                ntuples[folder] = []
+            for i_globstring in globstrings:
+                ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
+    
     if add_signals:
 
         #ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar"] = [
@@ -116,7 +125,7 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default = 60)
+    parser.add_option("--nfiles", dest="files_per_job", default = 200)
     parser.add_option("--njobs", dest="njobs")
     parser.add_option("--start", dest="start", action = "store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
@@ -135,17 +144,15 @@ if __name__ == "__main__":
     ######## defaults ########
     if not options.command:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow"
     if not options.dataset:
-        options.add_signals = False
-        #options.dataset = mc_summer16 + ",Run2016*,RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = mc_summer16 + ",Run2016*"
-        options.dataset = mc_summer16 + ",RunIISummer16MiniAODv3.SMS*,Run2016*"
-        #options.dataset = "RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = mc_fall17
-        #options.dataset = "Run2016*,Run2017*"
-        #options.dataset = "Run2016*"
+        options.add_signals = 0
+        #Run201*,
+        options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
+        #options.dataset = "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
     if not options.output_folder:
-        options.output_folder = "../skim_42"
+        options.output_folder = "../skim_89_bdts"
     ######## defaults ########
 
     commands = []
@@ -178,8 +185,15 @@ if __name__ == "__main__":
             
         commands = new_commands
     
+    # slim command list:
+    with open("skimmer.arguments", "w") as fout:
+        fout.write("\n".join(commands))
+    for i in range(len(commands)):
+        #commands[i] = 'sh -c "$(head -n %i skimmer.arguments | tail -n 1)"' % (i+1)
+        commands[i] = "./skimmer.py --narg %i" % (i+1)
+    
     do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
 
-    #print "Merging..."
-    #os.system("./merge_samples.py --start --hadd %s" % options.output_folder)
+    print "Merging..."
+    os.system("./merge_samples.py --start --hadd %s" % options.output_folder) # --json --bril
 

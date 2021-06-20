@@ -24,20 +24,24 @@ if __name__ == "__main__":
     else:
         print "Usage: ./plot_fakerate.py <folder>"
         quit()
-       
-    for identifier, datasets in [
-                                  ("2016", ["Summer16", "Run2016"]),
-                                  #("2017", ["Fall17", "Run2017"]),
-                                  #("2018", ["Fall17", "Run2018"])
-                                ]:
+     
+    # check data period:
+    data_periods = []
+    merged_files = glob.glob(folder + "_fakerate/merged_*.root")
+    for merged_file in merged_files:
+        if "All" in merged_file: continue
+        for period in ["Summer16", "Fall17", "Run2016", "Run2017", "Run2018"]:
+            if period in merged_file and period not in data_periods:
+                    data_periods.append(period)
+                    print "Looking at %s" % period 
     
+    for dataset in data_periods:
         for fakeratetype in ["fakerate", "kappa"]: 
-            
             if fakeratetype == "fakerate":
                 region = "QCDLowMHT"
                 variables = [
                              #"tracks_pt",
-                             "HT",
+                             "tracks_eta",
                              #"MHT",
                              #"n_goodjets",
                              #"n_allvertices",
@@ -52,91 +56,74 @@ if __name__ == "__main__":
                             ]
         
             for variable in variables:
-                
                 histos = collections.OrderedDict()
-                
-                
-                for category in ["_short", "_long"]:
-                    
-                    
-                    for dataset in datasets:
+                for category in ["_short", "_long"]:    
             
-                        if "Run" not in dataset: continue
-                        label = "%s_%s_%s_%s%s" % (dataset, variable, region, fakeratetype, category)
-                        print label
+                    label = "%s_%s_%s_%s%s" % (dataset, variable, region, fakeratetype, category)
+                    print label
             
-                        histos[label] = fin.Get(label)
-                        histos[label].SetDirectory(0)
+                    histos[label] = fin.Get(label)
+                    histos[label].SetDirectory(0)
             
-                        histos[label].SetLineWidth(2)
-                        shared_utils.histoStyler(histos[label])                
+                    histos[label].SetLineWidth(2)
+                    shared_utils.histoStyler(histos[label])                
             
-                        if ":" in variable:
-                            
-                            myvariable = variable
-                            myvariable = myvariable.replace("HT", "H_{T} (GeV)")
-                            myvariable = myvariable.replace("n_allvertices", "n_{vertices}")
-                            
-                            size = 0.059
-                            font = 132
-                            histos[label].GetZaxis().SetLabelFont(font)
-                            histos[label].GetZaxis().SetTitleFont(font)
-                            histos[label].GetZaxis().SetTitleSize(size)
-                            histos[label].GetZaxis().SetLabelSize(size)
-                            histos[label].GetZaxis().SetLabelSizeser(3e-3, 2e-1)
-                            histos[label].GetZaxis().SetTitleOffset(1.2)
-                            histos[label].GetXaxis().SetNdivisions(5)
-                            histos[label].SetTitle(";%s;%s;fake rate" % (myvariable.split(":")[0], myvariable.split(":")[1]))
+                    if ":" in variable:
+                        
+                        myvariable = variable
+                        myvariable = myvariable.replace("HT", "H_{T} (GeV)")
+                        myvariable = myvariable.replace("n_allvertices", "n_{vertices}")
+                        
+                        size = 0.059
+                        font = 132
+                        histos[label].GetZaxis().SetLabelFont(font)
+                        histos[label].GetZaxis().SetTitleFont(font)
+                        histos[label].GetZaxis().SetTitleSize(size)
+                        histos[label].GetZaxis().SetLabelSize(size)
+                        histos[label].GetZaxis().SetLabelSizeser(3e-3, 2e-1)
+                        histos[label].GetZaxis().SetTitleOffset(1.2)
+                        histos[label].GetXaxis().SetNdivisions(5)
+                        histos[label].SetTitle(";%s;%s;fake rate" % (myvariable.split(":")[0], myvariable.split(":")[1]))
             
-                            canvas = shared_utils.mkcanvas()
-                            canvas.SetRightMargin(0.2)
-                            histos[label].Draw("colz")
-                            canvas.SetLogz(True)
-                            shared_utils.stamp()
-                            
-                            text = TLatex()
-                            text.SetTextFont(132)
-                            text.SetTextSize(0.05)
-                            text.SetNDC()
-                            text.DrawLatex(0.175, 0.825, "%s, %s tracks" % (dataset, category.replace("_", "")))
-                            
-                            canvas.SaveAs(folder + "_plots/" + label + ".pdf")
-            
+                        canvas = shared_utils.mkcanvas()
+                        canvas.SetRightMargin(0.2)
+                        histos[label].Draw("colz")
+                        canvas.SetLogz(True)
+                        shared_utils.stamp()
+                        
+                        text = TLatex()
+                        text.SetTextFont(132)
+                        text.SetTextSize(0.05)
+                        text.SetNDC()
+                        text.DrawLatex(0.175, 0.825, "%s, %s tracks" % (dataset, category.replace("_", "")))
+                        
+                        canvas.SaveAs(folder + "_plots/" + label + ".pdf")
             
                 if ":" not in variable:
+                    for category in ["long", "short"]:
                     
-                    for i, dataset in enumerate(datasets):       #"Summer16"
+                        if category == "combined" and variable != "tracks_is_pixel_track":
+                            continue
                     
-                        # only data! FIXME
-                        if "Run" not in dataset: continue
-                    
-                        for category in ["long", "short"]:          #"combined"
+                        if category == "short":
+                            color = kRed
+                        elif category == "long":
+                            color = kBlue
+                        else:
+                            color = kBlack
                         
-                            if category == "combined" and variable != "tracks_is_pixel_track":
-                                continue
-                        
-                            if category == "short":
-                                color = kRed
-                            elif category == "long":
-                                color = kBlue
-                            else:
-                                color = kBlack
+                        if category == "combined":
+                            label = "%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype)
+                        else:
+                            label = "%s_%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype, category)
                             
-                            if category == "combined":
-                                label = "%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype)
-                            else:
-                                label = "%s_%s_%s_%s_%s" % (dataset, variable.replace(":", "_"), region, fakeratetype, category)
-                                
-                            print label
-                                
-                            if "Run" not in dataset:
-                                histos[label].SetLineStyle(2)
+                        print label
                             
-                            histos[label].SetLineColor(color)
-                            histos[label].SetTitle(category + " tracks, " + dataset)
-                                
-                            if category == "combined":
-                                break
+                        histos[label].SetLineColor(color)
+                        histos[label].SetTitle(category + " tracks, " + dataset)
+                            
+                        if category == "combined":
+                            break
                               
                     legend = shared_utils.mklegend(x1 = 0.15, y1 = 0.7, x2 = 0.5, y2 = 0.83)
                     legend.SetTextSize(0.04)
@@ -152,7 +139,6 @@ if __name__ == "__main__":
                             histos[label].Draw("hist e same")
 
                         histos[label].GetXaxis().SetNdivisions(6)
-                        
                         binmax = histos[label].GetMaximumBin()
                         currentmax = histos[label].GetXaxis().GetBinCenter(binmax)
                         print currentmax
@@ -170,10 +156,14 @@ if __name__ == "__main__":
 
                     maxvalue = 3
                     for i, label in enumerate(histos):
-                        histos[label].GetYaxis().SetRangeUser(0, 1.1 * maxvalue)
+                        if fakeratetype == "fakerate":
+                            histos[label].GetYaxis().SetRangeUser(0, 1.5)
+                        else:
+                            histos[label].GetYaxis().SetRangeUser(0, 10.0)
+
 
                     legend.Draw()
                     shared_utils.stamp()
                         
-                    canvas.SaveAs(folder + "_plots/" + fakeratetype + "_" + variable + "_" + identifier + ".pdf")
+                    canvas.SaveAs(folder + "_plots/" + fakeratetype + "_" + variable + "_" + dataset + ".pdf")
             

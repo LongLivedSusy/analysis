@@ -378,7 +378,7 @@ if __name__ == "__main__":
     has_DT_MidDeDx = has_DT + "tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s && " % (dEdxLow, dEdxMid)
     has_DT_HighDeDx = has_DT + "tracks_deDxHarmonic2pixelCorrected>%s && tracks_deDxHarmonic2pixelCorrected<%s && " % (dEdxMid, 9999)
 
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_15_merged"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_50_run2_merged"
 
 
     if True:

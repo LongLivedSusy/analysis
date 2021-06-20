@@ -10,8 +10,8 @@ from optparse import OptionParser
 parser = OptionParser()
 (options, args) = parser.parse_args()
 
-if len(args)>1:
-    configurations = args[1:]
+if len(args)>0:
+    configurations = args
 else:
     print "Run with \n$ ./www-create-pics.py path/to/folder/to/upload"
     quit()

@@ -77,10 +77,10 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
     ntuples = {}
     for user in get_userlist():
         print "Adding NtupleHub contents from %s..." % user
-        if user == "sbein":
-            folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v4" % user
-        else:
-            folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user
+        #if user == "sbein":
+        #    folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v4" % user
+        #else:
+        folder = "/pnfs/desy.de/cms/tier2/store/user/%s/NtupleHub/ProductionRun2v3" % user
         if folder not in ntuples:
             ntuples[folder] = []
         for i_globstring in globstrings:
@@ -135,9 +135,10 @@ if __name__ == "__main__":
     if not options.command:
         options.command = "./get_trigger_efficiency.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
-        options.dataset = "Run2017*Single*,Run2018*Single*"
+        #options.dataset = "Run2017*Single*,Run2018*Single*"
+        options.dataset = "Run2018*Single*"
     if not options.output_folder:
-        options.output_folder = "output2"
+        options.output_folder = "output3"
     ######## defaults ########
 
     commands = []

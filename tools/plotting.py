@@ -3,7 +3,8 @@ from __future__ import division
 import glob
 from ROOT import *
 import uuid
-import multiprocessing 
+import multiprocessing
+from array import array
 
 gROOT.SetBatch(True)
 gStyle.SetOptStat(0)
@@ -12,45 +13,17 @@ TH1D.SetDefaultSumw2()
 # a collection of generic functions to retrieve a 1D or 2D histogram from a collection of files containing a TTree
 # comments @ viktor.kutzner@desy.de
 
-def stamp_plot():
-
-    # from Sam:
-    showlumi = False
-    lumi = 150
-    tl = TLatex()
-    tl.SetNDC()
-    cmsTextFont = 61
-    extraTextFont = 52
-    lumiTextSize = 0.6
-    lumiTextOffset = 0.2
-    cmsTextSize = 0.75
-    cmsTextOffset = 0.1
-    regularfont = 42
-    tl.SetTextFont(cmsTextFont)
-    tl.SetTextSize(0.85*tl.GetTextSize())
-    tl.DrawLatex(0.135,0.915, 'CMS')
-    tl.SetTextFont(extraTextFont)
-    tl.SetTextSize(1.0/0.85*tl.GetTextSize())
-    xlab = 0.213
-    tl.DrawLatex(xlab,0.915, ' Work in Progress')
-    tl.SetTextFont(regularfont)
-    tl.SetTextSize(0.81*tl.GetTextSize())    
-    thingy = ''
-    if showlumi: thingy+='#sqrt{s}=13 TeV, L = '+str(lumi)+' fb^{-1}'
-    xthing = 0.6202
-    if not showlumi: xthing+=0.13
-    tl.DrawLatex(xthing,0.915,thingy)
-    tl.SetTextSize(1.0/0.81*tl.GetTextSize())
-
-
-def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, add_overflow = False):
+def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, add_overflow = True):
 
     hName = str(uuid.uuid1()).replace("-", "")
 
     canvas = TCanvas("c_" + hName)
 
     if not nBinsY:
-        histo = TH1F(hName, hName, nBinsX, xmin, xmax)
+        if isinstance(nBinsX, list):
+            histo = TH1F(hName, hName, len(nBinsX) - 1, array('d', nBinsX) )                    
+        else:
+            histo = TH1F(hName, hName, nBinsX, xmin, xmax)
     else:
         histo = TH2F(hName, hName, nBinsX, xmin, xmax, nBinsY, ymin, ymax)
 
@@ -90,8 +63,24 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     return histo
 
 
-def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, file_contains_histograms=False, numevents=-1, unweighted=False):
+def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, unweighted=False):
     
+    if "*" in tree_files:
+        tree_files = glob.glob(tree_files)
+
+    if not isinstance(tree_files, list):
+        tree_files = [tree_files]
+        
+    if len(tree_files)==0:
+        print "empty histogram..."
+        if not nBinsY:
+            if isinstance(nBinsX, list):
+                return TH1F("empty", "empty", len(nBinsX) - 1, array('d', nBinsX) )                    
+            else:
+                return TH1F("empty", "emtpy", nBinsX, xmin, xmax)
+        else:
+            return TH2F("empty", "emtpy", nBinsX, xmin, xmax, nBinsY, ymin, ymax)
+                
     is_data = False
     if "Run201" in tree_files[0]:
         is_data = True      
@@ -146,121 +135,22 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
         histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
 
     #print "cutstring:", cutstring
-    if not is_data and not unweighted:
+    if not is_data and not unweighted and nev>0:
         histo.Scale(1.0/nev)
-        #print "Scaled with nev = ", nev
     return histo
 
 
-def get_histogram_from_file_wrapper(args):
+def get_all_histos(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, unweighted=False):
 
-    tree_files = args[0]
-    tree_folder_name  = args[1]
-    variable = args[2]
-    nBinsX = args[3]
-    xmin = args[4]
-    xmax = args[5]
-    nBinsY = args[6]
-    ymin = args[7]
-    ymax = args[8]
-    cutstring = args[9]
-    scaling = args[10]
-    numevents = args[11]
-
-    #print "Thread started..."
-
-    histogram = get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, file_contains_histograms=False, numevents=numevents)
-
-    unique = str(uuid.uuid1())
-    histogram.SetDirectory(0)
-    histogram.SetName(unique)
-
-    return histogram 
-
-
-def get_histogram(variable, cutstring, tree_folder_name="Events", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, path="./output_tautrack", selected_sample = "Run2016", numevents=-1, threads=-1):
-
-    print "[multithreaded] Getting histogram for %s, cut = %s" % (variable, cutstring)
-
-    unique = str(uuid.uuid1())
-    
-    histograms = {}
-    h_combined = 0
-    file_names = glob.glob(path + "/*root")
-    
-    samples = []
-    for file_name in file_names:
-        
-        #if "merged" not in path:
-        #    identifier = "_".join(file_name.split("_")[:-3])
-        #else:scaling
-        identifier = file_name.replace(".root", "")
-    
-        selectors = selected_sample.split("*")
-        count = 0
-        for selector in selectors:
-
-            if "|" in selector:
-                for or_selector in selector.split("|"):
-                    if or_selector in identifier:
-                        count += 1
-                        break
-            elif selector in identifier:
-                count += 1
-        if count == len(selectors):
-            samples.append(identifier)
-
-    samples = list(set(samples))
-    
-    print "selected_sample:", selected_sample
-    print "Found samples matching ''%s'':" % selected_sample, samples
-
-    pool_args = []
-    for i_sample, sample in enumerate(samples):
-
-        filenames = glob.glob(sample + "*root")
-
-        if not nBinsY:
-            pool_args.append( [filenames, tree_folder_name, variable, nBinsX, xmin, xmax, False, False, False, cutstring, scaling, numevents] )
+    h_output = False
+    for i, tree_file in enumerate(tree_files):
+        h_tmp = get_histogram_from_file(tree_file, tree_folder_name, variable, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents, unweighted=unweighted)    
+        if not h_output:
+            h_output = h_tmp
         else:
-            pool_args.append( [filenames, tree_folder_name, variable, nBinsX, xmin, xmax, nBinsY, ymin, ymax, cutstring, scaling, numevents] )
-
-    try:
-
-        all_histograms = []
-
-        if threads != 1:
-            if threads == -1:
-                # start thread pool with half of all cores
-                pool = multiprocessing.Pool(int(multiprocessing.cpu_count()*0.5))
-            else:
-                # start thread pool with specified number of cores
-                pool = multiprocessing.Pool(threads)
-            all_histograms = pool.map(get_histogram_from_file_wrapper, pool_args)       
-           
-            pool.close()
-
-        else:
-            # don't use multithreading
-            for pool_arg in pool_args:
-                all_histograms.append( get_histogram_from_file_wrapper(pool_arg) )
-
-        for histogram in all_histograms:   
-        
-            if h_combined == 0:
-                h_combined = histogram
-            else:
-                h_combined.Add(histogram)
-        
-    except Exception, error:    
-        
-        print str(error)
-        quit()
-
-    try:
-        print "n_total=%s" % h_combined.GetEntries()
-        return h_combined
-    except:
-        print "Empty histogram"
-        return False
+            h_output.Add(h_tmp)
+    
+    print "%s, N_ev=%s, Int()=%s" % (variable, h_output.GetEntries(), h_output.Integral())
+    
+    return h_output
 

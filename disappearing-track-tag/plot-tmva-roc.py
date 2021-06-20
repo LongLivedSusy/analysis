@@ -55,6 +55,10 @@ tmva_folders = [
         "2017-short-tracks-sgtest-compressed",
         "2017-short-tracks-sgtest-corner",
         "2017-short-tracks-sgtest-inverted",
+        "2016-long-tracks-sgtest-baseline",
+        "2016-short-tracks-sgtest-baseline",
+        "2017-long-tracks-sgtest-baseline",
+        "2017-short-tracks-sgtest-baseline",
 ]
 
 
@@ -64,55 +68,65 @@ histos = {}
 
 #colors = [kBlack, kBlue, kBlue-3, kBlue-9, kCyan, kCyan-3, kGreen, kGreen-3, kOrange, kRed, kPink, kMagenta, kMagenta-3]
 #colors = [kAzure, kCyan, kGreen-3, kOrange, kRed, kMagenta, kRed-9, kAzure+2]
-colors = range(209,270)
 
-canvas = shared_utils.mkcanvas("c1")
-legend = shared_utils.mklegend(x1=.17, y1=.17, x2=.6, y2=.6)
-legend.SetTextSize(0.035)
+for phase in ["2016", "2017"]:
+    for category in ["short", "long"]:
+        
+        colors = range(209,270)
 
-color = 0
+        canvas = shared_utils.mkcanvas("c1")
+        legend = shared_utils.mklegend(x1=.17, y1=.17, x2=.6, y2=.6)
+        legend.SetTextSize(0.035)
 
-for tmva_folder in sorted(tmva_folders):
-    print tmva_folder
-    fin = TFile("%s/output.root" % tmva_folder)
-    histos[tmva_folder] = fin.Get("dataset/Method_BDT/BDT/MVA_BDT_rejBvsS")
-    histos[tmva_folder].SetDirectory(0)
-    histos[tmva_folder].SetName(tmva_folder)
-    histos[tmva_folder].SetTitle('')
-    histos[tmva_folder].GetYaxis().SetTitle('Background rejection')
-    histos[tmva_folder].GetXaxis().SetTitle('Signal efficiency')
-    shared_utils.histoStyler(histos[tmva_folder])
-    
-    if "noEdep" in tmva_folder:
-        histos[tmva_folder].SetLineWidth(3)
-        #histos[tmva_folder].SetLineColor(color)
-    elif "equSgXsec" in tmva_folder:
-        histos[tmva_folder].SetLineStyle(3)
-    elif "noveto" in tmva_folder:
-        histos[tmva_folder].SetLineStyle(2)
-    elif "may21v2" in tmva_folder:
-        color = colors.pop(0)
-    else:
-        color = colors.pop(0)
-    histos[tmva_folder].SetLineColor(color)
-    
-    fin.Close()
-    
-    label = tmva_folder.replace("-", " ")
-    label = label.replace("may21 equSgXsec3", ", with equal sg. xsections")
-    label = label.replace("may21v2", ", without no. of pixel hits")
-    label = label.replace("may21", ", xsection-weighted signal")
-    legend.AddEntry(histos[tmva_folder], label)
-
-for i, label in enumerate(histos):
-    if i == 0:
-        histos[label].Draw("hist")
-    else:
-        histos[label].Draw("hist same")
-
-legend.Draw()
-shared_utils.stamp(showlumi=False)
-canvas.SaveAs("ROC.pdf")
+        color = 0
+        
+        drawhists = []
+        
+        for tmva_folder in sorted(tmva_folders):
+            if phase in tmva_folder and category in tmva_folder:
+                
+                print tmva_folder
+                fin = TFile("%s/output.root" % tmva_folder)
+                histos[tmva_folder] = fin.Get("dataset/Method_BDT/BDT/MVA_BDT_rejBvsS")
+                histos[tmva_folder].SetDirectory(0)
+                histos[tmva_folder].SetName(tmva_folder)
+                histos[tmva_folder].SetTitle('')
+                histos[tmva_folder].GetYaxis().SetTitle('Background rejection')
+                histos[tmva_folder].GetXaxis().SetTitle('Signal efficiency')
+                shared_utils.histoStyler(histos[tmva_folder])
+                
+                if "noEdep" in tmva_folder:
+                    histos[tmva_folder].SetLineWidth(3)
+                    #histos[tmva_folder].SetLineColor(color)
+                elif "equSgXsec" in tmva_folder:
+                    histos[tmva_folder].SetLineStyle(3)
+                elif "noveto" in tmva_folder:
+                    histos[tmva_folder].SetLineStyle(2)
+                elif "may21v2" in tmva_folder:
+                    color = colors.pop(0)
+                else:
+                    color = colors.pop(0)
+                histos[tmva_folder].SetLineColor(color)
+                
+                fin.Close()
+                
+                label = tmva_folder.replace("-", " ")
+                label = label.replace("may21 equSgXsec3", ", with equal sg. xsections")
+                label = label.replace("may21v2", ", without no. of pixel hits")
+                label = label.replace("may21", ", xsection-weighted signal")
+                legend.AddEntry(histos[tmva_folder], label)
+                
+                drawhists.append(tmva_folder)
+        
+        for i, label in enumerate(drawhists):
+            if i == 0:
+                histos[label].Draw("hist")
+            else:
+                histos[label].Draw("hist same")
+        
+        legend.Draw()
+        shared_utils.stamp(showlumi=False)
+        canvas.SaveAs("ROC_%s_%s.pdf" % (phase, category))
 
 quit()
 

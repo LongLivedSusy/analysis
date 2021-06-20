@@ -96,11 +96,12 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
 
         runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit)
     
-        summary = get_info(condorDir)
-        if summary["success"] == summary["njobs"]:
-            return 0
-        else:
-            return summary
+        if babysit:
+            summary = get_info(condorDir)
+            if summary["success"] == summary["njobs"]:
+                return 0
+            else:
+                return summary
 
 
 def babysit_jobs(condorDir):
@@ -151,10 +152,10 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     # set up cmssw
     source /cvmfs/cms.cern.ch/cmsset_default.sh
     export SCRAM_ARCH=slc6_amd64_gcc530
-    if [[ ! -f $(which voms-proxy-info) ]]
-     then
+    #if [[ ! -f $(which voms-proxy-info) ]]
+    # then
       source /cvmfs/grid.desy.de/etc/profile.d/grid-ui-env.sh
-     fi
+    # fi
     cd CMSBASE
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
@@ -217,7 +218,8 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     additional_parameters = ""
     if use_more_mem:
         if use_more_mem == 1:
-            use_more_mem = 4096
+            #use_more_mem = 4096
+            use_more_mem = 6144
         additional_parameters += "RequestMemory = %s\n" % use_more_mem
     if use_more_time:
         if use_more_time == 1:

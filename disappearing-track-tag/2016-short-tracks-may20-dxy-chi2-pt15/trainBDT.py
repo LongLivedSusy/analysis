@@ -310,7 +310,7 @@ def train(skim_folder, category, is_dxyinformed, use_chi2, phase, n_ntuple_files
                                                  ]))
 
     ## book and define methods that should be trained
-    method = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT",
+    factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT",
                                 ":".join([ "!H",
                                            "!V",
                                            "NTrees=200",
@@ -321,6 +321,121 @@ def train(skim_folder, category, is_dxyinformed, use_chi2, phase, n_ntuple_files
                                            #"nCuts=20",
                                            "PruneMethod=NoPruning",
                                            ]))
+                             
+                                           
+    #factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT2",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=400",
+    #                                       "MaxDepth=4",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #                                       
+    #
+    #factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT4",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=600",
+    #                                       "MaxDepth=4",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #
+    #factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT5",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=1000",
+    #                                       "MaxDepth=4",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #
+    #
+    #                                       
+    #methodC = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT0nCuts",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=200",
+    #                                       "MaxDepth=4",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       "nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #
+    #
+    #method1 = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT1",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=100",
+    #                                       "MaxDepth=4",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #
+    #method2 = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT2",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=50",
+    #                                       "MaxDepth=4",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #                                       
+    #method3 = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT3",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=200",
+    #                                       "MaxDepth=3",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #
+    #method4 = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT4",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=100",
+    #                                       "MaxDepth=3",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    #
+    #method5 = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT5",
+    #                            ":".join([ "!H",
+    #                                       "!V",
+    #                                       "NTrees=50",
+    #                                       "MaxDepth=3",
+    #                                       "BoostType=AdaBoost",
+    #                                       "AdaBoostBeta=0.5",
+    #                                       "SeparationType=GiniIndex",
+    #                                       #"nCuts=20",
+    #                                       "PruneMethod=NoPruning",
+    #                                       ]))
+    
+
    
     # self-explaining
     factory.TrainAllMethods()
