@@ -1,0 +1,228 @@
+035 (20595180.-01.000) 2021-05-27 12:26:03 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20595180.000.000) 2021-05-27 12:26:03 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+001 (20595180.000.000) 2021-05-27 12:26:59 Job executing on host: <131.169.77.124:37268?addrs=131.169.77.124-37268&alias=bird062.desy.de>
+...
+006 (20595180.000.000) 2021-05-27 12:27:08 Image size of job updated: 83772
+	51  -  MemoryUsage of job (MB)
+	51956  -  ResidentSetSize of job (KB)
+...
+006 (20595180.000.000) 2021-05-27 12:27:14 Image size of job updated: 668092
+	51  -  MemoryUsage of job (MB)
+	51956  -  ResidentSetSize of job (KB)
+...
+005 (20595180.000.000) 2021-05-27 12:27:14 Job terminated.
+	(1) Normal termination (return value 112)
+		Usr 0 00:00:02, Sys 0 00:00:01  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:02, Sys 0 00:00:01  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :        0        1         1 
+	   Disk (KB)            :     1000   512000    704253 
+	   Memory (MB)          :       51     1536      1536 
+
+	Job terminated of its own accord at 2021-05-27T10:27:14Z.
+...
+036 (20595180.-01.000) 2021-05-27 12:27:14 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+035 (20595186.-01.000) 2021-05-27 12:31:09 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20595186.000.000) 2021-05-27 12:31:09 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+001 (20595186.000.000) 2021-05-27 12:31:32 Job executing on host: <131.169.162.192:42515?addrs=131.169.162.192-42515+[2001-638-700-10a0--1-2c0]-42515&alias=batch1192.desy.de>
+...
+006 (20595186.000.000) 2021-05-27 12:31:40 Image size of job updated: 308672
+	158  -  MemoryUsage of job (MB)
+	160880  -  ResidentSetSize of job (KB)
+...
+006 (20595186.000.000) 2021-05-27 12:32:22 Image size of job updated: 422568
+	158  -  MemoryUsage of job (MB)
+	160880  -  ResidentSetSize of job (KB)
+...
+005 (20595186.000.000) 2021-05-27 12:32:22 Job terminated.
+	(1) Normal termination (return value 112)
+		Usr 0 00:00:45, Sys 0 00:00:02  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:45, Sys 0 00:00:02  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     1.00        1         1 
+	   Disk (KB)            :  1000      512000   1438113 
+	   Memory (MB)          :   158        1536      1536 
+
+	Job terminated of its own accord at 2021-05-27T10:32:22Z.
+...
+036 (20595186.-01.000) 2021-05-27 12:32:22 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+035 (20597368.-01.000) 2021-05-27 16:18:15 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20597368.000.000) 2021-05-27 16:18:15 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+009 (20597368.000.000) 2021-05-27 16:18:36 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (20597368.-01.000) 2021-05-27 16:18:36 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...
+035 (20597374.-01.000) 2021-05-27 16:19:06 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20597374.000.000) 2021-05-27 16:19:06 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+040 (20597374.000.000) 2021-05-27 16:23:49 Started transferring input files
+	Transferring to host: <131.169.163.126:38088?addrs=131.169.163.126-38088&alias=bird687.desy.de>
+...
+040 (20597374.000.000) 2021-05-27 16:23:49 Finished transferring input files
+...
+001 (20597374.000.000) 2021-05-27 16:23:50 Job executing on host: <131.169.163.126:34101?addrs=131.169.163.126-34101&alias=bird687.desy.de>
+...
+006 (20597374.000.000) 2021-05-27 16:23:59 Image size of job updated: 249224
+	116  -  MemoryUsage of job (MB)
+	118252  -  ResidentSetSize of job (KB)
+...
+006 (20597374.000.000) 2021-05-27 16:25:10 Image size of job updated: 511616
+	116  -  MemoryUsage of job (MB)
+	118612  -  ResidentSetSize of job (KB)
+...
+040 (20597374.000.000) 2021-05-27 16:25:10 Started transferring output files
+...
+040 (20597374.000.000) 2021-05-27 16:25:10 Finished transferring output files
+...
+005 (20597374.000.000) 2021-05-27 16:25:11 Job terminated.
+	(1) Normal termination (return value 112)
+		Usr 0 00:01:11, Sys 0 00:00:03  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:01:11, Sys 0 00:00:03  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	69660  -  Run Bytes Sent By Job
+	974764  -  Run Bytes Received By Job
+	69660  -  Total Bytes Sent By Job
+	974764  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     1.00        1         1 
+	   Disk (KB)            :  1038      512000   1315240 
+	   Memory (MB)          :   116        1536      1536 
+
+	Job terminated of its own accord at 2021-05-27T14:25:10Z.
+...
+036 (20597374.-01.000) 2021-05-27 16:25:11 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+035 (20597482.-01.000) 2021-05-27 17:14:29 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20597482.000.000) 2021-05-27 17:14:29 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+009 (20597482.000.000) 2021-05-27 17:14:49 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (20597482.-01.000) 2021-05-27 17:14:49 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...
+035 (20597493.-01.000) 2021-05-27 17:17:11 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20597493.000.000) 2021-05-27 17:17:11 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+040 (20597493.000.000) 2021-05-27 17:18:16 Started transferring input files
+	Transferring to host: <131.169.163.123:36767?addrs=131.169.163.123-36767&alias=bird684.desy.de>
+...
+040 (20597493.000.000) 2021-05-27 17:18:16 Finished transferring input files
+...
+001 (20597493.000.000) 2021-05-27 17:18:17 Job executing on host: <131.169.163.123:39835?addrs=131.169.163.123-39835&alias=bird684.desy.de>
+...
+006 (20597493.000.000) 2021-05-27 17:18:26 Image size of job updated: 5428
+	5  -  MemoryUsage of job (MB)
+	4164  -  ResidentSetSize of job (KB)
+...
+006 (20597493.000.000) 2021-05-27 17:19:49 Image size of job updated: 511616
+	5  -  MemoryUsage of job (MB)
+	4164  -  ResidentSetSize of job (KB)
+...
+040 (20597493.000.000) 2021-05-27 17:19:49 Started transferring output files
+...
+040 (20597493.000.000) 2021-05-27 17:19:49 Finished transferring output files
+...
+005 (20597493.000.000) 2021-05-27 17:19:49 Job terminated.
+	(1) Normal termination (return value 112)
+		Usr 0 00:01:12, Sys 0 00:00:02  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:01:12, Sys 0 00:00:02  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	69659  -  Run Bytes Sent By Job
+	974764  -  Run Bytes Received By Job
+	69659  -  Total Bytes Sent By Job
+	974764  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.99        1         1 
+	   Disk (KB)            :  1038      512000   1316648 
+	   Memory (MB)          :     5        1536      1536 
+
+	Job terminated of its own accord at 2021-05-27T15:19:49Z.
+...
+036 (20597493.-01.000) 2021-05-27 17:19:49 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+035 (20598009.-01.000) 2021-05-27 17:47:22 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20598009.000.000) 2021-05-27 17:47:22 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+040 (20598009.000.000) 2021-05-27 17:47:49 Started transferring input files
+	Transferring to host: <131.169.164.22:43002?addrs=131.169.164.22-43002&alias=bird822.desy.de>
+...
+040 (20598009.000.000) 2021-05-27 17:47:50 Finished transferring input files
+...
+001 (20598009.000.000) 2021-05-27 17:47:51 Job executing on host: <131.169.164.22:37773?addrs=131.169.164.22-37773&alias=bird822.desy.de>
+...
+006 (20598009.000.000) 2021-05-27 17:47:59 Image size of job updated: 323364
+	176  -  MemoryUsage of job (MB)
+	179668  -  ResidentSetSize of job (KB)
+...
+006 (20598009.000.000) 2021-05-27 17:52:59 Image size of job updated: 5127072
+	4861  -  MemoryUsage of job (MB)
+	4977520  -  ResidentSetSize of job (KB)
+...
+012 (20598009.000.000) 2021-05-27 17:52:59 Job was held.
+	Memory usage too high (> 3 x requested-memory)
+	Code 26 Subcode 0
+...
+038 (20598009.-01.000) 2021-05-27 18:46:12 Job Materialization Resumed
+	via condor_release (by user kutznerv)
+...
+013 (20598009.000.000) 2021-05-27 18:46:12 Job was released.
+	via condor_release (by user kutznerv)
+...
+040 (20598009.000.000) 2021-05-27 18:46:47 Started transferring input files
+	Transferring to host: <131.169.160.196:40111?addrs=131.169.160.196-40111&alias=batch1190.desy.de>
+...
+040 (20598009.000.000) 2021-05-27 18:46:47 Finished transferring input files
+...
+012 (20598009.000.000) 2021-05-27 18:46:48 Job was held.
+	Memory usage too high (> 3 x requested-memory)
+	Code 26 Subcode 0
+...
+009 (20598009.000.000) 2021-05-27 18:57:22 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (20598009.-01.000) 2021-05-27 18:57:22 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...
+035 (20599023.-01.000) 2021-05-27 18:59:43 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+000 (20599023.000.000) 2021-05-27 18:59:43 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_14156_6ac2_3>
+...
+009 (20599023.000.000) 2021-05-27 19:11:51 Job was aborted by the user.
+	via condor_rm (by user kutznerv)
+...
+036 (20599023.-01.000) 2021-05-27 19:11:51 Factory removed
+	Materialized 1 jobs from 0 items.	Incomplete
+...

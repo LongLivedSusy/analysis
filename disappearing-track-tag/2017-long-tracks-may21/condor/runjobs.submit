@@ -1,0 +1,18 @@
+
+            ModifiedProcess = 0 + $(Process)
+            universe = vanilla
+            should_transfer_files = YES
+transfer_input_files = args,runjobs.sh,/afs/desy.de/user/k/kutznerv/proxy
+
+            log = $INT(ModifiedProcess).log
+            executable = /bin/bash
+            arguments = runjobs.sh $INT(ModifiedProcess)
+            initialdir = /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-long-tracks-may21/condor
+            error = $INT(ModifiedProcess).sh.e
+            output = $INT(ModifiedProcess).sh.o
+            notification = Never
+            
+            max_materialize = 1500
+            priority = 0
+            Queue 1
+        
