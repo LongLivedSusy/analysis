@@ -125,7 +125,8 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default = 200)
+    parser.add_option("--nfiles", dest="files_per_job", default = 20)
+    #parser.add_option("--nfiles", dest="files_per_job", default = 200)
     parser.add_option("--njobs", dest="njobs")
     parser.add_option("--start", dest="start", action = "store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
@@ -143,16 +144,16 @@ if __name__ == "__main__":
 
     ######## defaults ########
     if not options.command:
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow"
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow"
     if not options.dataset:
         options.add_signals = 0
         #Run201*,
-        options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
         #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = "RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
+        options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
     if not options.output_folder:
-        options.output_folder = "../skim_89_bdts"
+        options.output_folder = "../skim_91_cutflow_bdts"
     ######## defaults ########
 
     commands = []

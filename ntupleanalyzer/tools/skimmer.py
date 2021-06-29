@@ -2,6 +2,7 @@
 from __future__ import division
 import commands
 import shared_utils
+import ROOT
 from ROOT import *
 from array import array
 from optparse import OptionParser
@@ -211,85 +212,94 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     btag_cut = BTAG_deepCSV
 
     # load BDTs and fetch list of DT tag label:
+
+    # Full Status BDTs:
+    vars_nov20_short = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    vars_nov20_long = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    
+    # modified BDTs:
+    vars_may21_short = vars_nov20_short
+    vars_may21_long = vars_nov20_long
+    vars_may21v2_short = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    vars_may21v2_long = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    vars_jun21_short = vars_nov20_short
+    vars_jun21_long = vars_nov20_long
+    vars_jun21noPixelHits_short = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    vars_jun21noPixelHits_long = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    
     bdts = {
-        #"tight_may20_chi2": {
-        #            "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #            "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #         },
-        #"loose_may20_chi2": {
-        #            "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",      ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #            "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",       ["tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #         },
-        #"tight_may20_chi2_pt10": {
-        #            "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt10/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #            "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #         },
-        #"tight_may20_chi2_pt15": {
-        #            "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may20-dxy-chi2-pt15/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may20-dxy-chi2-v2-pt15/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-        #            "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may20-dxy-chi2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #            "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may20-dxy-chi2-v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_matchedCaloEnergy", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-        #         },
         "nov20_noEdep": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml", vars_nov20_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml", vars_nov20_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml", vars_nov20_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml", vars_nov20_long ],          
                  },
         "may21": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
                  },
         "may21EquSgXsec": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
                  },
         "may21NoVeto": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
                  },
         "may21v2": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_long ],          
                  },
-        "may21v2Inverted": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-sgtest-inverted/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-sgtest-inverted/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-sgtest-inverted/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-sgtest-inverted/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },                 
-        "may21v2Boosted": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-sgtest-boosted/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-sgtest-boosted/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-sgtest-boosted/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-sgtest-boosted/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },                 
-        "may21v2Compressed": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-sgtest-compressed/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-sgtest-compressed/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-sgtest-compressed/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-sgtest-compressed/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },                 
-        "may21v2Baseline": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-sgtest-baseline/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-sgtest-baseline/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-sgtest-baseline/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-sgtest-baseline/dataset/weights/TMVAClassification_BDT.weights.xml",   ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
-                 },                 
+        "jun21": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                 },
+        "jun21noPixelHits": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
+                 },
+        "jun21noJetVeto": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                 },
+        "jun21noVetoes": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                 },
+        "jun21oldWeights": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                 },
+        "jun21oldWeightsnoJetVeto": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                 },
+       "jun21oldWeightsnoVetoes": {
+                   "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                   "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
+                   "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                   "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+                },
            }
 
     readers = {}
@@ -305,6 +315,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     readers[label + "_" + category + "_" + i_phase]["tmva_variables"][var] = array('f',[0])
                     readers[label + "_" + category + "_" + i_phase]["reader"].AddVariable(var, readers[label + "_" + category + "_" + i_phase]["tmva_variables"][var])
                 
+                print "label", label
                 readers[label + "_" + category + "_" + i_phase]["reader"].BookMVA("BDT", bdts[label][category + "_" + i_phase][0])
     
     tout = TTree("Events", "tout")
@@ -1255,14 +1266,14 @@ if __name__ == "__main__":
 
     else:
         inputfiles = [
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
                       ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"],
                      ]
          
         # ROC curve tests:

@@ -1,0 +1,1 @@
+cd /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2016-long-tracks-jun21; cp ../trainBDT_template.py trainBDT.py; chmod +x trainBDT.py; ./trainBDT.py --category long --phase 0 --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged
