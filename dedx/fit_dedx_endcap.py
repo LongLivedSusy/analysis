@@ -60,8 +60,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2016D-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=1.9,
-        fitrangemax=2.7,
+        fitrangemin=2.0,
+        fitrangemax=2.8,
         outputdir=outputdir,
 	outputfile='Run2016D_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -69,8 +69,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2016E-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=1.8,
-        fitrangemax=2.6,
+        fitrangemin=2.0,
+        fitrangemax=2.7,
         outputdir=outputdir,
 	outputfile='Run2016E_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -78,7 +78,7 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2016F-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=1.8,
+        fitrangemin=1.9,
         fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2016F_TrkPixelDedx_fromZ_endcap.'+format_c)
@@ -87,7 +87,7 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2016G-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=1.7,
+        fitrangemin=1.8,
         fitrangemax=2.5,
         outputdir=outputdir,
 	outputfile='Run2016G_TrkPixelDedx_fromZ_endcap.'+format_c)
@@ -96,8 +96,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2016H-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=1.7,
-        fitrangemax=2.5,
+        fitrangemin=1.8,
+        fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2016H_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -105,8 +105,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2017B-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=2.6,
-        fitrangemax=3.4,
+        fitrangemin=2.3,
+        fitrangemax=3.0,
         outputdir=outputdir,
 	outputfile='Run2017B_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -124,7 +124,7 @@ if __name__ == '__main__' :
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
         fitrangemin=2.0,
-        fitrangemax=2.8,
+        fitrangemax=2.7,
         outputdir=outputdir,
 	outputfile='Run2017D_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -132,8 +132,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2017E-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=2.3,
-        fitrangemax=3.2,
+        fitrangemin=2.0,
+        fitrangemax=2.8,
         outputdir=outputdir,
 	outputfile='Run2017E_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -141,8 +141,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2017F-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=2.1,
-        fitrangemax=2.9,
+        fitrangemin=1.8,
+        fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2017F_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -150,8 +150,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2018A-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=2.1,
-        fitrangemax=2.9,
+        fitrangemin=2.0,
+        fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2018A_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -159,8 +159,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2018B-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=2.0,
-        fitrangemax=2.8,
+        fitrangemin=1.9,
+        fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2018B_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -168,8 +168,8 @@ if __name__ == '__main__' :
     draw(inputfile='./output_mediumchunks/Run2018C-SingleMuon.root',
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
-        fitrangemin=2.0,
-        fitrangemax=2.8,
+        fitrangemin=1.9,
+        fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2018C_TrkPixelDedx_fromZ_endcap.'+format_c)
     
@@ -178,7 +178,7 @@ if __name__ == '__main__' :
         hist='hTrkPixelDedx_fromZ_endcap',
         fitfunc='gaus',
         fitrangemin=1.9,
-        fitrangemax=2.7,
+        fitrangemax=2.6,
         outputdir=outputdir,
 	outputfile='Run2018D_TrkPixelDedx_fromZ_endcap.'+format_c)
     
