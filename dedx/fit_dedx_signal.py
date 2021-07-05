@@ -20,12 +20,12 @@ def draw(inputfile,hist,fitfunc,fitrangemin,fitrangemax,outputdir,outputfile):
     f = TFile(inputfile)
     
     h = f.Get(hist)
+    h.Scale(1.0/h.Integral())
 
     h.Rebin(rebin)
     
     fitres = h.Fit(fitfunc,'S','',fitrangemin,fitrangemax)
     h.Draw('HIST E SAME')
-    #c.SaveAs(outputdir+'/'+hist+'.'+format_c)
     c.SaveAs(outputdir+'/'+outputfile)
     
 if __name__ == '__main__' :
