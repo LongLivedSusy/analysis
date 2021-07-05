@@ -40,13 +40,22 @@ if __name__ == '__main__' :
     outputdir = './dedxfit_intercalib_barrel/'
     
     # Summer16 MC
-    draw(inputfile='./output_bigchunks/Summer16_TotalMC.root',
+    draw(inputfile='./output_bigchunks/Summer16.TotalMC.root',
         hist='hTrkPixelDedx_fromZ_barrel',
         fitfunc='gaus',
         fitrangemin=2.5,
         fitrangemax=3.3,
         outputdir=outputdir,
 	outputfile='Summer16_TrkPixelDedx_fromZ_barrel.'+format_c)
+    
+    # Fall17 MC
+    draw(inputfile='./output_bigchunks/Fall17.TotalMC.root',
+        hist='hTrkPixelDedx_fromZ_barrel',
+        fitfunc='gaus',
+        fitrangemin=2.6,
+        fitrangemax=3.3,
+        outputdir=outputdir,
+	outputfile='Fall17_TrkPixelDedx_fromZ_barrel.'+format_c)
     
     # Run2016B
     draw(inputfile='./output_mediumchunks/Run2016B-SingleMuon.root',
@@ -194,6 +203,15 @@ if __name__ == '__main__' :
    
     # Endcap
     outputdir = './dedxfit_intercalib_endcap/'
+    
+    # Fall17 MC
+    draw(inputfile='./output_bigchunks/Fall17.TotalMC.root',
+        hist='hTrkPixelDedx_fromZ_endcap',
+        fitfunc='gaus',
+        fitrangemin=2.7,
+        fitrangemax=3.3,
+        outputdir=outputdir,
+	outputfile='Fall17_TrkPixelDedx_fromZ_endcap.'+format_c)
     
     # Run2016B
     draw(inputfile='./output_mediumchunks/Run2016B-SingleMuon.root',
