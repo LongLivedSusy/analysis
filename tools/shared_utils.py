@@ -1291,68 +1291,68 @@ def PassTrig(c,trigname):
 # Correction Factor : Peak of standard candle / Peak of each data to be correctected
 DedxCorr_Pixel_barrel = {
 	# Run2016
-	'Run2016B' : 1.176,
-	'Run2016C' : 1.209,
-	'Run2016D' : 1.234,
-	'Run2016E' : 1.29,
-	'Run2016F' : 1.313,
-	'Run2016G' : 1.375,
-	'Run2016H' : 1.367,
+	'Run2016B': 1.177 ,
+	'Run2016C': 1.212 ,
+	'Run2016D': 1.24 ,
+	'Run2016E': 1.293 ,
+	'Run2016F': 1.312 ,
+	'Run2016G': 1.376 ,
+	'Run2016H': 1.367 ,
 
 	# Run2017
-	'Run2017B' : 0.968,
-	'Run2017C' : 1.212,
-	'Run2017D' : 1.203,
-	'Run2017E' : 1.057,
-	'Run2017F' : 1.146,
+	'Run2017B': 0.968 ,
+	'Run2017C': 1.205 ,
+	'Run2017D': 1.201 ,
+	'Run2017E': 1.052 ,
+	'Run2017F': 1.14 ,
 
 	# Run2018
-	'Run2018A' : 1.145,
-	'Run2018B' : 1.185,
-	'Run2018C' : 1.202,
-	'Run2018D' : 1.238,
+	'Run2018A': 1.145 ,
+	'Run2018B': 1.188 ,
+	'Run2018C': 1.202 ,
+	'Run2018D': 1.239 ,
 
 	# Summer16 MC
-	'Summer16' : 1.0,
-
-	# Summer16 Private fastsim signal
-	'Summer16PrivateFastSim' : 0.630164946858,
+	'Summer16': 1.0 ,
 
 	# Fall17 MC
-	'Fall17' : 0.970,
+	'Fall17': 0.969 ,
+	
+	# Summer16 Private fastsim signal
+	'Summer16PrivateFastSim' : 0.630164946858,
 	}
 
 DedxCorr_Pixel_endcap = {
 	# Run2016
-	'Run2016B' : 1.175,
-	'Run2016C' : 1.188,
-	'Run2016D' : 1.194,
-	'Run2016E' : 1.228,
-	'Run2016F' : 1.27,
-	'Run2016G' : 1.301,
-	'Run2016H' : 1.3,
+	'Run2016B': 1.188 ,
+	'Run2016C': 1.196 ,
+	'Run2016D': 1.201 ,
+	'Run2016E': 1.229 ,
+	'Run2016F': 1.275 ,
+	'Run2016G': 1.305 ,
+	'Run2016H': 1.305 ,
 
 	# Run2017
-	'Run2017B' : 1.044,
-	'Run2017C' : 1.188,
-	'Run2017D' : 1.202,
-	'Run2017E' : 1.181,
-	'Run2017F' : 1.272,
+	'Run2017B': 1.06 ,
+	'Run2017C': 1.188 ,
+	'Run2017D': 1.213 ,
+	'Run2017E': 1.207 ,
+	'Run2017F': 1.303 ,
 
 	# Run2018
-	'Run2018A' : 1.213,
-	'Run2018B' : 1.255,
-	'Run2018C' : 1.286,
-	'Run2018D' : 1.262,
+	'Run2018A': 1.228 ,
+	'Run2018B': 1.274 ,
+	'Run2018C': 1.299 ,
+	'Run2018D': 1.27 ,
 
 	# Summer16 MC
-	'Summer16' : 0.956,
-
-	# Summer16 Private fastsim signal
-	'Summer16PrivateFastSim' : 0.630,
+	'Summer16': 0.951 ,
 
 	# Fall17 MC
-	'Fall17' : 0.955,
+	'Fall17': 0.952 ,
+	
+	# Summer16 Private fastsim signal
+	'Summer16PrivateFastSim' : 0.630,
 	}
 
 DedxCorr_Pixel_barrel_drop1stlayer = {
