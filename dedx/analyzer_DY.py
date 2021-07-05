@@ -282,7 +282,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	# Track
 	goodtracks=[]
 	for itrack, track in enumerate(c.tracks):
-	    if not track.Pt()>15 : continue
+	    if not track.Pt()>25 : continue
 	    if not abs(track.Eta()) < 2.4 : continue
 	    if not c.tracks_trkRelIso[itrack]<0.2 : continue
 	    if not abs(c.tracks_dxyVtx[itrack])<0.02 : continue
@@ -298,7 +298,7 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	    dedx_pixel = c.tracks_deDxHarmonic2pixel[itrack]
 	    dedx_strips = c.tracks_deDxHarmonic2strips[itrack]
 
-	    if dedx_pixel==0 or dedx_strips==0 : continue
+	    if dedx_pixel<=0.1 or dedx_strips<=0.1 : continue
 
 	    goodtracks.append([itrack,track])
 
@@ -322,6 +322,8 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	   
 	    fillth1(hTrkPixelDedx_fromZ,dedx_pixel,weight)
 	    fillth1(hTrkStripsDedx_fromZ,dedx_strips,weight)
+	    if dedx_pixel<=4.0 : fillth1(hTrkPixelDedx_fromZ_SR,0,weight)
+	    else : fillth1(hTrkPixelDedx_fromZ_SR,1,weight)
 
 	    if abs(track.Eta())<=1.5 :
 	        scalefactor = DedxCorr_Pixel_barrel[Identifier]
@@ -336,6 +338,15 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	        fillth1(hTrkPixelDedxScale_fromZ_barrel,dedx_pixel_scale,weight)
 	        fillth1(hTrkPixelDedxScaleSmear_fromZ_barrel,dedx_pixel_scalesmear,weight)
 	        fillth1(hTrkStripsDedx_fromZ_barrel,dedx_strips,weight)
+		
+		if dedx_pixel<=4.0 : 
+		    fillth1(hTrkPixelDedx_fromZ_barrel_SR,0,weight)
+		    fillth1(hTrkPixelDedxScale_fromZ_barrel_SR,0,weight)
+		    fillth1(hTrkPixelDedxScaleSmear_fromZ_barrel_SR,0,weight)
+	    	else : 
+		    fillth1(hTrkPixelDedx_fromZ_barrel_SR,1,weight)
+		    fillth1(hTrkPixelDedxScale_fromZ_barrel_SR,1,weight)
+		    fillth1(hTrkPixelDedxScaleSmear_fromZ_barrel_SR,1,weight)
 	    
 	    elif abs(track.Eta())>1.5 :
 	        scalefactor = DedxCorr_Pixel_endcap[Identifier]
@@ -351,6 +362,14 @@ def main(inputfiles,output_dir,output,nev,is_signal,is_fast):
 	        fillth1(hTrkPixelDedxScaleSmear_fromZ_endcap,dedx_pixel_scalesmear,weight)
 	        fillth1(hTrkStripsDedx_fromZ_endcap,dedx_strips,weight)
 
+		if dedx_pixel<=4.0 : 
+		    fillth1(hTrkPixelDedx_fromZ_endcap_SR,0,weight)
+		    fillth1(hTrkPixelDedxScale_fromZ_endcap_SR,0,weight)
+		    fillth1(hTrkPixelDedxScaleSmear_fromZ_endcap_SR,0,weight)
+	    	else : 
+		    fillth1(hTrkPixelDedx_fromZ_endcap_SR,1,weight)
+		    fillth1(hTrkPixelDedxScale_fromZ_endcap_SR,1,weight)
+		    fillth1(hTrkPixelDedxScaleSmear_fromZ_endcap_SR,1,weight)
     fout.Write()
     fout.Close()
     print(output_dir+'/'+output+" just created")
