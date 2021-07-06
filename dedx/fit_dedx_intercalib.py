@@ -204,6 +204,15 @@ if __name__ == '__main__' :
     # Endcap
     outputdir = './dedxfit_intercalib_endcap/'
     
+    # Summer16 MC
+    draw(inputfile='./output_bigchunks/Summer16.TotalMC.root',
+        hist='hTrkPixelDedx_fromZ_endcap',
+        fitfunc='gaus',
+        fitrangemin=2.6,
+        fitrangemax=3.4,
+        outputdir=outputdir,
+	outputfile='Summer16_TrkPixelDedx_fromZ_endcap.'+format_c)
+    
     # Fall17 MC
     draw(inputfile='./output_bigchunks/Fall17.TotalMC.root',
         hist='hTrkPixelDedx_fromZ_endcap',

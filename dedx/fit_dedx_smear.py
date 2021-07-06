@@ -40,7 +40,7 @@ if __name__ == '__main__' :
     outputdir = './dedxfit_smear/'
     
     # Summer16 MC
-    draw(inputfile='./output_bigchunks/Summer16_TotalMC.root',
+    draw(inputfile='./output_bigchunks/Summer16.TotalMC.root',
         hist='hTrkPixelDedxScale_fromZ_barrel', # barrel
         fitfunc='gaus',
         fitrangemin=2.1,
@@ -48,7 +48,7 @@ if __name__ == '__main__' :
         outputdir=outputdir,
 	outputfile='Summer16_TrkPixelDedxScale_fromZ_barrel.'+format_c)
     
-    draw(inputfile='./output_bigchunks/Summer16_TotalMC.root',
+    draw(inputfile='./output_bigchunks/Summer16.TotalMC.root',
         hist='hTrkPixelDedxScale_fromZ_endcap', # endcap
         fitfunc='gaus',
         fitrangemin=2.0,
@@ -72,6 +72,23 @@ if __name__ == '__main__' :
         fitrangemax=3.8,
         outputdir=outputdir,
 	outputfile='Phase0_TrkPixelDedxScale_fromZ_endcap.'+format_c)
+    
+    # Fall17 MC
+    draw(inputfile='./output_bigchunks/Fall17.TotalMC.root',
+        hist='hTrkPixelDedxScale_fromZ_barrel', # barrel
+        fitfunc='gaus',
+        fitrangemin=2.1,
+        fitrangemax=3.7,
+        outputdir=outputdir,
+	outputfile='Fall17_TrkPixelDedxScale_fromZ_barrel.'+format_c)
+    
+    draw(inputfile='./output_bigchunks/Fall17.TotalMC.root',
+        hist='hTrkPixelDedxScale_fromZ_endcap', # endcap
+        fitfunc='gaus',
+        fitrangemin=2.2,
+        fitrangemax=3.7,
+        outputdir=outputdir,
+	outputfile='Fall17_TrkPixelDedxScale_fromZ_endcap.'+format_c)
     
     # Phase1: Run2017-2018
     draw(inputfile='./output_bigchunks/Run2017-2018.root',

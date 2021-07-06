@@ -11,7 +11,7 @@ istest = False
 #istest = True
 
 BigChunk={}
-BigChunk['DYJets']=[
+BigChunk['Summer16.DYJets']=[
 'Summer16.DYJetsToLL_M-50_TuneCUETP8M1',
 'Summer16.DYJetsToLL_M-50_HT-100to200',
 'Summer16.DYJetsToLL_M-50_HT-200to400',
@@ -22,7 +22,7 @@ BigChunk['DYJets']=[
 'Summer16.DYJetsToLL_M-50_HT-2500toInf',
 ]
 
-BigChunk['QCD']=[
+BigChunk['Summer16.QCD']=[
 'Summer16.QCD_HT200to300',
 'Summer16.QCD_HT300to500',
 'Summer16.QCD_HT500to700',
@@ -32,7 +32,7 @@ BigChunk['QCD']=[
 'Summer16.QCD_HT2000toInf',
 ]
 
-BigChunk['TTJets']=[
+BigChunk['Summer16.TTJets']=[
 'Summer16.TTJets_TuneCUETP8M1',
 #'Summer16.TTJets_SingleLeptFromT',
 #'Summer16.TTJets_SingleLeptFromTbar',
@@ -44,7 +44,7 @@ BigChunk['TTJets']=[
 #'Summer16.ST_tW_antitop_5f_NoFullyHadronicDecays',
 ]
 
-BigChunk['WJetsToLNu']=[
+BigChunk['Summer16.WJetsToLNu']=[
 'Summer16.WJetsToLNu_TuneCUETP8M1',
 'Summer16.WJetsToLNu_HT-100To200',
 'Summer16.WJetsToLNu_HT-200To400',
@@ -55,7 +55,7 @@ BigChunk['WJetsToLNu']=[
 'Summer16.WJetsToLNu_HT-2500ToInf',
 ]
 
-BigChunk['ZJetsToNuNu']=[
+BigChunk['Summer16.ZJetsToNuNu']=[
 'Summer16.ZJetsToNuNu_HT-100To200',
 'Summer16.ZJetsToNuNu_HT-200To400',
 'Summer16.ZJetsToNuNu_HT-400To600',
@@ -65,7 +65,7 @@ BigChunk['ZJetsToNuNu']=[
 'Summer16.ZJetsToNuNu_HT-2500ToInf',
 ]
 
-BigChunk['VV']=[
+BigChunk['Summer16.VV']=[
 'Summer16.WW_TuneCUETP8M1',
 #'Summer16.WWTo1L1Nu2Q_13TeV_amcatnloFXFX',
 #'Summer16.WWTo2L2Nu',
@@ -75,10 +75,59 @@ BigChunk['VV']=[
 'Summer16.ZZ_TuneCUETP8M1',
 ]
 
-BigChunk['VVV']=[
+BigChunk['Summer16.VVV']=[
 'Summer16.WWZ_TuneCUETP8M1',
 'Summer16.WZZ_TuneCUETP8M1',
 'Summer16.ZZZ_TuneCUETP8M1',
+]
+
+BigChunk['Fall17.DYJets']=[
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500',
+'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf',
+]
+
+BigChunk['Fall17.QCD']=[
+'RunIIFall17MiniAODv2.QCD_HT200to300',
+'RunIIFall17MiniAODv2.QCD_HT300to500',
+'RunIIFall17MiniAODv2.QCD_HT500to700',
+'RunIIFall17MiniAODv2.QCD_HT700to1000',
+'RunIIFall17MiniAODv2.QCD_HT1000to1500',
+'RunIIFall17MiniAODv2.QCD_HT1500to2000',
+'RunIIFall17MiniAODv2.QCD_HT2000toInf',
+]
+
+BigChunk['Fall17.TTJets']=[
+'RunIIFall17MiniAODv2.TTJets_TuneCP5',
+'RunIIFall17MiniAODv2.TTJets_HT-600to800',
+'RunIIFall17MiniAODv2.TTJets_HT-800to1200',
+'RunIIFall17MiniAODv2.TTJets_HT-1200to2500',
+'RunIIFall17MiniAODv2.TTJets_HT-2500toInf',
+]
+
+BigChunk['Fall17.WJetsToLNu']=[
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200',
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400',
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600',
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800',
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200',
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500',
+'RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf',
+]
+
+BigChunk['Fall17.ZJetsToNuNu']=[
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-100To200',
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-200To400',
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-400To600',
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-600To800',
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-800To1200',
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-1200To2500',
+'RunIIFall17MiniAODv2.ZJetsToNuNu_HT-2500ToInf',
 ]
 
 BigChunk['Run2016']=[

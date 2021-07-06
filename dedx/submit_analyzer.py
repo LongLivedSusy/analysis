@@ -20,8 +20,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     test = args.test
 
-    #executable = 'analyzer_DY.py'
-    executable = 'analyzer_DY_doublesmear.py'
+    executable = 'analyzer_DY.py'
+    #executable = 'analyzer_DY_doublesmear.py'
     #executable = 'analyzer_DY_MIH.py'
 
 #Inputfile txt path 
@@ -30,10 +30,11 @@ if __name__ == "__main__":
     #inputfiles = sorted(glob(path+'/*.txt'))
     #inputfiles = sorted(glob(path+'/Run2016*.txt'))
     #inputfiles = sorted(glob(path+'/Run2017*.txt'))
+    #inputfiles = sorted(glob(path+'/Run2018*.txt'))
     #inputfiles = sorted(glob(path+'/Summer16*.txt'))
     #inputfiles = sorted(glob(path+'/RunIIFall17*.txt'))
-    inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt')+glob(path+'/Run2018*-SingleMuon.txt'))
-    #inputfiles = sorted(glob(path+'/Summer16*.txt')+glob(path+'/RunIIFall17*.txt'))
+    #inputfiles = sorted(glob(path+'/Run2016*-SingleMuon.txt')+glob(path+'/Run2017*-SingleMuon.txt')+glob(path+'/Run2018*-SingleMuon.txt'))
+    inputfiles = sorted(glob(path+'/Summer16*.txt')+glob(path+'/RunIIFall17*.txt'))
     #inputfiles = sorted(glob(path+'/RunIISummer16MiniAODv3.SMS*.txt'))
     #inputfiles = ["./inputs/Run2016H-SingleMuon.txt"]
     #inputfiles = ["./inputs/Run2016H-SingleElectron.txt"]
@@ -42,13 +43,12 @@ if __name__ == "__main__":
     #inputfiles = ["./inputs/Summer16.WJetsToLNu_HT-100To200.txt"]
     #inputfiles = ["./inputs/Summer16.DYJetsToLL_M-50_TuneCUETP8M1.txt"]
     #inputfiles = ["./inputs/RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5.txt"]
-    #inputfiles = ["./inputs/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1.txt"]
-    #inputfiles = ["./inputs/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8.txt"]
    
-    condorDir = 'condor_data'
-    #condorDir = 'condor_mc'
+    #condorDir = 'condor_data'
+    condorDir = 'condor_mc'
     #condorDir = 'condor_2016'
     #condorDir = 'condor_2017'
+    #condorDir = 'condor_2018'
     #condorDir = 'condor_Summer16'
     #condorDir = 'condor_Fall17'
     #condorDir = 'condor_RunIISignal'
@@ -96,4 +96,4 @@ if __name__ == "__main__":
 		quit()
     
     # Submit
-    do_submission(commands, output_dir, condorDir=condorDir, executable=executable)
+    if not test : do_submission(commands, output_dir, condorDir=condorDir, executable=executable)
