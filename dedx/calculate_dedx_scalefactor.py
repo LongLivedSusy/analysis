@@ -1,4 +1,4 @@
-#!/bin/env/python
+#!/usr/bin/env python
 
 if __name__=='__main__' :
     print 'Calculating dE/dx intercalibration scale factor'
@@ -32,7 +32,7 @@ if __name__=='__main__' :
     gausmean_barrel['Run2018D'] = 2.314
     
     # Endcap 
-    gausmean_endcap['Summer16'] = 2.866
+    gausmean_endcap['Summer16'] = 3.014
     gausmean_endcap['Fall17'] = 3.01
     
     gausmean_endcap['Run2016B'] = 2.413
@@ -55,6 +55,8 @@ if __name__=='__main__' :
     gausmean_endcap['Run2018D'] = 2.256
    
     # Barrel scale factor
+    scalefactor_barrel['Summer16']=gausmean_barrel['Summer16']/gausmean_barrel['Summer16']
+    scalefactor_barrel['Fall17']  =gausmean_barrel['Summer16']/gausmean_barrel['Fall17']
     scalefactor_barrel['Run2016B']=gausmean_barrel['Summer16']/gausmean_barrel['Run2016B']
     scalefactor_barrel['Run2016C']=gausmean_barrel['Summer16']/gausmean_barrel['Run2016C']
     scalefactor_barrel['Run2016D']=gausmean_barrel['Summer16']/gausmean_barrel['Run2016D']
@@ -75,6 +77,8 @@ if __name__=='__main__' :
     scalefactor_barrel['Run2018D']=gausmean_barrel['Summer16']/gausmean_barrel['Run2018D']
 
     # Endcap scale factor 
+    scalefactor_endcap['Summer16']=gausmean_barrel['Summer16']/gausmean_endcap['Summer16']
+    scalefactor_endcap['Fall17']  =gausmean_barrel['Summer16']/gausmean_endcap['Fall17']
     scalefactor_endcap['Run2016B']=gausmean_barrel['Summer16']/gausmean_endcap['Run2016B']
     scalefactor_endcap['Run2016C']=gausmean_barrel['Summer16']/gausmean_endcap['Run2016C']
     scalefactor_endcap['Run2016D']=gausmean_barrel['Summer16']/gausmean_endcap['Run2016D']
@@ -93,6 +97,67 @@ if __name__=='__main__' :
     scalefactor_endcap['Run2018B']=gausmean_barrel['Summer16']/gausmean_endcap['Run2018B']
     scalefactor_endcap['Run2018C']=gausmean_barrel['Summer16']/gausmean_endcap['Run2018C']
     scalefactor_endcap['Run2018D']=gausmean_barrel['Summer16']/gausmean_endcap['Run2018D']
+
+    print '=====Barrel====='
+    print '# Run2016'
+    print '\'Run2016B\':', round(scalefactor_barrel['Run2016B'],3), ','
+    print '\'Run2016C\':', round(scalefactor_barrel['Run2016C'],3), ','
+    print '\'Run2016D\':', round(scalefactor_barrel['Run2016D'],3), ','
+    print '\'Run2016E\':', round(scalefactor_barrel['Run2016E'],3), ','
+    print '\'Run2016F\':', round(scalefactor_barrel['Run2016F'],3), ','
+    print '\'Run2016G\':', round(scalefactor_barrel['Run2016G'],3), ','
+    print '\'Run2016H\':', round(scalefactor_barrel['Run2016H'],3), ','
+    print ''
+    print '# Run2017'
+    print '\'Run2017B\':', round(scalefactor_barrel['Run2017B'],3), ','
+    print '\'Run2017C\':', round(scalefactor_barrel['Run2017C'],3), ','
+    print '\'Run2017D\':', round(scalefactor_barrel['Run2017D'],3), ','
+    print '\'Run2017E\':', round(scalefactor_barrel['Run2017E'],3), ','
+    print '\'Run2017F\':', round(scalefactor_barrel['Run2017F'],3), ','
+    print ''
+    print '# Run2018'
+    print '\'Run2018A\':', round(scalefactor_barrel['Run2018A'],3), ','
+    print '\'Run2018B\':', round(scalefactor_barrel['Run2018B'],3), ','
+    print '\'Run2018C\':', round(scalefactor_barrel['Run2018C'],3), ','
+    print '\'Run2018D\':', round(scalefactor_barrel['Run2018D'],3), ','
+    print ''
+    print '# Summer16 MC'
+    print '\'Summer16\':', round(scalefactor_barrel['Summer16'],3), ','
+    print ''
+    print '# Fall17 MC'
+    print '\'Fall17\':', round(scalefactor_barrel['Fall17'],3), ','
+    print ''
+
+    print '=====Endcap====='
+    print '# Run2016'
+    print '\'Run2016B\':', round(scalefactor_endcap['Run2016B'],3), ','
+    print '\'Run2016C\':', round(scalefactor_endcap['Run2016C'],3), ','
+    print '\'Run2016D\':', round(scalefactor_endcap['Run2016D'],3), ','
+    print '\'Run2016E\':', round(scalefactor_endcap['Run2016E'],3), ','
+    print '\'Run2016F\':', round(scalefactor_endcap['Run2016F'],3), ','
+    print '\'Run2016G\':', round(scalefactor_endcap['Run2016G'],3), ','
+    print '\'Run2016H\':', round(scalefactor_endcap['Run2016H'],3), ','
+    print ''
+    print '# Run2017'
+    print '\'Run2017B\':', round(scalefactor_endcap['Run2017B'],3), ','
+    print '\'Run2017C\':', round(scalefactor_endcap['Run2017C'],3), ','
+    print '\'Run2017D\':', round(scalefactor_endcap['Run2017D'],3), ','
+    print '\'Run2017E\':', round(scalefactor_endcap['Run2017E'],3), ','
+    print '\'Run2017F\':', round(scalefactor_endcap['Run2017F'],3), ','
+    print ''
+    print '# Run2018'
+    print '\'Run2018A\':', round(scalefactor_endcap['Run2018A'],3), ','
+    print '\'Run2018B\':', round(scalefactor_endcap['Run2018B'],3), ','
+    print '\'Run2018C\':', round(scalefactor_endcap['Run2018C'],3), ','
+    print '\'Run2018D\':', round(scalefactor_endcap['Run2018D'],3), ','
+    print ''
+    print '# Summer16 MC'
+    print '\'Summer16\':', round(scalefactor_endcap['Summer16'],3), ','
+    print ''
+    print '# Fall17 MC'
+    print '\'Fall17\':', round(scalefactor_endcap['Fall17'],3), ','
+    print ''
+
 
 template = '''
 \begin{table}[]
