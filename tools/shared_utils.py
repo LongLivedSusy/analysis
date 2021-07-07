@@ -1424,20 +1424,13 @@ DedxCorr_Pixel_endcap_drop1stlayer = {
 def Load_DedxSmear(phase):
 	print 'Loading dEdx smear function for phase:',phase
 	if phase==0 :
-		sigma_data_barrel = 0.5973
-		sigma_data_endcap = 0.4923
-		sigma_mc_barrel = 0.4451
-		sigma_mc_endcap = 0.4019
+		sigma_smear_barrel = 0.398 
+		sigma_smear_endcap = 0.284
 
 	elif phase==1 :
-		sigma_data_barrel = 0.5368
-		sigma_data_endcap = 0.4197
-		sigma_mc_barrel = 0.3515
-		sigma_mc_endcap = 0.3172
+		sigma_smear_barrel = 0.406
+		sigma_smear_endcap = 0.275
 	else : print 'put correct phase', quit()
-
-	sigma_smear_barrel = TMath.Sqrt(sigma_data_barrel**2-sigma_mc_barrel**2)
-	sigma_smear_endcap = TMath.Sqrt(sigma_data_endcap**2-sigma_mc_endcap**2)
 
 	fsmear_barrel = TF1("fsmear_barrel","gaus",-1,1)
 	fsmear_barrel.SetParameters(1,0,sigma_smear_barrel)
