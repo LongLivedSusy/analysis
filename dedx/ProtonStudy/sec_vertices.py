@@ -2,84 +2,50 @@ import DataFormats.FWLite as fwlite
 import ROOT 
 import math
 import numpy as np
-#from commons import findMinDr_track, invariantMassTracks, findMatch_tracktrack_new, invariantMassTracksAsPions
 import os,sys
 from glob import glob
 from shared_utils import *
+import argparse
+
 #############################################
 ##    Looking at secondary vertices        ##
 #############################################
 
 ROOT.TH1.SetDefaultSumw2(True)
-    
-try: 
-    inputfiles = glob(sys.argv[1])
-except: 
-    #inputfiles = glob("./EDM_output_Run2017C_UL_MIH/*.root")
-    inputfiles = glob("./EDM_output_DYJetsToLL_M-50_TuneCP5_Summer19UL17/*.root")
-    #inputfiles = glob("./EDM_output_Run2016B_SingleElectron/*.root")
-    #inputfiles = glob("./EDM_output_Run2016G_SingleElectron/edm_Run2016G*.root")
-    #inputfiles = glob("./EDM_output_Run2017F_SingleElectron/*.root")
-    #inputfiles = glob("./EDM_output_Run2017F_SingleElectron_more/*.root")
-    #inputfiles = glob("./EDM_output_Run2018C_EGamma/*.root")
-    #inputfiles = glob("./EDM_output_SMS-T2bt-LLChipm_ctau-200_mLSP-900and1000/*.root")
-    #inputfiles = glob("./EDM_output_merged/edm_higgsino94x_susyall_mChipm250GeV*.root")
-    #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_*.root")
-    #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_NoPU_SVstuff.root")
-    #inputfiles = glob("./EDM_output_merged/edm_SUS-RunIISummer15GS-00734_T2btLLFastSim_StandardMixing_SVstuff.root")
 
-if not os.path.exists('./SV_rootfiles'):
-    os.system('mkdir -p SV_rootfiles')
+parser = argparse.ArgumentParser()
+parser.add_argument("--inputfile", dest="inputfile", required=True)
+parser.add_argument("--outputdir", default="SV_rootfiles", dest="outputdir")
+parser.add_argument("--outputfile", default="output.root", dest="outputfile")
+parser.add_argument("--radDisCutLow", default=0.5, dest="radDisCutLow")
+parser.add_argument("--radDisCutHigh", default=4.2, dest="radDisCutHigh")
+parser.add_argument("--dedxcalibfactor", default=1, dest="dedxcalibfactor")
+parser.add_argument("--doDedxSmear", default=False, action='store_true', dest="doDedxSmear")
+parser.add_argument("--dedxsmearfactor", default=0, dest="dedxsmearfactor")
 
-#fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2016B_SingleElectron.root', 'recreate')
-#fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2016G_SingleElectron.root', 'recreate')
-#fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2017F_SingleElectron.root', 'recreate')
-#fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2018C_EGamma.root', 'recreate')
-#fnew = ROOT.TFile('./SV_rootfiles/vertex_Run2017C_SingleMuon_UL.root', 'recreate')
-fnew = ROOT.TFile('./SV_rootfiles/vertex_DYJetsToLL_M-50_UL17.root', 'recreate')
+args = parser.parse_args()
+inputfile = args.inputfile
+outputdir = args.outputdir
+outputfile = args.outputfile
+radDisCutLow = float(args.radDisCutLow)
+radDisCutHigh = float(args.radDisCutHigh)
+dedxcalibfactor = float(args.dedxcalibfactor)
+doDedxSmear = args.doDedxSmear
+dedxsmearfactor = float(args.dedxsmearfactor)
 
+if doDedxSmear : 
+    fsmear = ROOT.TF1("fsmear_barrel","gaus",-1,1)
+    fsmear.SetParameters(1,0,dedxsmearfactor)
 
-if 'Run2016B' in inputfiles[0] : 
-    print 'Running Run2016B data'
-    dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2016B']
-    dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2016B']
-    radDisCutHigh = 4.2
-elif 'Run2016G' in inputfiles[0] : 
-    print 'Running Run2016G data'
-    dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2016G']
-    dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2016G']
-    radDisCutHigh = 4.2
-elif 'Run2017C' in inputfiles[0] : 
-    print 'Running Run2017C data'
-    dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2017C']
-    dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2017C']
-    radDisCutHigh = 2.7
-elif 'Run2017F' in inputfiles[0] : 
-    print 'Running Run2017F data'
-    dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2017F']
-    dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2017F']
-    radDisCutHigh = 2.7
-elif 'Run2018C' in inputfiles[0] : 
-    print 'Running Run2018C data'
-    dedxcalib_barrel = DedxCorr_Pixel_barrel['Run2018C']
-    dedxcalib_endcap = DedxCorr_Pixel_endcap['Run2018C']
-    radDisCutHigh = 2.7
-elif 'UL17' in inputfiles[0] : 
-    print 'Running UL17 MC'
-    dedxcalib_barrel = 1
-    dedxcalib_endcap = 1
-    radDisCutHigh = 2.7
-else: 
-    print 'Running MC'
-    dedxcalib_barrel = 1
-    dedxcalib_endcap = 1
-    radDisCutHigh = 4.2
+inputfiles = glob(inputfile)
+if len(inputfiles)==0 : print 'no inputfile exist. quit',quit()
 
-print 'barrel, endcap calibs', dedxcalib_barrel, dedxcalib_endcap
+if not os.path.exists(outputdir):
+    os.system('mkdir -p '+outputdir)
 
+fnew = ROOT.TFile(outputdir+'/'+outputfile, 'recreate')
 
 events = fwlite.Events(inputfiles)
-
 
 primaryVertices = fwlite.Handle("std::vector<reco::Vertex>")
 secondaryVertices = fwlite.Handle("std::vector<reco::VertexCompositeCandidate>")
@@ -89,8 +55,6 @@ protonIndices_handle = fwlite.Handle("std::vector<int>")
 
 dEdxPixelTrackHandle = fwlite.Handle ("edm::ValueMap<reco::DeDxData>");
 dEdxStripsTrackHandle = fwlite.Handle ("edm::ValueMap<reco::DeDxData>");
-
-tlegend = ROOT.TLegend(0.17, 0.77, 0.51, 0.88)
 
 # Primary
 mass_primary = ROOT.TH1F("mass_primary", "primary vertex invariant mass; invariant mass [GeV];", 200, 0, 2) # invariant mass of all vertices
@@ -141,7 +105,7 @@ eta_good_proton_nodedx = ROOT.TH1F("eta_good_proton_nodedx", "Pseudorapidity|pro
 
 #pixel dedx
 dedxpixel_proton = ROOT.TH1F("dedxpixel_proton", "pixel dedx|proton;", 200, 0, 10) 
-dedxpixelCalib_proton = ROOT.TH1F("dedxpixelCalib_proton", "Calibrated pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_proton = ROOT.TH1F("dedxpixelCalib_proton", "Corrected(scale+smear) pixel dedx|proton;", 200, 0, 10) 
 
 dedxpixel_good_proton = ROOT.TH1F("dedxpixel_good_proton", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_nodedx = ROOT.TH1F("dedxpixel_good_proton_nodedx", "pixel dedx|proton;", 200, 0, 10) 
@@ -168,7 +132,7 @@ dedxpixel_good_proton_P3to4_endcap = ROOT.TH1F("dedxpixel_good_proton_P3to4_endc
 dedxpixel_good_proton_P4to5_endcap = ROOT.TH1F("dedxpixel_good_proton_P4to5_endcap", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_P5to6_endcap = ROOT.TH1F("dedxpixel_good_proton_P5to6_endcap", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixel_good_proton_P6toInf_endcap = ROOT.TH1F("dedxpixel_good_proton_P6toInf_endcap", "pixel dedx|proton;", 200, 0, 10) 
-dedxpixelCalib_good_proton = ROOT.TH1F("dedxpixelCalib_good_proton", "Calibrated pixel dedx|proton;", 200, 0, 10) 
+dedxpixelCalib_good_proton = ROOT.TH1F("dedxpixelCalib_good_proton", "Corrected(scale+smear) pixel dedx|proton;", 200, 0, 10) 
 dedxpixelCalib_good_proton_P0to1 = ROOT.TH1F("dedxpixelCalib_good_proton_P0to1", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixelCalib_good_proton_P1to2 = ROOT.TH1F("dedxpixelCalib_good_proton_P1to2", "pixel dedx|proton;", 200, 0, 10) 
 dedxpixelCalib_good_proton_P2to3 = ROOT.TH1F("dedxpixelCalib_good_proton_P2to3", "pixel dedx|proton;", 200, 0, 10) 
@@ -201,12 +165,12 @@ dedxstrips_good_proton_barrel = ROOT.TH1F("dedxstrips_good_proton_barrel", "stri
 dedxstrips_good_proton_endcap = ROOT.TH1F("dedxstrips_good_proton_endcap", "strips dedx|proton;", 200, 0, 10) 
 
 massdedxpixel_proton = ROOT.TH1F("massdedxpixel_proton", "pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
-massdedxpixelCalib_proton = ROOT.TH1F("massdedxpixelCalib_proton", "Calibrated pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
+massdedxpixelCalib_proton = ROOT.TH1F("massdedxpixelCalib_proton", "Corrected(scale+smear) pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 massdedxstrips_proton = ROOT.TH1F("massdedxstrips_proton", "strips dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 
 massdedxpixel_good_proton = ROOT.TH1F("massdedxpixel_good_proton", "pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 massdedxpixel_good_proton_nodedx = ROOT.TH1F("massdedxpixel_good_proton_nodedx", "pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
-massdedxpixelCalib_good_proton = ROOT.TH1F("massdedxpixelCalib_good_proton", "Calibrated pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
+massdedxpixelCalib_good_proton = ROOT.TH1F("massdedxpixelCalib_good_proton", "Corrected(scale+smear) pixel dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 massdedxstrips_good_proton = ROOT.TH1F("massdedxstrips_good_proton", "strips dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 massdedxstrips_good_proton_nodedx = ROOT.TH1F("massdedxstrips_good_proton_nodedx", "strips dedx-derived mass [GeV];no. of reconstructed SV;", 200, 0, 10) 
 
@@ -232,9 +196,9 @@ for i, event in enumerate(events):
     #print i,' th event pv:{}, sv:{}'.format(primaryVertices,secondaryVertices_Lambda)
     #print i,' th event len(pv.product):{} len(sv.product):{}'.format(len(primaryVertices.product()),len(secondaryVertices_Lambda.product()))
 
-    if i > 9999999: break
+    #if i > 9999999: break
     #if i > 500000: break
-    #if i > 2000: break
+    if i > 2000: break
     
     if i%1000==0:print 'passing {}th event'.format(i)
     #if i%1==0: print i, "   Primary vertices per event:", primaryVertices.product().size()
@@ -246,8 +210,8 @@ for i, event in enumerate(events):
     protonIndices = protonIndices_handle.product()
 
     # particle mass from primary vertex		
-    #for pv in primaryVertices.product():
-	#mass_primary.Fill(pv.mass())
+#    for pv in primaryVertices.product():
+#	mass_primary.Fill(pv.mass())
     
     # kShort
     for sv in secondaryVertices.product():
@@ -297,12 +261,12 @@ for i, event in enumerate(events):
         massfromdedxpixel = ROOT.TMath.Sqrt((dedxpixel-2.557)*pow(pt*ROOT.TMath.CosH(eta),2)/2.579)
         massfromdedxstrips = ROOT.TMath.Sqrt((dedxstrips-2.557)*pow(pt*ROOT.TMath.CosH(eta),2)/2.579)
 	
-	if abs(eta)<1.5: 
-	    dedxpixelCalib = dedxcalib_barrel*dedxpixel
-	    massfromdedxpixelCalib = ROOT.TMath.Sqrt((dedxpixelCalib-2.557)*pow(pt*ROOT.TMath.CosH(eta),2)/2.579)
-        else: 
-	    dedxpixelCalib = dedxcalib_endcap*dedxpixel
-	    massfromdedxpixelCalib = ROOT.TMath.Sqrt((dedxpixelCalib-2.557)*pow(pt*ROOT.TMath.CosH(eta),2)/2.579)
+	dedxpixelCalib = dedxpixel*dedxcalibfactor
+	if doDedxSmear : 
+	    smearfactor = fsmear.GetRandom()
+	    dedxpixelCalib = dedxpixelCalib+smearfactor
+
+	massfromdedxpixelCalib = ROOT.TMath.Sqrt((dedxpixelCalib-2.557)*pow(pt*ROOT.TMath.CosH(eta),2)/2.579)
                 
 	P_proton.Fill(protrack.p())
 	pt_proton.Fill(protrack.pt())
@@ -311,7 +275,7 @@ for i, event in enumerate(events):
 	#print 'secondary pT:%.2f \tsv daughter(0) pT:%.2f \tsv daughter(1) pT:%.2f \tproton pT:%.2f'%(secondary.pt(),secondary.daughter(0).pt(),secondary.daughter(1).pt(),protrack.pt())
 	
 	# more tight selection without Lambda mass window
-        if (radDis > 0.5) and (radDis <= radDisCutHigh) and bestCosAngle > 0.999994 and abs(protrack.eta()) < 2.4 and dedxpixel>0 and dedxstrips>0 : 
+        if (radDis > radDisCutLow) and (radDis <= radDisCutHigh) and bestCosAngle > 0.999994 and abs(protrack.eta()) < 2.4 and dedxpixel>0 and dedxstrips>0 : 
 	    radialDistance_good_Lambda_NoMassWindow.Fill(radDis)
     	    CosAngle_good_Lambda_NoMassWindow.Fill(bestCosAngle)
             P_good_Lambda_NoMassWindow.Fill(secondary.p())
@@ -320,7 +284,7 @@ for i, event in enumerate(events):
             mass_good_Lambda_NoMassWindow.Fill(secondary.mass())
 	    
 	# more tight selection
-        if (radDis > 0.5) and (radDis <= radDisCutHigh) and abs(secondary.mass()-1.11604e+00)<2.13880e-03 and bestCosAngle > 0.999994 and abs(protrack.eta()) < 2.4:
+        if (radDis > radDisCutLow) and (radDis <= radDisCutHigh) and abs(secondary.mass()-1.11604e+00)<2.13880e-03 and bestCosAngle > 0.999994 and abs(protrack.eta()) < 2.4:
 	    if dedxpixel>0 and dedxstrips>0 : 
 		#print 'both pixel/strips dedx exist'
 		radialDistance_good_Lambda.Fill(radDis)
@@ -365,6 +329,7 @@ for i, event in enumerate(events):
 		    P_good_proton_barrel.Fill(protrack.p())
 	            pt_good_proton_barrel.Fill(protrack.pt())
 		    dedxpixel_good_proton_barrel.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_barrel.Fill(dedxpixelCalib)
 		    dedxstrips_good_proton_barrel.Fill(dedxstrips)
 		    if protrack.p() >=0 and protrack.p() < 1.0: 
 		        dedxpixel_good_proton_P0to1_barrel.Fill(dedxpixel)
@@ -391,6 +356,7 @@ for i, event in enumerate(events):
 		    P_good_proton_endcap.Fill(protrack.p())
 	            pt_good_proton_endcap.Fill(protrack.pt())
 		    dedxpixel_good_proton_endcap.Fill(dedxpixel)
+		    dedxpixelCalib_good_proton_endcap.Fill(dedxpixelCalib)
 		    dedxstrips_good_proton_endcap.Fill(dedxstrips)
 		    if protrack.p() >=0 and protrack.p() < 1.0: 
 		        dedxpixel_good_proton_P0to1_endcap.Fill(dedxpixel)
