@@ -16,7 +16,9 @@ def do_submission(commands, output_folder, condorDir = "condor", executable = "c
 try: fname = sys.argv[1]
 #except: fname = 'fileinfo/Run2017C_SingleMuon_09Aug2019_UL2017-v1_AOD.txt'
 #except: fname = 'fileinfo/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_RunIISummer19UL16RECO-106X_mcRun2_asymptotic_v13-v2_AODSIM.txt'
-except: fname = 'fileinfo/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_RunIISummer19UL17RECO-106X_mc2017_realistic_v6-v2_AODSIM.txt'
+#except: fname = 'fileinfo/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_RunIISummer19UL17RECO-106X_mc2017_realistic_v6-v2_AODSIM.txt'
+#except: fname = 'fileinfo/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8_RunIIFall17DRPremix-RECOSIMstep_94X_mc2017_realistic_v10_ext1-v1_AODSIM.txt'
+except: fname = 'fileinfo/Run2017C_SingleMuon_-17Nov2017-v1_AOD.txt'
 #except: fname = 'fileinfo/Run2016B_SingleElectron-07Aug17_ver2-v2_AOD.txt'
 #except: fname = 'fileinfo/Run2016G_SingleElectron-07Aug17-v1_AOD.txt'
 #except: fname = 'fileinfo/Run2017F_SingleElectron-17Nov2017-v1_AOD.txt'
@@ -36,15 +38,18 @@ thefile.close()
 
 #output_folder = './EDM_output_test/'
 #output_folder = './EDM_output_Run2017C_UL_MIH'
-output_folder = './EDM_output_DYJetsToLL_M-50_TuneCP5_Summer19UL17'
+output_folder = './EDM_output_Run2017C'
+#output_folder = './EDM_output_DYJetsToLL_M-50_TuneCP5_Summer19UL17'
+#output_folder = './EDM_output_DYJetsToLL_M-50_TuneCP5_Fall17'
 #output_folder = './EDM_output_Run2016G_SingleElectron_more/'
 #output_folder = './EDM_output_Run2017F_SingleElectron_more/'
 #output_folder = './EDM_output_Run2018C_EGamma/'
 if not os.path.exists(output_folder):
     os.system('mkdir -p '+output_folder)
 
-condordir='condor_DYJetsToLL_M-50_TuneCP5_Summer19UL17'
-#condordir='condor_Run2017C_MIH'
+#condordir='condor_DYJetsToLL_M-50_TuneCP5_Summer19UL17'
+#condordir='condor_DYJetsToLL_M-50_TuneCP5_Fall17'
+condordir='condor_Run2017C'
 #condordir='condor_Run2016B'
 #condordir='condor_Run2016G'
 #condordir='condor_Run2017F'

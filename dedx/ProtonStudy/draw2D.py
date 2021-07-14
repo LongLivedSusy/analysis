@@ -22,6 +22,8 @@ def main(inputfile,hist,outputdir) :
     
     h.GetXaxis().SetTitle(xtitle)
     h.GetYaxis().SetTitle(ytitle)
+    h.GetXaxis().SetRangeUser(0,7)
+    h.GetYaxis().SetRangeUser(0,6)
     h.RebinX(rebinx)
     h.RebinY(rebiny)
 

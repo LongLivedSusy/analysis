@@ -8,10 +8,14 @@ gROOT.SetBatch(1)
 try: mode = sys.argv[1]
 except: 
     mode = 'LambdaSim'
-    #mode = 'LambdaData'
+    mode = 'LambdaData'
 
 doublgaussmode = False
 if 'Lambda' in mode: doublgaussmode = True
+
+outdir = 'plots_LambdaFit'
+if not os.path.exists(outdir):
+    os.system('mkdir -p '+outdir)
 
 if 'Sim' in mode : 
     simulation = True
@@ -27,14 +31,15 @@ python SvSignalExtractDraw.py LambdaData
 '''
 
 if mode=='LambdaSim':
-    iname = './SV_rootfiles/vertex_RunIISummer16DR80Premix_T2bt.root'
+    iname = './SV_rootfiles/vertex_Summer16_T2bt.root'
 if mode=='LambdaData':
-    iname = './SV_rootfiles/vertex_Run2016G.root'
+    iname = './SV_rootfiles/vertex_Run2016G_SingleElectron.root'
 
 infile = TFile(iname)
-hmass = infile.Get('mass_Lambda')  
+#hmass = infile.Get('mass_Lambda')  
+hmass = infile.Get('mass_good_Lambda_dedxexist_NoMassWindow')  
 
-hmass.Rebin(2)
+hmass.Rebin(4)
 hmass.SetLineWidth(2)
 hmass.SetLineColor(kBlack)
 hmass.SetMarkerColor(kBlack)
@@ -185,8 +190,8 @@ tl.DrawLatex(.15,.44, 'sig. purity: %.4f '% (nsigPeak/(nsigPeak+nbkgPeak)))
 c1.Update()
 #hsig.Write()
 #fGaussian.Write('fsignal')
-if mode == 'LambdaData' : c1.Print('./plots/goodLambda_Run2016G.png')
-else : c1.Print('./plots/goodLambda_Summer16_T2bt.png')
+if mode == 'LambdaData' : c1.Print(outdir+'/Lambda_Run2016G.png')
+else : c1.Print(outdir+'/Lambda_Summer16_T2bt.png')
 
 
 
