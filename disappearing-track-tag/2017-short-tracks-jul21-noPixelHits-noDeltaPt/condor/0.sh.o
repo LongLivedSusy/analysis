@@ -1,0 +1,368 @@
+  
+total 4
+-rw-r--r-- 1 kutznerv unihh2  580 Jul 21 19:09 0.log
+-rw-r--r-- 1 kutznerv unihh2  603 Jul 21 19:09 0.sh.e
+-rw-r--r-- 1 kutznerv unihh2    3 Jul 21 19:09 0.sh.o
+-rw-r--r-- 1 kutznerv af-cms  326 Jul 21 19:09 args
+-rw-r--r-- 1 kutznerv af-cms   58 Jul 21 19:09 cluster_info
+-rw-r--r-- 1 kutznerv af-cms 1110 Jul 21 19:09 runjobs.sh
+-rw-r--r-- 1 kutznerv af-cms  659 Jul 21 19:09 runjobs.submit
+/nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-jul21-noPixelHits-noDeltaPt/condor
+Using Grid environment in '/cvmfs/grid.cern.ch/centos7-umd4-ui-4_200423'.
+Adding DESY site environment.
+/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_11_2_3
+X509_USER_PROXY /afs/desy.de/user/k/kutznerv/proxy
+subject   : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner/CN=1850152923
+issuer    : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner
+identity  : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner
+type      : RFC3820 compliant impersonation proxy
+strength  : 2048
+path      : /afs/desy.de/user/k/kutznerv/proxy
+timeleft  : 168:41:54
+key usage : Digital Signature, Key Encipherment, Data Encipherment
+cd /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-jul21-noPixelHits-noDeltaPt; cp ../trainBDT_template.py trainBDT.py; chmod +x trainBDT.py; ./trainBDT.py --category short --phase 1 --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged
+Training BDT for phase 1...
+labels ['RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1', 'RunIIFall17MiniAODv2.TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8']
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
+adding background tree: DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8
+DataSetInfo              : [dataset] : Added class "Background"
+                         : Add Tree Events of type Background with 35572 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1
+DataSetInfo              : [dataset] : Added class "Signal"
+                         : Add Tree Events of type Signal with 1861375 events
+adding background tree: WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 22709 events
+adding background tree: DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 1354 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Signal with 5350198 events
+adding background tree: TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 11631 events
+adding background tree: DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 477 events
+adding background tree: DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 103665 events
+adding background tree: WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 30443 events
+adding background tree: TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 157858 events
+adding background tree: DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 13503 events
+adding background tree: DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 4834 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Signal with 3166071 events
+adding background tree: DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 29201 events
+adding background tree: WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 16073 events
+adding signal tree: FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Signal with 6006978 events
+adding background tree: TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 59788 events
+adding background tree: WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 18019 events
+adding background tree: TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 63869 events
+adding background tree: TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 47871 events
+adding background tree: DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 6240 events
+adding background tree: WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 26951 events
+adding background tree: WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 24218 events
+adding background tree: WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8
+                         : Add Tree Events of type Background with 72135 events
+@@@ vetoes =  && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_passleptonveto==1 
+@@@ extra_sig_cuts = 
+Using ntrees=200, 4
+Factory                  : Booking method: [1mBDT[0m
+                         : 
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Background
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Signal
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Signal
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Signal
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Building event vectors for type 2 Signal
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+                         : Dataset[dataset] :  create input formulas for tree Events
+<WARNING>                : Found events with NaN and/or +-inf values
+<WARNING>                : Dataset[dataset] : Input expression resolves to infinite value (+inf or -inf): tracks_chi2perNdof (32 times)
+<WARNING>                : These NaN and/or +-infs were all removed by the specified cut, continuing.
+                         : 
+DataSetFactory           : [dataset] : Number of events in input trees
+                         : Dataset[dataset] :     Background requirement: "tracks_pt>15 && tracks_is_pixel_track==1 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_passleptonveto==1 "
+                         : Dataset[dataset] :     Background      -- number of events passed: 228423  / sum of weights: 8.8983
+                         : Dataset[dataset] :     Background      -- efficiency             : 0.508595
+                         : Dataset[dataset] :     Signal     requirement: "tracks_chiCandGenMatchingDR<0.01 && tracks_pt>15 && tracks_is_pixel_track==1 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999 && tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_passleptonveto==1 "
+                         : Dataset[dataset] :     Signal          -- number of events passed: 4239242  / sum of weights: 0.0136899
+                         : Dataset[dataset] :     Signal          -- efficiency             : 0.224021
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Dataset[dataset] :  you have opted for interpreting the requested number of training/testing events
+                         :  to be the number of events AFTER your preselection cuts
+                         : 
+                         : Number of training and testing events
+                         : ---------------------------------------------------------------------------
+                         : Background -- training events            : 114211
+                         : Background -- testing events             : 114211
+                         : Background -- training and testing events: 228422
+                         : Dataset[dataset] : Background -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.305451
+                         : Signal     -- training events            : 2119621
+                         : Signal     -- testing events             : 2119621
+                         : Signal     -- training and testing events: 4239242
+                         : Dataset[dataset] : Signal     -- due to the preselection a scaling factor has been applied to the numbers of requested events: 0.224549
+                         : 
+DataSetInfo              : Correlation matrix (Background):
+                         : ----------------------------------------------------------------------------------
+                         :                     tracks_dxyVtx tracks_dzVtx tracks_trkRelIso tracks_chi2perNdof
+                         :      tracks_dxyVtx:        +1.000       +0.084           +0.120             +0.056
+                         :       tracks_dzVtx:        +0.084       +1.000           -0.076             +0.030
+                         :   tracks_trkRelIso:        +0.120       -0.076           +1.000             +0.065
+                         : tracks_chi2perNdof:        +0.056       +0.030           +0.065             +1.000
+                         : ----------------------------------------------------------------------------------
+DataSetInfo              : Correlation matrix (Signal):
+                         : ----------------------------------------------------------------------------------
+                         :                     tracks_dxyVtx tracks_dzVtx tracks_trkRelIso tracks_chi2perNdof
+                         :      tracks_dxyVtx:        +1.000       +0.082           +0.238             +0.036
+                         :       tracks_dzVtx:        +0.082       +1.000           +0.019             +0.087
+                         :   tracks_trkRelIso:        +0.238       +0.019           +1.000             +0.013
+                         : tracks_chi2perNdof:        +0.036       +0.087           +0.013             +1.000
+                         : ----------------------------------------------------------------------------------
+DataSetFactory           : [dataset] :  
+                         : 
+Factory                  : [1mTrain all methods[0m
+Factory                  : [dataset] : Create Transformation "I" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "P" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "G" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+Factory                  : [dataset] : Create Transformation "D" with events from all classes.
+                         : 
+                         : Transformation, Variable selection : 
+                         : Input : variable 'tracks_dxyVtx' <---> Output : variable 'tracks_dxyVtx'
+                         : Input : variable 'tracks_dzVtx' <---> Output : variable 'tracks_dzVtx'
+                         : Input : variable 'tracks_trkRelIso' <---> Output : variable 'tracks_trkRelIso'
+                         : Input : variable 'tracks_chi2perNdof' <---> Output : variable 'tracks_chi2perNdof'
+TFHandler_Factory        :           Variable                  Mean                  RMS          [        Min                  Max ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         :      tracks_dxyVtx:           0.0028860           0.0053963   [          2.1514e-09            0.099975 ]
+                         :       tracks_dzVtx:           0.0027864           0.0052324   [          3.9367e-10            0.099979 ]
+                         :   tracks_trkRelIso:           0.0071835            0.019373   [              0.0000             0.19998 ]
+                         : tracks_chi2perNdof:             0.99942              1.3171   [          6.7651e-10              49.619 ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :           Variable                  Mean                  RMS          [        Min                  Max ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         :      tracks_dxyVtx:             0.38520              1.0000   [             -4.4023              19.718 ]
+                         :       tracks_dzVtx:             0.41165              1.0000   [             -3.8222              19.903 ]
+                         :   tracks_trkRelIso:             0.32630              1.0000   [             -1.7665              10.412 ]
+                         : tracks_chi2perNdof:             0.75847              1.0000   [          -0.0081996              37.668 ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         : Preparing the Principle Component (PCA) transformation...
+TFHandler_Factory        :           Variable                  Mean                  RMS          [        Min                  Max ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         :      tracks_dxyVtx:          -0.0089544              1.3171   [             -1.0084              48.611 ]
+                         :       tracks_dzVtx:         -0.00055132            0.019406   [            -0.20016            0.028562 ]
+                         :   tracks_trkRelIso:          0.00019162           0.0059390   [            -0.13259            0.020296 ]
+                         : tracks_chi2perNdof:         -3.6706e-06           0.0044131   [           -0.082175            0.061974 ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         : Preparing the Gaussian transformation...
+                         : Preparing the Decorrelation transformation...
+TFHandler_Factory        :           Variable                  Mean                  RMS          [        Min                  Max ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         :      tracks_dxyVtx:            0.070581              1.0000   [             -3.1636              6.1177 ]
+                         :       tracks_dzVtx:           0.0026425              1.0000   [             -3.2364              6.0034 ]
+                         :   tracks_trkRelIso:            -0.92387              1.0000   [             -2.0758              3.8623 ]
+                         : tracks_chi2perNdof:            0.012094              1.0000   [             -2.4143              5.8179 ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         : Ranking input variables (method unspecific)...
+IdTransformation         : Ranking result (top variable is best ranked)
+                         : -------------------------------------------
+                         : Rank : Variable           : Separation
+                         : -------------------------------------------
+                         :    1 : tracks_dxyVtx      : 4.045e-01
+                         :    2 : tracks_dzVtx       : 3.898e-01
+                         :    3 : tracks_trkRelIso   : 7.242e-02
+                         :    4 : tracks_chi2perNdof : 5.593e-03
+                         : -------------------------------------------
+Factory                  : Train method: BDT for Classification
+                         : 
+                         : Events with weight == 0 are going to be simply ignored 
+BDT                      : #events: (reweighted) sig: 1.11692e+06 bkg: 1.11692e+06
+                         : #events: (unweighted) sig: 2119621 bkg: 114210
+                         : Training 200 Decision Trees ... patience please
+                         : Elapsed time for training with 2233832 events: 303 sec         
+BDT                      : [dataset] : Evaluation of BDT on training sample (2233832 events)
+                         : Elapsed time for evaluation of 2233832 events: 23.9 sec       
+                         : Creating xml weight file: [0;36mdataset/weights/TMVAClassification_BDT.weights.xml[0m
+                         : Creating standalone class: [0;36mdataset/weights/TMVAClassification_BDT.class.C[0m
+                         : output.root:/dataset/Method_BDT/BDT
+Factory                  : Training finished
+                         : 
+                         : Ranking input variables (method specific)...
+BDT                      : Ranking result (top variable is best ranked)
+                         : ----------------------------------------------------
+                         : Rank : Variable           : Variable Importance
+                         : ----------------------------------------------------
+                         :    1 : tracks_dxyVtx      : 3.333e-01
+                         :    2 : tracks_trkRelIso   : 3.252e-01
+                         :    3 : tracks_dzVtx       : 2.156e-01
+                         :    4 : tracks_chi2perNdof : 1.260e-01
+                         : ----------------------------------------------------
+Factory                  : === Destroy and recreate all methods via weight files for testing ===
+                         : 
+                         : Reading weight file: [0;36mdataset/weights/TMVAClassification_BDT.weights.xml[0m
+Factory                  : [1mTest all methods[0m
+Factory                  : Test method: BDT for Classification performance
+                         : 
+BDT                      : [dataset] : Evaluation of BDT on testing sample (2233832 events)
+                         : Elapsed time for evaluation of 2233832 events: 19.9 sec       
+Factory                  : [1mEvaluate all methods[0m
+Factory                  : Evaluate classifier: BDT
+                         : 
+BDT                      : [dataset] : Loop over test events and fill histograms with classifier response...
+                         : 
+TFHandler_BDT            :           Variable                  Mean                  RMS          [        Min                  Max ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         :      tracks_dxyVtx:            0.015258            0.016972   [          6.9024e-11            0.099970 ]
+                         :       tracks_dzVtx:            0.013796            0.016340   [          4.6811e-10            0.099999 ]
+                         :   tracks_trkRelIso:            0.021545            0.040921   [              0.0000             0.19999 ]
+                         : tracks_chi2perNdof:              1.2088              1.8658   [          1.5540e-11              49.973 ]
+                         : -------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Evaluation results ranked by best signal efficiency and purity (area)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet       MVA                       
+                         : Name:         Method:          ROC-integ
+                         : dataset       BDT            : 0.939
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+                         : Testing efficiency compared to training efficiency (overtraining check)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : DataSet              MVA              Signal efficiency: from test sample (from training sample) 
+                         : Name:                Method:          @B=0.01             @B=0.10            @B=0.30   
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : dataset              BDT            : 0.384 (0.390)       0.825 (0.820)      0.957 (0.956)
+                         : -------------------------------------------------------------------------------------------------------------------
+                         : 
+Dataset:dataset          : Created tree 'TestTree' with 2233832 events
+                         : 
+Dataset:dataset          : Created tree 'TrainTree' with 2233832 events
+                         : 
+Factory                  : [1mThank you for using TMVA![0m
+                         : [1mFor citation information, please visit: http://tmva.sf.net/citeTMVA.html[0m
+Success
