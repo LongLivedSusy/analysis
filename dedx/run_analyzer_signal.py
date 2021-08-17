@@ -132,9 +132,9 @@ if __name__ == "__main__":
 	    --mstop 1300 \
 	    --mlsp 200 \
 	    --nev -1 \
-	    --dedxcalibfactor 1.12 \
+	    --dedxcalibfactor 1.125 \
 	    ')
-    ''' 
+     
     commands.append(
     'python analyzer_chargino.py \
 	    --inputfile ./inputs/Summer16PrivateFastSim.SMS-T2bt-LLChipm_ctau-200_mStop-1300_mLSP-400to1000.txt \
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 	    --mstop 2500 \
 	    --mlsp 1800 \
 	    --nev -1 \
-	    --dedxcalibfactor 0.93 \
+	    --dedxcalibfactor 0.95 \
 	    ')
     
     commands.append(
@@ -231,9 +231,8 @@ if __name__ == "__main__":
 	    --mstop 2500 \
 	    --mlsp 2000 \
 	    --nev -1 \
-	    --dedxcalibfactor 0.93 \
+	    --dedxcalibfactor 0.925 \
 	    ')
-    ''' 
     # Submit
     if test :
 	print 'Test run'
