@@ -1466,6 +1466,21 @@ def Load_DedxSmear_MIH(phase):
 
 	return fsmear_barrel, fsmear_endcap
 
+def calibfactor_dedx_fastsim(mLSP):
+    if mLSP==200 : factor=1.125
+    if mLSP==400 : factor=1.02
+    if mLSP==600 : factor=0.98
+    if mLSP==800 : factor=0.96
+    if mLSP==1000 : factor=0.96
+    if mLSP==1200 : factor=0.98
+    if mLSP==1400 : factor=0.96
+    if mLSP==1600 : factor=0.95
+    if mLSP==1800 : factor=0.95
+    if mLSP==2000 : factor=0.925
+    else factor = 1.0
+    
+    return factor
+
 
 def mttsam1(metvec, l1vec, l2vec):
 				pxmiss, pymiss = metvec.Px(), metvec.Py()
