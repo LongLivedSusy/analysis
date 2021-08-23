@@ -160,7 +160,8 @@ def main(inputfile,outputdir,outputfile,nev,mstop,mlsp,dedxcalibfactor):
 	    else : fillth1(hTrkPixelDedx_charginomatch_SR,1,weight)
 	    
 	    dedx_pixel_scale= dedx_pixel * dedxcalibfactor
-	    if dedx_pixel_scale<4.0 : fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
+	    fillth1(hTrkPixelDedxScale_charginomatch,dedx_pixel_scale,weight)
+	    if dedx_pixel_scale<=4.0 : fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
 	    else : fillth1(hTrkPixelDedxScale_charginomatch_SR,1,weight)
 	    
 	    # Barrel calibration
@@ -168,11 +169,9 @@ def main(inputfile,outputdir,outputfile,nev,mstop,mlsp,dedxcalibfactor):
 	        
 	        fillth1(hTrkPixelDedx_charginomatch_barrel,dedx_pixel,weight)
 	        fillth1(hTrkPixelDedxScale_charginomatch_barrel,dedx_pixel_scale,weight)
-		if dedx_pixel_scale<4.0 : 
-		    fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
+		if dedx_pixel_scale<=4.0 : 
 		    fillth1(hTrkPixelDedxScale_charginomatch_barrel_SR,0,weight)
 		else : 
-		    fillth1(hTrkPixelDedxScale_charginomatch_SR,1,weight)
 		    fillth1(hTrkPixelDedxScale_charginomatch_barrel_SR,1,weight)
 	        
 		fillth1(hTrkStripsDedx_charginomatch_barrel,dedx_strips,weight)
@@ -181,11 +180,9 @@ def main(inputfile,outputdir,outputfile,nev,mstop,mlsp,dedxcalibfactor):
 	    elif abs(track.Eta())>1.5 :
 	        fillth1(hTrkPixelDedx_charginomatch_endcap,dedx_pixel,weight)
 	        fillth1(hTrkPixelDedxScale_charginomatch_endcap,dedx_pixel_scale,weight)
-		if dedx_pixel_scale<4.0 : 
-		    fillth1(hTrkPixelDedxScale_charginomatch_SR,0,weight)
+		if dedx_pixel_scale<=4.0 : 
 		    fillth1(hTrkPixelDedxScale_charginomatch_endcap_SR,0,weight)
 		else : 
-		    fillth1(hTrkPixelDedxScale_charginomatch_SR,1,weight)
 		    fillth1(hTrkPixelDedxScale_charginomatch_endcap_SR,1,weight)
 	        
 	        fillth1(hTrkStripsDedx_charginomatch_endcap,dedx_strips,weight)

@@ -8,6 +8,41 @@ import argparse
 gROOT.SetBatch(True)
 gStyle.SetOptStat(False)
 
+def stamp(lumi='35.9', datamc_ = 'data', showlumi = False, WorkInProgress = False):
+	datamc = datamc_.lower()
+	tl.SetTextFont(cmsTextFont)
+	tl.SetTextSize(0.98*tl.GetTextSize())
+	tl.DrawLatex(0.15,0.845, 'CMS')
+	tl.SetTextFont(extraTextFont)
+	tl.SetTextSize(1.0/0.98*tl.GetTextSize())
+	xlab = 0.235
+	if ('mc' in datamc): thing = 'simulation'
+	else: thing = 'preliminary'
+	if WorkInProgress: tl.DrawLatex(xlab,0.845, ' internal')
+	else: tl.DrawLatex(xlab,0.845, thing)
+	tl.SetTextFont(regularfont)
+	tl.SetTextSize(0.81*tl.GetTextSize())    
+	thingy = ''
+	if showlumi: thingy+='#sqrt{s}=13 TeV, L = '+str(lumi)+' fb^{-1}'
+	xthing = 0.57
+	if not showlumi: xthing+=0.13
+	tl.DrawLatex(xthing,0.845,thingy)
+	tl.SetTextSize(1.0/0.81*tl.GetTextSize())
+
+
+def stamp2(lumi,datamc='MC'):
+	tl.SetTextFont(cmsTextFont)
+	tl.SetTextSize(1.6*tl.GetTextSize())
+	tl.DrawLatex(0.152,0.82, 'CMS')
+	tl.SetTextFont(extraTextFont)
+	tl.DrawLatex(0.14,0.74, ('MC' in datamc)*' simulation'+' internal')
+	tl.SetTextFont(regularfont)
+	if lumi=='': tl.DrawLatex(0.62,0.82,'#sqrt{s} = 13 TeV')
+	else: tl.DrawLatex(0.47,0.82,'#sqrt{s} = 13 TeV, L = '+str(lumi)+' fb^{-1}')
+	#tl.DrawLatex(0.64,0.82,'#sqrt{s} = 13 TeV')#, L = '+str(lumi)+' fb^{-1}')	
+	tl.SetTextSize(tl.GetTextSize()/1.6)
+
+
 def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=135.9, title = '', LinearScale=True, fractionthing='data/mc',xtitle=''):
 	print 'datamc in FabDraw'
 	cGold.cd()
@@ -44,7 +79,8 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=135.9, title = '', Lin
 		leg.AddEntry(hTruth,title0,'lp')    
 	hTruth.SetTitle('')
 	hComponents[0].SetTitle('')
-	if LinearScale: hComponents[0].GetYaxis().SetRangeUser(0, 1.5*hTruth.GetMaximum())
+	#if LinearScale: hComponents[0].GetYaxis().SetRangeUser(0, 1.5*hTruth.GetMaximum())
+	if LinearScale: hComponents[0].GetYaxis().SetRangeUser(0, histheight)
 	else: hComponents[0].GetYaxis().SetRangeUser(0.001, 100*hTruth.GetMaximum())
 	hComponents[0].Draw('hist')
 
@@ -60,6 +96,7 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=135.9, title = '', Lin
 	leg.Draw()        
 	cGold.Update()
 	#stamp2(lumi,datamc)
+	stamp2(lumi='',datamc='MC')
 	cGold.Update()
 	cGold.cd()
 	pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
@@ -105,17 +142,17 @@ def FabDraw(cGold,leg,hTruth,hComponents,datamc='MC',lumi=135.9, title = '', Lin
 	latex = TLatex()
     	latex.SetTextSize(0.05)
     	latex.SetTextAlign(13)
-    	latex.DrawLatex(4.5,.06,"#epsilon_data(dE/dx<=4.0 MeV/cm) = "+str(round(hTruth.Integral(0,39),3)))
-    	latex.DrawLatex(4.5,.05,"#epsilon_data(dE/dx>4.0 MeV/cm) = "+str(round(hTruth.Integral(40,1000),3)))
-    	latex.DrawLatex(4.5,.04,"#epsilon_mc(dE/dx<=4.0 MeV/cm) = "+str(round(hComponents[0].Integral(0,39),3)))
-    	latex.DrawLatex(4.5,.03,"#epsilon_mc(dE/dx>4.0 MeV/cm) = "+str(round(hComponents[0].Integral(40,1000),3)))
-
+    	latex.DrawLatex(15,histheight*0.5,"#epsilon_data(dE/dx<=4.0 MeV/cm) = "+str(round(hTruth.Integral(0,39),3)))
+    	latex.DrawLatex(15,histheight*0.4,"#epsilon_data(dE/dx>4.0 MeV/cm) = "+str(round(hTruth.Integral(40,1000),3)))
+    	latex.DrawLatex(15,histheight*0.3,"#epsilon_mc(dE/dx<=4.0 MeV/cm) = "+str(round(hComponents[0].Integral(0,39),3)))
+    	latex.DrawLatex(15,histheight*0.2,"#epsilon_mc(dE/dx>4.0 MeV/cm) = "+str(round(hComponents[0].Integral(40,1000),3)))
+	
 	hComponents.reverse()
 	hTruth.SetTitle(title0)
 	return hRatio, [pad1, pad2]
 
 
-def draw_figure(inputfile1,inputfile2,outputdir,outputfile,hist,legend1,legend2,xtitle):
+def draw_figure(inputfile1,inputfile2,outputdir,outputfile,hist,legend1,legend2,xtitle,rebin=1,LinearScale=True):
     
     if not os.path.exists(outputdir) : os.system('mkdir -p '+outputdir)
     
@@ -129,10 +166,13 @@ def draw_figure(inputfile1,inputfile2,outputdir,outputfile,hist,legend1,legend2,
     h1.SetTitle(legend1)
     h2.SetTitle(legend2)
 
+    h1.Rebin(rebin)
+    h2.Rebin(rebin)
+
     h1.Scale(1.0/h1.Integral())
     h2.Scale(1.0/h2.Integral())
 
-    hratio, [pad1, pad2]= FabDraw(c,l,h1,[h2],datamc='data',xtitle=xtitle)
+    hratio, [pad1, pad2]= FabDraw(c,l,h1,[h2],datamc='data',xtitle=xtitle,LinearScale=LinearScale)
 
     c.Update()
     c.SaveAs(outputdir+'/'+outputfile)
@@ -147,6 +187,8 @@ if __name__ == "__main__":
     parser.add_argument("--legend1",type=str,default="",dest="legend1")
     parser.add_argument("--legend2",type=str,default="",dest="legend2")
     parser.add_argument("--xtitle",type=str,default="",dest="xtitle")
+    parser.add_argument("--rebin",type=int,default=1,dest="rebin")
+    parser.add_argument("--LinearScale",default=False,action='store_true')
 
     args = parser.parse_args()
     inputfile1 = args.inputfile1
@@ -157,6 +199,8 @@ if __name__ == "__main__":
     legend1 = args.legend1
     legend2 = args.legend2
     xtitle = args.xtitle
+    rebin = args.rebin
+    LinearScale = args.LinearScale
     
-    draw_figure(inputfile1,inputfile2,outputdir,outputfile,hist,legend1=legend1,legend2=legend2,xtitle=xtitle)
+    draw_figure(inputfile1,inputfile2,outputdir,outputfile,hist,legend1=legend1,legend2=legend2,xtitle=xtitle, rebin=rebin, LinearScale=LinearScale)
     
