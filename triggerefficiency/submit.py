@@ -102,7 +102,7 @@ def get_ntuple_datasets(globstring_list):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default = 200)
+    parser.add_option("--nfiles", dest="files_per_job", default = 150)
     parser.add_option("--njobs", dest="njobs")
     parser.add_option("--start", dest="start", action = "store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
@@ -123,9 +123,9 @@ if __name__ == "__main__":
         options.command = "./get_trigger_efficiency.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
         options.add_signals = 0
-        options.dataset = "Run201*"
+        options.dataset = "Run201*MET*,Run201*Single*,Run201*EGamma*"
     if not options.output_folder:
-        options.output_folder = "output5_met"
+        options.output_folder = "output10"
     ######## defaults ########
 
     commands = []
@@ -158,12 +158,11 @@ if __name__ == "__main__":
             
         commands = new_commands
     
-    # slim command list:
-    #with open("skimmer.arguments", "w") as fout:
-    #    fout.write("\n".join(commands))
-    #for i in range(len(commands)):
-    #    #commands[i] = 'sh -c "$(head -n %i skimmer.arguments | tail -n 1)"' % (i+1)
-    #    commands[i] = "./skimmer.py --narg %i" % (i+1)
+    ## slim command list:
+    with open("skimmer.arguments", "w") as fout:
+        fout.write("\n".join(commands))
+    for i in range(len(commands)):
+        commands[i] = "$(head -n%s skimmer.arguments | tail -n1)" % (i+1)
     
     print commands[0]
     

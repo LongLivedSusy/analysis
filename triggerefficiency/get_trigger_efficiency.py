@@ -31,21 +31,21 @@ def main(input_filenames, output_file, eta_low = 0, eta_high = 2.4, nevents = -1
 
     tree = TChain(treename)
     for tree_file in input_filenames:
-        tree.Add(tree_file)
+        tree.Add(tree_file.replace("'", ""))
    
     ###################################################################################################
         
     histos = {}
     for variable in binnings:
-        histos[variable + "_MHT_singleelectron_mettrigger"] = TH1F("%s_MHT_singleelectron_mettrigger" % variable, "%s_MHT_singleelectron_mettrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-        histos[variable + "_MHT_singleelectron_eltrigger"] = TH1F("%s_MHT_singleelectron_eltrigger" % variable, "%s_MHT_singleelectron_eltrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-        histos[variable + "_MHT_singlemuon_mettrigger"] = TH1F("%s_MHT_singlemuon_mettrigger" % variable, "%s_MHT_singlemuon_mettrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-        histos[variable + "_MHT_singlemuon_mutrigger"] = TH1F("%s_MHT_singlemuon_mutrigger" % variable, "%s_MHT_singlemuon_mutrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-
-        histos[variable + "_Lep_singleelectron_mettrigger"] = TH1F("%s_Lep_singleelectron_mettrigger" % variable, "%s_Lep_singleelectron_mettrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-        histos[variable + "_Lep_singleelectron_eltrigger"] = TH1F("%s_Lep_singleelectron_eltrigger" % variable, "%s_Lep_singleelectron_eltrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-        histos[variable + "_Lep_singlemuon_mettrigger"] = TH1F("%s_Lep_singlemuon_mettrigger" % variable, "%s_Lep_singlemuon_mettrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
-        histos[variable + "_Lep_singlemuon_mutrigger"] = TH1F("%s_Lep_singlemuon_mutrigger" % variable, "%s_Lep_singlemuon_mutrigger" % variable, len(binnings[variable])-1, array.array('d', binnings[variable]))
+        for triggertype in ["MHT", "Lep"]:
+            histos["%s_%s_singleelectron_mettrigger" % (variable, triggertype)] = TH1F("%s_%s_singleelectron_mettrigger" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singleelectron_eltrigger" % (variable, triggertype)] = TH1F("%s_%s_singleelectron_eltrigger" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singleelectron_eltriggerloose" % (variable, triggertype)] = TH1F("%s_%s_singleelectron_eltriggerloose" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singleelectron_elmettrigger" % (variable, triggertype)] = TH1F("%s_%s_singleelectron_elmettrigger" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singleelectron_elmettriggerloose" % (variable, triggertype)] = TH1F("%s_%s_singleelectron_elmettriggerloose" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singlemuon_mettrigger" % (variable, triggertype)] = TH1F("%s_%s_singlemuon_mettrigger" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singlemuon_mutrigger" % (variable, triggertype)] = TH1F("%s_%s_singlemuon_mutrigger" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
+            histos["%s_%s_singlemuon_mumettrigger" % (variable, triggertype)] = TH1F("%s_%s_singlemuon_mumettrigger" % (variable, triggertype), "", len(binnings[variable])-1, array.array('d', binnings[variable]))
 
     ###################################################################################################
 
@@ -110,19 +110,34 @@ def main(input_filenames, output_file, eta_low = 0, eta_high = 2.4, nevents = -1
             triggered_met = PassTrig(event, 'MhtMet6pack')
             
             if triggertype == "MHT":
-                # MHT triggers...
-                if not (event.HT>150 and n_goodjets>=1):
+                if not event.HT>150:
                     continue
-                triggered_singleelectron = event.TriggerPass[36]
-                triggered_singlemuon = event.TriggerPass[49]
             else:
-                # lepton triggers...
-                if not (event.HT>30):
+                if not event.HT>30:
                     continue
-                triggered_singleelectron = PassTrig(event, 'SingleElectron')
-                triggered_singlemuon = PassTrig(event, 'SingleMuon')
+                    
+            triggered_singleelectron = PassTrig(event, 'SingleElectron')
+            triggered_singleelectronloose = PassTrig(event, 'SingleElectronLoose')
+            triggered_singlemuon = PassTrig(event, 'SingleMuon')
                         
             for variable in binnings:
+            
+                if triggertype == "MHT":
+                    if variable == "Pt":
+                        if not n_goodjets>=1: continue
+                        if not event.MHT>150: continue
+                    if variable == "MHT":
+                        if not n_goodjets>=1: continue
+                    if variable == "nJet":
+                        if not event.MHT>150: continue
+                else:
+                    if variable == "Pt":
+                        if not n_goodjets>=1: continue
+                        if not event.MHT>30: continue
+                    if variable == "MHT":
+                        if not n_goodjets>=1: continue
+                    if variable == "nJet":
+                        if not event.MHT>30: continue
             
                 if n_goodelectrons >= 1:
                     if variable == "Pt":
@@ -131,11 +146,17 @@ def main(input_filenames, output_file, eta_low = 0, eta_high = 2.4, nevents = -1
                         value = event.MHT
                     elif variable == "nJet":
                         value = n_goodjets
-                    
+                                       
                     if triggered_met == 1:
                         histos[variable + "_" + triggertype + "_singleelectron_mettrigger"].Fill(value, weight)
-                    if triggered_singleelectron == 1 and triggered_met == 1:
+                    if triggered_singleelectron == 1:
                         histos[variable + "_" + triggertype + "_singleelectron_eltrigger"].Fill(value, weight)
+                    if triggered_singleelectronloose == 1:
+                        histos[variable + "_" + triggertype + "_singleelectron_eltriggerloose"].Fill(value, weight)
+                    if triggered_singleelectron == 1 and triggered_met == 1:
+                        histos[variable + "_" + triggertype + "_singleelectron_elmettrigger"].Fill(value, weight)
+                    if triggered_singleelectronloose == 1 and triggered_met == 1:
+                        histos[variable + "_" + triggertype + "_singleelectron_elmettriggerloose"].Fill(value, weight)
                 
                 elif n_goodmuons >= 1 and n_goodelectrons == 0:
                     if variable == "Pt":
@@ -147,8 +168,10 @@ def main(input_filenames, output_file, eta_low = 0, eta_high = 2.4, nevents = -1
                     
                     if triggered_met == 1:
                         histos[variable + "_" + triggertype + "_singlemuon_mettrigger"].Fill(value, weight)
-                    if triggered_singlemuon == 1 and triggered_met == 1:
+                    if triggered_singlemuon == 1:
                         histos[variable + "_" + triggertype + "_singlemuon_mutrigger"].Fill(value, weight)
+                    if triggered_singlemuon == 1 and triggered_met == 1:
+                        histos[variable + "_" + triggertype + "_singlemuon_mumettrigger"].Fill(value, weight)
 
         ###################################################################################################
 
@@ -166,34 +189,33 @@ def main(input_filenames, output_file, eta_low = 0, eta_high = 2.4, nevents = -1
 
 def combinedplots():
 
-    
-    for channel in [ "Lep", "MHT"]:
+    for channel in ["Lep", "MHT"]:
 
         histos = {}
         
         for year in [2016, 2017, 2018]:
 
             if channel == "MHT":
-                fin = TFile("Run%s_Lep.root" % year, "open")    
+                fin = TFile("Run%s_SingleLepton.root" % year, "open")    
             elif channel == "Lep":
                 fin = TFile("Run%s_MET.root" % year, "open")    
 
             for variable in binnings:
                 for label in [
-                               variable + "_MHT_singleelectron_mettrigger",
-                               variable + "_MHT_singleelectron_eltrigger",
-                               variable + "_MHT_singlemuon_mettrigger",
-                               variable + "_MHT_singlemuon_mutrigger",
-                               variable + "_Lep_singleelectron_mettrigger", 
-                               variable + "_Lep_singleelectron_eltrigger", 
-                               variable + "_Lep_singlemuon_mettrigger",
-                               variable + "_Lep_singlemuon_mutrigger", 
+                               variable + "_%s_singleelectron_mettrigger" % channel,
+                               variable + "_%s_singleelectron_eltrigger" % channel,
+                               variable + "_%s_singleelectron_elmettrigger" % channel,
+                               variable + "_%s_singleelectron_eltriggerloose" % channel,
+                               variable + "_%s_singleelectron_elmettriggerloose" % channel,
+                               variable + "_%s_singlemuon_mettrigger" % channel,
+                               variable + "_%s_singlemuon_mutrigger" % channel,
+                               variable + "_%s_singlemuon_mumettrigger" % channel,
                              ]:
                          
                     histos[label + "_%s" % year] = fin.Get(label)
                     histos[label + "_%s" % year].SetDirectory(0)
                 
-                    print histos[label + "_%s" % year].GetEntries()
+                    #print histos[label + "_%s" % year].GetEntries()
             
             fin.Close()
         
@@ -221,15 +243,28 @@ def combinedplots():
             
             h_effs = {}
             for i_year, year in enumerate([2016, 2017, 2018]):
-                num = histos["%s_%s_singlemuon_mutrigger_%s" % (variable, channel, year)].Clone()
-                denom = histos["%s_%s_singlemuon_mettrigger_%s" % (variable, channel, year)].Clone()
+                if channel == "MHT":
+                    num = histos["%s_%s_singlemuon_mumettrigger_%s" % (variable, channel, year)].Clone()
+                    denom = histos["%s_%s_singlemuon_mutrigger_%s" % (variable, channel, year)].Clone()
+                elif channel == "Lep":
+                    num = histos["%s_%s_singlemuon_mumettrigger_%s" % (variable, channel, year)].Clone()
+                    denom = histos["%s_%s_singlemuon_mettrigger_%s" % (variable, channel, year)].Clone()
+                    
                 h_effs["mu_%s" % year] = TEfficiency(num.Clone(), denom.Clone())
-                print num.GetEntries(), denom.GetEntries()
+                #print num.GetEntries(), denom.GetEntries()
                 
-                num = histos["%s_%s_singleelectron_eltrigger_%s" % (variable, channel, year)].Clone()
-                denom = histos["%s_%s_singleelectron_mettrigger_%s" % (variable, channel, year)].Clone()
+                if channel == "MHT":
+                    #num = histos["%s_%s_singleelectron_elmettrigger_%s" % (variable, channel, year)].Clone()
+                    #denom = histos["%s_%s_singleelectron_eltrigger_%s" % (variable, channel, year)].Clone()
+                    num = histos["%s_%s_singleelectron_elmettriggerloose_%s" % (variable, channel, year)].Clone()
+                    denom = histos["%s_%s_singleelectron_eltriggerloose_%s" % (variable, channel, year)].Clone()
+
+                elif channel == "Lep":
+                    num = histos["%s_%s_singleelectron_elmettrigger_%s" % (variable, channel, year)].Clone()
+                    denom = histos["%s_%s_singleelectron_mettrigger_%s" % (variable, channel, year)].Clone()
+                    
                 h_effs["el_%s" % year] = TEfficiency(num.Clone(), denom.Clone())
-                print num.GetEntries(), denom.GetEntries()
+                #print num.GetEntries(), denom.GetEntries()
                 
                 #shared_utils.histoStyler(h_effs["mu_%s" % year])
                 #shared_utils.histoStyler(h_effs["el_%s" % year])
@@ -255,11 +290,11 @@ def combinedplots():
                 
             
             h_effs["el_2016"].SetLineColor(kBlue)    
-            legend.AddEntry(h_effs["el_2016"], "2016, lepton trigger: el.")
+            legend.AddEntry(h_effs["el_2016"], "2016, lepton trigger: e")
             h_effs["el_2017"].SetLineColor(kBlue-9)    
-            legend.AddEntry(h_effs["el_2017"], "2017, lepton trigger: el.")
+            legend.AddEntry(h_effs["el_2017"], "2017, lepton trigger: e")
             h_effs["el_2018"].SetLineColor(kAzure+1)    
-            legend.AddEntry(h_effs["el_2018"], "2018, lepton trigger: el.")
+            legend.AddEntry(h_effs["el_2018"], "2018, lepton trigger: e")
 
             h_effs["mu_2016"].SetLineColor(kRed)    
             legend.AddEntry(h_effs["mu_2016"], "2016, lepton trigger: #mu")
@@ -267,19 +302,30 @@ def combinedplots():
             legend.AddEntry(h_effs["mu_2017"], "2017, lepton trigger: #mu")
             h_effs["mu_2018"].SetLineColor(kOrange-3)    
             legend.AddEntry(h_effs["mu_2018"], "2018, lepton trigger: #mu")
-            
-            #legend.AddEntry(h_effs["el_2016"], "denom. trigger: electron")
-            #legend.AddEntry(h_effs["mu_2016"], "denom. trigger: muon")
-            #legend.AddEntry(h_effs["el_2016_legend"], "2016")
-            #legend.AddEntry(h_effs["el_2017_legend"], "2017")
-            #legend.AddEntry(h_effs["el_2018_legend"], "2018")
-            
-
+                        
             tl2 = TLatex()
             tl2.SetNDC()
             #tl2.SetTextFont(50)
             tl2.SetTextSize(0.027)
-            tl2.DrawLatex(0.15,0.27, "#epsilon = #frac{n_{ev}(lepton trigger & MET trigger)}{n_{ev}(MET trigger)} ")
+            if channel == "MHT":
+                tl2.DrawLatex(0.15, 0.27, "#epsilon = #frac{n_{ev}(lepton trigger & MET trigger)}{n_{ev}(lepton trigger)} ")
+                
+                if variable == "Pt":
+                    tl2.DrawLatex(0.15, 0.35, "HT>150 GeV, MHT>150 GeV, nJets#geq1")
+                if variable == "MHT":
+                    tl2.DrawLatex(0.15, 0.35, "HT>150 GeV, nJets#geq1")
+                if variable == "nJet":
+                    tl2.DrawLatex(0.15, 0.35, "HT>150 GeV, MHT>150 GeV")                
+                
+            elif channel == "Lep":
+                tl2.DrawLatex(0.15, 0.27, "#epsilon = #frac{n_{ev}(lepton trigger & MET trigger)}{n_{ev}(MET trigger)} ")
+            
+                if variable == "Pt":
+                    tl2.DrawLatex(0.15, 0.35, "HT>30 GeV, MHT>30 GeV, nJets#geq1")
+                if variable == "MHT":
+                    tl2.DrawLatex(0.15, 0.35, "HT>30 GeV, nJets#geq1")
+                if variable == "nJet":
+                    tl2.DrawLatex(0.15, 0.35, "HT>30 GeV, MHT>30 GeV")
             
             legend.Draw()
     
@@ -353,7 +399,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--input", dest = "inputfiles", default = "../skims/current/")
     parser.add_option("--output", dest = "outputfile", default = "output.root")
-    parser.add_option("--folder", dest = "folder", default="output5_met")
+    parser.add_option("--folder", dest = "folder", default="output9")
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--plot", dest="plot", action="store_true")
     (options, args) = parser.parse_args()
@@ -365,30 +411,27 @@ if __name__ == "__main__":
     print "Get single lepton trigger efficiency from skim"
 
     if options.hadd:
-        #os.system("hadd -f Run2016_barrel.root %s/Run2016*_barrel.root" % (options.folder))
-        #os.system("hadd -f Run2016_endcap.root %s/Run2016*_endcap.root" % (options.folder))
-        #os.system("hadd -f Run2017_barrel.root %s/Run2017*_barrel.root" % (options.folder))
-        #os.system("hadd -f Run2017_endcap.root %s/Run2017*_endcap.root" % (options.folder))
-        #os.system("hadd -f Run2018_barrel.root %s/Run2018*_barrel.root" % (options.folder))
-        #os.system("hadd -f Run2018_endcap.root %s/Run2018*_endcap.root" % (options.folder))
 
-        os.system("hadd -f Run2016_MET.root output5_met/Run2016*.root &")
-        os.system("hadd -f Run2017_MET.root output5_met/Run2017*.root &")
-        os.system("hadd -f Run2018_MET.root output5_met/Run2018*.root &")
+        os.system("hadd -f Run2016_MET.root %s/Run2016*MET* &" % options.folder)
+        os.system("hadd -f Run2017_MET.root %s/Run2017*MET* &" % options.folder)
+        os.system("hadd -f Run2018_MET.root %s/Run2018*MET* &" % options.folder)
 
-        os.system("hadd -f Run2016_Lep.root output5/Run2016*.root &")
-        os.system("hadd -f Run2017_Lep.root output5/Run2017*.root &")
-        os.system("hadd -f Run2018_Lep.root output5/Run2018*.root &")
+        os.system("hadd -f Run2016_SingleMuon.root %s/Run2016*SingleMuon* &" % options.folder)
+        os.system("hadd -f Run2017_SingleMuon.root %s/Run2017*SingleMuon* &" % options.folder)
+        os.system("hadd -f Run2018_SingleMuon.root %s/Run2018*SingleMuon* &" % options.folder)
 
-        #options.plot = True
+        os.system("hadd -f Run2016_SingleElectron.root %s/Run2016*SingleElectron* &" % options.folder)
+        os.system("hadd -f Run2017_SingleElectron.root %s/Run2017*SingleElectron* &" % options.folder)
+        os.system("hadd -f Run2018_SingleElectron.root %s/Run2018*EGamma* &" % options.folder)
+
+        os.system("hadd -f Run2016_SingleLepton.root %s/Run2016*SingleMuon* %s/Run2016*SingleElectron* &" % (options.folder, options.folder))
+        os.system("hadd -f Run2017_SingleLepton.root %s/Run2017*SingleMuon* %s/Run2017*SingleElectron* &" % (options.folder, options.folder))
+        os.system("hadd -f Run2018_SingleLepton.root %s/Run2018*SingleMuon* %s/Run2018*EGamma* &" % (options.folder, options.folder))
+
         quit()
 
     if options.plot:
         combinedplots()
-        #for period in ["2017", "2018"]:
-        #    for region in ["barrel", "endcap"]:
-        #        get_and_plot_ratio("Run%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.pdf" % (region, period))
-        #        get_and_plot_ratio("Run%s_%s.root" % (period, region), "%s region, %s Data" % (region, period), "%s_singlelepton_trigger_%s.png" % (region, period))
 
     # otherwise run locally:
     else:
