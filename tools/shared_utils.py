@@ -1477,7 +1477,8 @@ def calibfactor_dedx_fastsim(mLSP):
     if mLSP==1600 : factor=0.95
     if mLSP==1800 : factor=0.95
     if mLSP==2000 : factor=0.925
-    else factor = 1.0
+    else:
+        factor = 1.0
     
     return factor
 
