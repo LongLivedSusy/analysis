@@ -214,9 +214,7 @@ def combinedplots():
                          
                     histos[label + "_%s" % year] = fin.Get(label)
                     histos[label + "_%s" % year].SetDirectory(0)
-                
-                    #print histos[label + "_%s" % year].GetEntries()
-            
+                            
             fin.Close()
         
         for variable in binnings:
@@ -251,20 +249,15 @@ def combinedplots():
                     denom = histos["%s_%s_singlemuon_mettrigger_%s" % (variable, channel, year)].Clone()
                     
                 h_effs["mu_%s" % year] = TEfficiency(num.Clone(), denom.Clone())
-                #print num.GetEntries(), denom.GetEntries()
                 
                 if channel == "MHT":
-                    #num = histos["%s_%s_singleelectron_elmettrigger_%s" % (variable, channel, year)].Clone()
-                    #denom = histos["%s_%s_singleelectron_eltrigger_%s" % (variable, channel, year)].Clone()
                     num = histos["%s_%s_singleelectron_elmettriggerloose_%s" % (variable, channel, year)].Clone()
                     denom = histos["%s_%s_singleelectron_eltriggerloose_%s" % (variable, channel, year)].Clone()
-
                 elif channel == "Lep":
                     num = histos["%s_%s_singleelectron_elmettrigger_%s" % (variable, channel, year)].Clone()
                     denom = histos["%s_%s_singleelectron_mettrigger_%s" % (variable, channel, year)].Clone()
                     
                 h_effs["el_%s" % year] = TEfficiency(num.Clone(), denom.Clone())
-                #print num.GetEntries(), denom.GetEntries()
                 
                 #shared_utils.histoStyler(h_effs["mu_%s" % year])
                 #shared_utils.histoStyler(h_effs["el_%s" % year])
@@ -335,65 +328,6 @@ def combinedplots():
             c1.SaveAs("eff_%s_%s.pdf" % (channel, variable))
             
 
-
-def get_and_plot_ratio(hadded_file, header, pdffile):
-
-    fin = TFile(hadded_file, "open")
-
-    pt_singleelectron_mettrigger = fin.Get("pt_singleelectron_mettrigger")
-    pt_singleelectron_eltrigger = fin.Get("pt_singleelectron_eltrigger")
-    pt_singlemuon_mettrigger = fin.Get("pt_singlemuon_mettrigger")
-    pt_singlemuon_mutrigger = fin.Get("pt_singlemuon_mutrigger")
-
-    pt_singleelectron_mettrigger.SetDirectory(0)
-    pt_singleelectron_eltrigger.SetDirectory(0)
-    pt_singlemuon_mettrigger.SetDirectory(0)
-    pt_singlemuon_mutrigger.SetDirectory(0)
-
-    fin.Close()
-
-    pt_electron_trigger_efficiency = TEfficiency(pt_singleelectron_eltrigger.Clone(), pt_singleelectron_mettrigger.Clone())
-    pt_singlemuon_trigger_efficiency = TEfficiency(pt_singlemuon_mutrigger.Clone(), pt_singlemuon_mettrigger.Clone())
-
-    #pt_electron_trigger_efficiency = pt_singleelectron_eltrigger.Clone()
-    #pt_electron_trigger_efficiency.Divide(pt_singleelectron_mettrigger)
-    #pt_singlemuon_trigger_efficiency = pt_singlemuon_mutrigger.Clone()
-    #pt_singlemuon_trigger_efficiency.Divide(pt_singlemuon_mettrigger)
-
-    legend = TLegend(0.6, 0.2, 0.88, 0.4)
-    legend.SetHeader(header)
-    legend.SetTextSize(0.025)
-    legend.SetBorderSize(0)
-    legend.SetFillStyle(0)    
-
-    # Draw:
-    shared_utils.histoStyler(pt_electron_trigger_efficiency)
-    shared_utils.histoStyler(pt_singlemuon_trigger_efficiency)
-    pt_electron_trigger_efficiency.SetTitle(";lepton p_{T} (GeV); trigger efficiency #epsilon")
-    legend.AddEntry(pt_electron_trigger_efficiency, "SingleElectron (2016)")    
-    pt_singlemuon_trigger_efficiency.SetTitle(";lepton p_{T} (GeV); trigger efficiency #epsilon")
-    legend.AddEntry(pt_singlemuon_trigger_efficiency, "SingleMuon (2016)")
-    pt_electron_trigger_efficiency.SetLineWidth(2)
-    pt_electron_trigger_efficiency.SetLineColor(kBlack)
-    pt_electron_trigger_efficiency.GetYaxis().SetRangeUser(0,1.1)
-    pt_singlemuon_trigger_efficiency.SetLineWidth(2)
-    pt_singlemuon_trigger_efficiency.SetLineColor(kRed)
-    pt_singlemuon_trigger_efficiency.GetYaxis().SetRangeUser(0,1.1)
-    
-    fout = TFile("disapptrks_trigger_efficiency.root", "recreate")
-
-    c1 = shared_utils.mkcanvas("c1")
-    pt_electron_trigger_efficiency.Draw()
-    pt_singlemuon_trigger_efficiency.Draw("same")
-    legend.Draw()
-    
-    shared_utils.stamp()
-    c1.SetGrid(True)
-    
-    c1.SaveAs(pdffile)
-    
-    fout.Close()
-
 if __name__ == "__main__":
 
     parser = OptionParser()
@@ -436,7 +370,5 @@ if __name__ == "__main__":
     # otherwise run locally:
     else:
         options.inputfiles = options.inputfiles.split(",")
-        #main(options.inputfiles, options.outputfile.replace(".root", "_barrel.root"), eta_low = 0, eta_high = 1.5)
-        #main(options.inputfiles, options.outputfile.replace(".root", "_endcap.root"), eta_low = 1.5, eta_high = 2.4)
         main(options.inputfiles, options.outputfile.replace(".root", ".root"))
         

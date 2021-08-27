@@ -105,7 +105,6 @@ if __name__ == "__main__":
     parser.add_option("--nfiles", dest="files_per_job", default = 150)
     parser.add_option("--njobs", dest="njobs")
     parser.add_option("--start", dest="start", action = "store_true")
-    parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
     parser.add_option("--cuts", dest="cuts", default = "")
     parser.add_option("--dataset", dest="dataset")
@@ -122,7 +121,6 @@ if __name__ == "__main__":
     if not options.command:
         options.command = "./get_trigger_efficiency.py --input $INPUT --output $OUTPUT"
     if not options.dataset:
-        options.add_signals = 0
         options.dataset = "Run201*MET*,Run201*Single*,Run201*EGamma*"
     if not options.output_folder:
         options.output_folder = "output10"
