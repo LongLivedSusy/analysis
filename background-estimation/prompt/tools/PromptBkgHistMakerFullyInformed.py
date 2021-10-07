@@ -173,7 +173,6 @@ if ismc:
 	if smearvar=='Drop1st': fsmear_barrel, fsmear_endcap = Load_DedxSmear_MIH(1)
 
 
-
 f_dxydzcalibration = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/dxydzcalibration.root')
 if 'Fall17' in identifier or 'Autumn18' in identifier:
 		vtx_calibs = [f_dxydzcalibration.Get('g_calibratedxy'), f_dxydzcalibration.Get('g_calibratedz')]
