@@ -243,18 +243,43 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
                                          
     # add discriminating variables for training
     dataloader = TMVA.DataLoader("dataset")
-    dataloader.AddVariable("tracks_dxyVtx", "F")
-    dataloader.AddVariable("tracks_dzVtx", "F")
-    #dataloader.AddVariable("tracks_matchedCaloEnergy", "F")
-    if not "-noRelIso" in cwd:
-        dataloader.AddVariable("tracks_trkRelIso", "F")
-    if category == "short":  
-        if not "-noPixelHits" in cwd:
-            if "-useLayers" in cwd:
-                dataloader.AddVariable("tracks_pixelLayersWithMeasurement", "I")
-            else:
+
+    if category == "short":
+
+        if "-with" in cwd:
+            if "-withDxy" in cwd:
+                dataloader.AddVariable("tracks_dxyVtx", "F")
+            if "-withDz" in cwd:
+                dataloader.AddVariable("tracks_dzVtx", "F")
+            if "-withRIso" in cwd:
+                dataloader.AddVariable("tracks_trkRelIso", "F")
+            if "-withPHits" in cwd:
                 dataloader.AddVariable("tracks_nValidPixelHits", "I")
+            if "-withDPt" in cwd:
+                dataloader.AddVariable("tracks_ptErrOverPt2", "F")
+            if "-withChi2" in cwd:
+                dataloader.AddVariable("tracks_chi2perNdof", "F")
+
+        else:    
+            if not "-noDxy" in cwd:
+                dataloader.AddVariable("tracks_dxyVtx", "F")
+            if not "-noDz" in cwd:
+                dataloader.AddVariable("tracks_dzVtx", "F")
+            if not "-noRelIso" in cwd:
+                dataloader.AddVariable("tracks_trkRelIso", "F")
+            if not "-noPixelHits" in cwd:
+                if "-useLayers" in cwd:
+                    dataloader.AddVariable("tracks_pixelLayersWithMeasurement", "I")
+                else:
+                    dataloader.AddVariable("tracks_nValidPixelHits", "I")
+            if not "-noDeltaPt" in cwd:
+                dataloader.AddVariable("tracks_ptErrOverPt2", "F")
+            if not "-noChi2perNdof" in cwd:
+                dataloader.AddVariable("tracks_chi2perNdof", "F")
     elif category == "long":
+        dataloader.AddVariable("tracks_dxyVtx", "F")
+        dataloader.AddVariable("tracks_dzVtx", "F")
+        dataloader.AddVariable("tracks_trkRelIso", "F")
         if "-useLayers" in cwd:
             dataloader.AddVariable("tracks_pixelLayersWithMeasurement", "I")
             dataloader.AddVariable("tracks_trackerLayersWithMeasurement", "I")
@@ -262,10 +287,9 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
             dataloader.AddVariable("tracks_nValidPixelHits", "I")
             dataloader.AddVariable("tracks_nValidTrackerHits", "I")
         dataloader.AddVariable("tracks_nMissingOuterHits", "I")
-    if not "-noDeltaPt" in cwd:
         dataloader.AddVariable("tracks_ptErrOverPt2", "F")
-    dataloader.AddVariable("tracks_chi2perNdof", "F")
-    
+        dataloader.AddVariable("tracks_chi2perNdof", "F")
+
     # define signal and background trees
     for label in trees:
         if "SMS" in label:
@@ -286,9 +310,12 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
     print "@@@ vetoes = %s" % vetoes
     
     if category == "short":
-        cuts = "tracks_pt>15 && tracks_is_pixel_track==1 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        #cuts = "tracks_pt>15 && tracks_is_pixel_track==1 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        #cuts = "tracks_pt>25 && tracks_is_pixel_track==1 && abs(tracks_dxyVtx<0.05) && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        cuts = "tracks_pt>25 && tracks_is_pixel_track==1 && abs(tracks_dxyVtx)<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
     elif category == "long":
-        cuts = "tracks_pt>40 && tracks_is_pixel_track==0 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        #cuts = "tracks_pt>40 && tracks_is_pixel_track==0 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        cuts = "tracks_pt>40 && tracks_is_pixel_track==0 && abs(tracks_dxyVtx<0.1) && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
     
     if "-TighterDxy" in cwd:
         print "@@@ TighterDxy"

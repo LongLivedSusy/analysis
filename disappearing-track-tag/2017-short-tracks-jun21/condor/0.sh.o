@@ -1,20 +1,20 @@
   
-total 984
--rw-r--r-- 1 kutznerv unihh2    304 Jun 28 18:12 args
--rwxr-xr-x 1 kutznerv unihh2 964536 Jun 28 18:12 condor_exec.exe
--rw-r--r-- 1 kutznerv unihh2    603 Jun 28 18:12 _condor_stderr
--rw-r--r-- 1 kutznerv unihh2      3 Jun 28 18:12 _condor_stdout
--rw------- 1 kutznerv unihh2   3977 Jun 28 18:12 kutznerv.cc
--rw------- 1 kutznerv unihh2   8986 Jun 28 18:12 proxy
--rw-r--r-- 1 kutznerv unihh2   1088 Jun 28 18:12 runjobs.sh
-drwx------ 2 kutznerv unihh2   4096 Jun 28 18:12 tmp
-drwx------ 3 kutznerv unihh2   4096 Jun 28 18:12 var
-/var/lib/condor/execute/dir_67962
+total 1116
+-rw-r--r-- 1 kutznerv unihh2    304 Jul 20 20:23 args
+-rwxr-xr-x 1 kutznerv unihh2 964536 Jul 20 20:23 condor_exec.exe
+-rw-r--r-- 1 kutznerv unihh2      0 Jul 20 20:23 _condor_stderr
+-rw-r--r-- 1 kutznerv unihh2      3 Jul 20 20:23 _condor_stdout
+-rw------- 1 kutznerv unihh2 140697 Jul 20 20:23 kutznerv.cc
+-rw------- 1 kutznerv unihh2   8982 Jul 20 20:23 proxy
+-rw-r--r-- 1 kutznerv unihh2   1088 Jul 20 20:23 runjobs.sh
+drwx------ 2 kutznerv unihh2   4096 Jul 20 20:23 tmp
+drwx------ 3 kutznerv unihh2   4096 Jul 20 20:23 var
+/var/lib/condor/execute/dir_31827
 Using Grid environment in '/cvmfs/grid.cern.ch/centos7-umd4-ui-4_200423'.
 Adding DESY site environment.
 /afs/desy.de/user/k/kutznerv/cmssw/CMSSW_11_2_3
 X509_USER_PROXY /afs/desy.de/user/k/kutznerv/proxy
-subject   : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner/CN=638853319
+subject   : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner/CN=962585
 issuer    : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner
 identity  : /C=DE/O=GermanGrid/OU=uni-hamburg/CN=Viktor Gerhard Kutzner
 type      : RFC3820 compliant impersonation proxy
@@ -24,6 +24,7 @@ timeleft  : 00:00:00
 key usage : Digital Signature, Key Encipherment, Data Encipherment
 cd /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-jun21; cp ../trainBDT_template.py trainBDT.py; chmod +x trainBDT.py; ./trainBDT.py --category short --phase 1 --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged
 Training BDT for phase 1...
+labels ['RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1', 'RunIIFall17MiniAODv2.TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8', 'RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8']
 /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-100to200_TuneCP5_13TeV-madgraphMLM-pythia8*.root
 /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8*.root
 /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged/RunIIFall17MiniAODv2.DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8*.root
@@ -330,9 +331,9 @@ Factory                  : Train method: BDT for Classification
 BDT                      : #events: (reweighted) sig: 1.11692e+06 bkg: 1.11692e+06
                          : #events: (unweighted) sig: 2119621 bkg: 114210
                          : Training 200 Decision Trees ... patience please
-                         : Elapsed time for training with 2233832 events: 370 sec         
+                         : Elapsed time for training with 2233832 events: 391 sec         
 BDT                      : [dataset] : Evaluation of BDT on training sample (2233832 events)
-                         : Elapsed time for evaluation of 2233832 events: 18.3 sec       
+                         : Elapsed time for evaluation of 2233832 events: 26 sec       
                          : Creating xml weight file: [0;36mdataset/weights/TMVAClassification_BDT.weights.xml[0m
                          : Creating standalone class: [0;36mdataset/weights/TMVAClassification_BDT.class.C[0m
                          : output.root:/dataset/Method_BDT/BDT
@@ -357,7 +358,7 @@ Factory                  : [1mTest all methods[0m
 Factory                  : Test method: BDT for Classification performance
                          : 
 BDT                      : [dataset] : Evaluation of BDT on testing sample (2233832 events)
-                         : Elapsed time for evaluation of 2233832 events: 15.6 sec       
+                         : Elapsed time for evaluation of 2233832 events: 20.3 sec       
 Factory                  : [1mEvaluate all methods[0m
 Factory                  : Evaluate classifier: BDT
                          : 

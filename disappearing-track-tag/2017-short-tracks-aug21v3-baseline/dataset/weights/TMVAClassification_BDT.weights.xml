@@ -4,11 +4,11 @@
     <Info name="TMVA Release" value="4.2.1 [262657]"/>
     <Info name="ROOT Release" value="6.22/06 [398854]"/>
     <Info name="Creator" value="kutznerv"/>
-    <Info name="Date" value="Tue Jul 20 20:38:15 2021"/>
+    <Info name="Date" value="Thu Aug 12 18:04:05 2021"/>
     <Info name="Host" value="Linux cmsbuild11.cern.ch 3.10.0-1062.4.1.el7.x86_64 #1 SMP Fri Oct 18 17:15:30 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux"/>
-    <Info name="Dir" value="/nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-jun21"/>
+    <Info name="Dir" value="/nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2017-short-tracks-aug21v3-baseline"/>
     <Info name="Training events" value="2233832"/>
-    <Info name="TrainingTime" value="3.91185841e+02"/>
+    <Info name="TrainingTime" value="3.42657625e+02"/>
     <Info name="AnalysisType" value="Classification"/>
   </GeneralInfo>
   <Options>

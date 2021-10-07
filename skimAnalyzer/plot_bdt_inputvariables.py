@@ -578,14 +578,15 @@ if __name__ == "__main__":
     before_preselection = 0
     plot_input_variables = 1
     plot_output_variables = 0
-    dy_control_region = 0
+    dy_control_region = 1
     lowmht_control_region = 0
     bdt_efficiency = 0
     use_vetoes = 0
     use_tighter_shortcuts = 0
     
     plotfolder = "bdtnewplots2"
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_83_merged"
+    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_90_bdts_merged"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_96_fullEta_merged"
     
     if use_allMC:
         plotfolder += "_allMC" 
@@ -778,17 +779,17 @@ if __name__ == "__main__":
         wp["long_phase0"] += " && tracks_dxyVtx<0.005 && tracks_dzVtx<0.01" 
             
     variables = {
-                  "tracks_is_pixel_track": [2, 0, 2, "pixel-only track"],
-                  "tracks_trkRelIso": [[0, 0.005, 0.01, 0.015, 0.02, 0.2], 0, 0.2, "relative track isolation"],
+                  #"tracks_is_pixel_track": [2, 0, 2, "pixel-only track"],
+                  #"tracks_trkRelIso": [[0, 0.005, 0.01, 0.015, 0.02, 0.2], 0, 0.2, "relative track isolation"],
                   "tracks_dxyVtx": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "d_{xy} (cm)"],
-                  "tracks_dzVtx": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "d_{z} (cm)"],
-                  "tracks_nMissingOuterHits": [20, 0, 20, "missing outer hits"],
-                  "tracks_nValidPixelHits": [10, 0, 10, "pixel hits"],
-                  "tracks_nValidTrackerHits": [20, 0, 20, "tracker hits"],
-                  "tracks_chi2perNdof": [20, 0, 5.0, "track #chi^{2}/ndof"],
-                  "tracks_ptErrOverPt2": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "#Delta p_{T} / p_{T}^{2} (GeV^{-1})"],                  
-                  "tracks_deDxHarmonic2pixel": [20, 0, 10, "pixel dE/dx (MeV/cm)"],
-                  "tracks_matchedCaloEnergy": [20, 0, 50, "E_{dep} (GeV)"],
+                  #"tracks_dzVtx": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "d_{z} (cm)"],
+                  #"tracks_nMissingOuterHits": [20, 0, 20, "missing outer hits"],
+                  #"tracks_nValidPixelHits": [10, 0, 10, "pixel hits"],
+                  #"tracks_nValidTrackerHits": [20, 0, 20, "tracker hits"],
+                  #"tracks_chi2perNdof": [20, 0, 5.0, "track #chi^{2}/ndof"],
+                  #"tracks_ptErrOverPt2": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "#Delta p_{T} / p_{T}^{2} (GeV^{-1})"],                  
+                  #"tracks_deDxHarmonic2pixel": [20, 0, 10, "pixel dE/dx (MeV/cm)"],
+                  #"tracks_matchedCaloEnergy": [20, 0, 50, "E_{dep} (GeV)"],
                   "tracks_invmass": [15, 60, 120, "m_{lepton, track}^{inv} (GeV)"],
                   #"tracks_matchedCaloEnergy/tracks_p": [40, 0, 2.0, "E_{dep}/p_{track}"],
                   #"abs(tracks_eta)": [50, 0, 2.5, "#eta"],
@@ -798,6 +799,8 @@ if __name__ == "__main__":
                   #"tracks_trkRelIso": [40, 0, 0.2, "relative track isolation"],
                   ####"tracks_chargedPtSum": [40, 0, 2.0, "charged p_{T} sum (GeV)"],      
                   #"tracks_mva_tight_may20_chi2_pt15": [20, -1.0, 1.0, "BDT response"],
+                  #"tracks_mva_tight_may21": [20, -1.0, 1.0, "BDT response"],
+                  #"tracks_mva_tight_may21EquSgXsec": [20, -1.0, 1.0, "BDT response"],
                   #"tracks_mva_nov20_noEdep": [20, -1.0, 1.0, "BDT response"],
                   #"HT": [20, 0, 700, "H_{T} (GeV)"],
                   #"MHT": [20, 0, 700, "missing H_{T} (GeV)"],
@@ -821,8 +824,8 @@ if __name__ == "__main__":
     parameters = []
 
     for phase in [
-                   #0,
-                   1,
+                   0,
+                   #1,
                  ]:
                  
         if phase == 0:

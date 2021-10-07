@@ -125,8 +125,8 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default = 20)
-    #parser.add_option("--nfiles", dest="files_per_job", default = 200)
+    #parser.add_option("--nfiles", dest="files_per_job", default = 20)
+    parser.add_option("--nfiles", dest="files_per_job", default = 200)
     parser.add_option("--njobs", dest="njobs")
     parser.add_option("--start", dest="start", action = "store_true")
     parser.add_option("--signals", dest="add_signals", action="store_true")
@@ -144,16 +144,16 @@ if __name__ == "__main__":
 
     ######## defaults ########
     if not options.command:
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow"
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow"
     if not options.dataset:
         options.add_signals = 0
-        #Run201*,
+        options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
         #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
         #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
-        options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
+        #options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
     if not options.output_folder:
-        options.output_folder = "../skim_91_cutflow_bdts"
+        options.output_folder = "../skim_96_fullEta"
     ######## defaults ########
 
     commands = []
@@ -186,12 +186,11 @@ if __name__ == "__main__":
             
         commands = new_commands
     
-    # slim command list:
+    ## slim command list:
     with open("skimmer.arguments", "w") as fout:
         fout.write("\n".join(commands))
     for i in range(len(commands)):
-        #commands[i] = 'sh -c "$(head -n %i skimmer.arguments | tail -n 1)"' % (i+1)
-        commands[i] = "./skimmer.py --narg %i" % (i+1)
+        commands[i] = "$(head -n%s skimmer.arguments | tail -n1)" % (i+1)
     
     do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
 

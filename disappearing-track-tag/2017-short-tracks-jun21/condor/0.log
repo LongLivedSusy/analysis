@@ -92,3 +92,152 @@
 036 (21953642.-01.000) 2021-06-28 18:26:27 Factory removed
 	Materialized 1 jobs from 0 items.	Complete
 ...
+035 (22314962.-01.000) 2021-07-20 19:53:25 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_2274715_dda4_3>
+...
+000 (22314962.000.000) 2021-07-20 19:53:25 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_2274715_dda4_3>
+...
+040 (22314962.000.000) 2021-07-20 19:53:56 Started transferring input files
+	Transferring to host: <131.169.77.206:45543?addrs=131.169.77.206-45543&alias=bird760.desy.de>
+...
+040 (22314962.000.000) 2021-07-20 19:53:56 Finished transferring input files
+...
+001 (22314962.000.000) 2021-07-20 19:53:57 Job executing on host: <131.169.77.206:46692?addrs=131.169.77.206-46692&alias=bird760.desy.de>
+...
+006 (22314962.000.000) 2021-07-20 19:54:06 Image size of job updated: 99768
+	54  -  MemoryUsage of job (MB)
+	54520  -  ResidentSetSize of job (KB)
+...
+035 (22314963.-01.000) 2021-07-20 19:55:09 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_2274715_dda4_3>
+...
+000 (22314963.000.000) 2021-07-20 19:55:09 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_2274715_dda4_3>
+...
+040 (22314963.000.000) 2021-07-20 19:55:37 Started transferring input files
+	Transferring to host: <131.169.164.18:39604?addrs=131.169.164.18-39604&alias=bird818.desy.de>
+...
+040 (22314963.000.000) 2021-07-20 19:55:37 Finished transferring input files
+...
+001 (22314963.000.000) 2021-07-20 19:55:38 Job executing on host: <131.169.164.18:41076?addrs=131.169.164.18-41076&alias=bird818.desy.de>
+...
+006 (22314963.000.000) 2021-07-20 19:55:47 Image size of job updated: 316692
+	165  -  MemoryUsage of job (MB)
+	168756  -  ResidentSetSize of job (KB)
+...
+006 (22314962.000.000) 2021-07-20 19:59:07 Image size of job updated: 1815044
+	1625  -  MemoryUsage of job (MB)
+	1663780  -  ResidentSetSize of job (KB)
+...
+006 (22314963.000.000) 2021-07-20 20:00:48 Image size of job updated: 1815688
+	1587  -  MemoryUsage of job (MB)
+	1624840  -  ResidentSetSize of job (KB)
+...
+006 (22314962.000.000) 2021-07-20 20:04:07 Image size of job updated: 2428612
+	2179  -  MemoryUsage of job (MB)
+	2230816  -  ResidentSetSize of job (KB)
+...
+006 (22314963.000.000) 2021-07-20 20:05:49 Image size of job updated: 3162616
+	2648  -  MemoryUsage of job (MB)
+	2711052  -  ResidentSetSize of job (KB)
+...
+040 (22314962.000.000) 2021-07-20 20:09:41 Started transferring output files
+...
+040 (22314962.000.000) 2021-07-20 20:09:41 Finished transferring output files
+...
+005 (22314962.000.000) 2021-07-20 20:09:41 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:14:52, Sys 0 00:00:22  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:14:52, Sys 0 00:00:22  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	172864  -  Run Bytes Sent By Job
+	974910  -  Run Bytes Received By Job
+	172864  -  Total Bytes Sent By Job
+	974910  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     1.00        1         1 
+	   Disk (KB)            :  1139    20480000  20978135 
+	   Memory (MB)          :  2179        6144      6144 
+
+	Job terminated of its own accord at 2021-07-20T18:09:41Z.
+...
+036 (22314962.-01.000) 2021-07-20 20:09:41 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+006 (22314963.000.000) 2021-07-20 20:10:49 Image size of job updated: 3163984
+	2648  -  MemoryUsage of job (MB)
+	2711052  -  ResidentSetSize of job (KB)
+...
+006 (22314963.000.000) 2021-07-20 20:11:08 Image size of job updated: 3164136
+	2648  -  MemoryUsage of job (MB)
+	2711052  -  ResidentSetSize of job (KB)
+...
+040 (22314963.000.000) 2021-07-20 20:11:08 Started transferring output files
+...
+040 (22314963.000.000) 2021-07-20 20:11:08 Finished transferring output files
+...
+005 (22314963.000.000) 2021-07-20 20:11:08 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:14:46, Sys 0 00:00:24  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:14:46, Sys 0 00:00:24  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	49008  -  Run Bytes Sent By Job
+	974910  -  Run Bytes Received By Job
+	49008  -  Total Bytes Sent By Job
+	974910  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     0.97        1         1 
+	   Disk (KB)            :  1018    20480000  21106867 
+	   Memory (MB)          :  2648        6144      6144 
+
+	Job terminated of its own accord at 2021-07-20T18:11:08Z.
+...
+036 (22314963.-01.000) 2021-07-20 20:11:08 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...
+035 (22314966.-01.000) 2021-07-20 20:23:14 Factory submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_2274715_dda4_3>
+...
+000 (22314966.000.000) 2021-07-20 20:23:14 Job submitted from host: <131.169.223.42:9618?addrs=131.169.223.42-9618+[2001-638-700-10df--1-2a]-9618&alias=bird-htc-sched14.desy.de&noUDP&sock=schedd_2274715_dda4_3>
+...
+040 (22314966.000.000) 2021-07-20 20:23:36 Started transferring input files
+	Transferring to host: <131.169.160.170:35970?addrs=131.169.160.170-35970&alias=batch1070.desy.de>
+...
+040 (22314966.000.000) 2021-07-20 20:23:36 Finished transferring input files
+...
+001 (22314966.000.000) 2021-07-20 20:23:37 Job executing on host: <131.169.160.170:33311?addrs=131.169.160.170-33311&alias=batch1070.desy.de>
+...
+006 (22314966.000.000) 2021-07-20 20:23:45 Image size of job updated: 1000
+	1  -  MemoryUsage of job (MB)
+	408  -  ResidentSetSize of job (KB)
+...
+006 (22314966.000.000) 2021-07-20 20:28:45 Image size of job updated: 1801780
+	1616  -  MemoryUsage of job (MB)
+	1653840  -  ResidentSetSize of job (KB)
+...
+006 (22314966.000.000) 2021-07-20 20:33:46 Image size of job updated: 2466828
+	2263  -  MemoryUsage of job (MB)
+	2316928  -  ResidentSetSize of job (KB)
+...
+040 (22314966.000.000) 2021-07-20 20:40:07 Started transferring output files
+...
+040 (22314966.000.000) 2021-07-20 20:40:07 Finished transferring output files
+...
+005 (22314966.000.000) 2021-07-20 20:40:07 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:15:21, Sys 0 00:00:26  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:15:21, Sys 0 00:00:26  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	183242  -  Run Bytes Sent By Job
+	974910  -  Run Bytes Received By Job
+	183242  -  Total Bytes Sent By Job
+	974910  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated 
+	   Cpus                 :     1.00        1         1 
+	   Disk (KB)            :  1149    20480000  22423978 
+	   Memory (MB)          :  2263        6144      6144 
+
+	Job terminated of its own accord at 2021-07-20T18:40:07Z.
+...
+036 (22314966.-01.000) 2021-07-20 20:40:07 Factory removed
+	Materialized 1 jobs from 0 items.	Complete
+...

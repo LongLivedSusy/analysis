@@ -225,7 +225,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     vars_jun21_short = vars_nov20_short
     vars_jun21_long = vars_nov20_long
     vars_jun21noPixelHits_short = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
-    vars_jun21noPixelHits_long = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    vars_jun21noPixelHits_long = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
+    vars_jun21noDeltaPt_short = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_chi2perNdof"]
+    vars_jun21noDeltaPt_long = ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"]
     
     bdts = {
         "nov20_noEdep": {
@@ -234,72 +236,30 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml", vars_nov20_long ],          
                     "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-nov20-noEdep/dataset/weights/TMVAClassification_BDT.weights.xml", vars_nov20_long ],          
                  },
-        "may21": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
-                 },
-        "may21EquSgXsec": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21-equSgXsec3/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
-                 },
-        "may21NoVeto": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21-noveto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21_long ],          
-                 },
-        "may21v2": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-may21v2/dataset/weights/TMVAClassification_BDT.weights.xml", vars_may21v2_long ],          
-                 },
         "jun21": {
                     "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
                     "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
                     "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
                     "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
                  },
-        "jun21noPixelHits": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
+        #"jun21noPixelHits": {
+        #            "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
+        #            "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
+        #            "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
+        #            "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
+        #         },
+        "jul21noPixelHits": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jul21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jul21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jul21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jul21-noPixelHits/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noPixelHits_long ],          
                  },
-        "jun21noJetVeto": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
+        "jul21noDeltaPt": {
+                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jul21-noDeltaPt/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noDeltaPt_short ],
+                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jul21-noDeltaPt/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noDeltaPt_short ],
+                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jul21-noDeltaPt/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noDeltaPt_long ],          
+                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jul21-noDeltaPt/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21noDeltaPt_long ],          
                  },
-        "jun21noVetoes": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                 },
-        "jun21oldWeights": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-oldWeights/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                 },
-        "jun21oldWeightsnoJetVeto": {
-                    "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                    "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                    "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-oldWeights-noJetVeto/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                 },
-       "jun21oldWeightsnoVetoes": {
-                   "short_phase0": ["../../disappearing-track-tag/2016-short-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                   "short_phase1": ["../../disappearing-track-tag/2017-short-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_short ],
-                   "long_phase0":  ["../../disappearing-track-tag/2016-long-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                   "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-jun21-oldWeights-noVetoes/dataset/weights/TMVAClassification_BDT.weights.xml", vars_jun21_long ],          
-                },
            }
 
     readers = {}
@@ -586,7 +546,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                             })
                                              
         for i, muon in enumerate(event.Muons):
-            if muon.Pt() > 30 and abs(muon.Eta()) < 2.2 and bool(event.Muons_passIso[i]) and bool(event.Muons_tightID[i]):
+            if muon.Pt() > 30 and abs(muon.Eta()) < 2.4 and bool(event.Muons_passIso[i]) and bool(event.Muons_tightID[i]):
 
                 # check for jets:
                 for jet in event.Jets:
@@ -679,7 +639,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         leading_jet_pt = 0
         goodjets = []
         for jet in event.Jets:
-            if jet.Pt() > 30 and abs(jet.Eta()) < 2.2:
+            if jet.Pt() > 30 and abs(jet.Eta()) < 2.4:
                 #for lepton in list(event.Muons) + list(event.Electrons):
                 for lepton in goodleptons:
                     if jet.DeltaR(lepton) < 0.5:
@@ -696,7 +656,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         mhtvec = TLorentzVector()
         mhtvec.SetPtEtaPhiE(event.MHT, 0, event.MHTPhi, event.MHT)
         for ijet, jet in enumerate(event.Jets):
-            if not (abs(jet.Eta())<2.2 and jet.Pt()>30):
+            if not (abs(jet.Eta())<2.4 and jet.Pt()>30):
                 continue
             if abs(jet.DeltaPhi(mhtvec)) < MinDeltaPhiMhtJets:
                 MinDeltaPhiMhtJets = abs(jet.DeltaPhi(mhtvec))
@@ -762,7 +722,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             #            break
             #if someoverlap: continue
             adjustedMht -= jet        
-            if not abs(jet.Eta()) < 2.2: continue
+            if not abs(jet.Eta()) < 2.4: continue
             adjustedJets.append(jet)            
             if event.Jets_bJetTagDeepCSVBvsAll[ijet] > btag_cut: adjustedBTags += 1 ####hellooo
             adjustedHt += jet.Pt()
@@ -782,7 +742,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             # basic track pt cut:
             if event.tracks_trackerLayersWithMeasurement[iCand] == event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = True
-                if track.Pt() < 15: continue
+                if track.Pt() < 25: continue
             elif event.tracks_trackerLayersWithMeasurement[iCand] > event.tracks_pixelLayersWithMeasurement[iCand]:
                 is_pixel_track = False
                 if track.Pt() < 40 or event.tracks_nMissingOuterHits[iCand]<2: continue
@@ -866,7 +826,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     pass_mask = False
 
             pass_basecuts = bool(event.tracks_trackQualityHighPurity[iCand]) and \
-                        abs(track.Eta())<2.0 and \
+                        abs(track.Eta())<2.4 and \
                         ptErrOverPt2<10 and \
                         abs(event.tracks_dzVtx[iCand])<0.1 and \
                         event.tracks_trkRelIso[iCand]<0.2 and \
@@ -874,12 +834,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         event.tracks_nValidTrackerHits[iCand]>=2 and \
                         event.tracks_nMissingInnerHits[iCand]==0 and \
                         bool(event.tracks_passPFCandVeto[iCand]) and \
-                        event.tracks_nValidPixelHits[iCand]>=2
-                        
-            # and \
-            #pass_pionveto and \
-            #pass_jetveto and \
-            #pass_leptonveto
+                        event.tracks_nValidPixelHits[iCand]>=2 and \
+                        pass_pionveto and \
+                        pass_jetveto and \
+                        pass_leptonveto
                                                                         
             if not cutflow_study and not pass_basecuts: 
                 continue            
@@ -1069,7 +1027,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             if debug and event.MHT>30 and n_goodjets>=1:
                 
                 tagged = ""
-                if tagged_tracks[-1]["tracks_trkRelIso"]<0.01 and tagged_tracks[-1]["tracks_eta"]<2.2 and tagged_tracks[-1]["tracks_deDxHarmonic2pixel"]>2.0 and tagged_tracks[-1]["tracks_invmass"]>120 and tree_branch_values["leadinglepton_mt"][0]>110:
+                if tagged_tracks[-1]["tracks_trkRelIso"]<0.01 and tagged_tracks[-1]["tracks_eta"]<2.4 and tagged_tracks[-1]["tracks_deDxHarmonic2pixel"]>2.0 and tagged_tracks[-1]["tracks_invmass"]>120 and tree_branch_values["leadinglepton_mt"][0]>110:
                     if phase == 1:
                         if tagged_tracks[-1]["tracks_is_pixel_track"]==1 and tagged_tracks[-1]["tracks_pt"]>15 and tagged_tracks[-1]["tracks_mva_nov20_noEdep"]>0.25:
                             tagged += "short DT "
@@ -1266,14 +1224,14 @@ if __name__ == "__main__":
 
     else:
         inputfiles = [
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
                       ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-18089184-3A3B-E911-936C-0025905A60BC_RA2AnalysisTree.root"],
                      ]
          
         # ROC curve tests:

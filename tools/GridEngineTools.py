@@ -72,12 +72,18 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
 
     if runmode == "multiprocessing" or runmode == "multi" or runmode == "single":
 
+        os.system("mkdir -p %s" % condorDir)
+
         if runmode == "single":
             nCores = 1
         else:
             nCores = int(multiprocessing.cpu_count() * ncores_percentage)
         print "Using %i core(s)..." % nCores
 
+        # save outputs:
+        for i in range(len(mycommands)):
+            mycommands[i] = """sh -c \" """ + mycommands[i] + """ \" 2>&1 | tee %s/%s.sh.o""" % (condorDir, i) 
+        
         pool = multiprocessing.Pool(nCores)
         pool.map(ShellExec, mycommands)
 
