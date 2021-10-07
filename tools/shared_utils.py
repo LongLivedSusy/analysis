@@ -64,7 +64,7 @@ binning['TrkPt']=[0,15,20,25,30,40,50,60,70,100,225,300]#try to synchronize with
 #binning['TrkEta']=[0,1.4442,1.566,2.4]
 #binning['TrkEta']=[30,-3,3]###comment out ater studies
 binning['TrkLen']=[2, 1, 3]
-binning['NJets']=[7,0,6]
+binning['NJets']=[7,0,7]
 binning['NLeptons']=[5,0,5]
 binning['NElectrons']=binning['NLeptons']
 binning['NMuons']=binning['NLeptons']
@@ -98,13 +98,14 @@ binning['DtStatus'] = [6,-3,3]
 binning['DrJetDt'] = binning['DPhiMhtDt']
 binning['MTauTau'] = [26,50,180]
 binning['MtDtMht'] = [20,0,200]
+binning['LepPt']=[0,15,20,25,30,40,50,60,70,100,225,300]
 
 binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
 
 binningAnalysis['Met']=[35,0,700]
 binningAnalysis['Mht']=binningAnalysis['Met']
-binningAnalysis['BinNumber'] = [51,1,52]
+binningAnalysis['BinNumber'] = [49,1,50]
 binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
 binningAnalysis['DPhiMhtDt'] = [32,0,3.2]
 #binningAnalysis['TrkPt']=[0,25,30,40,60,120]
@@ -972,7 +973,7 @@ def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelS
 			
 		
 			
-def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.2,-0.4]):###from Akshansh
+def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.2,-0.4],vtx_calibs=[]):###from Akshansh
 		moh_ = c.tracks_nMissingOuterHits[itrack]
 		phits = c.tracks_nValidPixelHits[itrack]
 		thits = c.tracks_nValidTrackerHits[itrack]
@@ -987,10 +988,18 @@ def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerP
 
 		if not (pixelOnly or pixelStrips): return 0, -11                                                                                                    
 		if not c.tracks_passPFCandVeto[itrack]: return 0, -11
-		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())        
-		dxyVtx = abs(c.tracks_dxyVtx[itrack])
-		dzVtx = abs(c.tracks_dzVtx[itrack])                        
-	
+		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())
+		
+		if pixelStrips or len(vtx_calibs)==0:       
+			dxyVtx = abs(c.tracks_dxyVtx[itrack])
+			dzVtx = abs(c.tracks_dzVtx[itrack])                        
+		else:
+			if abs(c.tracks_dxyVtx[itrack])<0.02: dxyVtx = vtx_calibs[0].Eval(abs(c.tracks_dxyVtx[itrack]))
+			else: dxyVtx = abs(c.tracks_dxyVtx[itrack])
+			
+			if abs(c.tracks_dzVtx[itrack])<0.02: dzVtx = vtx_calibs[1].Eval(abs(c.tracks_dzVtx[itrack]))
+			else: dzVtx = abs(c.tracks_dzVtx[itrack])			
+			
 		nhits = c.tracks_nValidTrackerHits[itrack]
 		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
 		if not (nlayers>=2 and nhits>=2): return 0,-11
