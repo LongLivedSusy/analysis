@@ -29,9 +29,11 @@ python tools/ComputePromptRate.py 2017 MC
 
 '''
 
+#python tools/ComputeFakeRate.py 2016 Signal
 varname_thetaBinning = 'Ht'
 varname_thetaBinning = 'TrkEta'
 varname_thetaBinning = 'TrkPt'
+varname_thetaBinning = 'Ht'
 varname_thetaBinning = 'TrkEta'
 
 try: year = sys.argv[1]
@@ -43,7 +45,8 @@ except:
 try: datamc = sys.argv[2]
 except:  datamc = 'MC'# year = 'data'
 
-isdata = bool(datamc=='data')
+if datamc=='MC' or datamc=='Signal': isdata = False
+else: isdata=True
 
 if isdata: lumi = 35.9 #just for labeling. this weightw as already applied #must agree with lumi in merged...py!
 else: lumi = 137.
@@ -51,7 +54,7 @@ else: lumi = 137.
 binning['MatchedCalo'] = [100,0,100]
 binning['DtStatus'] = [6,-3,3]
 
-redoBinning = binning
+redoBinning = dict(binning)
 
 redoBinning['Met'] = [5,0,600]
 redoBinning['Mht'] = redoBinning['Met']
@@ -61,6 +64,10 @@ redoBinning['ElPt'] = [5,0,300]
 redoBinning['TrkEta']=[9,0,3]#tried 5 before
 redoBinning['TrkEta']=[10,0,3]#tried 5 before
 redoBinning['TrkEta']=[0,1.6,2.4,3.0]#tried 5 before
+redoBinning['TrkEta']=[0,1.4,2.4,3.0]#tried 5 before
+#redoBinning['TrkEta']=[0,1.0,2.4,3.0]#tried 5 before
+
+##redoBinning['TrkEta']=[1,0,3]#tried 5 before
 redoBinning['MuPt'] = redoBinning['ElPt']
 redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 
@@ -75,6 +82,20 @@ redoBinning['NJets']=[-0.00000001,0,4,10]
 redoBinning['NJets']=[5,0,10]
 redoBinning['MatchedCalo'] = [0,10,15,20,25,30,60]
 redoBinning['BTags'] = [-0.000000000001,0,1,4]
+
+
+coarserBinningPatch = {}
+coarserBinningPatch['TrkPt']=[0,14,15,300]
+coarserBinningPatch['TrkPt']=[0,14,15,300]
+coarseBinningPatch = {}
+#coarseBinningPatch['TrkPt']=[0,15,30,40,50,60,100,225,300]
+coarseBinningPatch['TrkPt']=[0,40,70,300]
+coarseBinningPatch['TrkPt']=[0,5,40,300]
+
+#redoBinning['TrkEta'] = binning['TrkEta']
+redoBinning['TrkPt'] = binning['TrkPt']
+coarseBinningPatch['TrkPt'] = [0,15,20,25,30,40,60,70,100,225,300]
+coarserBinningPatch['TrkPt'] = binning['TrkPt']
 
 calm = 15
 calh = 25
@@ -96,34 +117,36 @@ makefolders = False
 
 
 if year=='2016':	
-	fCentralMC = 'test.root'
-	fCentralMC = 'output/promptDataDrivenMCSummer16.root'
-	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
-	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
-
+	fsource = 'test.root'
+	fsource = 'output/promptDataDrivenMCSummer16.root'
+	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
+	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
+	if datamc=='Signal': fsource = 'PromptBkgHist_RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-847A896B-2AA6-E911-B940-0242AC1C0506_-processskimsTrue-smearvarNom.root'
 if year=='2017': 
-	fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+str(calm)+'to'+str(calh)+'.root'
-	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
+	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+str(calm)+'to'+str(calh)+'.root'
+	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
 	
 if year=='2018': 
-	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+str(calm)+'to'+str(calh)+'.root'	
+	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+str(calm)+'to'+str(calh)+'.root'	
 	
 if year=='Phase1': 
-	if isdata: fCentralMC = 'rootfiles/PromptBkgTree_promptDataDrivenPhase1_mcal'+str(calm)+'to'+str(calh)+'.root'	
+	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenPhase1_mcal'+str(calm)+'to'+str(calh)+'.root'	
 	
 
-print 'going to use', fCentralMC
-infile = TFile(fCentralMC)
-#infile.ls()
+print 'going to use', fsource
+infile = TFile(fsource)
+infile.ls()
 keys = infile.GetListOfKeys()
 
 
 fout = 'usefulthings/fakerateInfo_year'+str(year)+'.root'
 if isdata: fout = fout.replace('.root','_data.root')
+elif datamc=='Signal': fout = fout.replace('.root','_Signal.root')
 else: fout = fout.replace('.root','_mc.root')
 fnew = TFile(fout,'recreate')
 
-
+if datamc=='Signal': region = 'Baseline'
+else: region = 'HadMhtSideband'
 
 hratios = []
 clist = []
@@ -133,7 +156,7 @@ for key in sorted(keys):#[:241]:
 	name = key.GetName()
 	
 
-	if not 'MhtSideband' in name: continue
+	if not region in name: continue
 	if 'CaloSideband' in name: continue
 	if not 'Truth' in name: continue
 	#if not 'Baseline' in name: continue
@@ -145,7 +168,7 @@ for key in sorted(keys):#[:241]:
 	kinvar = name.replace('Control','').replace('Truth','').replace('Method1','')
 	kinvar = kinvar[kinvar.find('_')+1:]
 	print 'got kinvar', kinvar, 'name', name
-	
+	if not kinvar==varname_thetaBinning: continue
 	hcontrolregion =   infile.Get(name)
 
 	
@@ -162,6 +185,13 @@ for key in sorted(keys):#[:241]:
 		htarget.Add(infile.Get(name.replace('FakeCr_','_').replace('Method1','Truth').replace('hFake','hPrompt')))
 
 	#if hcontrolregion.Integral()>0: hcontrolregion.Scale(htarget.Integral()/hcontrolregion.Integral())
+	if 'TrkPt' in varname_thetaBinning:
+		if 'Short' in name and 'TrkPt' in name: 
+			backuplist = list(redoBinning[kinvar])
+			redoBinning[kinvar] = coarserBinningPatch[kinvar]
+		if 'Long' in name and 'TrkPt' in name:
+			backuplist = list(redoBinning[kinvar])
+			redoBinning[kinvar] = coarseBinningPatch[kinvar]
 			
 	if len(redoBinning[kinvar])!=3: 
 		nbins = len(redoBinning[kinvar])-1
@@ -177,6 +207,7 @@ for key in sorted(keys):#[:241]:
 		print 'newbins', newbinning
 	htarget = htarget.Rebin(nbins,'',newxs)
 	hcontrolregion = hcontrolregion.Rebin(nbins,'',newxs)
+	if 'Short' in name and 'TrkPt' in name: redoBinning[kinvar] = backuplist	
 	if not isdata:
 		hcontrolregion_promptcontam = hcontrolregion_promptcontam.Rebin(nbins,'',newxs)
 		htarget_promptcontam = htarget_promptcontam.Rebin(nbins,'',newxs)		
@@ -320,30 +351,38 @@ for key in sorted(keys):#[:241]:
 	else: pdfname = pdfname.replace('.','_mc.')	
 	#c1.Print(pdfname)
 	c1.Delete()
-	hratios.append([hratio, hcontrolregionsyst])
-	#pause()
 
 	
 	
 	
 print 'just created', fnew.GetName()
+fnew.ls()
 fnew.Close()
 
 #now get the fake rate and stuff
 if isdata:  ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_data.root', 'update')
+elif datamc=='Signal': 
+	ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_Signal.root','update')
 else: ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_mc.root', 'update')
 	
-hnum = ffakerate.Get('hFakeShortHadMhtSideband_'+varname_thetaBinning+'Truth')
-hden = ffakerate.Get('hFakeShortHadMhtSidebandFakeCr_'+varname_thetaBinning+'Truth')
+print 'giving', 'hFakeShort'+region+'_'+varname_thetaBinning+'Truth', 'a slug'
+hnum = ffakerate.Get('hFakeShort'+region+'_'+varname_thetaBinning+'Truth')
+hden = ffakerate.Get('hFakeShort'+region+'FakeCr_'+varname_thetaBinning+'Truth')
+
 hfrshort = hnum.Clone('hfrshort')
 hfrshort.Divide(hden)
-hnum = ffakerate.Get('hFakeLongHadMhtSideband_'+varname_thetaBinning+'Truth')
-hden = ffakerate.Get('hFakeLongHadMhtSidebandFakeCr_'+varname_thetaBinning+'Truth')
+hnum = ffakerate.Get('hFakeLong'+region+'_'+varname_thetaBinning+'Truth')
+hden = ffakerate.Get('hFakeLong'+region+'FakeCr_'+varname_thetaBinning+'Truth')
 hfrlong = hnum.Clone('hfrlong')
 hfrlong.Divide(hden)
 
 hfrlong.GetYaxis().SetRangeUser(0,2)
 hfrshort.GetYaxis().SetRangeUser(0,2)
+
+if datamc=='Signal':
+	hfrlong.GetYaxis().SetRangeUser(0.001,100)
+	hfrshort.GetYaxis().SetRangeUser(0.001,300)
+	
 hfrlong.Write()
 hfrshort.Write()
 

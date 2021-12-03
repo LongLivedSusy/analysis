@@ -3,7 +3,7 @@ from ROOT import *
 import os, sys
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 from glob import glob
-gStyle.SetOptStat(0)
+#gStyle.SetOptStat(0)
 gROOT.SetBatch(1)
 from time import sleep
 lumi = 35.9 #just for labeling. this weightw as already applied
@@ -19,6 +19,8 @@ makePredictionMode = False
 extrascale = 1.0
 #extrascale = 137./35.9
 
+
+grabasignal = False
 
 tag = 'MaxAwesTrkEnPt30'
 tag = '2ndTestPt10Short'
@@ -140,7 +142,6 @@ tag = 'Dx4Et22Two3Hv2bin2numsk'
 tag = 'Dx4Et22SmearPhase1nom'
 tag = 'Dx4Et22SmearPhase1drop1'
 tag = 'Dx4Et22SmearPhase1nomagain'
-
 tag = '2021_02_23bweights'
 tag = '2021_02_23a_ttbar'
 tag = '2021_02_23c_tightenFbdt'
@@ -447,13 +448,146 @@ tag = '2021_05_17_Hybrid15Eta2p0JI0p3'
 tag = '2021_05_17_Hybrid15Eta2p0JI0p3NoDphiTwk'
 tag = '2021_05_17_Hybrid15Eta2p0JI0p3TtnPh1Sh'
 tag = '2021_05_17_Hybrid15Eta2p0JI0p3TtnPh1ShNoStat'
+tag = '2021_05_17_Hybrid15Eta2p0JI0p3TtnPh1ShMcal'
+tag = '2021_05_19_Hybrid15Eta2p0OldJITtnPh1ShMcal'
+tag = '2021_05_17_Hybrid15Eta2p0JI0p3TtnPh1ShMt10'
+tag = '2021_05_17_Hybrid15Eta2p0dddLs16PshJI30b'
+tag = '2021_05_17_Hybrid15Eta2p0dddLs16PshJI30d'
+tag = '2021_05_17_MaxHybridJILowKappaNoStat'
+tag = '2021_05_21_MaxHybridLowKappaAllNoStat'
+tag = '2021_05_21_MaxHybridLowKappaLongNoStat'
+tag = '2021_05_21_MaxHybridLowKappaLongWithStat'
+tag = '2021_05_21_MaxHybridLowKappaLongEta2p2' 
+tag = '2021_05_21_MaxHybridEta2p0StatBox'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40Met30'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40NoJetOnLL'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40NoJetOnLL5bins'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40TtnUp'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40Ht60NoJet'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40Ht60Dagger'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40Ht60DaggerNoMu'
+tag = '2021_05_21_MaxHybridEta2p0LepPt40Ht60McalShort20'
+tag = '2021_05_21_MaxHybridEta2p0_2020RmvContam2'
+tag = '2021_05_21_MaxHybridEta2p0_2020RmvContam3Stat'
+tag = '2021_05_21_MaxHybrid_2010RmvContam3LowerThtaL'
+tag = '2021_05_21_MaxHybrid_2010RmvContam3MtGt30b'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3Mdp0p3'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3Mdp0p0'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3HotSpot2'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3Pt60'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3PtLrgKpa'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3PtSmallKpa2'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3PtSmallKpa2Mdp0p3'
+tag = '2021_05_21_MaxHybrid_2020RmvCntm3PtSmallKpa2Mdp0p0'
+tag = '2021_05_30_NewBdtNoSigWeithgs'
+tag = '2021_05_30_NewBdtNoSigWeithgs2'
+tag = '2021_05_30_NewBdtNoSigWeithgs2NoMu'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4NoPrompt'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4InvertStack'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4LsnFall17b'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4PtFR'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4OneBinFrTtn'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4EtaFR'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4TidyUp'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4WideBveto'
+tag = '2021_05_30_NewBdtNoSigWeightsHardDr0p4LepDr'
+tag = '2021_06_2_NewBdtNoSigWeightsHardDr0p4Tune'
+tag = '2021_06_2_NewBdtNoSigWeightsHardDr0p4FinePt'
+tag = '2021_06_2_NewBdtNoSigWeightsHardDr0p4FlushFk'
+tag = '2021_06_4_BdtNoWghtsNoNPix4Short'
+tag = '2021_06_4_BdtNoWghtsNoNPix4ShortGiveAShot'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortFewBins'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortManyEtaBins'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullBkP1Fk'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullBkP1Fk2'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullBkP1Fk3'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullBkP1Fk4'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullFkPt'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullFkPt2'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullFkPt3'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullFkPt4'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullLoosePrmpt'
+tag = '2021_08_4_BdtNoWghtsNoNPix4ShortOneBinPullVVLoosePrmpt'
+tag = '2021_13_6_Use2016PixelBdt42017b'
+tag = '2021_13_6_Use2016PixelBdt42017c'
+tag = '2021_13_6_Use2016PixelBdt42017d'
+tag = '2021_17_6_Use2016PixelBdta'
+tag = '2021_17_6_Use2016PixelBdtFakeHt'
+tag = '2021_17_6_Use2016PixelBdtFakeHtMoveSB'
+tag = '2021_17_6_Use2016PixelBdtFakeHtThrowADPhiOnThere'
+tag = '2021_17_6_Use2016PixelBdtFakeHtThrowADPhiOnThereb'
+tag = '2021_17_6_Use2016PixelBdtFakeHtThrowADPhiOnTherec'
+tag = '2021_17_6_Use2016PixelBdtFakeHtMoveCloser'
+tag = '2021_17_6_Use2016PixelBdtFakeHtMoveEvenCloser'
+tag = '2021_20_7_Jun20b'
+tag = '2021_20_7_Jun20bnomu'
+tag = '2021_20_7_Jun20EtaFixNoMu'
+tag = '2021_20_7_Jun20TuneStuff'
+tag = '2021_28_7_jul21Ootb'
+tag = '2021_28_7_jul21OHighMet16'
+tag = '2021_28_7_jul21NewMask'
+tag = '2021_28_7_jul21NewMaskMet450'
+tag = '2021_28_7_jul21NewMaskMet450NoPi'
+tag = '2021_28_7_jul21NewMaskMet450NoPiNoMu'
+tag = '2021_28_7_jul21NewMaskMet450NoPiNoMuNoE'
+tag = '2021_28_7_jul21NewMaskMet450OnlyFake'
+tag = '2021_28_7_jul21NewMaskMet450OnlyFakeM2'
+tag = '2021_28_7_jul21NewMaskMet450OnlyFakeM3'
+tag = '2021_28_7_jul21NewMaskMtDtMet20'
+tag = '2021_28_7_jul21NewMaskMtDtMet20NoMu'
+tag = '2021_28_7_jul21NewMaskMtDtMet20NoShrtPrmpt2'
+tag = '2021_28_7_jul21NewMaskMtDtMet20ReinstatePrmpt'
+tag = '2021_28_7_jul21NewMaskMtDtMet20MtDtMht40'
+tag = '2021_28_7_jul21NewMaskMtDtMet40AdjstFkSh'
+tag = '2021_28_7_jul21NewMaskMtDtMet40AdjstBoth'
+
+tag = '2021_28_7_24Oct2021'
+tag = '2021_28_7_25Oct2021'
+tag = '2021_28_7_26Oct2021'
+tag = '2021_28_7_26Oct2021b'
+tag = '2021_28_7_26Oct2021c'
+tag = '2021_28_7_27Oct2021'
+tag = '2021_28_7_27Oct2021b'
+tag = '2021_27_7_Oct2021c'
+tag = '2021_31_Oct2021'
+tag = '2021_31_Oct2021b'
+tag = '2021_31_Oct2021c'
+tag = '2021_31_Oct2021d'
+tag = '2021_1_Nov2021'
+tag = '2021_1_Nov2021b'
+tag = '2021_1_Nov2021c'
+tag = '2021_2_Nov2021'
+tag = '2021_2_Nov2021b'
+tag = '2021_2_Nov2021c'
+tag = '2021_3_Nov2021'
+tag = '2021_3_Nov2021b'
+tag = '2021_3_Nov2021c'
+tag = '2021_4_Nov2021'
+tag = '2021_4_Nov2021b'
+tag = '2021_5_Nov2021'
+tag = '2021_5_Nov2021b'
+tag = '2021_8_Nov2021b'
+tag = '2021_8_Nov2021bad'
+tag = '2021_10_Nov2021'
+tag = '2021_12_Nov2021'
+tag = '2021_13_Nov2021'
+tag = '2021_13_Nov2021b'
+tag = '2021_14_Nov2021'
+tag = '2021_15_Nov2021e'
+tag = '2021_15_Nov2021f'
+tag = '2021_16_Nov2021'
+tag = '2021_16_Nov2021b'
+
 
 '''
 rm -rf pdfs/Validation/prompt-bkg/* 
 python tools/makeValidationPlots2methods.py Summer16 MC & 
+python tools/makeValidationPlots2methods.py Phase1 &
 python tools/makeValidationPlots2methods.py Fall17 MC &
 python tools/makeValidationPlots2methods.py Run2016 &
-python tools/makeValidationPlots2methods.py Phase1
+
 
 
 python tools/makeValidationPlots2methods.py 2017
@@ -499,7 +633,8 @@ redoBinning['TrkEta']=[30,0,3]
 #redoBinning['NJets'] = [6,1,7]
 #redoBinning['NJets'] = [0.999999,1,3,6]
 redoBinning['BTags'] = [-0.0000000001,0,1,4]
-redoBinning['LepMT'] = [7,15,150]
+#redoBinning['LepMT'] = [7,15,150]
+redoBinning['BinNumber'] = binningAnalysis['BinNumber']
 #redoBinning['MatchedCalo'] = [0,10,13,23,40]
 #redoBinning['InvMass'] = [25,0,200]#same as analysis
 
@@ -538,7 +673,6 @@ if datamc=='mc': mainfilename = mainfilename.replace('DataDriven','DataDrivenMC'
 
 print 'opening', mainfilename
 infile = TFile(mainfilename)
-infile.ls()
 keys = infile.GetListOfKeys()
 
 hShapeShort = infile.Get('hPromptShortSElValidZLL_MatchedCaloTruth').Clone('hShapeShort')##
@@ -546,6 +680,9 @@ shax = hShapeShort.GetXaxis()
 binm = shax.FindBin(calm)
 binh = shax.FindBin(calh)
 
+
+if grabasignal: 
+	fsignal = TFile('/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Indium/v11/Signal/T2btLL//Stop1100_Chi1ne1000.root')
 
 fout = 'Valid_year'+str(year)+'.root'
 fnew = TFile(fout,'recreate')
@@ -633,10 +770,10 @@ for key in sorted(keys):#[:241]:
 	hfakemethod.SetFillStyle(1001)
 		
 	if 'BinNumber' in name and False:
-		hpromptmethod = merge2dtbins(hpromptmethod)
-		hfakemethod = merge2dtbins(hfakemethod)
-		hsideband = merge2dtbins(hsideband)
-		htruth = merge2dtbins(htruth)
+		hpromptmethod = merge2dtbinsIndium(hpromptmethod)
+		hfakemethod = merge2dtbinsIndium(hfakemethod)
+		hsideband = merge2dtbinsIndium(hsideband)
+		htruth = merge2dtbinsIndium(htruth)
 		
 
 	if 'MatchedCalo' in name and False:
@@ -670,6 +807,12 @@ for key in sorted(keys):#[:241]:
 			bine = hpromptmethod.GetBinError(ibin)
 			hpromptmethod.SetBinError(ibin, TMath.Sqrt(pow(binc,2)))
 			#hpromptmethod.SetBinContent(ibin, 0)
+			
+			
+			hpromptmethod.SetBinError(ibin, binc)
+			#hpromptmethod.SetBinContent(ibin, 0)
+			
+
 			
 			binc = hfakemethod.GetBinContent(ibin)
 			bine = hfakemethod.GetBinError(ibin)
@@ -754,7 +897,7 @@ for key in sorted(keys):#[:241]:
 			if 'Long' in name: searchbinresults[regionkey]['Long'] = [htruth.Clone(), hpromptmethod.Clone(),hfakemethod.Clone()]
 			if 'Short' in name: searchbinresults[regionkey]['Short'] = [htruth.Clone(), hpromptmethod.Clone(), hfakemethod.Clone()]
 				
-	hratio, hpromptmethodsyst = FabDrawSystyRatio(c1,leg,htruth,[hfakemethod,hpromptmethod],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
+	hratio, hpromptmethodsyst = FabDrawSystyRatio(c1,leg,htruth,[hfakemethod, hpromptmethod],datamc=datamc,lumi=lumi, title = '', LinearScale=False, fractionthing='truth / method')
 	
 			
 	pad1, pad2 = hpromptmethodsyst[-2:]
@@ -767,6 +910,18 @@ for key in sorted(keys):#[:241]:
 	hratio.SetMarkerColor(kBlack)
 	hratio.SetDirectory(0)
 	
+	pad1.cd()
+	print 'comparing Baseline with', name
+	if grabasignal and ('Baseline' in name or 'ValidZLL' in name or 'MhtSideband' in name) and not ('HighMT' in name ) and not ('LepPt' in name): 
+		#fsignal.ls()
+		sname = name.replace('CaloSideband','').replace('_','SystNom_').replace('Prompt','')
+		print 'looking for signal name', sname
+		hsignal = fsignal.Get(sname)
+		hsignal = hsignal.Rebin(nbins,'',newxs)
+		histoStyler(hsignal, kRed)
+		hsignal.Draw('hist same')
+		leg.AddEntry(hsignal, 'T2bt g1100, chi1000)')
+	fnew.cd()			
 
 	pad2.cd()
 	leg2 = mklegend(x1=.68, y1=.85, x2=.94, y2=.965, color=kWhite)
@@ -879,7 +1034,7 @@ for regionkey in searchbinresults:
 	htruth.SetTitle('')	
 	hpromptmethod.SetLineWidth(3)
 			
-
+			
 	c1.Update()
 	
 	c1.Write('c_'+plotname+'BinNumber_merged')

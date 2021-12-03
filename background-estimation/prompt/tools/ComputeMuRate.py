@@ -27,13 +27,21 @@ python tools/ComputePromptRate.py 2018 data &
 python tools/ComputeFakeRate.py 2017 MC &
 python tools/ComputePromptRate.py 2017 MC &
 
+
+
+
+python tools/ComputeMuRate.py 2016 MC &
+python tools/ComputeMuRate.py Phase1 data &
+python tools/ComputeMuRate.py 2016 data &
+python tools/ComputeMuRate.py 2017 data &
+python tools/ComputeMuRate.py 2018 data &
+python tools/ComputeMuRate.py 2017 MC &
 '''
-#python tools/ComputePromptRate.py 2016 Signal
-
-
+#python tools/ComputeMuRate.py 2016 Signal
 
 varname_kappaBinning = 'TrkEta'
 varname_kappaBinning = 'TrkPt'
+
 
 try: year = sys.argv[1]
 except: 
@@ -66,7 +74,7 @@ redoBinning['Mht'] = redoBinning['Met']
 redoBinning['InvMass'] = [5,50,170]
 redoBinning['ElPt'] = [5,0,300]
 #redoBinning['TrkEta'] = [0,1.5,2.2,3.0]
-redoBinning['TrkEta']=[1,0,2.0]
+redoBinning['TrkEta']=[2,0,2.0]
 redoBinning['MuPt'] = redoBinning['ElPt']
 redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 
@@ -90,12 +98,9 @@ coarserBinningPatch['TrkPt']=[0,14,15,300]
 coarseBinningPatch = {}
 coarseBinningPatch['TrkPt']=[0,15,30,40,50,60,100,225,300]
 coarseBinningPatch['TrkPt']=[0,15,30,40,60,300]
-#coarseBinningPatch['TrkPt']=[0,15,30,40,70,300]
-#coarseBinningPatch['TrkPt']=[0,15,20,25,30,40,50,60,70,100,225,300]
 #coarseBinningPatch['TrkPt']=[0,40,70,300]
 #coarseBinningPatch['TrkPt']=[0,25,40,300]##[0,40,75,300]
 #coarseBinningPatch['TrkPt']=[0,14,15,300]#same as other thing
-
 
 
 #coarserBinningPatch = redoBinning
@@ -129,8 +134,6 @@ calh = 80
 
 
 if year=='2016':	
-	fsource = 'test.root'
-	fsource = 'output/promptDataDrivenMCSummer16.root'
 	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if datamc=='Signal': fsource = 'PromptBkgHist_RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-847A896B-2AA6-E911-B940-0242AC1C0506_-processskimsTrue-smearvarNom.root'
@@ -154,12 +157,12 @@ print 'fsource', fsource
 
 
 infile = TFile(fsource)
-#infile.ls()
+infile.ls()
 keys = infile.GetListOfKeys()
 
 
 
-fout = 'usefulthings/promptrateInfo_year'+str(year)+'.root'
+fout = 'usefulthings/murateInfo_year'+str(year)+'.root'
 if isdata: fout = fout.replace('.root','_data.root')
 elif datamc=='Signal':
 	print 'yessirebob'
@@ -171,7 +174,7 @@ fnew = TFile(fout,'recreate')
 
 
 if datamc=='Signal': region = 'Baseline'
-else: region = 'SElValidZLL'
+else: region = 'SMuValidZLL'
 
 hratios = []
 clist = []
@@ -181,12 +184,12 @@ for key in sorted(keys):#[:241]:
 	name = key.GetName()
 	
 	#hPromptShort'+region+'_MatchedCaloTruth
-
+	print 'going after name', name
 	if not region in name: continue
+	if not 'Truth' in name: continue	
 	if 'FakeCr_' in name: continue
-	if not 'Truth' in name: continue
-	if not 'CaloSideband' in name: continue ##fakecr_
-	if not 'hPrompt' in name: continue
+	if 'CaloSideband' in name: continue ##fakecr_
+	if not 'RecoMuMatched' in name: continue
 
 	
 	kinvar = name.replace('Control','').replace('Truth','').replace('Method2','')
@@ -195,12 +198,12 @@ for key in sorted(keys):#[:241]:
 	hcontrolregion =   infile.Get(name).Clone()
 
 		
-	htarget = infile.Get(name.replace('CaloSideband_','_')).Clone()
+	htarget = infile.Get(name.replace('RecoMuMatched_','_')).Clone()
 	
 	if not isdata: 
 		print 'we do see MC'
 		hcontrolregion.Add(infile.Get(name.replace('hPrompt','hFake')))
-		htarget.Add(infile.Get(name.replace('CaloSideband_','_').replace('hPrompt','hFake')))
+		htarget.Add(infile.Get(name.replace('RecoMuMatched_','_').replace('hPrompt','hFake')))
 
 	#if hcontrolregion.Integral()>0: hcontrolregion.Scale(htarget.Integral()/hcontrolregion.Integral())
 			
@@ -340,36 +343,37 @@ fnew.Close()
 
 
 
-if isdata:  fpromptrate = TFile('usefulthings/promptrateInfo_year'+year+'_data.root', 'update')
+if isdata:  fmurate = TFile('usefulthings/murateInfo_year'+year+'_data.root', 'update')
 elif datamc=='Signal': 
-	fpromptrate = TFile('usefulthings/promptrateInfo_year'+year+'_Signal.root','update')
-else:       fpromptrate = TFile('usefulthings/promptrateInfo_year'+year+'_mc.root', 'update')
+	fmurate = TFile('usefulthings/murateInfo_year'+year+'_Signal.root','update')
+else:       fmurate = TFile('usefulthings/murateInfo_year'+year+'_mc.root', 'update')
     
     
 print 'gonna look for', 'hPromptShort'+region+'_'+varname_kappaBinning+'Truth'
-print 'in ', fpromptrate.GetName()
+print 'in ', fmurate.GetName()
+fmurate.ls()
 
-hnum = fpromptrate.Get('hPromptShort'+region+'_'+varname_kappaBinning+'Truth').Clone()
+hnum = fmurate.Get('hPromptShort'+region+'_'+varname_kappaBinning+'Truth').Clone()
 
-
-hden = fpromptrate.Get('hPromptShort'+region+'CaloSideband_'+varname_kappaBinning+'Truth').Clone()
+print 'and now', 'hPromptShort'+region+'RecoMuMatched_'+varname_kappaBinning+'Truth'
+hden = fmurate.Get('hPromptShort'+region+'RecoMuMatched_'+varname_kappaBinning+'Truth').Clone()
 
 
 
 #if not isdata:# this might be needed for the true final closure test...................#these already added above
-#	hnum.Add(fpromptrate.Get('hFakeShort'+region+'_'+varname_kappaBinning+'Truth'))
-#	hden.Add(fpromptrate.Get('hFakeShort'+region+'CaloSideband_'+varname_kappaBinning+'Truth'))
+#	hnum.Add(fmurate.Get('hFakeShort'+region+'_'+varname_kappaBinning+'Truth'))
+#	hden.Add(fmurate.Get('hFakeShort'+region+'CaloSideband_'+varname_kappaBinning+'Truth'))
 #	a=2
 hprshort = hnum.Clone('hprshort')
 hprshort.Divide(hden)
 
 
-hnum = fpromptrate.Get('hPromptLong'+region+'_'+varname_kappaBinning+'Truth').Clone()
+hnum = fmurate.Get('hPromptLong'+region+'_'+varname_kappaBinning+'Truth').Clone()
 
-hden = fpromptrate.Get('hPromptLong'+region+'CaloSideband_'+varname_kappaBinning+'Truth').Clone()
+hden = fmurate.Get('hPromptLong'+region+'RecoMuMatched_'+varname_kappaBinning+'Truth').Clone()
 #if not isdata:
-#	hnum.Add(fpromptrate.Get('hFakeLong'+region+'_'+varname_kappaBinning+'Truth'))
-#	hden.Add(fpromptrate.Get('hFakeLong'+region+'CaloSideband_'+varname_kappaBinning+'Truth'))	
+#	hnum.Add(fmurate.Get('hFakeLong'+region+'_'+varname_kappaBinning+'Truth'))
+#	hden.Add(fmurate.Get('hFakeLong'+region+'CaloSideband_'+varname_kappaBinning+'Truth'))	
 #	a = 2
 
 
@@ -387,8 +391,8 @@ if datamc=='Signal':
 hprlong.Write()
 hprshort.Write()
 
-print 'just updated', fpromptrate.GetName()
-fpromptrate.Close()
+print 'just updated', fmurate.GetName()
+fmurate.Close()
 
 
 '''

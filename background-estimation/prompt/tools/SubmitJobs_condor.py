@@ -15,7 +15,7 @@ parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER s
 parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
 parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
-parser.add_argument("-ps", "--processskims", type=bool, default=False,help="use gen-kappa")
+parser.add_argument("-ps", "--analyzeskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
 args = parser.parse_args()
@@ -23,7 +23,7 @@ nfpj = args.nfpj
 fnamekeyword = args.fnamekeyword.strip()
 filenames = fnamekeyword
 analyzer = args.analyzer
-processskims = args.processskims
+analyzeskims = args.analyzeskims
 analyzer = analyzer.replace('python/','').replace('tools/','')
 JerUpDown = args.JerUpDown
 smearvar = args.smearvar
@@ -65,6 +65,9 @@ def main():
 			jobname = analyzer.replace('.py','')+'_'+jname[jname.rfind('/')+1:]#.replace('.root','_'+str(ijob))
 			if len(args4name.split())>0: 
 				jobname = jobname+args4name.replace(' ','-').replace('---','-').replace('--','-')
+			if os.path.isfile('jobs/'+jobname+'.sh'):
+				print 'skipping', fname, 'since', 'jobs/'+jobname+'.sh', 'exists'
+				continue
 			fjob = open('jobs/'+jobname+'.sh','w')
 			files = files[:-1]#this just drops the comma
 			fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname).replace('OUTDIR',outdir))

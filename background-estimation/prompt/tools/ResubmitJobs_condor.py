@@ -2,6 +2,8 @@ from glob import glob
 import os, sys
 from random import shuffle
 
+
+
 def pause(str_='push enter key when ready'):
 		import sys
 		print str_
@@ -15,12 +17,15 @@ except: shkeys = 'jobs/*.sh'
 
 istest = False
 
+FirstWave = False# (means we're resubmitting the skims)
+#FirstWave = False# (means we're resubmitting the skims)
 
-logfileversion = True
+logfileversion = False
 filecheckversion = True
-fperjob = 10
+errversion = False
+jobsatatime = 10
 
-doitlocal = False
+doitlocal = True
 
 shlist = glob(shkeys)
 shuffle(shlist)
@@ -61,37 +66,48 @@ for ish, shfile in enumerate(shlist):
 			fout = fout[-1]
 			lastoutlines =  commands.getstatusoutput('tail '+fout)
 			noendgame = 'just created' not in lastoutlines[-1]
-		else: noendgame = True
+		else: 
+			noendgame = True
+			print 'found a lack of "just created" in ', lastoutlines[-10:] 
 	if filecheckversion: 
-		namechunk = shfile.split('/')[-1].replace('_RA2AnalysisTree','*').replace('.sh','').replace('.root','')
+		namechunk = shfile.split('/')[-1].replace('_RA2AnalysisTree','_*').replace('.sh','').replace('.root','')
 		#print 'namechunk', namechunk		
 		inferredcodeproduct = '_'.join(namechunk.split('_')[0:-1]).split('With')[0].split('Maker')[0].split('yzer')[0]
 		foutpiece = inferredcodeproduct+'_'+'_'.join(namechunk.split('Maker')[-1].split('With')[-1].split('_')[1:]).replace('Summer16.','*')#to move to 2017, to 2018, please stop replacing Summer16. here
 		#print 'foutpiece', foutpiece
 		keypiece = 'output/smallchunks/'+foutpiece
-		keypiece = keypiece.replace('Anal','Hists')
-		#keypiece = keypiece.replace('Hist','Tree')###this may be needed for ntuple resubmission
+		if FirstWave:
+			keypiece = keypiece.replace('Hist','Tree')
+		else: 
+			keypiece = keypiece.replace('Anal','Hists')
+		###keypiece = keypiece.replace('Hist','Tree')####this may be needed for ntuple resubmission
 		foutlist = glob(keypiece+'*')
 		nofilethere = len(foutlist)==0
 		if nofilethere: print 'no file for glob("'+keypiece+'*'+'")', len(foutlist)	
-	ferr = sorted(glob(recoerr+'*'))
-	somethingmissing = False
-	if len(ferr)>0:
-		errf = open(ferr[-1])
-		errtext = errf.read()
-		errf.close()
-		if 'does not exist' in errtext or "basket's WriteBuffer failed" in errtext:
-			somethingmissing = True
+		
+	somethingmissing = False		
+	if errversion:
+		ferr = sorted(glob(recoerr+'*'))
+		
+		if len(ferr)>0:
+			errf = open(ferr[-1])
+			errtext = errf.read()
+			errf.close()
+			if "does not exist" in errtext or "basket's WriteBuffer failed" in errtext:
+				somethingmissing = True
+				print '''if "does not exist" in errtext or "basket's WriteBuffer failed" in errtext''', "does not exist" in errtext, "basket's WriteBuffer failed" in errtext
 	#pause()					
 	#if (not recoerr in elist) or noendgame or somethingmissing or nofilethere:
-	if nofilethere:
+	if nofilethere or noendgame:
 		print 'resubmitting on grounds', (not recoerr in elist), noendgame, somethingmissing, nofilethere, shfile
 		if filecheckversion: print 'searched file was', keypiece, glob(keypiece+'*')
 		jobname = shfile.split('/')[-1].replace('.sh','')
 		os.chdir('jobs')
 		if doitlocal:
-			command_ = 'bash '+jobname+'.sh > localJob'+jobname+'.out'
-			if not iactive%fperjob==(fperjob-1): command_+=' &'
+			command_ = 'bash '+jobname+'.sh'# > localJob'+jobname+'.out 2> '+jobname+'.err'
+			print 'doing this local command:'
+			print command_
+			if not iactive%jobsatatime==(jobsatatime-1): command_+=' &'
 			iactive+=1
 			if not istest: os.system(command_)
 		else:
