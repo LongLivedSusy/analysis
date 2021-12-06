@@ -83,7 +83,7 @@ binning['BTags']=[4,0,4]
 binning['Ht']=[40,0,2000]
 binning['MinDPhiMhtJets'] = [16,0,3.2]
 binning['DPhiMhtDt'] = [32,0,3.2]
-binning['InvMass'] = [26,50,180]
+binning['InvMass'] = [17,44,180]
 binning['LepMT'] = [14,15,150]
 binning['Track1MassFromDedx'] = [25,0,1000]
 binning['BinNumber'] = [58,0,58]
@@ -98,6 +98,8 @@ binning['DtStatus'] = [6,-3,3]
 binning['DrJetDt'] = binning['DPhiMhtDt']
 binning['MTauTau'] = [26,50,180]
 binning['MtDtMht'] = [20,0,200]
+binning['IsMuMatched'] = [2,0,2]
+binning['MissingOuterHits'] = [20,0,20]
 binning['LepPt']=[0,15,20,25,30,40,50,60,70,100,225,300]
 
 binningAnalysis = {}
@@ -669,7 +671,6 @@ def FabDrawSystyRatio(cGold,leg,hTruth,hComponents,datamc='MC',lumi=35.9, title 
 	#hComponentsDown.Draw('hist same')
 	for h in hComponents[1:]: 
 		#h.SetFillStyle(3244)
-		print 'there are actually components here!'
 		h.Draw('hist same')
 		h.Draw('e1 sames')
 	ErrorHistogram = hComponents[0].Clone('ErrorHistogram')
@@ -877,8 +878,54 @@ def prepareReaderPixel_fullyinformed(reader, xmlfilename):
 		reader.AddVariable("tracks_chi2perNdof",_chi2perNdof_)
 		reader.BookMVA("BDT", xmlfilename)        
 
+def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.2,-0.4],vtx_calibs=[]):###from Akshansh
+		moh_ = c.tracks_nMissingOuterHits[itrack]
+		phits = c.tracks_nValidPixelHits[itrack]
+		thits = c.tracks_nValidTrackerHits[itrack]
+		tlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+		pixelOnly = phits>0 and thits==phits
+		medium = tlayers< 7 and (thits-phits)>0
+		long   = tlayers>=7 and (thits-phits)>0
+		pixelStrips = medium or long
+		if pixelStrips:
+			if not moh_>=2: return 0, -11
+			if not track.Pt()>40: return 0, -11
 
-
+		if not (pixelOnly or pixelStrips): return 0, -11                                                                                                    
+		#if not c.tracks_passPFCandVeto[itrack]: return 0, -11
+		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())
+		
+		if pixelStrips or len(vtx_calibs)==0:       
+			dxyVtx = abs(c.tracks_dxyVtx[itrack])
+			dzVtx = abs(c.tracks_dzVtx[itrack])                        
+		else:
+			if abs(c.tracks_dxyVtx[itrack])<0.02: dxyVtx = vtx_calibs[0].Eval(abs(c.tracks_dxyVtx[itrack]))
+			else: dxyVtx = abs(c.tracks_dxyVtx[itrack])
+			if abs(c.tracks_dzVtx[itrack])<0.02: dzVtx = vtx_calibs[1].Eval(abs(c.tracks_dzVtx[itrack]))
+			else: dzVtx = abs(c.tracks_dzVtx[itrack])			
+			
+		nhits = c.tracks_nValidTrackerHits[itrack]
+		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
+		if not (nlayers>=2 and nhits>=2): return 0,-11
+		matchedCalo = c.tracks_matchedCaloEnergy[itrack]
+		chi2  = c.tracks_chi2perNdof[itrack]
+	
+		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
+		if pixelOnly:
+				mva_ = evaluateBDT(readerPixelOnly, trackfv)
+				if mva_ > threshes[0]: return 1, mva_  
+				#elif dxyVtx>0.05: return -1, mva_
+				else: return 0, mva_ 
+		elif pixelStrips:
+				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
+				if mva_>threshes[1]: return 2, mva_
+				#elif dxyVtx>0.05: return -2, mva_
+				else: return 0, mva_ ##this -2 was nominally 0
+		else:
+				return 0, mva_			
+				
+				
+'''
 def isDisappearingTrack_(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[.1,.25]):###from Akshansh
 		moh_ = c.tracks_nMissingOuterHits[itrack]
 		phits = c.tracks_nValidPixelHits[itrack]
@@ -971,54 +1018,9 @@ def isDisappearingTrack_Loosetag(track, itrack, c, readerPixelOnly, readerPixelS
 		else:
 				return 0, mva_
 			
-		
+'''
 			
-def isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, threshes=[-0.2,-0.4],vtx_calibs=[]):###from Akshansh
-		moh_ = c.tracks_nMissingOuterHits[itrack]
-		phits = c.tracks_nValidPixelHits[itrack]
-		thits = c.tracks_nValidTrackerHits[itrack]
-		tlayers = c.tracks_trackerLayersWithMeasurement[itrack]
-		pixelOnly = phits>0 and thits==phits
-		medium = tlayers< 7 and (thits-phits)>0
-		long   = tlayers>=7 and (thits-phits)>0
-		pixelStrips = medium or long
-		if pixelStrips:
-			if not moh_>=2: return 0, -11
-			if not track.Pt()>40: return 0, -11
-
-		if not (pixelOnly or pixelStrips): return 0, -11                                                                                                    
-		if not c.tracks_passPFCandVeto[itrack]: return 0, -11
-		pterr = c.tracks_ptError[itrack]/(track.Pt()*track.Pt())
-		
-		if pixelStrips or len(vtx_calibs)==0:       
-			dxyVtx = abs(c.tracks_dxyVtx[itrack])
-			dzVtx = abs(c.tracks_dzVtx[itrack])                        
-		else:
-			if abs(c.tracks_dxyVtx[itrack])<0.02: dxyVtx = vtx_calibs[0].Eval(abs(c.tracks_dxyVtx[itrack]))
-			else: dxyVtx = abs(c.tracks_dxyVtx[itrack])
-			
-			if abs(c.tracks_dzVtx[itrack])<0.02: dzVtx = vtx_calibs[1].Eval(abs(c.tracks_dzVtx[itrack]))
-			else: dzVtx = abs(c.tracks_dzVtx[itrack])			
-			
-		nhits = c.tracks_nValidTrackerHits[itrack]
-		nlayers = c.tracks_trackerLayersWithMeasurement[itrack]
-		if not (nlayers>=2 and nhits>=2): return 0,-11
-		matchedCalo = c.tracks_matchedCaloEnergy[itrack]
-		chi2  = c.tracks_chi2perNdof[itrack]
-	
-		trackfv = [dxyVtx, dzVtx, matchedCalo, c.tracks_trkRelIso[itrack], phits, thits, moh_, pterr,chi2]
-		if pixelOnly:
-				mva_ = evaluateBDT(readerPixelOnly, trackfv)
-				if mva_ > threshes[0]: return 1, mva_  
-				#elif dxyVtx>0.05: return -1, mva_
-				else: return 0, mva_ 
-		elif pixelStrips:
-				mva_ = evaluateBDT(readerPixelStrips, trackfv) 
-				if mva_>threshes[1]: return 2, mva_
-				#elif dxyVtx>0.05: return -2, mva_
-				else: return 0, mva_ ##this -2 was nominally 0
-		else:
-				return 0, mva_								
+					
 	
 #just changed a couple of lines above to loosen the tag
 	
@@ -1091,8 +1093,8 @@ def isBaselineTrackLoosetag(track, itrack, c, hMask=''):### could tracks_ptError
 		c.tracks_trackerLayersWithMeasurement[itrack]>=2 and \
 		c.tracks_nValidTrackerHits[itrack]>=2 and \
 		c.tracks_nMissingInnerHits[itrack]==0 and \
-		c.tracks_nValidPixelHits[itrack]>=2 and \
-		bool(c.tracks_passPFCandVeto[itrack])
+		c.tracks_nValidPixelHits[itrack]>=2# and \
+		#bool(c.tracks_passPFCandVeto[itrack])
 	if not base_cuts: return False
 	if hMask!='':
 		xax, yax = hMask.GetXaxis(), hMask.GetYaxis()
