@@ -396,12 +396,6 @@ def do_plots(variable, cutstring, thisbatchname, folder, labels, binnings, signa
             h_ratio_after.SetMarkerStyle(20)
             h_ratio_after.Draw("p same")
             
-
-    #for ibin in range(1,hratio.GetXaxis().GetNbins()+1):
-    #    if hratio.GetBinContent(ibin)==0:
-    #        hratio.SetBinContent(ibin,-999)
-    #hratio.SetMarkerColor(kBlack)
-
     os.system("mkdir -p %s" % thisbatchname)
     pdfname = thisbatchname + "/" + variable.replace("/", "_") + ".pdf"
     
@@ -573,29 +567,18 @@ def do_plots_wrapper(parameters):
 
 
 if __name__ == "__main__":
-        
+    
     use_allMC = 0
-    before_preselection = 0
-    plot_input_variables = 1
+    plot_before_preselection = 0
+    plot_input_variables = 0
     plot_output_variables = 0
-    dy_control_region = 1
-    lowmht_control_region = 0
+    plot_dy_control_region = 1
+    plot_lowmht_control_region = 0
     bdt_efficiency = 0
-    use_vetoes = 0
-    use_tighter_shortcuts = 0
     
-    plotfolder = "bdtnewplots2"
-    #folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_90_bdts_merged"
-    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_96_fullEta_merged"
+    plotfolder = "plots_input_variables_skim99"
+    folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_99_merged"
     
-    if use_allMC:
-        plotfolder += "_allMC" 
-    if use_vetoes:
-        plotfolder += "_vetoes"
-    if use_tighter_shortcuts:
-        plotfolder += "_tightershortcuts"
-        
-        
     datasets_phase0 = collections.OrderedDict()
     datasets_phase1 = collections.OrderedDict()
     
@@ -604,7 +587,7 @@ if __name__ == "__main__":
                 ], kBlack]
     datasets_phase0["WJetsToLNu"] = [[
                 "Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1",
-                "Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1",
+                #"Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1",
                 "Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1",
                 "Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1",
                 "Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1",
@@ -651,24 +634,15 @@ if __name__ == "__main__":
                     "Summer16.ZJetsToNuNu_HT-1200To2500_13TeV",
                     "Summer16.ZJetsToNuNu_HT-2500ToInf_13TeV",
                     ], kOrange]
-    #datasets_phase0["Signal, m_{Glu}=2.0 TeV, m_{#chi}=1.975 TeV"] = [[
-    #            "RunIISummer16MiniAODv3.SMS-T1qqqq",
-    #            ], kRed, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2000 && signal_lsp_mass==1975"]
-    #datasets_phase0["Signal, m_{Glu}=2.5 TeV, m_{#chi}=2.475 TeV"] = [[
-    #            "RunIISummer16MiniAODv3.SMS-T1qqqq",
-    #            ], kMagenta, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2500 && signal_lsp_mass==2475"]
-    #datasets_phase0["Signal, m_{Glu}=2.8 TeV, m_{#chi}=2.775 TeV"] = [[
-    #            "RunIISummer16MiniAODv3.SMS-T1qqqq",
-    #            ], kOrange, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2800 && signal_lsp_mass==2775"]
-    #datasets_phase0["Signal (T2bt), m_{#chi}=1 TeV"] = [[
-    #            "RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_",
-    #            ], kYellow, "tracks_chiCandGenMatchingDR<0.01"]
-    datasets_phase0["Signal (pooled T1qqqq, x10^{3})"] = [[
+    datasets_phase0["Signal, m_{Glu}=2.0 TeV, m_{#chi}=1.975 TeV"] = [[
                 "RunIISummer16MiniAODv3.SMS-T1qqqq",
-                ], kRed, "tracks_chiCandGenMatchingDR<0.01"]
-    datasets_phase0["Signal (pooled T2bt, x10^{3})"] = [[
-                "RunIISummer16MiniAODv3.SMS-T2bt",
-                ], kOrange, "tracks_chiCandGenMatchingDR<0.01"]
+                ], kRed, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2000 && signal_lsp_mass==1975"]
+    datasets_phase0["Signal, m_{Glu}=2.5 TeV, m_{#chi}=2.475 TeV"] = [[
+                "RunIISummer16MiniAODv3.SMS-T1qqqq",
+                ], kMagenta, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2500 && signal_lsp_mass==2475"]
+    datasets_phase0["Signal, m_{Glu}=2.8 TeV, m_{#chi}=2.775 TeV"] = [[
+                "RunIISummer16MiniAODv3.SMS-T1qqqq",
+                ], kOrange, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2800 && signal_lsp_mass==2775"]
                 
     datasets_phase1["Data"] = [[
                 "Run2017*SingleElectron",
@@ -722,44 +696,16 @@ if __name__ == "__main__":
                 "RunIIFall17MiniAODv2.WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8",
                 "RunIIFall17MiniAODv2.WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8_v2",
                 ], 62]
-    datasets_phase1["Signal (pooled T1qqqq, x10^{3})"] = [[
+    datasets_phase1["Signal, m_{Glu}=2.0 TeV, m_{#chi}=1.975 TeV"] = [[
                 "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
-                ], kRed, "tracks_chiCandGenMatchingDR<0.01"]
-    #datasets_phase1["Signal, m_{Glu}=2.0 TeV, m_{#chi}=1.975 TeV"] = [[
-    #            "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
-    #            ], kRed, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2000 && signal_lsp_mass==1975"]
-    #datasets_phase1["Signal, m_{Glu}=2.5 TeV, m_{#chi}=2.475 TeV"] = [[
-    #            "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
-    #            ], kOrange, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2500 && signal_lsp_mass==2475"]
-    #datasets_phase1["Signal, m_{Glu}=2.8 TeV, m_{#chi}=2.775 TeV"] = [[
-    #            "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
-    #            ], kYellow, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2800 && signal_lsp_mass==2775"]
-    #datasets_phase1["Signal, T1qqqq (c#tau=10cm)"] = [[
-    #            "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-10_TuneCP2_13TeV",
-    #            ], kRed, "tracks_chiCandGenMatchingDR<0.01"]
-    #datasets_phase1["Signal, T1qqqq (c#tau=50cm)"] = [[
-    #            "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-50_TuneCP2_13TeV",
-    #            ], kOrange, "tracks_chiCandGenMatchingDR<0.01"]
-    #datasets_phase1["Signal, T1qqqq (c#tau=200cm)"] = [[
-    #            "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV",
-    #            ], kYellow, "tracks_chiCandGenMatchingDR<0.01"]
-        
-    event_selections = {
-                  "Baseline":               "((n_goodelectrons==0 && n_goodmuons==0) || (tracks_invmass>110 && leadinglepton_mt>90))",
-                  "BaselineJetsNoLeptons":  "n_goodjets>=1 && n_goodleptons==0",
-                  "BaselineNoLeptons":      "n_goodleptons==0",
-                  "BaselineElectrons":      "n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                  "BaselineMuons":          "n_goodelectrons==0 && n_goodmuons>=1 && tracks_invmass>110 && leadinglepton_mt>90",
-                  "HadBaseline":            "HT>150 && MHT>150 && n_goodjets>=1 && n_goodleptons==0",
-                  "SMuBaseline":            "HT>150 && n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                  "SMuValidationZLL":       "n_goodjets>=1 && n_goodmuons>=1 && n_goodelectrons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
-                  "SElBaseline":            "HT>150 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>110 && leadinglepton_mt>90",
-                  "SElValidationZLL":       "n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons==0 && tracks_invmass>65 && tracks_invmass<110 && leadinglepton_mt>90",
-                  "SElValidationMT":        "n_goodjets>=1 && n_goodelectrons==1 && n_goodmuons==0 && leadinglepton_mt<70",
-                  "SMuValidationMT":        "n_goodjets>=1 && n_goodmuons==1 && n_goodelectrons==0 && leadinglepton_mt<70",
-                  "PromptDY":               "dilepton_leptontype==11 && dilepton_invmass>65 && dilepton_invmass<110",
-                      }
-                      
+                ], kRed, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2000 && signal_lsp_mass==1975"]
+    datasets_phase1["Signal, m_{Glu}=2.5 TeV, m_{#chi}=2.475 TeV"] = [[
+                "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
+                ], kOrange, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2500 && signal_lsp_mass==2475"]
+    datasets_phase1["Signal, m_{Glu}=2.8 TeV, m_{#chi}=2.775 TeV"] = [[
+                "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
+                ], kYellow, "tracks_chiCandGenMatchingDR<0.01 && signal_gluino_mass==2800 && signal_lsp_mass==2775"]
+                              
     wp_full = {
                   "short_phase0": "tracks_is_pixel_track==1 && tracks_mva_nov20_noEdep>0.1 && tracks_matchedCaloEnergy<15 ",
                   "short_phase1": "tracks_is_pixel_track==1 && tracks_mva_nov20_noEdep>0.12 && tracks_matchedCaloEnergy<15 ",
@@ -773,15 +719,11 @@ if __name__ == "__main__":
                   "long_phase0": "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_mva_nov20_noEdep>0.1 ",
                   "long_phase1":"tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_mva_nov20_noEdep>0.15 ",
          }
-         
-    if use_tighter_shortcuts:
-        wp["short_phase0"] += " && tracks_dxyVtx<0.005 && tracks_dzVtx<0.01" 
-        wp["long_phase0"] += " && tracks_dxyVtx<0.005 && tracks_dzVtx<0.01" 
-            
+                     
     variables = {
                   #"tracks_is_pixel_track": [2, 0, 2, "pixel-only track"],
                   #"tracks_trkRelIso": [[0, 0.005, 0.01, 0.015, 0.02, 0.2], 0, 0.2, "relative track isolation"],
-                  "tracks_dxyVtx": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "d_{xy} (cm)"],
+                  #"tracks_dxyVtx": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "d_{xy} (cm)"],
                   #"tracks_dzVtx": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "d_{z} (cm)"],
                   #"tracks_nMissingOuterHits": [20, 0, 20, "missing outer hits"],
                   #"tracks_nValidPixelHits": [10, 0, 10, "pixel hits"],
@@ -790,7 +732,7 @@ if __name__ == "__main__":
                   #"tracks_ptErrOverPt2": [[0, 0.005, 0.01, 0.015, 0.02, 0.1], 0, 0.1, "#Delta p_{T} / p_{T}^{2} (GeV^{-1})"],                  
                   #"tracks_deDxHarmonic2pixel": [20, 0, 10, "pixel dE/dx (MeV/cm)"],
                   #"tracks_matchedCaloEnergy": [20, 0, 50, "E_{dep} (GeV)"],
-                  "tracks_invmass": [15, 60, 120, "m_{lepton, track}^{inv} (GeV)"],
+                  #"tracks_invmass": [15, 60, 120, "m_{lepton, track}^{inv} (GeV)"],
                   #"tracks_matchedCaloEnergy/tracks_p": [40, 0, 2.0, "E_{dep}/p_{track}"],
                   #"abs(tracks_eta)": [50, 0, 2.5, "#eta"],
                   #"tracks_trackQualityHighPurity": [2, 0, 2, "high quality, high purity track"],
@@ -819,6 +761,10 @@ if __name__ == "__main__":
                   #"tracks_trkMiniRelIso"] = [50, 0, 0.2, "track miniIsolation"]
                   #"tracks_nMissingInnerHits"] = [20, 0, 20, "missing inner hits"]
                   #"tracks_nMissingMiddleHits"] = [20, 0, 20, "missing middle hits"]
+                  "tracks_nValidPixelHits": [20, 0, 20, "pixel hits"],
+                  "tracks_nValidTrackerHits": [20, 0, 20, "tracker hits"],
+                  "tracks_pixelLayersWithMeasurement": [20, 0, 20, "pixel layers"],
+                  "tracks_trackerLayersWithMeasurement": [20, 0, 20, "tracker layers"],
                  }    
 
     parameters = []
@@ -837,7 +783,7 @@ if __name__ == "__main__":
             labels = datasets_phase1
             signalscaling = 1e3
 
-        if before_preselection:
+        if plot_before_preselection:
 
             folder = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_82_merged"
 
@@ -860,16 +806,7 @@ if __name__ == "__main__":
             ymin = 1e0
             ymax = 1e8
             
-            #datasets_phase0["Data (WP)"] = [[
-            #            "Run2016*SingleElectron"
-            #            ], kMagenta, wp["short_phase%s" % phase]]
-            #datasets_phase0["Backgrounds (WP)"] = [datasets_phase0["WJetsToLNu"][0] + datasets_phase0["DYJetsToLL"][0] + datasets_phase0["TTJets"][0] + datasets_phase0["Diboson"][0], kMagenta, wp["short_phase%s" % phase]]
-            #datasets_phase0["Signal (pooled T1qqqq, x10^{3}, after BDT)"] = [[
-            #            "RunIISummer16MiniAODv3.SMS-T1qqqq",
-            #            ], kRed, "tracks_chiCandGenMatchingDR<0.01 && " + wp["short_phase%s" % phase]]
-            #datasets_phase0["Signal (pooled T2bt, x10^{3}, after BDT)"] = [[
-            #            "RunIISummer16MiniAODv3.SMS-T2bt",
-            #            ], kOrange, "tracks_chiCandGenMatchingDR<0.01 && " + wp["short_phase%s" % phase]]
+            #tracks_pt>25 && tracks_is_pixel_track==1 && abs(tracks_dxyVtx)<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999
             
             for variable in variables:
                 parameters.append((variable, "tracks_is_pixel_track==1 && tracks_pt>25" , "%s/input_short_p%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, False, lumi, ymin, ymax))        
@@ -884,7 +821,7 @@ if __name__ == "__main__":
                 parameters.append((variable, "tracks_is_pixel_track==1 && tracks_pt>15 && " + wp_full["short_phase%s" % phase] , "%s/output_short_p%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, False, lumi, ymin, ymax))        
                 parameters.append((variable, "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2 && " + wp_full["long_phase%s" % phase] , "%s/output_long_p%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, False, lumi, ymin, ymax))        
                         
-        if dy_control_region:
+        if plot_dy_control_region:
 
             if bdt_efficiency:
                 ymin = 1e-4
@@ -900,9 +837,7 @@ if __name__ == "__main__":
             basecuts = "tracks_trackQualityHighPurity==1 && tracks_passPFCandVeto==1 && abs(tracks_eta)<2.0 && tracks_ptErrOverPt2<10.0 && abs(tracks_dzVtx)<0.1 && tracks_trkRelIso<0.2 && tracks_trackerLayersWithMeasurement>=2 && tracks_nValidTrackerHits>=2 && tracks_nMissingInnerHits==0 && tracks_nValidPixelHits>=2 "
             DYregion = "n_goodelectrons>=1 && tracks_invmass>65 && tracks_invmass<110"
             vetoes = "&& tracks_passpionveto==1 && tracks_passjetveto==1 && tracks_passleptonveto==1"
-            #vetoes = " && tracks_passpionveto==1 "
-            if use_vetoes:
-                DYregion += vetoes
+            DYregion += vetoes
             
             for variable in variables:
                 
@@ -931,8 +866,6 @@ if __name__ == "__main__":
                                 "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq",
                                 ], kRed, "tracks_chiCandGenMatchingDR<0.01 && " + wp["short_phase%s" % phase]]
 
-                ##parameters.append((variable, [DYregion + " && tracks_is_pixel_track==1 && tracks_pt>25", "tracks_is_pixel_track==1 && tracks_pt>25"], "%s/dycr-short-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, True, lumi, ymin, ymax))
-                #parameters.append((variable, [DYregion + " && tracks_is_pixel_track==1 && tracks_pt>25", "tracks_is_pixel_track==1 && tracks_pt>25"], "%s/dycrLin-short-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, True, True, lumi, ymin_lin, 10000))
                 parameters.append((variable, [DYregion + " && tracks_is_pixel_track==1 && tracks_pt>25", "tracks_is_pixel_track==1 && tracks_pt>25"], "%s/dycrLinNorm-short-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, True, True, True, lumi, ymin_lin, ymax_lin))
                                     
                 datasets_phase0["Data (WP)"] = [[
@@ -957,11 +890,9 @@ if __name__ == "__main__":
                 if use_allMC:
                     datasets_phase0["Backgrounds (WP)"] = [datasets_phase0["WJetsToLNu"][0] + datasets_phase0["DYJetsToLL"][0] + datasets_phase0["TTJets"][0] + datasets_phase0["Diboson"][0] + datasets_phase0["QCD"][0] + datasets_phase0["ZJets"][0], kMagenta, wp["long_phase%s" % phase]]
                 
-                #parameters.append((variable, [DYregion + " && tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2", "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2"], "%s/dycr-long-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, True, lumi, ymin, ymax))
-                #parameters.append((variable, [DYregion + " && tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2", "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2"], "%s/dycrLin-long-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, True, True, lumi, ymin_lin, 10000))
                 parameters.append((variable, [DYregion + " && tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2", "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2"], "%s/dycrLinNorm-long-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, True, True, True, lumi, ymin_lin, ymax_lin))
         
-        if lowmht_control_region:
+        if plot_lowmht_control_region:
 
             if bdt_efficiency:
                 ymin = 1e-4
@@ -997,7 +928,6 @@ if __name__ == "__main__":
                             "RunIISummer16MiniAODv3.SMS-T2bt",
                             ], kOrange, "tracks_chiCandGenMatchingDR<0.01 && " + wp["short_phase%s" % phase]]
                 parameters.append((variable, [LowMHTregion + " && tracks_is_pixel_track==1 && tracks_pt>25", "tracks_is_pixel_track==1 && tracks_pt>25"], "%s/lowmht-short-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, True, lumi, ymin, ymax))
-                #parameters.append((variable, [LowMHTregion + " && tracks_is_pixel_track==1 && tracks_pt>25", "tracks_is_pixel_track==1 && tracks_pt>25"], "%s/lowmhtLin-short-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, True, True, lumi, ymin_lin, 10000))
                 parameters.append((variable, [LowMHTregion + " && tracks_is_pixel_track==1 && tracks_pt>25", "tracks_is_pixel_track==1 && tracks_pt>25"], "%s/lowmhtLinNorm-short-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, True, True, True, lumi, ymin_lin, ymax_lin))
                                        
                 datasets_phase0["Data (WP)"] = [[
@@ -1015,9 +945,6 @@ if __name__ == "__main__":
                 parameters.append((variable, [LowMHTregion + " && tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2", "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2"], "%s/lowmht-long-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, False, True, lumi, ymin, ymax))
                 #parameters.append((variable, [LowMHTregion + " && tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2", "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2"], "%s/lowmhtLin-long-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, False, True, True, lumi, ymin_lin, 10000))
                 parameters.append((variable, [LowMHTregion + " && tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2", "tracks_is_pixel_track==0 && tracks_pt>40 && tracks_nMissingOuterHits>=2"], "%s/lowmhtLinNorm-long-phase%s" % (plotfolder, phase), folder, copy.deepcopy(labels), copy.deepcopy(variables[variable]), signalscaling, True, True, True, lumi, ymin_lin, ymax_lin))
-                  
-                                    
-    #parameters = [parameters[0]]
                                     
     print "Plotting %s plots..." % len(parameters)
     pool = multiprocessing.Pool(int(multiprocessing.cpu_count()))
