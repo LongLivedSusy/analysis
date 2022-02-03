@@ -14,12 +14,12 @@ binnings = {
             #"n_goodjets":                            [ 10, 0, 10, "number of jets"],
             "MHT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
             #"HT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "H_{T} (GeV)"],
-            "leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "electron p_{T} (GeV)"],
-            "leadingelectron_pt:MHT":                 [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); electron p_{T} (GeV)"],            
-            "leadingmuon_pt":                         [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "muon p_{T} (GeV)"],
-            "leadingmuon_pt:MHT":                     [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); muon p_{T} (GeV)"],            
-            "leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{lep} (GeV)"],
-            "leadinglepton_pt:MHT":                   [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],            
+            "leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
+            "leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
+            "leadingmuon_pt":                         [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
+            "leadinglepton_pt:MHT":                   [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            "leadingelectron_pt:MHT":                 [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            "leadingmuon_pt:MHT":                     [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
             #"leadinglepton_eta:leadinglepton_phi":   [ 20, -3.2, 3.2, "phi; eta" ],
            }
 
@@ -89,12 +89,19 @@ def stamp_cuts(cuts_channel, channel, variable, use_or_trigger, denom_label, ext
 
 def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, skim_folder, use_or_trigger = True):
    
+    if channel == "SEl" and "leadingmuon" in variable:
+        return
+    if channel == "SMu" and "leadingelectron" in variable:
+        return
+    
     numevents = -1
     
     pdffile = "%s/triggereff_%s_%s.pdf" % (outputfolder, folderlabel, variable.replace(":", "-"))
     
-    histos = {}        
-    
+    histos = {}      
+      
+    # select/unselect specific run period:
+    period = ""
 
     for year in [
                 2016,
@@ -103,18 +110,18 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 ]:
 
         if channel == "MHT":
-            glob_mht_num =   "Run%s*SingleElectron*.root" % year
-            glob_mht_denom = "Run%s*SingleElectron*.root" % year
+            glob_mht_num =   "Run%s%s*SingleElectron*.root" % (year, period)
+            glob_mht_denom = "Run%s%s*SingleElectron*.root" % (year, period)
             denom = "triggered_singleelectron==1"
             denom_label = "el trigger"
             extra_label = "num.: JetHT, denom.: SingleMu"
 
         # switches
         if "useswitchdenom" in folderlabel:
-            glob_sel_num =   "Run%s*SingleMuon*.root" % year
-            glob_sel_denom = "Run%s*SingleMuon*.root" % year
-            glob_smu_num =   "Run%s*SingleElectron*.root" % year
-            glob_smu_denom = "Run%s*SingleElectron*.root" % year
+            glob_sel_num =   "Run%s%s*SingleMuon*.root" % (year, period)
+            glob_sel_denom = "Run%s%s*SingleMuon*.root" % (year, period)
+            glob_smu_num =   "Run%s%s*SingleElectron*.root" % (year, period)
+            glob_smu_denom = "Run%s%s*SingleElectron*.root" % (year, period)
             if channel == "SEl":
                 denom = "triggered_singlemuon==1"
                 denom_label = "mu trigger"
@@ -125,10 +132,10 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 extra_label = "SingleElectron dataset"
 
         elif "usejethtother" in folderlabel:
-            glob_sel_num =   "Run%s*JetHT*.root" % year
-            glob_sel_denom = "Run%s*SingleMuon*.root" % year
-            glob_smu_num =   "Run%s*JetHT*.root" % year
-            glob_smu_denom = "Run%s*SingleElectron*.root" % year
+            glob_sel_num =   "Run%s%s*JetHT*.root" % (year, period)
+            glob_sel_denom = "Run%s%s*SingleMuon*.root" % (year, period)
+            glob_smu_num =   "Run%s%s*JetHT*.root" % (year, period)
+            glob_smu_denom = "Run%s%s*SingleElectron*.root" % (year, period)
             if channel == "SEl":
                 denom = "triggered_singlemuon==1"
                 denom_label = "mu trigger"
@@ -139,28 +146,25 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 extra_label = "num.: JetHT, denom.: SingleEl"
 
         elif "usejetht" in folderlabel:
-            glob_sel_num =   "Run%s*JetHT*.root" % year
-            glob_sel_denom = "Run%s*JetHT*.root" % year
-            glob_smu_num =   "Run%s*JetHT*.root" % year
-            glob_smu_denom = "Run%s*JetHT*.root" % year
+            glob_sel_num =   "Run%s%s*JetHT*.root" % (year, period)
+            glob_sel_denom = "Run%s%s*JetHT*.root" % (year, period)
+            glob_smu_num =   "Run%s%s*JetHT*.root" % (year, period)
+            glob_smu_denom = "Run%s%s*JetHT*.root" % (year, period)
             denom = "triggered_ht==1"
             denom_label = "HT trigger"
             extra_label = "JetHT dataset"
 
         else:
-            glob_sel_num =   "Run%s*MET*.root" % year
-            glob_sel_denom = "Run%s*MET*.root" % year
-            glob_smu_num =   "Run%s*MET*.root" % year
-            glob_smu_denom = "Run%s*MET*.root" % year
+            glob_sel_num =   "Run%s%s*MET*.root" % (year, period)
+            glob_sel_denom = "Run%s%s*MET*.root" % (year, period)
+            glob_smu_num =   "Run%s%s*MET*.root" % (year, period)
+            glob_smu_denom = "Run%s%s*MET*.root" % (year, period)
             denom = "triggered_met==1"
             denom_label = "MHT trigger"
             extra_label = "MET dataset"
             use_or_trigger = False
-
-        print "glob_sel_num, glob_sel_denom", str(glob_sel_num), str(glob_sel_denom)
-        print "glob_smu_num, glob_smu_denom", str(glob_smu_num), str(glob_sel_denom)
                     
-        if variable == "leadinglepton_eta:leadinglepton_phi":
+        if ":" in variable:
             nMinus1 = False
         else:
             nMinus1 = True
@@ -339,10 +343,10 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
     c1.SetGrid(True)
     
     c1.SaveAs(pdffile)
-    #savetoroot(h_effs["eff_2016"], "h_triggereff_%s_%s_2016" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
-    #savetoroot(h_effs["eff_2017"], "h_triggereff_%s_%s_2017" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
-    #savetoroot(h_effs["eff_2018"], "h_triggereff_%s_%s_2018" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
-    #savetoroot(c1, "c_triggereff_%s_%s" % (folderlabel, variable.replace(":", "-")), outputfolder, folderlabel)
+    savetoroot(h_effs["eff_2016"], "h_triggereff_%s_%s_2016" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
+    savetoroot(h_effs["eff_2017"], "h_triggereff_%s_%s_2017" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
+    savetoroot(h_effs["eff_2018"], "h_triggereff_%s_%s_2018" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
+    savetoroot(c1, "c_triggereff_%s_%s" % (folderlabel, variable.replace(":", "-")), outputfolder, folderlabel)
 
 
 if __name__ == "__main__":
@@ -354,8 +358,7 @@ if __name__ == "__main__":
     parser.add_option("--label", dest = "label", default = "trigger")
     parser.add_option("--cuts", dest = "cuts", default = "0")
     parser.add_option("--runmode", dest = "runmode", default = "multi")
-    parser.add_option("--skim", dest = "skim_folder", default = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_126_leadingtrigger_merged/")
-    #parser.add_option("--skim", dest = "skim_folder", default = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_125_singleleptontrigger/")
+    parser.add_option("--skim", dest = "skim_folder", default = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_126_leadingtrigger_merged2/")
     (options, args) = parser.parse_args()
 
     if not options.channel:
@@ -363,62 +366,60 @@ if __name__ == "__main__":
         cmds = []
                     
         cuts_mht = {
-                #"mht-baseline":                  "HT>150 && MHT>150 && n_goodjets>=1 && ",
-                #"mht-baseline-fullcuts":       "n_goodelectrons==0 && n_goodmuons==0 && HT>150 && MHT>150 && n_goodjets>=1 && ",
-                #"mht-baseline-fullcuts300":       "n_goodelectrons==0 && n_goodmuons==0 && HT>300 && MHT>150 && n_goodjets>=1 && ",
+                #"mht-baseline":                          "HT>150 && MHT>150 && n_goodjets>=1 && ",
+                #"mht-baseline-fullcuts":                 "n_goodelectrons==0 && n_goodmuons==0 && HT>150 && MHT>150 && n_goodjets>=1 && ",
+                #"mht-baseline-fullcuts300":              "n_goodelectrons==0 && n_goodmuons==0 && HT>300 && MHT>150 && n_goodjets>=1 && ",
                    }
 
         cuts_sel = {
-                #"usejetht-sel-mht30":                     "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
-                #"useswitchdenom-sel-mht30":               "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                #"useswitchdenom-sel-mht30":               "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
-                #"useswitchdenom-sel-mht30":               "HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"useswitchdenom-sel-mincuts":              "leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                "useswitchdenom-sel-mincuts":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_id==11 && ",
+                #"usejetht-sel-mht30":                    "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
+                #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
+                #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
+                #"useswitchdenom-sel-mincuts":            "leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                "useswitchdenom-sel":                     "HT>30 && MHT>30 && n_goodjets>=1 && leadingelectron_pt>40 && n_goodmuons>=1 && ",
                 #"usejetht-sel-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-sel-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
-                #"useswitchdenom-normalizeDenom-sel-baseline":        "HT>30 && MHT>300 && n_goodjets>=1 && ",
-                #"usemet-sel-baseline":                  "HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"sel-mht50":                  "HT>30 && MHT>30 && MHT<50 && n_goodjets>=1 && ",
-                #"sel-baseline-fullcuts":      "n_goodelectrons==1 && n_goodmuons==0 && HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"sel-baseline-fullcuts300":      "n_goodelectrons==1 && n_goodmuons==0 && HT>300 && MHT>30 && n_goodjets>=1 && ",
+                #"usemet-sel-baseline":                   "HT>30 && MHT>30 && n_goodjets>=1 && ",
+                #"sel-mht50":                             "HT>30 && MHT>30 && MHT<50 && n_goodjets>=1 && ",
+                #"sel-baseline-fullcuts":                 "n_goodelectrons==1 && n_goodmuons==0 && HT>30 && MHT>30 && n_goodjets>=1 && ",
+                #"sel-baseline-fullcuts300":              "n_goodelectrons==1 && n_goodmuons==0 && HT>300 && MHT>30 && n_goodjets>=1 && ",
                    }
         
         cuts_smu = {
-                #"usejetht-smu-mht30":                     "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
-                #"useswitchdenom-smu-mht30":               "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                #"useswitchdenom-smu-mht30":               "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
-                #"useswitchdenom-smu-mht30":               "HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"useswitchdenom-smu-mincuts":              "leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                "useswitchdenom-smu-mincuts":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_id==13 && ",
+                #"usejetht-smu-mht30":                    "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
+                #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
+                #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
+                #"useswitchdenom-smu-mincuts":            "leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                "useswitchdenom-smu":                     "HT>30 && MHT>30 && n_goodjets>=1 && leadingmuon_pt>40 && n_goodelectrons>=1 && ",
                 #"usejetht-smu-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-smu-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
-                #"useswitchdenom-normalizeDenom-smu-baseline":            "HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"usemet-smu-baseline":                  "HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"smu-mht50":              "HT>30 && MHT>30 && MHT<50 && n_goodjets>=1 && ",
-                #"smu-baseline-fullcuts":      "n_goodmuons==1 && n_goodelectrons==0 && HT>30 && MHT>30 && n_goodjets>=1 && ",
-                #"smu-baseline-fullcuts300":      "n_goodmuons==1 && n_goodelectrons==0 && HT>300 && MHT>30 && n_goodjets>=1 && ",
+                #"usemet-smu-baseline":                   "HT>30 && MHT>30 && n_goodjets>=1 && ",
+                #"smu-mht50":                             "HT>30 && MHT>30 && MHT<50 && n_goodjets>=1 && ",
+                #"smu-baseline-fullcuts":                 "n_goodmuons==1 && n_goodelectrons==0 && HT>30 && MHT>30 && n_goodjets>=1 && ",
+                #"smu-baseline-fullcuts300":              "n_goodmuons==1 && n_goodelectrons==0 && HT>300 && MHT>30 && n_goodjets>=1 && ",
                    }
         
 
         for label in cuts_sel:
             channel = "SEl"
             for j_variable in binnings.keys():
-                cmds.append("./plot-trigger-efficiency-from-skim-jetht-otherdenom.py --channel %s --variable %s --outputfolder %s --label %s --cuts '%s' --skim %s " % (channel, j_variable, options.outputfolder, label, cuts_sel[label], options.skim_folder))
+                cmds.append("./plot-trigger-efficiency-from-skim.py --channel %s --variable %s --outputfolder %s --label %s --cuts '%s' --skim %s " % (channel, j_variable, options.outputfolder, label, cuts_sel[label], options.skim_folder))
         
         for label in cuts_smu:
             channel = "SMu"
             for j_variable in binnings.keys():
-                cmds.append("./plot-trigger-efficiency-from-skim-jetht-otherdenom.py --channel %s --variable %s --outputfolder %s --label %s --cuts '%s' --skim %s " % (channel, j_variable, options.outputfolder, label, cuts_smu[label], options.skim_folder))
+                cmds.append("./plot-trigger-efficiency-from-skim.py --channel %s --variable %s --outputfolder %s --label %s --cuts '%s' --skim %s " % (channel, j_variable, options.outputfolder, label, cuts_smu[label], options.skim_folder))
 
         for label in cuts_mht:
             channel = "MHT"
             for j_variable in binnings.keys():
-                cmds.append("./plot-trigger-efficiency-from-skim-jetht-otherdenom.py --channel %s --variable %s --outputfolder %s --label %s --cuts '%s' --skim %s " % (channel, j_variable, options.outputfolder, label, cuts_mht[label], options.skim_folder))
+                cmds.append("./plot-trigger-efficiency-from-skim.py --channel %s --variable %s --outputfolder %s --label %s --cuts '%s' --skim %s " % (channel, j_variable, options.outputfolder, label, cuts_mht[label], options.skim_folder))
 
-        GridEngineTools.runParallel(cmds, options.runmode, condorDir=options.outputfolder + ".condor")
+        GridEngineTools.runParallel(cmds, options.runmode, ncores_percentage=0.9, condorDir=options.outputfolder + ".condor")
 
     else:
         os.system("mkdir -p %s" % options.outputfolder)
