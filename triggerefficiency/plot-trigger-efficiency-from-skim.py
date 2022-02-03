@@ -358,7 +358,7 @@ if __name__ == "__main__":
     parser.add_option("--label", dest = "label", default = "trigger")
     parser.add_option("--cuts", dest = "cuts", default = "0")
     parser.add_option("--runmode", dest = "runmode", default = "multi")
-    parser.add_option("--skim", dest = "skim_folder", default = "/nfs/dust/cms/user/kutznerv/shorttrack/analysis/ntupleanalyzer/skim_126_leadingtrigger_merged2/")
+    parser.add_option("--skim", dest = "skim_folder", default = "../ntupleanalyzer/skim_126_leadingtrigger_merged2/")
     (options, args) = parser.parse_args()
 
     if not options.channel:
@@ -377,7 +377,7 @@ if __name__ == "__main__":
                 #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
                 #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mincuts":            "leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                "useswitchdenom-sel":                     "HT>30 && MHT>30 && n_goodjets>=1 && leadingelectron_pt>40 && n_goodmuons>=1 && ",
+                "useswitchdenom-sel":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
                 #"usejetht-sel-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-sel-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
@@ -393,7 +393,7 @@ if __name__ == "__main__":
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mincuts":            "leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                "useswitchdenom-smu":                     "HT>30 && MHT>30 && n_goodjets>=1 && leadingmuon_pt>40 && n_goodelectrons>=1 && ",
+                "useswitchdenom-smu":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
                 #"usejetht-smu-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-smu-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
