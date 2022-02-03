@@ -12,12 +12,12 @@ from optparse import OptionParser
  
 binnings = {
             #"n_goodjets":                            [ 10, 0, 10, "number of jets"],
-            "MHT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
+            #"MHT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
             #"HT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "H_{T} (GeV)"],
-            "leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
-            "leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
-            "leadingmuon_pt":                         [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
-            "leadinglepton_pt:MHT":                   [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            #"leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
+            #"leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
+            #"leadingmuon_pt":                         [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
+            #"leadinglepton_pt:MHT":                   [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
             "leadingelectron_pt:MHT":                 [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
             "leadingmuon_pt:MHT":                     [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
             #"leadinglepton_eta:leadinglepton_phi":   [ 20, -3.2, 3.2, "phi; eta" ],
@@ -308,12 +308,15 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
             h_effs["eff_%s" % year].Draw("colz text e same")
 
             stamp_cuts(cuts_channel, channel, variable, use_or_trigger, denom_label, extra_label)
-            #shared_utils.stamp()
+            shared_utils.stamp()
             c1.SaveAs(pdffile.replace(".pdf", "_%s.pdf" % year))
-            #savetoroot(c1, "c_triggereff_%s_%s_%s" % (channel, variable.replace(":", "-"), year), outputfolder, folderlabel)
-            #savetoroot(h_effs["eff_%s" % year], "h_triggereff_%s_%s_%s" % (channel, variable.replace(":", "-"), year), outputfolder, folderlabel)
+            savetoroot(c1, "c_triggereff_%s_%s_%s" % (channel, variable.replace(":", "-"), year), outputfolder, folderlabel)
+            savetoroot(h_effs["eff_%s" % year], "h_triggereff_%s_%s_%s" % (channel, variable.replace(":", "-"), year), outputfolder, folderlabel)
            
-            return 0
+            continue
+
+    if ":" in variable:
+        return 0
 
     h_effs["eff_2016"].SetFillColorAlpha(0, 0)    
     h_effs["eff_2017"].SetFillColorAlpha(0, 0)    
