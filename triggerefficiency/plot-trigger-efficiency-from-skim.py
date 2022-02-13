@@ -11,15 +11,15 @@ from array import array
 from optparse import OptionParser
  
 binnings = {
-            #"n_goodjets":                            [ 10, 0, 10, "number of jets"],
-            #"MHT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
+            "n_goodjets":                             [ 10, 0, 10, "number of jets"],
+            "MHT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
             #"HT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "H_{T} (GeV)"],
-            #"leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
-            #"leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
-            #"leadingmuon_pt":                         [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
-            #"leadinglepton_pt:MHT":                   [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
-            "leadingelectron_pt:MHT":                 [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
-            "leadingmuon_pt:MHT":                     [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            "leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
+            "leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
+            #"leadingmuon_pt":                        [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
+            #"leadinglepton_pt:MHT":                  [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            #"leadingelectron_pt:MHT":                [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            #"leadingmuon_pt:MHT":                    [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
             #"leadinglepton_eta:leadinglepton_phi":   [ 20, -3.2, 3.2, "phi; eta" ],
            }
 
@@ -109,13 +109,6 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 2018,
                 ]:
 
-        if channel == "MHT":
-            glob_mht_num =   "Run%s%s*SingleElectron*.root" % (year, period)
-            glob_mht_denom = "Run%s%s*SingleElectron*.root" % (year, period)
-            denom = "triggered_singleelectron==1"
-            denom_label = "el trigger"
-            extra_label = "num.: JetHT, denom.: SingleMu"
-
         # switches
         if "useswitchdenom" in folderlabel:
             glob_sel_num =   "Run%s%s*SingleMuon*.root" % (year, period)
@@ -164,6 +157,13 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
             extra_label = "MET dataset"
             use_or_trigger = False
                     
+        if channel == "MHT":
+            glob_mht_num =   "Run%s%s*SingleElectron*.root" % (year, period)
+            glob_mht_denom = "Run%s%s*SingleElectron*.root" % (year, period)
+            denom = "triggered_singleelectron==1"
+            denom_label = "el. trigger"
+            extra_label = "SingleElectron dataset"   
+        
         if ":" in variable:
             nMinus1 = False
         else:
@@ -361,7 +361,7 @@ if __name__ == "__main__":
     parser.add_option("--label", dest = "label", default = "trigger")
     parser.add_option("--cuts", dest = "cuts", default = "0")
     parser.add_option("--runmode", dest = "runmode", default = "multi")
-    parser.add_option("--skim", dest = "skim_folder", default = "../ntupleanalyzer/skim_126_leadingtrigger_merged2/")
+    parser.add_option("--skim", dest = "skim_folder", default = "../ntupleanalyzer/skim_126_leadingtrigger_merged/")
     (options, args) = parser.parse_args()
 
     if not options.channel:
@@ -369,7 +369,7 @@ if __name__ == "__main__":
         cmds = []
                     
         cuts_mht = {
-                #"mht-baseline":                          "HT>150 && MHT>150 && n_goodjets>=1 && ",
+                "mht-baseline":                           "HT>150 && MHT>150 && n_goodjets>=1 && ",
                 #"mht-baseline-fullcuts":                 "n_goodelectrons==0 && n_goodmuons==0 && HT>150 && MHT>150 && n_goodjets>=1 && ",
                 #"mht-baseline-fullcuts300":              "n_goodelectrons==0 && n_goodmuons==0 && HT>300 && MHT>150 && n_goodjets>=1 && ",
                    }
@@ -380,7 +380,7 @@ if __name__ == "__main__":
                 #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
                 #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mincuts":            "leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                "useswitchdenom-sel":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                #"useswitchdenom-sel":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
                 #"usejetht-sel-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-sel-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
@@ -396,7 +396,7 @@ if __name__ == "__main__":
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mincuts":            "leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                "useswitchdenom-smu":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                #"useswitchdenom-smu":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
                 #"usejetht-smu-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-smu-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
