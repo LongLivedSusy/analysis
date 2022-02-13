@@ -9,13 +9,14 @@ import GridEngineTools
 import math
 import shared_utils
 import collections
+import numpy as np
 
 parser = OptionParser()
 parser.add_option("--inputfile", dest = "inputfile", default = "")
 parser.add_option("--outputfile", dest = "outputfile")
 parser.add_option("--mode", dest="mode")
-parser.add_option("--outputfolder", dest="outputfolder", default = "ddbg_64_test")
-parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_86_newbdts3_merged")
+parser.add_option("--outputfolder", dest="outputfolder", default = "ddbg_400")
+parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_120_full_merged")
 parser.add_option("--nev", dest = "nev", default = -1)
 parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 10)
 parser.add_option("--files_per_job", dest = "files_per_job", default = 1)
@@ -97,7 +98,7 @@ binnings["fakerate"]["tracks_eta"] = [12, -3, 3]
 binnings["fakerate"]["tracks_phi"] = [16, -4, 4]
 binnings["fakerate"]["HT:n_allvertices"] = [3, 0, 2000, 3, 0, 50]
 binnings["kappa"] = {}
-binnings["kappa"]["tracks_pt"] = ["variable", 0, 5, 10, 15, 20, 30, 40, 70, 300]
+binnings["kappa"]["tracks_pt"] = ["variable", 0, 40, 60, 300]
 binnings["trackvars"] = {}
 binnings["trackvars"]["tracks_dxyVtx"] = [25, 0, 0.1]
 binnings["trackvars"]["tracks_trkRelIso"] = [40, 0, 0.2]
@@ -175,7 +176,7 @@ variables["trackvars"] = [
                           "tracks_matchedCaloEnergy",
                           "tracks_invmass",
                           "n_tags",
-                     ]                     
+                         ]                     
                      
 categories = [
                           "short",
@@ -221,9 +222,11 @@ event_selections["trackvars"]["DYMuSingle"] =            "event.n_goodmuons>=1 a
 ######### region definitons #########
 
 # some common cuts, baseline selection already applied in event/track selection:
-vetoes = " and event.tracks_passpionveto[i_track]==1 and event.tracks_passjetveto[i_track]==1 and event.tracks_passleptonveto[i_track]==1"
-baselineShort = "event.tracks_is_pixel_track[i_track]==1 and abs(event.tracks_eta[i_track])<2.0" + vetoes
-baselineLong = "event.tracks_is_pixel_track[i_track]==0 and event.tracks_nMissingOuterHits>=2 and abs(event.tracks_eta[i_track])<2.0" + vetoes
+#vetoes = " and event.tracks_passpionveto[i_track]==1 and event.tracks_passjetveto[i_track]==1 and event.tracks_passleptonveto[i_track]==1"
+#baselineShort = "event.tracks_is_pixel_track[i_track]==1 and abs(event.tracks_eta[i_track])<2.0" + vetoes
+#baselineLong = "event.tracks_is_pixel_track[i_track]==0 and event.tracks_nMissingOuterHits>=2 and abs(event.tracks_eta[i_track])<2.0" + vetoes
+baselineShort = "event.tracks_is_pixel_track[i_track]==1 "
+baselineLong = "event.tracks_is_pixel_track[i_track]==0 "
 
 
 if phase == 0:
@@ -344,9 +347,11 @@ samples["trackvars"] = {
             #"Run2016JetHT": ["Run2016*JetHT*root"],
           }
 samples["mcplots"] = {
-            "Summer16": mc_summer16,
-            "T1qqqq16": ["RunIISummer16MiniAODv3.SMS-T1qqqq*root"],
-            "T2bt16": ["RunIISummer16MiniAODv3.SMS-T2bt*root"],
+            #"Summer16": mc_summer16,
+            #"T1qqqq16": ["RunIISummer16MiniAODv3.SMS-T1qqqq*root"],
+            #"T2bt16": ["RunIISummer16MiniAODv3.SMS-T2bt*root"],
+            "PMSSM17": ["RunIIFall17FS.PMSSM*root"],
+            "PMSSM18": ["RunIIFall18FS.PMSSM*root"],
           }
 
 signal_cuts = {
@@ -498,15 +503,19 @@ def spawn_jobs(options):
         outputfolder_kappa = options.outputfolder + "_kappa"
         rootfile = options.outputfolder + "/fakeratekappa.root"
         
-        #if os.path.exists(rootfile): os.system("rm " + rootfile)
-        #cmds_fakerate = submit_files("fakerate", outputfolder_fakerate, options, submit = False)
-        #cmds_kappa = submit_files("kappa", outputfolder_kappa, options, submit = False)
-        #GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
+        if os.path.exists(rootfile): os.system("rm " + rootfile)
+        cmds_fakerate = submit_files("fakerate", outputfolder_fakerate, options, submit = False)
+        cmds_kappa = submit_files("kappa", outputfolder_kappa, options, submit = False)
+
+        print cmds_fakerate[0]
+        raw_input()
+
+        GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
         
         #hadd_everything(samples["fakerate"], outputfolder_fakerate)
-        calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakeSideband", "fakerate")
+        #calculate_ratio("fakerate", rootfile, outputfolder_fakerate, "sr", "fakeSideband", "fakerate")
         #hadd_everything(samples["kappa"], outputfolder_kappa)
-        calculate_ratio("kappa", rootfile, outputfolder_kappa, "sr", "promptSideband", "kappa")
+        #calculate_ratio("kappa", rootfile, outputfolder_kappa, "sr", "promptSideband", "kappa")
         #os.system("./plot_fakerate.py %s &" % options.outputfolder)
         
         #submit_files("analysis", options.outputfolder, options)
@@ -639,6 +648,11 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
         extracuts = {
                       "": "",
                     }
+
+    if "PMSSM" in input_filenames[0]:
+        is_pmssm = True
+    else:
+        is_pmssm = False
         
     for extracut_label in extracuts:
 
@@ -728,6 +742,23 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
             
             tfile_factors.Close()
             
+        # implement THnSparse:
+        if is_pmssm:
+            pMSSMid1_max = 600
+            pMSSMid1_low = 0.5
+            pMSSMid1_up = pMSSMid1_max + 0.5
+            pMSSMid2_max = 144855
+            pMSSMid2_low = 0.5
+            pMSSMid2_up = pMSSMid2_max + 0.5
+            sr_max = 50
+            sr_low = 0.5
+            sr_up = sr_max + 0.5
+            
+            bins = np.intc([pMSSMid1_max, pMSSMid2_max, sr_max])
+            low = np.float64([pMSSMid1_low, pMSSMid2_low, sr_low])
+            high = np.float64([pMSSMid1_up, pMSSMid2_up, sr_up])
+            hnsparse = THnSparseS("disappearingtracks", "disappearingtracks", 3, bins, low, high)
+
         # main event loop:
         nev_tree = tree.GetEntries()
         print "nev_tree", nev_tree
@@ -826,6 +857,14 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
                                     kappa = getBinContent_with_overflow(tfactors["kappa_tracks_pt_long"], event.tracks_pt[i_track])
                                 kappas.append(kappa)
                                 
+                            # fill THnSparse:
+                            if is_pmssm:
+                                signal_region = 1            
+                                pMSSMid1 = event.SusyMotherMass
+                                pMSSMid2 = event.SusyLSPMass
+                                coordinates = np.float64([pMSSMid1, pMSSMid2, signal_region])
+                                hnsparse.Fill(coordinates, weight)
+
                             if "Single" in event_selection:
                                 # look at only one selected track per event
                                 continue
@@ -865,8 +904,8 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
                                             scaling = fakerates["fakerate_%s_long" % fakevariable]
                                         break
         
-                                #if n_tags > 1:
-                                #    scaling = fakerate_short * fakerate_long
+                                if n_tags > 1:
+                                    scaling = fakerate_short * fakerate_long
         
                             #elif mode == "analysis" and "promptpredictionsubtracted" in region:
                             #    scaling = kappas[i]
@@ -914,6 +953,10 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
         fout = TFile(this_output_file, "recreate")
         for h_name in histograms:
             histograms[h_name].Write()
+
+        if is_pmssm:
+            hnsparse.Write()
+
         fout.Close()
 
 
