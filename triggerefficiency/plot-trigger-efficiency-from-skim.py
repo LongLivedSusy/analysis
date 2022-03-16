@@ -9,18 +9,18 @@ import shared_utils
 import glob
 from array import array
 from optparse import OptionParser
- 
+
 binnings = {
-            "n_goodjets":                             [ 10, 0, 10, "number of jets"],
-            "MHT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
-            #"HT":                                    [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "H_{T} (GeV)"],
-            "leadinglepton_pt":                       [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
-            "leadingelectron_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
-            #"leadingmuon_pt":                        [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
-            #"leadinglepton_pt:MHT":                  [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
-            #"leadingelectron_pt:MHT":                [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
-            #"leadingmuon_pt:MHT":                    [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
-            #"leadinglepton_eta:leadinglepton_phi":   [ 20, -3.2, 3.2, "phi; eta" ],
+            "n_goodjets":                            [ 10, 0, 10, "number of jets"],
+            "MHT":                                   [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "missing H_{T} (GeV)"],
+            #"HT":                                   [ [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 700], 0, 700, "H_{T} (GeV)"],
+            #"leadinglepton_pt":                     [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "leading p_{T}^{lep} (GeV)"],
+            "leadingelectron_pt":                    [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{el} (GeV)"],
+            "leadingmuon_pt":                        [ [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 176, 200, 250, 500], 0, 500, "p_{T}^{#mu} (GeV)"],
+            #"leadinglepton_pt:MHT":                 [ [0, 50, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            "leadingelectron_pt:MHT":                [ [30, 65, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            "leadingmuon_pt:MHT":                    [ [30, 65, 100, 150, 200, 300, 700], 0, 700, [0, 30, 60, 90, 200, 500], 0, 500, "missing H_{T} (GeV); p_{T}^{lep} (GeV)"],  
+            #"leadinglepton_eta:leadinglepton_phi":  [ 20, -3.2, 3.2, "phi; eta" ],
            }
 
 def savetoroot(obj, label, outputfolder, folderlabel):
@@ -42,7 +42,7 @@ def stamp_cuts(cuts_channel, channel, variable, use_or_trigger, denom_label, ext
     cuts_channel = cuts_channel.replace("n_goodmuons", "n_{#mu}")
     
     if ":" in variable:
-        yoffset = 0.35
+        yoffset = 0.22
     else:
         yoffset = 0
 
@@ -69,11 +69,21 @@ def stamp_cuts(cuts_channel, channel, variable, use_or_trigger, denom_label, ext
         cuts_channel_minus1 = plotting.get_nMinus1_cuts(cuts_channel, variable.split(":")[0])
         cuts_channel_minus1 = plotting.get_nMinus1_cuts(cuts_channel_minus1, variable.split(":")[1])
         
+    cuts_channel_minus1 = cuts_channel_minus1.replace("((leadingDT_pixeltrack==1 && leadingDT_Edep<20) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP<0.20))", "EDep(DT)<20 GeV / EDep/p(DT)<0.20 ")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("((leadingDT_pixeltrack==1 && leadingDT_Edep<15) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP<0.15))", "EDep(DT)<15 GeV / EDep/p(DT)<0.15 ")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("((leadingDT_pixeltrack==1 && leadingDT_Edep<30) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP<0.30))", "EDep(DT)<30 GeV / EDep/p(DT)<0.30 ")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("((leadingDT_pixeltrack==1 && leadingDT_Edep<50) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP<0.50))", "EDep(DT)<50 GeV / EDep/p(DT)<0.50 ")
     cuts_channel_minus1 = cuts_channel_minus1.replace(" && ", ", ")
     cuts_channel_minus1 = cuts_channel_minus1.replace(" &&", "")
     cuts_channel_minus1 = cuts_channel_minus1.replace(" || ", " or ")
     cuts_channel_minus1 = cuts_channel_minus1.replace(" ||", "")
     cuts_channel_minus1 = cuts_channel_minus1.replace("n_goodjets", "nJet")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("(n_DTShort+n_DTLong)", "nDT")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("(n_DTEDepSideBandShort+n_DTEDepSideBandLong)", "nDT_{SB}")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("(n_DTShort2+n_DTLong2)", "nDT")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("(n_DTEDepSideBandShort2+n_DTEDepSideBandLong2)", "nDT_{SB}")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("(n_DTShort3+n_DTLong3)", "nDT")
+    cuts_channel_minus1 = cuts_channel_minus1.replace("(n_DTEDepSideBandShort3+n_DTEDepSideBandLong3)", "nDT_{SB}")
     cuts_channel_minus1 = cuts_channel_minus1.replace(">=", "#geq")
     cuts_channel_minus1 = cuts_channel_minus1.replace("<=", "#leq")
     cuts_channel_minus1 = cuts_channel_minus1.replace("==", "=")
@@ -93,10 +103,12 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
         return
     if channel == "SMu" and "leadingelectron" in variable:
         return
+    if channel == "MHT" and "leading" in variable:
+        return
     
     numevents = -1
     
-    pdffile = "%s/triggereff_%s_%s.pdf" % (outputfolder, folderlabel, variable.replace(":", "-"))
+    pdffile = "%s/triggereff_%s_%s.pdf" % (outputfolder, folderlabel, variable.replace(":", "_"))
     
     histos = {}      
       
@@ -110,7 +122,7 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 ]:
 
         # switches
-        if "useswitchdenom" in folderlabel:
+        if "switchdenom" in folderlabel:
             glob_sel_num =   "Run%s%s*SingleMuon*.root" % (year, period)
             glob_sel_denom = "Run%s%s*SingleMuon*.root" % (year, period)
             glob_smu_num =   "Run%s%s*SingleElectron*.root" % (year, period)
@@ -124,7 +136,7 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 denom_label = "el trigger"
                 extra_label = "SingleElectron dataset"
 
-        elif "usejethtother" in folderlabel:
+        elif "jethtother" in folderlabel:
             glob_sel_num =   "Run%s%s*JetHT*.root" % (year, period)
             glob_sel_denom = "Run%s%s*SingleMuon*.root" % (year, period)
             glob_smu_num =   "Run%s%s*JetHT*.root" % (year, period)
@@ -138,7 +150,7 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 denom_label = "el trigger"
                 extra_label = "num.: JetHT, denom.: SingleEl"
 
-        elif "usejetht" in folderlabel:
+        elif "jetht" in folderlabel:
             glob_sel_num =   "Run%s%s*JetHT*.root" % (year, period)
             glob_sel_denom = "Run%s%s*JetHT*.root" % (year, period)
             glob_smu_num =   "Run%s%s*JetHT*.root" % (year, period)
@@ -166,8 +178,13 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
         
         if ":" in variable:
             nMinus1 = False
+            extra_label += ", trigger efficiency"
         else:
-            nMinus1 = True
+            if variable == "MHT" and "DtTurnon" in folderlabel:
+                # don't peek into SR
+                nMinus1 = False
+            else:
+                nMinus1 = True
     
         nBinsX = binnings[variable][0]
         xmin = binnings[variable][1]
@@ -185,6 +202,9 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
         def get_treff_histogram(globstring, variable, cutA, cutB):
             if year == 2018 and "SingleElectron" in globstring:
                 globstring = globstring.replace("SingleElectron", "EGamma")
+                extra_label = "Egamma dataset"
+                if ":" in variable:
+                    extra_label = "Egamma dataset, trigger efficiency"
             histo = plotting.get_all_histos([skim_folder + "/" + globstring], "Events", variable, numevents=numevents, nMinus1=nMinus1, cutstring=cuts_channel + cutA + cutB , nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax)        
             histo.SetDirectory(0)
             return histo
@@ -226,12 +246,14 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
             histo = TH2F("histo", "", binnings[variable][0], binnings[variable][1], binnings[variable][2], binnings[variable][3], binnings[variable][4], binnings[variable][5])
     
     if ":" not in variable:
-        histo.SetTitle(";%s; trigger efficiency #epsilon" % binnings[variable][3])
+        htitle = ";%s; trigger efficiency #epsilon" % binnings[variable][3]
     else:
-        histo.SetTitle(";%s; trigger efficiency #epsilon" % binnings[variable][6])
+        htitle = ";%s; trigger efficiency #epsilon" % binnings[variable][6]
+    histo.SetTitle(htitle)
     
     shared_utils.histoStyler(histo)
     
+    #FIXME
     gStyle.SetPaintTextFormat("4.2f")
 
     if ":" not in variable:
@@ -259,6 +281,9 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
         
         denom = histos["denom_%s_%s_%s" % (variable, channel, year)].Clone()
         num = histos["num_%s_%s_%s" % (variable, channel, year)].Clone()
+        
+        print "@@", num.GetEntries()
+        print "@@", denom.GetEntries()
             
         if "normalizeDenom" in folderlabel:
             # calc. eff with normalizing to denominator
@@ -274,8 +299,17 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
                 extra_label += "; altern."
         else:
             # default TEfficiency
-            h_effs["eff_%s" % year] = TEfficiency(num.Clone(), denom.Clone())
-        
+            h_effs["eff_%s_TEff" % year] = TEfficiency(num.Clone(), denom.Clone())
+
+            # convert TEff to normal hist:
+            h2dPass = h_effs["eff_%s_TEff" % year].GetPassedHistogram()
+            h2dTotal = h_effs["eff_%s_TEff" % year].GetTotalHistogram()
+            h_effs["eff_%s" % year] = h2dPass.Clone()
+            h_effs["eff_%s" % year].Divide(h2dTotal)
+            h_effs["eff_%s" % year].SetDirectory(0)
+            shared_utils.histoStyler(h_effs["eff_%s" % year])
+            h_effs["eff_%s" % year].SetTitle(htitle)
+
         if ":" not in variable:
             # 1D histograms:
             h_effs["eff_%s" % year].Draw("same")
@@ -306,13 +340,16 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
         else:
             # 2D histograms:
             h_effs["eff_%s" % year].Draw("colz text e same")
+            savetoroot(h_effs["eff_%s" % year], "h_triggereff_%s_%s_%s" % (channel, variable.replace(":", "_"), year), outputfolder, folderlabel)
+
+            if "eff_%s_TEff" % year in h_effs:
+                savetoroot(h_effs["eff_%s_TEff" % year], "teff_triggereff_%s_%s_%s" % (channel, variable.replace(":", "_"), year), outputfolder, folderlabel)
 
             stamp_cuts(cuts_channel, channel, variable, use_or_trigger, denom_label, extra_label)
             shared_utils.stamp()
             c1.SaveAs(pdffile.replace(".pdf", "_%s.pdf" % year))
-            savetoroot(c1, "c_triggereff_%s_%s_%s" % (channel, variable.replace(":", "-"), year), outputfolder, folderlabel)
-            savetoroot(h_effs["eff_%s" % year], "h_triggereff_%s_%s_%s" % (channel, variable.replace(":", "-"), year), outputfolder, folderlabel)
-           
+            savetoroot(c1, "c_triggereff_%s_%s_%s" % (channel, variable.replace(":", "_"), year), outputfolder, folderlabel)
+                       
             continue
 
     if ":" in variable:
@@ -346,10 +383,17 @@ def combinedplots(channel, variable, outputfolder, folderlabel, cuts_channel, sk
     c1.SetGrid(True)
     
     c1.SaveAs(pdffile)
-    savetoroot(h_effs["eff_2016"], "h_triggereff_%s_%s_2016" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
-    savetoroot(h_effs["eff_2017"], "h_triggereff_%s_%s_2017" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
-    savetoroot(h_effs["eff_2018"], "h_triggereff_%s_%s_2018" % (channel, variable.replace(":", "-")), outputfolder, folderlabel)
-    savetoroot(c1, "c_triggereff_%s_%s" % (folderlabel, variable.replace(":", "-")), outputfolder, folderlabel)
+    savetoroot(h_effs["eff_2016"], "h_triggereff_%s_%s_2016" % (channel, variable.replace(":", "_")), outputfolder, folderlabel)
+    savetoroot(h_effs["eff_2017"], "h_triggereff_%s_%s_2017" % (channel, variable.replace(":", "_")), outputfolder, folderlabel)
+    savetoroot(h_effs["eff_2018"], "h_triggereff_%s_%s_2018" % (channel, variable.replace(":", "_")), outputfolder, folderlabel)
+    
+    if "eff_2016_TEff" in h_effs:
+        print "@@@@@"
+        savetoroot(h_effs["eff_2016_TEff"], "teff_triggereff_%s_%s_2016" % (channel, variable.replace(":", "_")), outputfolder, folderlabel)
+        savetoroot(h_effs["eff_2017_TEff"], "teff_triggereff_%s_%s_2017" % (channel, variable.replace(":", "_")), outputfolder, folderlabel)
+        savetoroot(h_effs["eff_2018_TEff"], "teff_triggereff_%s_%s_2018" % (channel, variable.replace(":", "_")), outputfolder, folderlabel)
+    
+    savetoroot(c1, "c_triggereff_%s_%s" % (folderlabel, variable.replace(":", "_")), outputfolder, folderlabel)
 
 
 if __name__ == "__main__":
@@ -361,7 +405,7 @@ if __name__ == "__main__":
     parser.add_option("--label", dest = "label", default = "trigger")
     parser.add_option("--cuts", dest = "cuts", default = "0")
     parser.add_option("--runmode", dest = "runmode", default = "multi")
-    parser.add_option("--skim", dest = "skim_folder", default = "../ntupleanalyzer/skim_126_leadingtrigger_merged/")
+    parser.add_option("--skim", dest = "skim_folder", default = "../ntupleanalyzer/skim_201_triggerLeading_merged/")
     (options, args) = parser.parse_args()
 
     if not options.channel:
@@ -369,7 +413,18 @@ if __name__ == "__main__":
         cmds = []
                     
         cuts_mht = {
-                "mht-baseline":                           "HT>150 && MHT>150 && n_goodjets>=1 && ",
+                "mht_baseline":                            "HT>150 && MHT>150 && n_goodjets>=1 && ",
+                #"mht-DtTurnon":                           "HT>150 && MHT<250 && n_goodjets>=1 && (n_DTShort+n_DTLong)>=1 && ",
+                #"mht-DtSideband":                         "HT>150 && MHT>300 && n_goodjets>=1 && (n_DTEDepSideBandShort+n_DTEDepSideBandLong)>=1 && ",
+                #"mht-DtTurnon20":                         "HT>150 && MHT<250 && n_goodjets>=1 && leadingDT_mva>=0 && ((leadingDT_pixeltrack==1 && leadingDT_Edep<20) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP<0.20)) && ",
+                #"mht-DtTurnon30":                         "HT>150 && MHT<250 && n_goodjets>=1 && leadingDT_mva>=0 && ((leadingDT_pixeltrack==1 && leadingDT_Edep>20 && leadingDT_Edep<100) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP>0.20 && leadingDT_EdepByP<1.2)) && ",
+                #"mht-DtTurnon20B":                        "HT>150 && MHT<250 && n_goodjets>=1 && leadingDT_mva>=-0.1 && ((leadingDT_pixeltrack==1 && leadingDT_Edep<20) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP<0.20)) && ",
+                #"mht-DtTurnon30B":                        "HT>150 && MHT<250 && n_goodjets>=1 && leadingDT_mva>=-0.1 && ((leadingDT_pixeltrack==1 && leadingDT_Edep>20 && leadingDT_Edep<100) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP>0.20 && leadingDT_EdepByP<1.2)) && ",
+                #"mht-DtSideband30":                       "HT>150 && MHT>300 && n_goodjets>=1 && leadingDT_mva>=0 && ((leadingDT_pixeltrack==1 && leadingDT_Edep>30 && leadingDT_Edep<300) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP>0.30 && leadingDT_EdepByP<1.20)) &&",
+                #"mht-DtSideband30B":                      "HT>150 && MHT>300 && n_goodjets>=1 && leadingDT_mva>=-0.1 && ((leadingDT_pixeltrack==1 && leadingDT_Edep>30 && leadingDT_Edep<300) || (leadingDT_pixeltrack==0 && leadingDT_EdepByP>0.30 && leadingDT_EdepByP<1.20)) &&",
+                #"mht-baseline":                          "HT>0 && ",
+                #"mht-DtTurnon":                          "MHT<250 && (n_DTShort + n_DTLong)>=1 && ",
+                #"mht-DtSideband":                        "HT>250 && (n_DTEDepSideBandShort + n_DTEDepSideBandLong)>=1 && ",
                 #"mht-baseline-fullcuts":                 "n_goodelectrons==0 && n_goodmuons==0 && HT>150 && MHT>150 && n_goodjets>=1 && ",
                 #"mht-baseline-fullcuts300":              "n_goodelectrons==0 && n_goodmuons==0 && HT>300 && MHT>150 && n_goodjets>=1 && ",
                    }
@@ -380,7 +435,13 @@ if __name__ == "__main__":
                 #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==11 && ",
                 #"useswitchdenom-sel-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mincuts":            "leadinglepton_type==11 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                #"useswitchdenom-sel":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                "sel_switchdenom":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                "sel_jetht":                           "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                #"useswitchdenom-sel-DtTurnon":           "HT>30 && MHT<250 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && (n_DTShort+n_DTLong)>=1 && ",
+                #"useswitchdenom-sel-DtSideband":         "HT>30 && MHT>300 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && (n_DTEDepSideBandShort+n_DTEDepSideBandLong)>=1 && ",
+                #"useswitchdenom-sel":                    "HT>0 && ",
+                #"useswitchdenom-sel-DtTurnon":           "MHT<250 && (n_DTShort + n_DTLong)>=1 && ",
+                #"useswitchdenom-sel-DtSideband":         "MHT>250 && (n_DTEDepSideBandShort + n_DTEDepSideBandLong)>=1 && ",
                 #"usejetht-sel-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-sel-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-sel-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
@@ -389,14 +450,20 @@ if __name__ == "__main__":
                 #"sel-baseline-fullcuts":                 "n_goodelectrons==1 && n_goodmuons==0 && HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"sel-baseline-fullcuts300":              "n_goodelectrons==1 && n_goodmuons==0 && HT>300 && MHT>30 && n_goodjets>=1 && ",
                    }
-        
+                           
         cuts_smu = {
                 #"usejetht-smu-mht30":                    "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && leadinglepton_type==13 && ",
                 #"useswitchdenom-smu-mht30":              "HT>30 && MHT>30 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mincuts":            "leadinglepton_type==13 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
-                #"useswitchdenom-smu":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                "smu_switchdenom":                     "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                "smu_jetht":                           "HT>30 && MHT>30 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && ",
+                #"useswitchdenom-smu-DtTurnon":           "HT>30 && MHT<250 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && (n_DTShort+n_DTLong)>=1 && ",
+                #"useswitchdenom-smu-DtSideband":         "HT>30 && MHT>300 && n_goodjets>=1 && n_goodelectrons>=1 && n_goodmuons>=1 && (n_DTEDepSideBandShort+n_DTEDepSideBandLong)>=1 && ",
+                #"useswitchdenom-smu":                    "HT>0 && ",
+                #"useswitchdenom-smu-DtTurnon":           "MHT<250 && (n_DTShort + n_DTLong)>=1 && ",
+                #"useswitchdenom-smu-DtSideband":         "MHT>250 && (n_DTEDepSideBandShort + n_DTEDepSideBandLong)>=1 && ",
                 #"usejetht-smu-mht300":                   "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"usejethtother-smu-mht300":              "HT>30 && MHT>300 && n_goodjets>=1 && ",
                 #"useswitchdenom-smu-mht300":             "HT>30 && MHT>300 && n_goodjets>=1 && ",
