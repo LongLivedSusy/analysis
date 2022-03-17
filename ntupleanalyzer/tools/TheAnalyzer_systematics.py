@@ -1,7 +1,7 @@
 '''
 ---------------------BR: 100%-----------------------
 /pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_10cm/*/*.root
-python tools/TheAnalyzerWithDeDx.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3*/RunIIAutumn18FSv2.SMS-T2tbv2-LLChipm-ctau10to200*.root"
+python tools/TheAnalyzer_systematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3*/RunIIAutumn18FSv2.SMS-T2tbv2-LLChipm-ctau10to200*.root"
 #/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-900_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-FEE6C100-4AA5-E911-9CD0-B496910A9A28_RA2AnalysisTree.root
 #python tools/TheAnalyzerWithDeDxLowMht.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_40000-*.root"
 
@@ -64,10 +64,13 @@ is2016, is2017, is2018 = True, False, False
 isdata = 'Run20' in filenames
 if 'Run2016' in filenames or 'Summer16' in filenames or 'aksingh' in filenames: 
 	is2016, is2017, is2018 = True, False, False
+	year = '2016'
 elif 'Run2017' in filenames or 'Fall17' in filenames or 'somethingelse' in filenames: 
 	is2016, is2017, is2018 = False, True, False
+	year = '2017'	
 elif 'Run2018' in filenames or 'Autumn18' in filenames or 'somthin or other' in filenames: 
 	is2016, is2017, is2018 = False, True, True
+	year = '2018'	
 
 if is2016: phase = 0
 else: phase = 1
@@ -130,7 +133,7 @@ else:
 doDedxSmear = False
 if not isdata :
 	doDedxSmear = True
-	fsmear_barrel, fsmear_endcap = Load_DedxSmear(1)
+	fsmear_barrel, fsmear_endcap = Load_DedxSmear(phase)
 	
 	
 f_dxydzcalibration = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/dxydzcalibration.root')
@@ -163,7 +166,17 @@ ttrig = ftrig.Get('tEffhMetMhtRealXMht_run2;1')
 hpass = ttrig.GetPassedHistogram().Clone('hpass')
 htotal = ttrig.GetTotalHistogram().Clone('htotal')
 gtrig = TGraphAsymmErrors(hpass, htotal)
+gtrigUp = TGraphAsymmErrors(hpass, htotal)
 
+
+ftrigleps = TFile(os.environ['CMSSW_BASE']+'/src/analysis/triggerefficiency/trigger-efficiencies.root')
+
+htrigmu = ftrigleps.Get('smu_switchdenom/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
+htrigel = ftrigleps.Get('sel_switchdenom/h_triggereff_SEl_leadingelectron_pt_MHT_'+year)
+
+
+htrigmuUp = ftrigleps.Get('smu_switchdenom/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
+htrigelUp = ftrigleps.Get('sel_switchdenom/h_triggereff_SEl_leadingelectron_pt_MHT_'+year)
 
 if not newfileEachSignal:
 	newfname = 'Hists_'+identifier+'.root'
@@ -171,6 +184,12 @@ if not newfileEachSignal:
 		os.system('mkdir '+outdir)
 	fnew_ = TFile(outdir+'/'+newfname,'recreate')
 	print 'creating file', fnew_.GetName()
+
+
+fdtscalefactor = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/signal_scalefactor.root')
+hdtscalefactor_long = fdtscalefactor.Get('fit_sf_long')
+hdtscalefactor_short = fdtscalefactor.Get('fit_sf_short')
+dtsfbin = int(year)%2015
 
 
 mdp= 0.3
@@ -223,9 +242,9 @@ mvaminLong  = min([mvaPromptLongLoose,  mvaFakeLongLoose] )
 	
 
 	
-#varlist_                              = ['Ht',     'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage', 'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',  'MTauTau',     'LepPt', 'BinNumber','DrJetDt','MinDPhiMhtHemJet','Log10DedxMass']
+#varlist_                              = ['Ht',     'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage', 'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',  'MTauTau',     'LepPt', 'BinNumber','DrJetDt','MinDPhiMhtHemJet','Log10DedxMass']
 regionCuts = {}
-varlist_                               = ['Ht',     'Mht',  'NJets', 'BTags', 'NTags', 'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtStatus', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau','Log10DedxMass']#]#'Log10DedxMass'
+varlist_                               = ['Ht',     'Mht',  'NJets', 'BTags', 'NTags', 'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau','Log10DedxMass']#]#'Log10DedxMass'
 
 
 regionCuts['ShortBaselineSystNom']     = [(0,inf), (30,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (mdp,inf),       (0,inf),         (0,inf),     (0,inf),  (140,inf), (110,inf), (candPtCut,inf), (0,2.4),  (0,callShort),   (0,0),     (-inf,inf),   (0,inf), (mvaShortTight,inf),    (20,inf),         (-inf,inf),     (40,inf),    (0.2,inf)]
@@ -234,7 +253,7 @@ regionCuts['LongBaselineSystNom']      = [(0,inf), (30,inf), (1,inf), (0,inf), (
 dedxidx = varlist_.index('DeDxAverage')
 srindex = varlist_.index('BinNumber')
 mcalidx = varlist_.index('MatchedCalo')
-statidx = varlist_.index('DtStatus')
+statidx = varlist_.index('DtLength')
 dphiidx = varlist_.index('DPhiMhtDt')
 mvaidx = varlist_.index('LeadTrkMva')
 
@@ -253,7 +272,7 @@ for key in regionkeys:
 
 
 #collectionsysts = ['JecNom','JecUp','JecDown']
-weightsysts = ['BTagUp','BTagDown','IsrUp','IsrDown','JecUp','Prefire']
+weightsysts = ['BTagUp','BTagDown','IsrUp','IsrDown','JecUp','Prefire', 'PuUp', 'PuDown', 'ScaleUp', 'ScaleDown', 'DedxUp', 'TrigUp', 'DtSfShortUp','DtSfLongUp']
 
 regionkeys = regionCuts.keys()
 for key in regionkeys:
@@ -288,6 +307,9 @@ def getBinNumber(fv):
 #counter histogram:
 hHt = TH1F('hHt','hHt',200,0,10000)
 hHtWeighted = TH1F('hHtWeighted','hHtWeighted',200,0,10000)
+
+hScaleTotUpDown = TH1F('hScaleTotUpDown','hScaleTotUpDown',3,0,3)
+
 indexVar = {}
 for ivar, var in enumerate(varlist_): indexVar[var] = ivar
 histoStructDict = {}
@@ -403,6 +425,7 @@ for ientry in range(nentries):
 					
 		orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
 		orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
+		if 'ctau10to200' in filenames: orderedmasses_.append( [-1, c.SusyCTau] )
 	
 		if not orderedmasses==orderedmasses_:
 			print 'looks like a model transition from', orderedmasses, 'to', orderedmasses_
@@ -411,23 +434,32 @@ for ientry in range(nentries):
 				fnew_.cd()
 				hHt.Write()
 				hHtWeighted.Write()
+				hScaleTotUpDown.Write()
 				writeHistoStruct(histoStructDict, 'truth')
-				print 'just created', fnew_.GetName()
+				itsname = fnew_.GetName()
+				print 'just created', itsname
 				fnew_.Close()
-				exit(0)
+				fcheck = TFile(itsname)
+				if fcheck.IsZombie() or fcheck.GetNkeys()==0: 
+					print 'removing because it"s a zombie"'
+					os.system('rm '+itsname)
+				
 			print 'creating new file based on', orderedmasses
 			newfname = 'Hists'
 			for ip, susypid in enumerate(orderedmasses):
 				print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
 				newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
 			newfname+='_time'+str(round(time.time(),6)).replace('.','p').replace('Chi1pm','Chi1ne')+'.root'
+			if '_Glu' in newfname: 
+				print 'what the hay?'
+				print susies, susymasses, orderedmasses
 			if not os.path.isdir(outdir): os.system('mkdir '+outdir)
 			fnew_ = TFile(outdir+'/'+newfname,'recreate')
 			print 'creating file', fnew_.GetName()		
 			print 'from', susymasses
-			exit(0)		
 			hHt = TH1F('hHt','hHt',200,0,10000)
 			hHtWeighted = TH1F('hHtWeighted','hHtWeighted',200,0,10000)
+			hScaleTotUpDown = TH1F('hScaleTotUpDown','hScaleTotUpDown',3,0,3)
 			indexVar = {}
 			for ivar, var in enumerate(varlist_): indexVar[var] = ivar
 			#histoStructDict = {}
@@ -443,12 +475,22 @@ for ientry in range(nentries):
 				print 'got xsec', xsecpb, 'for mothermass', str(int(5*round(mothermass/5)))
 			else:
 				xsecpb = 1
+			print 'made it to the end of the ocean'
 				
 			
 			
-					
-	if not (model=='PureHiggsino'): hHt.Fill(c.HT)
-			
+	scaleweights = c.ScaleWeights
+	if(scaleweights.size()>7): scaleweights.erase(scaleweights.begin()+7);
+	if(scaleweights.size()>5): scaleweights.erase(scaleweights.begin()+5);
+	if(scaleweights.size()>0): scaleweights.erase(scaleweights.begin());
+	scaleup = max(scaleweights)
+	scaledown = min(scaleweights)
+	
+	if not (model=='PureHiggsino'): 
+		hHt.Fill(c.HT)
+		hScaleTotUpDown.Fill(0.5, 1)
+		hScaleTotUpDown.Fill(1.5, scaleup)
+		hScaleTotUpDown.Fill(2.5, scaledown)		
 	
 	#can't we just put a loop here?
 	for jecup in [False, True]:
@@ -469,7 +511,6 @@ for ientry in range(nentries):
 				dr = gp.DeltaR(track)			
 				if dr<0.04:
 					ischargino = True
-					print 'got chargino', c.GenParticles_LabXYmm[igp]
 					break
 			if not ischargino: continue	
 		
@@ -479,8 +520,8 @@ for ientry in range(nentries):
 			if not isBaselineTrackLoosetag(track, itrack, c, hMask):  continue
 			if not (track.Pt() > candPtCut): continue     	# and track.Pt()<candPtUpperCut
 	
-			dtstatus, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaminShort,mvaminLong], vtx_calibs)
-			if dtstatus==0: continue
+			dtlength, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaminShort,mvaminLong], vtx_calibs)
+			if dtlength==0: continue
 		
 	
 			drlep = 99
@@ -499,7 +540,7 @@ for ientry in range(nentries):
 					break
 				
 			isjet = False
-			if dtstatus==1: ##short track
+			if dtlength==1: ##short track
 				jt = 30
 				drcut=0.4
 			else: 
@@ -520,10 +561,10 @@ for ientry in range(nentries):
 			#	continue		
 		
 			dedx = -1
-			if dtstatus==1: 
+			if dtlength==1: 
 				nShort+=1
 				dedx = c.tracks_deDxHarmonic2pixel[itrack]
-			if dtstatus==2: 
+			if dtlength==2: 
 				nLong+=1			
 				dedx = c.tracks_deDxHarmonic2pixel[itrack]
 			if abs(track.Eta())<1.5: dedxcalib = dedxcalib_barrel
@@ -536,14 +577,15 @@ for ientry in range(nentries):
 		  
 		
 			dedx = dedxcalib*c.tracks_deDxHarmonic2pixel[itrack]
-			if not isdata and doDedxSmear:
+			if (not isdata) and doDedxSmear:
 				smearfactor = fsmear_barrel.GetRandom()
 				dedx = dedx + smearfactor
+				dedxUp= dedx + 2*smearfactor
 		
 			passdt+=1
 		
 			#print 'got one! bringing the total up to', 1.0*passdt/totdt			
-			disappearingTracks.append([track,dtstatus,dedx, mva, dtisrecomu, c.tracks_nMissingOuterHits[itrack], itrack])		
+			disappearingTracks.append([track,dtlength,dedx, mva, dtisrecomu, c.tracks_nMissingOuterHits[itrack], itrack])		
 
 
 		if not len(disappearingTracks)>0: continue
@@ -572,16 +614,11 @@ for ientry in range(nentries):
 		metvec.SetPtEtaPhiE(c.MET, 0, c.METPhi, c.MET) #check out feature vector in case of ttbar control region
 			  
 			  
-		dt, status, dedxPixel, mvascore, dtisrecomu, MOH, itrack = disappearingTracks[0]
+		dt, length, dedxPixel, mvascore, dtisrecomu, MOH, itrack = disappearingTracks[0]
 
 		pt = dt.Pt()
 		eta = abs(dt.Eta()) 
 		log10dedxmass = TMath.Log10(TMath.Sqrt((dedxPixel-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
-	
-	
-	
-	
-	
 
 		adjustedBTags = 0        
 		adjustedJets = []
@@ -653,13 +690,13 @@ for ientry in range(nentries):
 	
 	
 		#new
-		fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac,          dtisrecomu, status, dphiMhtDt,             mvascore,    mtDtMht,         MOH,          leppt, DrJetDt]#'''*TMath.CosH(eta)
+		fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac,          dtisrecomu, length, dphiMhtDt,             mvascore,    mtDtMht,         MOH,          leppt, DrJetDt]#'''*TMath.CosH(eta)
 		fv.append(getBinNumber(fv))
 		fv.extend([GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),mtautau,log10dedxmass])
 	
 	
 		##old	
-		#fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, status, dphiMhtDt, mvascore, mtDtMht, mtautau, leppt]
+		#fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, length, dphiMhtDt, mvascore, mtDtMht, mtautau, leppt]
 		#fv.append(getBinNumber(fv))
 		#fv.extend([DrJetDt, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),log10dedxmass])
 
@@ -669,16 +706,27 @@ for ientry in range(nentries):
 			if matchedcalofrac<15: mcpass+=1
 			#print 'mc eff', 1.0*mcpass/mctot
 			#for ifv in range(len(fv)): print varlist_[ifv], fv[ifv]
-	
-	
-		if isdata: weight = 1
-		elif len(RecoElectrons)+len(RecoMuons)>0: 
-			weight = 0.9*xsecpb#*c.puWeight
-		else: 
-			weight = xsecpb*gtrig.Eval(c.MHT)#*c.puWeight
-			#weight = 1.0
+			
+
+		if isdata: 
+			weight = 1
+		else:
+			weight = xsecpb
+			if len(RecoElectrons)>0: 
+				##weight = 0.9*xsecpb#*c.puWeight ####this and below needs Viktor's trigger efficiency applied!
+				binmet, binpt = htrigel.GetXaxis().FindBin(adjustedMht.Pt()), htrigel.GetYaxis().FindBin(leppt)
+				wtrignom = htrigel.GetBinContent(binmet, binpt)
+				wtrigup = htrigelUp.GetBinContent(binmet, binpt)				
+			elif len(RecoMuons)>0:
+				binmet, binpt = htrigmu.GetXaxis().FindBin(adjustedMht.Pt()), htrigmu.GetYaxis().FindBin(leppt)
+				wtrignom = htrigmu.GetBinContent(binmet, binpt)
+				wtrigup = htrigmuUp.GetBinContent(binmet, binpt)				
+			else: 
+				wtrignom = gtrig.Eval(c.MHT)
+				wtrigup = gtrigUp.Eval(c.MHT)				
 		
-		weight*=1.25####only for estimating everything with 2016!
+		#if is2016: 
+		weight*=1.25
 	
 	
 		pfweight = 1.0
@@ -691,14 +739,30 @@ for ientry in range(nentries):
 	
 		#print fv
 		#for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]	
+		
 		sfbtagnom = get_btag_weight(c,nSigmaBtagSF=0,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
 		sfbtagup = get_btag_weight(c,nSigmaBtagSF=1,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
 		sfbtagdown = get_btag_weight(c,nSigmaBtagSF=-1,nSigmaBtagFastSimSF=0,isFastSim=0,readerBtag=readerBtag)
-
+		
+		sfpunom = c.puWeight
+		sfpuup = c.puSysUp
+		sfpudown = c.puSysDown
 	
 		isrnom = get_isr_weight(c,0)
 		isrup = get_isr_weight(c,1)
 		isrdown = get_isr_weight(c,-1)
+		
+		if dtlength==1:
+			sfdtnom = hdtscalefactor_short.GetBinContent(dtsfbin)
+			sfdtshortup = hdtscalefactor_short.GetBinContent(dtsfbin)+hdtscalefactor_short.GetBinError(dtsfbin)
+			sfdtlongup = hdtscalefactor_long.GetBinContent(dtsfbin) #this is the nominal long
+		else:
+			sfdtnom = hdtscalefactor_long.GetBinContent(dtsfbin)
+			sfdtshortup = hdtscalefactor_short.GetBinContent(dtsfbin) #this is the nominal short
+			sfdtlongup = hdtscalefactor_long.GetBinContent(dtsfbin)+hdtscalefactor_long.GetBinError(dtsfbin)			
+		
+		#print 'ientry', ientry, 'len(c.ScaleWeights)', len(c.ScaleWeights)
+		#for ithing, thing in enumerate(c.ScaleWeights): print 'element', thing
 
 		#if c.MHT>150: print 'njetsISR', c.NJetsISR, c.NJets, 'the noms', sfbtagnom, isrnom, sfbtagnom*isrnom
 		for regionkey in regionCuts:
@@ -707,16 +771,27 @@ for ientry in range(nentries):
 				if selectionFeatureVector(fv,regionkey,varname):
 					#weightsysts = ['Nom','BTagUp','BTagDown','IsrUp','IsrDown']			
 					if jecup: 
-						print 'we are in uppyland'
-						fillth1(histoStructDict[regionkey.replace('Nom','JecUp')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*weight)
+						fillth1(histoStructDict[regionkey.replace('Nom','JecUp')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*sfpunom*wtrignom*weight)
 						continue
-					fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*weight)						
-					fillth1(histoStructDict[regionkey.replace('Nom','BTagUp')+'_'+varname].Truth,fv[ivar], sfbtagup*isrnom*weight)
-					fillth1(histoStructDict[regionkey.replace('Nom','BTagDown')+'_'+varname].Truth,fv[ivar], sfbtagdown*isrnom*weight)
-					fillth1(histoStructDict[regionkey.replace('Nom','IsrUp')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrup*weight)
-					#print 'going for', regionkey.replace('Nom','IsrDown')+'_'+varname
-					fillth1(histoStructDict[regionkey.replace('Nom','IsrDown')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrdown*weight)
-					fillth1(histoStructDict[regionkey.replace('Nom','Prefire')+'_'+varname].Truth,fv[ivar], pfweight*sfbtagnom*isrnom*weight)
+					fillth1(histoStructDict[regionkey+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*sfpunom*weight)						
+					fillth1(histoStructDict[regionkey.replace('Nom','BTagUp')+'_'+varname].Truth,fv[ivar],      sfbtagup   *isrnom  *sfpunom  *wtrignom *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','BTagDown')+'_'+varname].Truth,fv[ivar],    sfbtagdown *isrnom  *sfpunom  *wtrignom *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','IsrUp')+'_'+varname].Truth,fv[ivar],       sfbtagnom  *isrup   *sfpunom  *wtrignom *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','IsrDown')+'_'+varname].Truth,fv[ivar],     sfbtagnom  *isrdown *sfpunom  *wtrignom *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','PuUp')+'_'+varname].Truth,fv[ivar],        sfbtagnom  *isrnom  *sfpuup   *wtrignom *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','PuDown')+'_'+varname].Truth,fv[ivar],      sfbtagnom  *isrnom  *sfpudown *wtrignom *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','TrigUp')+'_'+varname].Truth,fv[ivar],      sfbtagnom  *isrnom  *sfpunom  *wtrigup  *sfdtnom     *weight)
+					fillth1(histoStructDict[regionkey.replace('Nom','DtSfShortUp')+'_'+varname].Truth,fv[ivar], sfbtagnom  *isrnom  *sfpunom  *wtrignom *sfdtshortup *weight)					
+					fillth1(histoStructDict[regionkey.replace('Nom','DtSfLongUp')+'_'+varname].Truth,fv[ivar],  sfbtagnom  *isrnom  *sfpunom  *wtrignom *sfdtlongup  *weight )
+					fillth1(histoStructDict[regionkey.replace('Nom','Prefire')+'_'+varname].Truth,fv[ivar],     sfbtagnom  *isrnom  *sfpunom  *wtrignom *sfdtnom     *weight *pfweight)
+					fillth1(histoStructDict[regionkey.replace('Nom','ScaleUp')+'_'+varname].Truth,fv[ivar],     sfbtagnom  *isrnom  *sfpunom  *wtrignom *sfdtnom     *weight *scaleup)
+					fillth1(histoStructDict[regionkey.replace('Nom','ScaleDown')+'_'+varname].Truth,fv[ivar],   sfbtagnom  *isrnom  *sfpunom  *wtrignom *sfdtnom     *weight*scaledown)														
+				fv[dedxidx] = dedxUp
+ 				if selectionFeatureVector(fv,regionkey,varname):	
+ 					if jecup: continue		
+					fillth1(histoStructDict[regionkey.replace('Nom','DedxUp')+'_'+varname].Truth,fv[ivar],    sfbtagnom*isrnom*sfpunom*wtrignom*weight)
+
+				
 			
 
 
