@@ -93,6 +93,7 @@ coarseBinningPatch['TrkPt']=[0,40,70,300]
 coarseBinningPatch['TrkPt']=[0,5,40,300]
 
 #redoBinning['TrkEta'] = binning['TrkEta']
+redoBinning['TrkEta']=[0,1.4,2.4,2.7,3.0]#tried 5 before
 redoBinning['TrkPt'] = binning['TrkPt']
 coarseBinningPatch['TrkPt'] = [0,15,20,25,30,40,60,70,100,225,300]
 coarserBinningPatch['TrkPt'] = binning['TrkPt']

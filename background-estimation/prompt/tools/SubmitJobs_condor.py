@@ -80,12 +80,13 @@ def main():
 			os.chdir('..')
 			files = ''
 			ijob+=1
-			sleep(0.1)
+			sleep(0.3)
 			#import sys
 			#print 'press the any key'
 			#sys.stdout.flush() 
 			#raw_input('')
 	print 'submitted', jobcounter_, 'jobs'
+	
 
 jobscript = '''#!/bin/zsh
 source /etc/profile.d/modules.sh

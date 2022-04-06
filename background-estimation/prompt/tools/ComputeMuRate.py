@@ -110,6 +110,9 @@ coarseBinningPatch['TrkPt']=[0,15,30,40,60,300]
 #coarserBinningPatch['TrkPt'] = coarseBinningPatch['TrkPt']
 makefolders = False
 
+coarseBinningPatch['TrkPt']=[1,0,300]
+coarserBinningPatch['TrkPt']=[1,0,300]
+
 
 #rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal20to30.root
 

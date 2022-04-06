@@ -25,7 +25,7 @@ maketree = False
 
 flythrough4tf = True
 exomode = False
-deriveMask = False #also turn this to true when skimming
+deriveMask = True #also turn this to true when skimming
 
 varname_kappaBinning = 'TrkEta'
 varname_kappaBinning = 'TrkPt'

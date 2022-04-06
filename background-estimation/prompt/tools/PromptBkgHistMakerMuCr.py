@@ -17,7 +17,8 @@ execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False 
 
 '''
-python tools/PromptBkgHistMakerFullyInformed.py --fnamekeyword /nfs/dust/cms/user/beinsam/LongLiveTheChi/Analyzer/CMSSW_10_1_0/src/analysis/background-estimation/prompt/output/mediumchunks/Summer16TTJets_SingleLeptFromT_Prompt.root --smearvar Nom --analyzeskims True
+#python tools/PromptBkgHistMakerFullyInformed.py --fnamekeyword /nfs/dust/cms/user/beinsam/LongLiveTheChi/Analyzer/CMSSW_10_1_0/src/analysis/background-estimation/prompt/output/mediumchunks/Summer16TTJets_SingleLeptFromT_Prompt.root --smearvar Nom --analyzeskims True
+python tools/PromptBkgHistMakerMuCr.py --fnamekeyword /nfs/dust/cms/user/beinsam/LongLiveTheChi/Analyzer/CMSSW_10_1_0/src/analysis/background-estimation/prompt/output/mediumchunks/Summer16TTJets_SingleLeptFromT_Prompt.root --smearvar Nom --analyzeskims True
 '''
 
 turnoffpred = False
@@ -265,7 +266,7 @@ if deriveMask:
 pi = TMath.Pi()
 #                                                   1        2          3        4       5         6       7               8           9                    10          11       12        13           14           15          16              17             18             19           20             21             22                23        24
 regionCuts = {}
-varlist_                                       = ['Ht',  'Mht',  'NJets', 'BTags', 'NTags', 'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau','Log10DedxMass']#]#'Log10DedxMass'
+varlist_                                       = ['Ht',  'Mht',  'NJets', 'BTags', 'NTags', 'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau', 'NVtx']#]#'Log10DedxMass'
 if analyzeskims:
 	regionCuts['ShortSElValidZLL']             = [(0,inf), (0,inf), (0,inf), (0,inf), (1,inf), (1,1),   (0,0),   (mdp,inf),          (0,inf),        (1,1 ),      (0,0),     (70,105),   (0,100),  (candPtCut,inf), (0,2.4),  (0,callShort),   (0,0),   (-inf,inf),    (0,pi/4), (mvaShortTight,inf), (-inf,inf),     (-inf,inf),     (-inf,inf),   (0.2,inf)]
 	regionCuts['ShortSMuValidZLL']             = [(0,inf), (0,inf), (0,inf), (0,inf), (1,inf), (1,1),   (0,0),   (mdp,inf),          (0,inf),        (0,0 ),      (1,1),     (70,105),   (0,100),  (candPtCut,inf), (0,2.4),  (0,callShort),   (0,0),   (-inf,inf),    (0,pi/4), (mvaShortTight,inf), (-inf,inf),     (-inf,inf),     (-inf,inf),   (0.2,inf)]	
@@ -287,7 +288,7 @@ if analyzeskims:
 		regionCuts['LongSElValidZLLHighMT']    = [(0,inf),  (30,inf),  (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),  (mdp,inf),      (0,inf),         (1,1 ),    (0,0),      (70,110),  (100,inf),  (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),  (-inf,inf),      (0,inf), (mvaLongTight,inf),(-inf,inf),       (2,inf),        (30,inf),    (0.2,inf)]
 		regionCuts['LongSElValidMT']           = [(0,inf),  (30,inf),  (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),  (mdp,inf),      (0,inf),         (1,1 ),    (0,0),      (140,inf), (0,100),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),   (-inf,inf),      (0,inf), (mvaLongTight,inf),(-inf,inf),       (2,inf),        (30,inf),    (0.2,inf)]
 		regionCuts['LongSMuValidMT']           = [(0,inf),  (30,inf),  (0,inf), (0,inf), (1,inf), (0,0),   (1,inf),    (mdp,inf),      (0,inf),         (0,0),     (1,1),      (140,inf), (0,100),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),   (-inf,inf),      (0,inf), (mvaLongTight,inf),(-inf,inf),     (2,inf),        (30,inf),    (0.2,inf)]
-#varlist_                                      = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',      'MissingOuterHits',  'LepPt',  'BinNumber','DrJetDt','MinDPhiMhtHemJet','MTauTau','Log10DedxMass']#]#'Log10DedxMass'
+#varlist_                                      = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',      'MissingOuterHits',  'LepPt',  'BinNumber','DrJetDt','MinDPhiMhtHemJet','MTauTau','NVtx']#]#'Log10DedxMass'
 		regionCuts['Short1bHadMhtSideband']    = [(0,inf), (30,60),    (1,inf), (1,1), (1,inf), (1,1),(0,0),       (mdp,inf),       (0,inf),        (0,0),       (0,0),       (140,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),    (0,inf), (mvaShortTight,inf), (20,inf),       (-inf,inf),      (-inf,inf),   (0.2,inf)]
 		regionCuts['ShortBaseline']            = [(0,inf), (30,inf), (1,inf), (0,inf), (1,inf), (1,inf), (0,0),     (mdp,inf),       (0,inf),         (0,inf),     (0,inf),  (140,inf), (110,inf), (candPtCut,inf),    (0,2.4),  (0,callShort),   (0,0),      (-inf,inf),   (0,inf), (mvaShortTight,inf),(20,inf),    (-inf,inf),     (40,inf),    (0.2,inf)]
 		#regionCuts['Short1bBaseline']          = [(0,inf), (30,inf), (1,inf), (1,inf), (1,inf), (1,inf), (0,0),     (mdp,inf),       (0,inf),         (0,inf),     (0,inf),  (140,inf), (110,inf), (candPtCut,inf),    (0,2.4),  (0,callShort),   (0,0),      (-inf,inf),   (0,inf), (mvaShortTight,inf),(40,inf),    (-inf,inf),     (40,inf),    (0.2,inf)]		
@@ -295,11 +296,11 @@ if analyzeskims:
 		#regionCuts['Short1bBaseline']         = [(0,inf), (30,inf), (1,inf),(1,inf), (1,inf), (1,inf), (0,0),     (0.3,inf),   (0,inf),         (0,inf),     (0,inf),  (140,inf), (110,inf), (candPtCut,inf),    (0,2.4),  (0,callShort),       (0,0),   (0,1),      (-inf,inf),   (0,inf), (mvaShortTight,inf),(10,inf),  (-inf,inf), (-inf,inf)]		
 		#regionCuts['ShortBin23']                = [(0,inf),  (300,inf),(3,inf),  (0,inf),  (1,1),  (1,1), (0,0),    (mdp,inf),      (0,dedxcutMid),  (0,0),   (0,0),     (140,inf), (110,inf), (candPtCut,inf),       (0,2.4),  (0,callShort),   (0,0),   (-inf,inf),   (0,inf), (mvaShortTight,inf),(10,inf), (-inf,inf), (-inf,inf)]
 		##regionCuts['ShortLowMhtBaseline']    = [(0,inf), (100,inf), (1,inf), (0,inf), (1,inf), (0,inf), (0,inf),  (0.0,inf),   (0,inf),         (0,inf),     (0,inf),  (110,inf), (100,inf), (candPtCut,inf),   (0,2.4), (0,callLong),       (0,0),      (1,1),    (0,inf), (mvaLongTight,inf)]
-		#varlist_                              = ['Ht',          'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',         'TrkEta',    'MatchedCalo', 'IsMuMatched',   (0,1), 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',     'MTauTau',    'LepPt',      'BinNumber','DrJetDt','MinDPhiMhtHemJet','Log10DedxMass']
+		#varlist_                              = ['Ht',          'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',         'TrkEta',    'MatchedCalo', 'IsMuMatched',   (0,1), 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',     'MTauTau',    'LepPt',      'BinNumber','DrJetDt','MinDPhiMhtHemJet','NVtx']
 		regionCuts['ShortSElValidZLLHighMT']   = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0),      (mdp,inf),     (0,inf),        (1,1 ),     (0,0),     (70,110),   (100,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),  (-inf,inf),      (0,inf), (mvaShortTight,inf),(20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]	
 		regionCuts['ShortSElValidMT']          = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0),      (mdp,inf),     (0,inf),        (1,1 ),     (0,0),     (140,inf),  (0,100),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf), (mvaShortTight,inf),(20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
 		regionCuts['ShortSMuValidMT']          = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0),      (mdp,inf),     (0,inf),        (0,0),      (1,1),     (140,inf),  (0,100),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf), (mvaShortTight,inf),(20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
-#varlist_                                      = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',      'MissingOuterHits',  'LepPt',  'BinNumber','DrJetDt','MinDPhiMhtHemJet','MTauTau','Log10DedxMass']#]#'Log10DedxMass'
+#varlist_                                      = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',      'MissingOuterHits',  'LepPt',  'BinNumber','DrJetDt','MinDPhiMhtHemJet','MTauTau','NVtx']#]#'Log10DedxMass'
 
 
 
@@ -413,7 +414,7 @@ if maketree:
 		pass
 	tree_out = c.CloneTree(0)	
 
-#c.Show(0)
+c.Show(0)
 
 c.GetEntry(0)
 
@@ -866,8 +867,8 @@ for ientry in range(nentries):
 		eta = abs(dt.Eta()) 
 		phi = dt.Phi()
 			
-	log10dedxmass = TMath.Log10(TMath.Sqrt((dedxPixel-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
-	if log10dedxmass!=log10dedxmass: log10dedxmass = -10	
+	#log10dedxmass = TMath.Log10(TMath.Sqrt((dedxPixel-3.01)*pow(pt*TMath.CosH(eta),2)/1.74))
+	#if log10dedxmass!=log10dedxmass: log10dedxmass = -10	
 
 	newmetvec = metvec.Clone()
 	newmetvec-=dt
@@ -925,10 +926,10 @@ for ientry in range(nentries):
 	mhtWithTrack-=dt
 	mtDtMht = TMath.Sqrt(2*dt.Pt()*mhtWithTrack.Pt()*(1-TMath.Cos(mhtWithTrack.DeltaPhi(dt))))
 	#to do: could try to do overlap removal between jets and leptons
-#varlist_   = ['Ht',     'Mht',           'NJets',                                           'BTags',         'NTags',      'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage','NElectrons', 'NMuons','InvMass', 'LepMT','TrkPt','TrkEta','MatchedCalo','IsMuMatched', 'DtLength', 'DPhiMhtDt',   'LeadTrkMva', 'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau','Log10DedxMass']#]#'Log10DedxMass'
+#varlist_   = ['Ht',     'Mht',           'NJets',                                           'BTags',         'NTags',      'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage','NElectrons', 'NMuons','InvMass', 'LepMT','TrkPt','TrkEta','MatchedCalo','IsMuMatched', 'DtLength', 'DPhiMhtDt',   'LeadTrkMva', 'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau','NVtx']#]#'Log10DedxMass'
 	fv = [adjustedHt,   adjustedMht.Pt()   ,adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi, dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac,          dtisrecomu, length, dphiMhtDt,             mvascore,    mtDtMht,         MOH,          leppt, DrJetDt]#'''*TMath.CosH(eta)
 	fv.append(getBinNumber(fv))
-	fv.extend([GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),mtautau,log10dedxmass])
+	fv.extend([GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),mtautau,c.NVtx])
 
 	#print 'invmass', invmass
 	#print fv

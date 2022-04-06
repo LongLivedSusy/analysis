@@ -67,6 +67,7 @@ redoBinning['InvMass'] = [5,50,170]
 redoBinning['ElPt'] = [5,0,300]
 #redoBinning['TrkEta'] = [0,1.5,2.2,3.0]
 redoBinning['TrkEta']=[1,0,2.0]
+redoBinning['TrkEta']=[0,1.4,2.4,3.0]#tried 5 before
 redoBinning['MuPt'] = redoBinning['ElPt']
 redoBinning['DeDxAverage'] = [1.999999999,2,5.0,10.0]
 
@@ -105,6 +106,8 @@ coarseBinningPatch['TrkPt']=[0,15,30,40,60,300]
 #coarserBinningPatch['TrkPt'] = coarseBinningPatch['TrkPt']
 makefolders = False
 
+coarseBinningPatch['TrkPt']=[1,0,300]
+coarserBinningPatch['TrkPt']=[1,0,300]
 
 #rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal20to30.root
 

@@ -18,14 +18,14 @@ except: shkeys = 'jobs/*.sh'
 istest = False
 
 FirstWave = False# (means we're resubmitting the skims)
-#FirstWave = False# (means we're resubmitting the skims)
+#FirstWave = False# (means we're resubmitting the analysis jobs)
 
 logfileversion = False
 filecheckversion = True
 errversion = False
 jobsatatime = 10
 
-doitlocal = True
+doitlocal = False
 
 shlist = glob(shkeys)
 shuffle(shlist)

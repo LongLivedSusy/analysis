@@ -104,7 +104,6 @@ for contkey in keywordsOfContribution.keys():
 				weight[0] = chain_in.CrossSection*lumi*1.0/nsimulated			
 				if ientry==0: print keyword, 'event weight', 36000*weight[0]
 				tree_out.Fill()
-				print 'made it past the fill'
 				
 			fw.cd()
 			print 'test 1'
