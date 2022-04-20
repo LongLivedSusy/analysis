@@ -55,7 +55,6 @@ tag = '2021_12_Nov2021'
 tag = '2021_13_Nov2021'
 tag = '2021_13_Nov2021b'
 tag = '2021_14_Nov2021'
-
 tag = '2021_15_Nov2021'
 tag = '2021_15_Nov2021b'
 tag = '2021_15_Nov2021c'
@@ -115,7 +114,6 @@ tag = '2021_Dec2PtPromptdErr_pdf'
 tag = '2021_Dec2PtPrompteErr_pdf'
 tag = '2021_Dec2PtPromptfErr_pdf'
 tag = '2021_Dec2PtPromptgErr_pdf'
-
 tag = '2021_Dec9PtPromptgErr_pdf'
 tag = '2021_Dec10PtPrompt_pdf'
 tag = '2021_Dec10PtPromptb_pdf'
@@ -128,14 +126,20 @@ tag = '2022_Feb181binUNoPuWts'
 tag = '2022_Feb23UniBins'
 tag = '2022_March31'
 tag = '2022_March31pdfs'
-
+tag = '2022_April7back2muons2'
+tag = '2022_Apr9muon'
+tag = '2022_Apr17muon'
+tag = '2022_Apr17muonFine'
+tag = '2022_Apr17muonCoarse'
+tag = '2022_Apr19_threemethods'
 
 '''
 rm -rf pdfs/Validation/prompt-bkg/* 
+python tools/makeValidationPlots3methods.py Summer16 MC &
+python tools/makeValidationPlots3methods.py Fall17 MC &
 python tools/makeValidationPlots3methods.py Phase1 &
 python tools/makeValidationPlots3methods.py Run2016 &
-python tools/makeValidationPlots3methods.py Fall17 MC &
-python tools/makeValidationPlots3methods.py Summer16 MC & 
+
 
 
 python tools/makeValidationPlots3methods.py Run2017
@@ -160,51 +164,23 @@ except: datamc = 'data'
 isdata = bool(datamc=='data')
 if not isdata: doblinding = False
 
-
-#binning['MatchedCalo'] = [120,0,60]
 binning['DtStatus'] = [6,-3,3]
 binning['FakeCrNr'] = [6,-3,3]
 
-redoBinning = binning
+redoBinning = dict(binning)
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
-#redoBinning['DeDxAverage'] = [1.999999999,2,3.0,4.0,5.0,6.0,7.0]
-#redoBinning['DeDxAverage'] = [1.999999999,2,4.0,10.0]
 redoBinning['DeDxAverage'] = [-0.000001,0,4.0,10.0]
-#redoBinning['InvMass'] = [15,50,170]
-##redoBinning['InvMass'] = [50,0,200]
-#redoBinning['InvMass'] = [24,60,180]
 redoBinning['ElPt'] = [30,0,300]
 redoBinning['Ht']=[5,0,2000]
 redoBinning['Met'] = [20,0,600]
 redoBinning['HardMet'] = redoBinning['Met']
 redoBinning['Mht'] = redoBinning['Met']
-#redoBinning['TrkEta']=[30,0,3]
 redoBinning['TrkEta']=[0,1.4,2.0,2.4]#tried 5 before
-#redoBinning['NJets'] = [6,1,7]
-#redoBinning['NJets'] = [0.999999,1,3,6]
+redoBinning['TrkEta']=binning['TrkEta']
 redoBinning['BTags'] = [-0.0000000001,0,1,4]
-#redoBinning['LepMT'] = [7,15,150]
 redoBinning['BinNumber'] = binningAnalysis['BinNumber']
-#redoBinning['MatchedCalo'] = [0,10,13,23,40]
-#redoBinning['InvMass'] = [25,0,200]#same as analysis
 
 makefolders = False
-
-
-calm = 20
-calh = 25
-
-calm = 10
-calh = 15
-
-calm = 17
-calh = 27
-
-calm = 20
-calh = 60
-
-calm = 20
-calh = 80
 
 call = 12
 calm = 12

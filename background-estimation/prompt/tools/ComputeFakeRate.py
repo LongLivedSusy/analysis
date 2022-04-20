@@ -66,6 +66,9 @@ redoBinning['TrkEta']=[10,0,3]#tried 5 before
 redoBinning['TrkEta']=[0,1.6,2.4,3.0]#tried 5 before
 redoBinning['TrkEta']=[0,1.4,2.4,3.0]#tried 5 before
 #redoBinning['TrkEta']=[0,1.0,2.4,3.0]#tried 5 before
+#redoBinning['TrkEta']=binning['TrkEta']
+
+
 
 ##redoBinning['TrkEta']=[1,0,3]#tried 5 before
 redoBinning['MuPt'] = redoBinning['ElPt']
@@ -94,7 +97,7 @@ coarseBinningPatch['TrkPt']=[0,5,40,300]
 
 #redoBinning['TrkEta'] = binning['TrkEta']
 redoBinning['TrkEta']=[0,1.4,2.4,2.7,3.0]#tried 5 before
-redoBinning['TrkPt'] = binning['TrkPt']
+#redoBinning['TrkEta'] = binning['TrkEta']
 coarseBinningPatch['TrkPt'] = [0,15,20,25,30,40,60,70,100,225,300]
 coarserBinningPatch['TrkPt'] = binning['TrkPt']
 
@@ -156,7 +159,7 @@ for key in sorted(keys):#[:241]:
 	infile.cd()
 	name = key.GetName()
 	
-
+	if 'Up' in name: continue
 	if not region in name: continue
 	if 'CaloSideband' in name: continue
 	if not 'Truth' in name: continue

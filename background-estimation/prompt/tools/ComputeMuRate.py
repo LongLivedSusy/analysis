@@ -193,7 +193,7 @@ for key in sorted(keys):#[:241]:
 	if 'FakeCr_' in name: continue
 	if 'CaloSideband' in name: continue ##fakecr_
 	if not 'RecoMuMatched' in name: continue
-
+	if 'Up' in name: continue
 	
 	kinvar = name.replace('Control','').replace('Truth','').replace('Method2','')
 	kinvar = kinvar[kinvar.find('_')+1:]

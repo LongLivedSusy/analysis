@@ -14,7 +14,7 @@ parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultfkey,help=
 parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER scale factor (Nom, Up, ...)")
 parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
-parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
+parser.add_argument("-doitlocal", "--doitlocal", type=str, default='False',help="use gen-kappa")
 parser.add_argument("-ps", "--analyzeskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
@@ -26,7 +26,7 @@ analyzer = args.analyzer
 analyzeskims = args.analyzeskims
 analyzer = analyzer.replace('python/','').replace('tools/','')
 JerUpDown = args.JerUpDown
-smearvar = args.smearvar
+doitlocal = bool(args.doitlocal=='True')
 outdir = args.outdir
 
 
@@ -73,7 +73,8 @@ def main():
 			fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname).replace('OUTDIR',outdir))
 			fjob.close()
 			os.chdir('jobs')
-			command = 'condor_qsub -cwd '+jobname+'.sh &'
+			if doitlocal: 'source '+jobname+'.sh > '+jobname.replace('.sh','.sh.e1075')+'&'
+			else: command = 'condor_qsub -cwd '+jobname+'.sh &'
 			jobcounter_+=1
 			print 'command', command
 			if not test: os.system(command)

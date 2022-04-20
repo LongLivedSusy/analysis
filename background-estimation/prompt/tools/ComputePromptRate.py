@@ -30,8 +30,6 @@ python tools/ComputePromptRate.py 2017 MC &
 '''
 #python tools/ComputePromptRate.py 2016 Signal
 
-
-
 varname_kappaBinning = 'TrkEta'
 varname_kappaBinning = 'TrkPt'
 
@@ -190,7 +188,7 @@ for key in sorted(keys):#[:241]:
 	if not 'Truth' in name: continue
 	if not 'CaloSideband' in name: continue ##fakecr_
 	if not 'hPrompt' in name: continue
-
+	if 'Up' in name: continue
 	
 	kinvar = name.replace('Control','').replace('Truth','').replace('Method2','')
 	kinvar = kinvar[kinvar.find('_')+1:]
