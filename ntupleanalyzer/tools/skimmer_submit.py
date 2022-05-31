@@ -41,7 +41,7 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
                 out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].replace("_RA2AnalysisTree.root", "") + "_skim.root"
                 cmd = command.replace("$INPUT", inFile).replace("$OUTPUT", out_tree) + "; "
             commands.append(cmd)
-                        
+
     return commands
 
 
@@ -51,7 +51,7 @@ def do_submission(commands, output_folder, condorDir = "bird", executable = "loo
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
     os.system("cp ../../tools/shared_utils.py %s/" % (output_folder))
-    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm, cmsbase="/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_10_2_4_patch1/src")
+    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm, cmsbase="/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_11_2_3/src")
 
 
 def get_data_sample_names(folder, globstring = "*"):
@@ -74,7 +74,7 @@ def get_userlist():
     return userlist
 
 
-def get_ntuple_datasets(globstring_list, add_signals = False):
+def get_ntuple_datasets(globstring_list, lowstats=False):
 
     globstrings = globstring_list.split(",")
 
@@ -88,36 +88,20 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
             ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
     
         if user == "vkutzner":
-            print "Adding NtupleHub contents from Akshansh..."
-            folder = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh"
-            if folder not in ntuples:
-                ntuples[folder] = []
-            for i_globstring in globstrings:
-                ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
-    
-    if add_signals:
+            for secondary_user in ["akshansh", "vormwald"]:
+                folder = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_%s" % secondary_user
+                if folder not in ntuples:
+                    ntuples[folder] = []
+                for i_globstring in globstrings:
+                    ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
 
-        #ntuples["/nfs/dust/cms/user/beinsam/CommonNtuples/MC_BSM/LongLivedSMS/ntuple_sidecar"] = [
-        #    "g1800_chi1400_27_200970_step4_10",
-        #    "g1800_chi1400_27_200970_step4_30",
-        #    "g1800_chi1400_27_200970_step4_50",
-        #    "g1800_chi1400_27_200970_step4_100",
-        #    "g1800_chi1400_27_200970_step4_1000",
-        #]
-    
-        ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Summer16sig"] = [
-            "Summer16.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
-            "Summer16.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
-            "Summer16.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
-            "Summer16.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
-        ]
-       
-        ntuples["/nfs/dust/cms/user/kutznerv/DisappTrksSignalMC/april19-Autumn18sig"] = [
-            "Autumn18.g1800_chi1400_27_200970_step4_10AODSIM_RA2AnalysisTree",
-            "Autumn18.g1800_chi1400_27_200970_step4_30AODSIM_RA2AnalysisTree",
-            "Autumn18.g1800_chi1400_27_200970_step4_50AODSIM_RA2AnalysisTree",
-            "Autumn18.g1800_chi1400_27_200970_step4_100AODSIM_RA2AnalysisTree",
-        ]
+        if user == "sbein":
+            for secondary_user in ["jarieger", "jsonneve"]:
+                folder = "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_%s" % secondary_user
+                if folder not in ntuples:
+                    ntuples[folder] = []
+                for i_globstring in globstrings:
+                    ntuples[folder] += get_data_sample_names(folder, globstring = i_globstring)
   
     return ntuples
     
@@ -125,11 +109,9 @@ def get_ntuple_datasets(globstring_list, add_signals = False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    #parser.add_option("--nfiles", dest="files_per_job", default = 20)
     parser.add_option("--nfiles", dest="files_per_job", default = 200)
     parser.add_option("--njobs", dest="njobs")
     parser.add_option("--start", dest="start", action = "store_true")
-    parser.add_option("--signals", dest="add_signals", action="store_true")
     parser.add_option("--command", dest="command")
     parser.add_option("--cuts", dest="cuts", default = "")
     parser.add_option("--dataset", dest="dataset")
@@ -144,20 +126,42 @@ if __name__ == "__main__":
 
     ######## defaults ########
     if not options.command:
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT"
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow"
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --trigger_study "
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow "
     if not options.dataset:
-        options.add_signals = 0
-        options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
         #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "Run201*Single*,Run201*EGamma*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIIAutumn18FSv3.SMS-T2tb*,RunIIAutumn18FSv3.SMS-T2bt*,RunIIAutumn18FSv3.SMS-T1btbt*,RunIIFall17FSv3.SMS-T2tb*,RunIIFall17FSv3.SMS-T2bt*,RunIIFall17FSv3.SMS-T1btbt*"
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIIAutumn18FS.*"
+        #options.dataset = "Run2016*,Run2017*,Run2018*"
+        #options.dataset = "Run201*Single*,Run201*JetHT*,Run2018*EGamma*"
+        #options.dataset = "Run2018*EGamma*"
+        options.dataset = "Run201*"
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+        #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+        #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*"
+        #options.dataset = "Run2017F*," + mc_fall17
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17 
         #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
         #options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
+        #options.dataset = "Summer16.QCD_HT500to700_TuneCUETP8M1*,RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV*"
+        #options.dataset = "RunIIAutumn18FSv3.SMS-T2bt-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211114_042348-0005-SUS-RunIIAutumn18FSPremix-00155_54*"
+        #options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS-*,RunIISummer16MiniAODv3.SMS-T1qqqq*"
+        #options.dataset =  mc_summer16 + ",RunIISummer16MiniAODv3.SMS*"
+
+    skimname = "skim_x40_lumireport"
+
     if not options.output_folder:
-        options.output_folder = "../skim_96_fullEta"
+        options.output_folder = "../" + skimname
     ######## defaults ########
 
     commands = []
-    ntuples = get_ntuple_datasets(options.dataset, add_signals = options.add_signals)
+    ntuples = get_ntuple_datasets(options.dataset)
 
     for folder in ntuples:
     
@@ -187,10 +191,10 @@ if __name__ == "__main__":
         commands = new_commands
     
     ## slim command list:
-    with open("skimmer.arguments", "w") as fout:
+    with open("%s.arguments" % skimname, "w") as fout:
         fout.write("\n".join(commands))
     for i in range(len(commands)):
-        commands[i] = "$(head -n%s skimmer.arguments | tail -n1)" % (i+1)
+        commands[i] = "$(head -n%s %s.arguments | tail -n1)" % (i+1, skimname)
     
     do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
 

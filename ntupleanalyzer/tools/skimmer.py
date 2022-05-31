@@ -172,7 +172,7 @@ def fill_sparse(event, signal_region, weight, hnsparse):
     hnsparse.Fill(coordinates, weight)
 
 
-def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = True, debug = False, trigger_study = False, cutflow_study = False, syst = ""):
+def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, save_cleaned_variables = False, overwrite = True, debug = False, trigger_study = False, cutflow_study = False, syst = "", lumi_report = False):
 
     # clean up output filename
     track_tree_output = track_tree_output.replace(";", "")
@@ -198,7 +198,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
 
     # store runs for JSON output:
     runs = {}
-    lumireport = {}
     
     # check if data:
     phase = 0
@@ -258,7 +257,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         if not "root.mimes" in iFile:
             tree.Add(iFile)
    
-    fout = TFile(track_tree_output, "recreate")
+    if not lumi_report:
+        fout = TFile(track_tree_output, "recreate")
     
     # write number of events to histogram:
     nev = tree.GetEntries()
@@ -564,8 +564,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         if (iEv+1) % 1000 == 0:
             print "event %s / %s" % (iEv + 1, nev)
 
-        current_file_name = tree.GetFile().GetName()
-
         # calculate weight and collect lumisections:
         if is_data:
             runnum = event.RunNum
@@ -577,6 +575,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             weight = 1.0
         else:
             weight = 1.0 * event.puWeight * event.CrossSection
+
+        if lumi_report:
+            continue
+
+        current_file_name = tree.GetFile().GetName()
 
         if is_pmssm:
             # fill zero bin with weight=1.0 (unweighted)
@@ -1078,28 +1081,29 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 if track.DeltaR(muon_obj) < MinDeltaRTrackOCMuon and event.tracks_charge[iCand] * event.Muons_charge[i_mu] == -1:
                     MinDeltaRTrackOCMuon = track.DeltaR(muon_obj)
 
-            # keep lepton-matched tracks which are not the leading lepton:
-            track_matchedElMinv = -1
-            track_matchedMuMinv = -1
-            is_leptonmatched = False
+            if False:
+                # keep lepton-matched tracks which are not the leading lepton:
+                track_matchedElMinv = -1
+                track_matchedMuMinv = -1
+                is_leptonmatched = False
 
-            if leadingelectron:
-                for electron in event.Electrons:
-                    if electron.DeltaR(leadingelectron)<0.01:
-                        continue
-                    if track.DeltaR(electron)<0.01:
-                        track_matchedElMinv = (track + leadingelectron).M()
-                        is_leptonmatched = True
-                        break
-    
-            if leadingmuon:
-                for muon in event.Muons:
-                    if muon.DeltaR(leadingmuon)<0.01:
-                        continue
-                    if track.DeltaR(muon)<0.01:
-                        track_matchedMuMinv = (track + leadingmuon).M()
-                        is_leptonmatched = True
-                        break
+                if leadingelectron:
+                    for electron in event.Electrons:
+                        if electron.DeltaR(leadingelectron)<0.01:
+                            continue
+                        if track.DeltaR(electron)<0.01:
+                            track_matchedElMinv = (track + leadingelectron).M()
+                            is_leptonmatched = True
+                            break
+        
+                if leadingmuon:
+                    for muon in event.Muons:
+                        if muon.DeltaR(leadingmuon)<0.01:
+                            continue
+                        if track.DeltaR(muon)<0.01:
+                            track_matchedMuMinv = (track + leadingmuon).M()
+                            is_leptonmatched = True
+                            break
 
             pass_basecuts = pass_category and \
                         bool(event.tracks_trackQualityHighPurity[iCand]) and \
@@ -1117,7 +1121,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         pass_jetveto and \
                         pass_leptonveto
 
-            if not cutflow_study and not pass_basecuts and not is_leptonmatched: 
+            if not cutflow_study and not pass_basecuts: 
                 continue
             
             for label in bdts:
@@ -1473,28 +1477,34 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 
         tout.Fill()
 
-    fout.cd()
-    h_nev.Write()
-    if is_pmssm:
-        hnsparse.Write()
-    fout.Write()
-    fout.Close()
+    if not lumi_report:
+        fout.cd()
+        h_nev.Write()
+        if is_pmssm:
+            hnsparse.Write()
+        fout.Write()
+        fout.Close()
                             
     # write JSON containing lumisections:
+    json_compact = False
     json_filename = track_tree_output.replace(".root", ".json")
 
-    if len(runs) > 0:
-        runs_compacted = {}
-        for run in runs:
-            if run not in runs_compacted:
-                runs_compacted[run] = []
-            for lumisec in runs[run]:
-                if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
-                    runs_compacted[run][-1][-1] = lumisec
-                else:
-                    runs_compacted[run].append([lumisec, lumisec])
+    if json_compact:
+        if len(runs) > 0:
+            runs_compacted = {}
+            for run in runs:
+                if run not in runs_compacted:
+                    runs_compacted[run] = []
+                for lumisec in runs[run]:
+                    if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
+                        runs_compacted[run][-1][-1] = lumisec
+                    else:
+                        runs_compacted[run].append([lumisec, lumisec])
 
         json_content = json.dumps(runs_compacted)
+
+    if len(runs) > 0:
+        json_content = json.dumps(runs)
         with open(json_filename, "w") as fo:
             fo.write(json_content)
 
@@ -1510,6 +1520,7 @@ if __name__ == "__main__":
     parser.add_option("--overwrite", dest = "overwrite", action = "store_true")
     parser.add_option("--cutflow", dest = "cutflow_study", action = "store_true")
     parser.add_option("--trigger_study", dest = "trigger_study", action = "store_true")
+    parser.add_option("--lumi_report", dest = "lumi_report", action = "store_true")
     parser.add_option("--syst", dest = "syst", default = "")    
     (options, args) = parser.parse_args()
     
@@ -1523,11 +1534,12 @@ if __name__ == "__main__":
              debug = options.debug,
              syst = options.syst,
              trigger_study = options.trigger_study,
+             lumi_report = options.lumi_report,
             )
 
     else:
         inputfiles = [
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
@@ -1536,7 +1548,7 @@ if __name__ == "__main__":
                       #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FSv3.SMS-T2tb-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211121_205321-0001-SUS-RunIIAutumn18FSPremix-00156_1040_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.SMS-T1btbt-LLC1_ctau10to200-mGluino-1000to2800-mLSP0to2800_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_2510000-97E47666-139B-454F-8CC0-97767A14F1FF_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],
@@ -1559,4 +1571,5 @@ if __name__ == "__main__":
                  syst = options.syst,
                  cutflow_study = options.cutflow_study,
                  trigger_study = options.trigger_study,
+                 lumi_report = options.lumi_report,
                 )
