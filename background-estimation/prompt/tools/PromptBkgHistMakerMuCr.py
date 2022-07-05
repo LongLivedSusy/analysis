@@ -43,8 +43,9 @@ parser.add_argument("-v", "--verbosity", type=int, default=1000,help="analyzer s
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
-parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
+#parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
 parser.add_argument("-ps", "--analyzeskims", type=str, default='False',help="use gen-kappa")
+parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 args = parser.parse_args()
 nfpj = args.nfpj
@@ -54,7 +55,7 @@ if ',' in inputFileNames: inputFiles = inputFileNames.split(',')
 else: inputFiles = glob(inputFileNames)
 analyzer = args.analyzer
 pileup = args.pileup
-smearvar = args.smearvar
+smearvar = 'Nom'#args.smearvar
 verbosity = args.verbosity
 
 maketree = bool(not analyzeskims)
@@ -301,7 +302,6 @@ if analyzeskims:
 		regionCuts['ShortSElValidMT']          = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0),      (mdp,inf),     (0,inf),        (1,1 ),     (0,0),     (140,inf),  (0,100),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf), (mvaShortTight,inf),(20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
 		regionCuts['ShortSMuValidMT']          = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0),      (mdp,inf),     (0,inf),        (0,0),      (1,1),     (140,inf),  (0,100),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf), (mvaShortTight,inf),(20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
 #varlist_                                      = ['Ht',           'Mht',  'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'MtDtMht',      'MissingOuterHits',  'LepPt',  'BinNumber','DrJetDt','MinDPhiMhtHemJet','MTauTau','NVtx']#]#'Log10DedxMass'
-
 
 
 #varlist_                                       = ['Ht',    'Mht',     'NJets', 'BTags', 'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',  'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo',      'DtLength',    'inf', 'Met']
@@ -680,10 +680,10 @@ for ientry in range(nentries):
 			if not (abs(track.Eta())<0.15 or abs(track.Eta())>0.35): continue
 			if not (abs(track.Eta())<1.42 or abs(track.Eta())>0.65): continue
 			if not (abs(track.Eta())<1.55 or abs(track.Eta())>1.85): continue        	
-		#print 'ientry', ientry, 'found disappearing track w mva =', mva, dtlength, 'c.RunNum', c.RunNum, 'c.LumiBlockNum',c.LumiBlockNum
+		print 'ientry', ientry, 'found disappearing track w mva =', mva, dtlength, 'c.RunNum', c.RunNum, 'c.LumiBlockNum',c.LumiBlockNum
 		dedx = dedxcalib*c.tracks_deDxHarmonic2pixel[itrack]
 	
-		if not isdata and doDedxSmear:
+		if (not isdata) and doDedxSmear:
 			if abs(track.Eta())< 1.5: smearfactor = fsmear_barrel.GetRandom()
 			else: smearfactor = fsmear_endcap.GetRandom()
 			dedx = dedx + smearfactor
@@ -936,7 +936,8 @@ for ientry in range(nentries):
 	if isPromptMu:
 		br = getBinNumber(fv)
 		if br==21 or br==23: 
-			print ientry, "got ourselves a muon thingy", fv, c.GetFile().GetName()
+			a = 1
+			#print ientry, "got ourselves a muon thingy", fv, c.GetFile().GetName()
 	if turnoffpred:
 		FR, PR = 1.0, 1.0
 	else:
@@ -986,8 +987,7 @@ for ientry in range(nentries):
 							else:
 								print 'bname', bname, getattr(c,bname)[itrack]
 									
-				if (isPromptEl or isPromptMu or isPromptPi): 
-				
+				if (isPromptEl or isPromptMu or isPromptPi): 	
 					fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Truth, fv[ivar], weight_)####
 					if not turnoffpred: 
 						fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method1,fv[ivar], FR*weight_)
@@ -996,7 +996,7 @@ for ientry in range(nentries):
 						#fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Method3,fv[ivar], PRfcr*FR*weight_)						
 				if isfake:
 					#print 'filling something with weight', weight_, 'Fake'+regionkey+'_'+varname
-					fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Truth,   fv[ivar], weight_)
+					fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Truth, fv[ivar], weight_)
 					if not turnoffpred: 
 						fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method1,  fv[ivar], FR*weight_)							
 						fillth1(histoStructDict['Fake'+regionkey+'_'+varname].Method2,  fv[ivar], PR*weight_)

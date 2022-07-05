@@ -18,6 +18,7 @@ parser.add_argument("-doitlocal", "--doitlocal", type=str, default='False',help=
 parser.add_argument("-ps", "--analyzeskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
+parser.add_argument("-smearvar", "--smearvar", type=str, default='output/smallchunks')
 args = parser.parse_args()
 nfpj = args.nfpj
 fnamekeyword = args.fnamekeyword.strip()
@@ -73,7 +74,7 @@ def main():
 			fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname).replace('OUTDIR',outdir))
 			fjob.close()
 			os.chdir('jobs')
-			if doitlocal: 'source '+jobname+'.sh > '+jobname.replace('.sh','.sh.e1075')+'&'
+			if doitlocal: command = 'nohup source '+jobname+'.sh > '+jobname.replace('.sh','.sh.e1075')+'&'
 			else: command = 'condor_qsub -cwd '+jobname+'.sh &'
 			jobcounter_+=1
 			print 'command', command

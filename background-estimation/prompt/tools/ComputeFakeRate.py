@@ -9,23 +9,36 @@ from time import sleep
 
 
 '''
-python tools/ComputeFakeRate.py 2016 MC
-python tools/ComputePromptRate.py 2016 MC
+python tools/ComputeFakeRate.py Run2 data &
+python tools/ComputePromptRate.py Rune data 
+python tools/ComputeMuRate.py Run2 data 
 
-python tools/ComputeFakeRate.py 2016 data
-python tools/ComputePromptRate.py 2016 data
+python tools/ComputeFakeRate.py 2016 MC &
+python tools/ComputePromptRate.py 2016 MC &
+python tools/ComputeMuRate.py 2016 MC &
 
-python tools/ComputeFakeRate.py 2017 data
-python tools/ComputePromptRate.py 2017 data
+python tools/ComputeFakeRate.py 2017 MC &
+python tools/ComputePromptRate.py 2017 MC &
+python tools/ComputeMuRate.py 2017 MC &
 
-python tools/ComputeFakeRate.py 2018 data
-python tools/ComputePromptRate.py 2018 data
+python tools/ComputeFakeRate.py Phase1 data &
+python tools/ComputePromptRate.py Phase1 data &
+python tools/ComputeMuRate.py Phase1 data &
 
-python tools/ComputeFakeRate.py Phase1 data
-python tools/ComputePromptRate.py Phase1 data
+python tools/ComputeFakeRate.py 2016 data &
+python tools/ComputePromptRate.py 2016 data &
+python tools/ComputeMuRate.py 2016 data &
 
-python tools/ComputeFakeRate.py 2017 MC
-python tools/ComputePromptRate.py 2017 MC
+
+python tools/ComputeFakeRate.py 2017 data &
+python tools/ComputePromptRate.py 2017 data &
+python tools/ComputeMuRate.py 2017 data &
+
+python tools/ComputeFakeRate.py 2018 data &
+python tools/ComputePromptRate.py 2018 data &
+python tools/ComputeMuRate.py 2018 data &
+
+
 
 '''
 
@@ -36,14 +49,14 @@ varname_thetaBinning = 'TrkPt'
 varname_thetaBinning = 'Ht'
 varname_thetaBinning = 'TrkEta'
 
-try: year = sys.argv[1]
+try: era = sys.argv[1]
 except: 
-	year = '2017'
-	year = '2016'
-	year = '2018'
-	year = 'Phase1'
+	era = '2017'
+	era = '2016'
+	era = '2018'
+	era = 'Phase1'
 try: datamc = sys.argv[2]
-except:  datamc = 'MC'# year = 'data'
+except:  datamc = 'MC'# era = 'data'
 
 if datamc=='MC' or datamc=='Signal': isdata = False
 else: isdata=True
@@ -120,21 +133,24 @@ makefolders = False
 
 
 
-if year=='2016':	
+if era=='2016':	
 	fsource = 'test.root'
 	fsource = 'output/promptDataDrivenMCSummer16.root'
 	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if datamc=='Signal': fsource = 'PromptBkgHist_RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-847A896B-2AA6-E911-B940-0242AC1C0506_-processskimsTrue-smearvarNom.root'
-if year=='2017': 
+if era=='2017': 
 	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
 	
-if year=='2018': 
+if era=='2018': 
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+str(calm)+'to'+str(calh)+'.root'	
 	
-if year=='Phase1': 
+if era=='Phase1': 
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenPhase1_mcal'+str(calm)+'to'+str(calh)+'.root'	
+	
+if era=='Run2': 
+	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2_mcal'+str(calm)+'to'+str(calh)+'.root'		
 	
 
 print 'going to use', fsource
@@ -143,7 +159,7 @@ infile.ls()
 keys = infile.GetListOfKeys()
 
 
-fout = 'usefulthings/fakerateInfo_year'+str(year)+'.root'
+fout = 'usefulthings/fakerateInfo_era'+str(era)+'.root'
 if isdata: fout = fout.replace('.root','_data.root')
 elif datamc=='Signal': fout = fout.replace('.root','_Signal.root')
 else: fout = fout.replace('.root','_mc.root')
@@ -217,26 +233,26 @@ for key in sorted(keys):#[:241]:
 		htarget_promptcontam = htarget_promptcontam.Rebin(nbins,'',newxs)		
 							
 	if isdata:
-		if year=='2016':
+		if era=='2016':
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')
-		if year=='2017':
+		if era=='2017':
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')
-		if year=='2018':			
+		if era=='2018':			
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')
-		if year=='Phase1':			
+		if era=='Phase1':			
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')			
 	else:
-		if year=='2016':
+		if era=='2016':
 			htarget.SetTitle('')	
 			hcontrolregion.SetTitle('')		
-		if year=='2017':
+		if era=='2017':
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')	
-		if year=='2018':			
+		if era=='2018':			
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')	
 			
@@ -330,7 +346,7 @@ for key in sorted(keys):#[:241]:
 		htarget.Draw('hist text')
 		cnew.Update()
 		htarget.Write()		
-		cnew.Print('pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'_numerator.pdf')
+		cnew.Print('pdfs/closure/fake-bkg/fakerates/year'+str(era)+'_'+shortname.replace('_','')+'_numerator.pdf')
 		hcontrolregion.GetYaxis().SetTitle('low-MHT nL=0; denominator events')		
 		hcontrolregion.SetBinContent(-1,0)
 		hcontrolregion.SetBinContent(99,0)
@@ -338,19 +354,19 @@ for key in sorted(keys):#[:241]:
 		hcontrolregion.Draw('hist text')
 		cnew.Update()
 		hcontrolregion.Write()				
-		cnew.Print('pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'_denominator.pdf')		
+		cnew.Print('pdfs/closure/fake-bkg/fakerates/year'+str(era)+'_'+shortname.replace('_','')+'_denominator.pdf')		
 		hratio.GetYaxis().SetRangeUser(0,1.2*hratio.GetMaximum())
 		hratio.GetXaxis().SetLabelSize(0.05)
 		hratio.GetYaxis().SetLabelSize(0.05)		
 		hratio.GetYaxis().SetTitle('FR')
 		hratio.Draw('hist text')
-		cnew.Print('pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'_fr.pdf')
+		cnew.Print('pdfs/closure/fake-bkg/fakerates/year'+str(era)+'_'+shortname.replace('_','')+'_fr.pdf')
 	
-	#c1.Print('pdfs/closure/prompt-bkg/ZShape/year'+str(year)+shortname.replace('_','')+'.png')
+	#c1.Print('pdfs/closure/prompt-bkg/ZShape/year'+str(era)+shortname.replace('_','')+'.png')
 	
 	#clist.append(c1)
 	shortname = shortname.replace('FakeCr','')
-	pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'.pdf'
+	pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(era)+'_'+shortname.replace('_','')+'.pdf'
 	if isdata: pdfname = pdfname.replace('.','_data.')
 	else: pdfname = pdfname.replace('.','_mc.')	
 	#c1.Print(pdfname)
@@ -360,14 +376,14 @@ for key in sorted(keys):#[:241]:
 	
 	
 print 'just created', fnew.GetName()
-fnew.ls()
+#fnew.ls()
 fnew.Close()
 
 #now get the fake rate and stuff
-if isdata:  ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_data.root', 'update')
+if isdata:  ffakerate = TFile('usefulthings/fakerateInfo_era'+era+'_data.root', 'update')
 elif datamc=='Signal': 
-	ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_Signal.root','update')
-else: ffakerate = TFile('usefulthings/fakerateInfo_year'+year+'_mc.root', 'update')
+	ffakerate = TFile('usefulthings/fakerateInfo_era'+era+'_Signal.root','update')
+else: ffakerate = TFile('usefulthings/fakerateInfo_era'+era+'_mc.root', 'update')
 	
 print 'giving', 'hFakeShort'+region+'_'+varname_thetaBinning+'Truth', 'a slug'
 hnum = ffakerate.Get('hFakeShort'+region+'_'+varname_thetaBinning+'Truth')
