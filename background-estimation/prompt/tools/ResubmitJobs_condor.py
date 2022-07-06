@@ -2,8 +2,6 @@ from glob import glob
 import os, sys
 from random import shuffle
 
-
-
 def pause(str_='push enter key when ready'):
 		import sys
 		print str_
@@ -17,15 +15,16 @@ except: shkeys = 'jobs/*.sh'
 
 istest = False
 
-FirstWave = False# (means we're resubmitting the skims)
-#FirstWave = False# (means we're resubmitting the analysis jobs)
+FirstWave = True# (means we're resubmitting the skims)
+FirstWave = False# (means we're resubmitting the skim jobs)
 
 logfileversion = False
-filecheckversion = True
-errversion = False
+filecheckversion = True# this should be true for BAU skim processing
+errversion = False # this can be false for BAU skim processing
 jobsatatime = 10
 
 doitlocal = False
+doitlocal = True
 
 shlist = glob(shkeys)
 shuffle(shlist)
@@ -96,15 +95,16 @@ for ish, shfile in enumerate(shlist):
 			if "does not exist" in errtext or "basket's WriteBuffer failed" in errtext:
 				somethingmissing = True
 				print '''if "does not exist" in errtext or "basket's WriteBuffer failed" in errtext''', "does not exist" in errtext, "basket's WriteBuffer failed" in errtext
-	#pause()					
-	#if (not recoerr in elist) or noendgame or somethingmissing or nofilethere:
-	if nofilethere or noendgame:
+	#pause()			
+	print 'not recoerr in elist', not recoerr in elist, recoerr
+	if (not recoerr in elist) or noendgame or somethingmissing or nofilethere:
+	#if nofilethere or noendgame:
 		print 'resubmitting on grounds', (not recoerr in elist), noendgame, somethingmissing, nofilethere, shfile
 		if filecheckversion: print 'searched file was', keypiece, glob(keypiece+'*')
 		jobname = shfile.split('/')[-1].replace('.sh','')
 		os.chdir('jobs')
 		if doitlocal:
-			command_ = 'bash '+jobname+'.sh'# > localJob'+jobname+'.out 2> '+jobname+'.err'
+			command_ = 'nohup bash '+jobname+'.sh'# > localJob'+jobname+'.out 2> '+jobname+'.err'
 			print 'doing this local command:'
 			print command_
 			if not iactive%jobsatatime==(jobsatatime-1): command_+=' &'

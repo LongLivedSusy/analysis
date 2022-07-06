@@ -96,10 +96,9 @@ for contkey in keywordsOfContribution.keys():
 			nentries = chain_in.GetEntries()
 			print 'gonna do', keyword
 			for ientry in range(nentries):
-				if ientry % 1 == 0:
+				if ientry % 1000 == 0:
 					print 'Processing entry %d of %d' % (ientry, nentries),'('+'{:.1%}'.format(1.0*ientry/nentries)+')'
 				chain_in.GetEntry(ientry)
-				print 'loaded entry no problem'
 				#continue
 				weight[0] = chain_in.CrossSection*lumi*1.0/nsimulated			
 				if ientry==0: print keyword, 'event weight', 36000*weight[0]

@@ -11,31 +11,35 @@ from time import sleep
 '''
 python tools/ComputeFakeRate.py 2016 MC &
 python tools/ComputePromptRate.py 2016 MC &
-
-python tools/ComputeFakeRate.py Phase1 data &
-python tools/ComputePromptRate.py Phase1 data &
-
-python tools/ComputeFakeRate.py 2016 data &
-python tools/ComputePromptRate.py 2016 data &
-
-python tools/ComputeFakeRate.py 2017 data &
-python tools/ComputePromptRate.py 2017 data &
-
-python tools/ComputeFakeRate.py 2018 data &
-python tools/ComputePromptRate.py 2018 data &
+python tools/ComputeMuRate.py 2016 MC &
 
 python tools/ComputeFakeRate.py 2017 MC &
 python tools/ComputePromptRate.py 2017 MC &
-
-
-
-
-python tools/ComputeMuRate.py 2016 MC &
-python tools/ComputeMuRate.py Phase1 data &
-python tools/ComputeMuRate.py 2016 data &
-python tools/ComputeMuRate.py 2017 data &
-python tools/ComputeMuRate.py 2018 data &
 python tools/ComputeMuRate.py 2017 MC &
+
+python tools/ComputeFakeRate.py Phase1 data &
+python tools/ComputePromptRate.py Phase1 data &
+python tools/ComputeMuRate.py Phase1 data &
+
+python tools/ComputeFakeRate.py 2016 data &
+python tools/ComputePromptRate.py 2016 data &
+python tools/ComputeMuRate.py 2016 data &
+
+
+python tools/ComputeFakeRate.py 2017 data &
+python tools/ComputePromptRate.py 2017 data &
+python tools/ComputeMuRate.py 2017 data &
+
+python tools/ComputeFakeRate.py 2018 data &
+python tools/ComputePromptRate.py 2018 data &
+python tools/ComputeMuRate.py 2018 data &
+
+python tools/ComputeFakeRate.py Run2 data &
+python tools/ComputePromptRate.py Rune data &
+python tools/ComputeMuRate.py Run2 data &
+
+
+
 '''
 #python tools/ComputeMuRate.py 2016 Signal
 
@@ -43,15 +47,15 @@ varname_kappaBinning = 'TrkEta'
 varname_kappaBinning = 'TrkPt'
 
 
-try: year = sys.argv[1]
+try: era = sys.argv[1]
 except: 
-	year = '2017'
-	year = '2018'
-	year = '2016'
-	year = 'Phase1'	
+	era = '2017'
+	era = '2018'
+	era = '2016'
+	era = 'Phase1'	
 	
 try: datamc = sys.argv[2]
-except:  datamc = 'MC'# year = 'data'
+except:  datamc = 'MC'# era = 'data'
 
 print 'datamc', datamc
 
@@ -136,20 +140,23 @@ calh = 80
 #calh = 30
 
 
-if year=='2016':	
+if era=='2016':	
 	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCSummer16_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2016_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if datamc=='Signal': fsource = 'PromptBkgHist_RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-847A896B-2AA6-E911-B940-0242AC1C0506_-processskimsTrue-smearvarNom.root'
 
-if year=='2017': 
+if era=='2017': 
 	fsource = 'rootfiles/PromptBkgTree_promptDataDrivenMCFall17_mcal'+str(calm)+'to'+str(calh)+'.root'
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2017_mcal'+str(calm)+'to'+str(calh)+'.root'
 	
-if year=='2018': 
+if era=='2018': 
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2018_mcal'+str(calm)+'to'+str(calh)+'.root'	
 	
-if year=='Phase1': 
+if era=='Phase1': 
 	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenPhase1_mcal'+str(calm)+'to'+str(calh)+'.root'		
+	
+if era=='Run2': 
+	if isdata: fsource = 'rootfiles/PromptBkgTree_promptDataDrivenRun2_mcal'+str(calm)+'to'+str(calh)+'.root'
 	
 	
 print 'fsource', fsource
@@ -160,12 +167,12 @@ print 'fsource', fsource
 
 
 infile = TFile(fsource)
-infile.ls()
+#infile.ls()
 keys = infile.GetListOfKeys()
 
 
 
-fout = 'usefulthings/murateInfo_year'+str(year)+'.root'
+fout = 'usefulthings/murateInfo_era'+str(era)+'.root'
 if isdata: fout = fout.replace('.root','_data.root')
 elif datamc=='Signal':
 	print 'yessirebob'
@@ -197,6 +204,7 @@ for key in sorted(keys):#[:241]:
 	
 	kinvar = name.replace('Control','').replace('Truth','').replace('Method2','')
 	kinvar = kinvar[kinvar.find('_')+1:]
+	if not kinvar==varname_kappaBinning: continue
 	
 	hcontrolregion =   infile.Get(name).Clone()
 
@@ -230,26 +238,26 @@ for key in sorted(keys):#[:241]:
 	if 'Short' in name and 'TrkPt' in name: redoBinning[kinvar] = backuplist
 	
 	if datamc=='MC': 
-		if year=='2016':
+		if era=='2016':
 			htarget.SetTitle('')	
 			hcontrolregion.SetTitle('')		
-		if year=='2017':
+		if era=='2017':
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')	
-		if year=='2018':			
+		if era=='2018':			
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')						
 	else:
-		if year=='2016':
+		if era=='2016':
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')
-		if year=='2017':
+		if era=='2017':
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')
-		if year=='2018':			
+		if era=='2018':			
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')
-		if year=='Phase1':			
+		if era=='Phase1':			
 			htarget.SetTitle('')
 			hcontrolregion.SetTitle('')			
 
@@ -309,11 +317,11 @@ for key in sorted(keys):#[:241]:
 		c1.Write('c_'+plotname)
 
 
-		#c1.Print('pdfs/closure/prompt-bkg/ZShape/year'+str(year)+shortname.replace('_','')+'.png')
+		#c1.Print('pdfs/closure/prompt-bkg/ZShape/year'+str(era)+shortname.replace('_','')+'.png')
 	
 		#clist.append(c1)
 		shortname = shortname.replace('FakeCr','')
-		pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(year)+'_'+shortname.replace('_','')+'.pdf'
+		pdfname = 'pdfs/closure/fake-bkg/fakerates/year'+str(era)+'_'+shortname.replace('_','')+'.pdf'
 		if isdata: pdfname = pdfname.replace('.','_data.')
 		else: pdfname = pdfname.replace('.','_mc.')	
 		#c1.Print(pdfname)
@@ -346,10 +354,10 @@ fnew.Close()
 
 
 
-if isdata:  fmurate = TFile('usefulthings/murateInfo_year'+year+'_data.root', 'update')
+if isdata:  fmurate = TFile('usefulthings/murateInfo_era'+era+'_data.root', 'update')
 elif datamc=='Signal': 
-	fmurate = TFile('usefulthings/murateInfo_year'+year+'_Signal.root','update')
-else:       fmurate = TFile('usefulthings/murateInfo_year'+year+'_mc.root', 'update')
+	fmurate = TFile('usefulthings/murateInfo_era'+era+'_Signal.root','update')
+else:       fmurate = TFile('usefulthings/murateInfo_era'+era+'_mc.root', 'update')
     
     
 print 'gonna look for', 'hPromptShort'+region+'_'+varname_kappaBinning+'Truth'
