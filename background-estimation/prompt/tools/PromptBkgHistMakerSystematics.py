@@ -16,7 +16,8 @@ import collections
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False
 
-grandunified = False
+grandunified = True
+dedxzones = False # this is a flag to create plots for extra regions to study the de/dx transfer factor to populate depleted prediction bins
 
 '''
 how-to
@@ -316,16 +317,25 @@ if analyzeskims:
     regionCuts['ShortSMuValidZLL']             = [(0,inf), (0,inf), (0,inf), (0,inf), (1,inf), (1,1),   (0,0),   (mdp,inf),      (0,inf),        (0,0 ),      (1,1),     (70,105),   (0,100),  (candPtCut,inf), (0,2.4),  (0,callShort),   (0,0),   (-inf,inf),    (0,pi/4),    (mvaShortTight,inf),(-0.1,inf), (-inf,inf),     (-inf,inf),     (-inf,inf),   (0.2,inf)]
     regionCuts['LongSElValidZLL']              = [(0,inf), (30,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,1),  (mdp,inf),      (0,inf),         (1,1 ),     (0,0),      (75,100),  (0,100),  (hiptcut,inf),    (0,2.4),  (0,callLong),   (0,0),  (-inf,inf),      (0,pi/2),   (mvaLongTight,inf), (-0.1,inf), (-inf,inf),    (2,inf),          (-inf,inf),   (0.2,inf)]
     regionCuts['LongSMuValidZLL']              = [(0,inf), (30,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,1),  (mdp,inf),      (0,inf),         (0,0 ),     (1,1),      (75,100),  (0,100),  (hiptcut,inf),    (0,2.4),  (0,callLong),   (0,0),  (-inf,inf),      (0, pi/2),  (mvaLongTight,inf), (-0.1,inf), (-inf,inf),  (2,inf),            (-inf,inf),   (0.2,inf)]    
-    regionCuts['ShortHadMhtSideband']          = [(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (1,1),(0,0),       (mdp,inf),      (0,inf),        (0,0),       (0,0),       (140,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),    (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),       (-inf,inf),     (-inf,inf),   (0.2,inf)]
+    regionCuts['ShortHadMhtSideband']          = [(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (1,1),(0,0),       (mdp,inf),      (0,inf),         (0,0),      (0,0),      (140,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),    (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),       (-inf,inf),     (-inf,inf),   (0.2,inf)]
     regionCuts['LongHadMhtSideband']           = [(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (0,0),(1,1),       (mdp,inf),      (0,inf),         (0,0),      (0,0),      (140,inf), (0,inf),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),    (-inf,inf),      (0,inf),  (mvaLongTight,inf), (-0.1,inf), (20,inf),      (2,inf),          (-inf,inf),    (0.2,inf)]
-    if not flythrough4tf:    
-    
-    
+    if dedxzones:
+        regionCuts['LongBaselineLowDeDx']      = [(0,inf), (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),(mdp,inf),      (0,4.0),         (0,inf),     (0,inf),  (140,inf), (110,inf), (hiptcut,inf),   (0,2.4),  (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf),   (20,inf),         (2,inf),        (30,inf),    (0.2,inf)]
+        regionCuts['LongBaselineHighDeDx']     = [(0,inf), (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),(mdp,inf),      (4.0,inf),       (0,inf),     (0,inf),  (140,inf), (110,inf), (hiptcut,inf),   (0,2.4),  (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf),   (20,inf),         (2,inf),        (30,inf),    (0.2,inf)]
+        regionCuts['ShortBaselineLowDeDx']     = [(0,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (1,inf), (0,0), (mdp,inf),      (0,4.0),         (0,inf),     (0,inf),  (140,inf), (110,inf), (candPtCut,inf),    (0,2.4),  (0,callShort),   (0,0),      (-inf,inf),   (0,inf),(mvaShortTight,inf),(-0.1,inf), (20,inf),    (-inf,inf),      (40,inf),    (0.2,inf)]
+        regionCuts['ShortBaselineHighDeDx']    = [(0,inf), (30,inf),  (1,inf), (0,inf), (1,inf), (1,inf), (0,0), (mdp,inf),      (4.0,inf),       (0,inf),     (0,inf),  (140,inf), (110,inf), (candPtCut,inf),    (0,2.4),  (0,callShort),   (0,0),      (-inf,inf),   (0,inf),(mvaShortTight,inf),(-0.1,inf), (20,inf),    (-inf,inf),      (40,inf),    (0.2,inf)]
+        
+        regionCuts['LongHadMhtSidebandLowDeDx']= [(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (0,0),(1,1),       (mdp,inf),      (0,4.0),         (0,0),      (0,0),      (140,inf), (0,inf),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),    (-inf,inf),      (0,inf),  (mvaLongTight,inf), (-0.1,inf), (20,inf),      (2,inf),          (-inf,inf),    (0.2,inf)]
+        regionCuts['LongHadMhtSidebandHighDeDx']=[(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (0,0),(1,1),       (mdp,inf),      (4.0,inf),         (0,0),      (0,0),      (140,inf), (0,inf),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),    (-inf,inf),      (0,inf),  (mvaLongTight,inf), (-0.1,inf), (20,inf),      (2,inf),          (-inf,inf),    (0.2,inf)] 
+        regionCuts['ShortHadMhtSidebandLowDeDx']=[(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (1,1),(0,0),       (mdp,inf),      (0,4.0),        (0,0),       (0,0),       (140,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),    (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),       (-inf,inf),     (-inf,inf),   (0.2,inf)]        
+        regionCuts['ShortHadMhtSidebandHighDeDx']=[(0,inf), (30,60),  (1,inf), (0,0), (1,inf), (1,1),(0,0),       (mdp,inf),     (4.0,inf),        (0,0),       (0,0),       (140,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),    (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),       (-inf,inf),     (-inf,inf),   (0.2,inf)]                
+    elif not flythrough4tf:    
         #regionCuts['Long1bHadMhtSideband']     = [(0,inf), (30,60),  (1,inf), (1,1), (1,inf), (0,0),(1,1),       (mdp,inf),      (0,inf),         (0,0),      (0,0),      (140,inf), (0,inf),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),    (-inf,inf),    (0,inf),    (mvaLongTight,inf), (0,inf), (20,inf),      (2,inf),        (-inf,inf),    (0.2,inf)]
         regionCuts['LongBaseline']             = [(0,inf), (30,inf), (1,inf), (0,inf), (1,inf), (0,inf), (1,inf),(mdp,inf),      (0,inf),         (0,inf),     (0,inf),  (140,inf), (110,inf), (hiptcut,inf),   (0,2.4),  (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf),   (20,inf),         (2,inf),        (30,inf),    (0.2,inf)]
         #regionCuts['LongHighMetBaseline']      = [(0,inf), (300,inf),(1,inf), (0,inf), (1,inf), (0,inf), (1,inf),(mdp,inf),      (0,inf),         (0,inf),     (0,inf),  (140,inf), (110,inf), (hiptcut,inf),   (0,2.4),  (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (0,inf),   (20,inf),         (2,inf),        (30,inf),    (0.2,inf)]        
         regionCuts['LongSElValidZLLHighMT']    = [(0,inf),  (30,inf),(0,inf), (0,inf), (1,inf), (0,0),   (1,inf),(mdp,inf),      (0,inf),         (1,1 ),    (0,0),      (70,110),  (100,inf),  (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),  (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf), (-inf,inf),       (2,inf),        (30,inf),    (0.2,inf)]
         regionCuts['LongSElValidMT']           = [(0,inf),  (30,inf),(0,inf), (0,inf), (1,inf), (0,0),   (1,inf),(mdp,inf),      (0,inf),         (1,1 ),    (0,0),      (140,inf), (0,100),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf), (-inf,inf),       (2,inf),        (30,inf),    (0.2,inf)]
+        regionCuts['LongSMuValidZLLHighMT']     = [(0,inf),  (30,inf),(0,inf), (0,inf), (1,inf), (0,0), (1,inf),  (mdp,inf),    (0,inf),         (0,0),     (1,1),      (70,110), (100,inf),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf), (-inf,inf),     (2,inf),        (30,inf),    (0.2,inf)]
         regionCuts['LongSMuValidMT']           = [(0,inf),  (30,inf),(0,inf), (0,inf), (1,inf), (0,0),   (1,inf),  (mdp,inf),    (0,inf),         (0,0),     (1,1),      (140,inf), (0,100),   (hiptcut,inf),    (0,2.4), (0,callLong),   (0,0),   (-inf,inf),      (0,inf),    (mvaLongTight,inf), (-0.1,inf), (-inf,inf),     (2,inf),        (30,inf),    (0.2,inf)]
 #varlist_                                       = ['Ht',  'Mht',  'NJets', 'BTags', 'NTags', 'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength','DPhiMhtDt',     'LeadTrkMva', '2ndTrkMva',    'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau', 'NVtx','DedxMass']
         #regionCuts['Short1bHadMhtSideband']    = [(0,inf), (30,60),   (1,inf), (1,1), (1,inf), (1,1),(0,0),     (mdp,inf),       (0,inf),        (0,0),       (0,0),       (140,inf),  (0,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),    (0,inf),    (mvaShortTight,inf),(0,inf), (20,inf),       (-inf,inf),      (-inf,inf),   (0.2,inf)]
@@ -334,6 +344,7 @@ if analyzeskims:
 #varlist_                                       = ['Ht',  'Mht',  'NJets', 'BTags', 'NTags', 'NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',    'NElectrons', 'NMuons', 'InvMass', 'LepMT',   'TrkPt',     'TrkEta',    'MatchedCalo', 'IsMuMatched', 'DtLength','DPhiMhtDt',     'LeadTrkMva', '2ndTrkMva',    'MtDtMht',  'MissingOuterHits',  'LepPt',  'DrJetDt', 'BinNumber','MinDPhiMhtHemJet','MTauTau', 'NVtx','DedxMass']
         regionCuts['ShortSElValidZLLHighMT']   = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0), (mdp,inf),      (0,inf),        (1,1 ),     (0,0),     (70,110),   (100,inf),  (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),  (-inf,inf),      (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]    
         regionCuts['ShortSElValidMT']          = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0), (mdp,inf),      (0,inf),        (1,1 ),     (0,0),     (140,inf),  (0,100),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
+        regionCuts['ShortSMuValidZLLHighMT']    = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0), (mdp,inf),      (0,inf),        (0,0),      (1,1),     (70,110),  (100,inf),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
         regionCuts['ShortSMuValidMT']          = [(0,inf), (30,inf),  (0,inf), (0,inf), (1,inf), (1,inf), (0,0), (mdp,inf),      (0,inf),        (0,0),      (1,1),     (140,inf),  (0,100),   (candPtCut,inf), (0,2.4), (0,callShort),   (0,0),   (-inf,inf),      (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),        (-inf,inf),     (30,inf),    (0.2,inf)]
 
 
@@ -382,7 +393,6 @@ for key in regionkeys:
 
 #zonebinning = [0.0,99]
 
-print 'dedxidx, srindex', dedxidx, srindex
 
 indexVar = {}
 for ivar, var in enumerate(varlist_): indexVar[var] = ivar

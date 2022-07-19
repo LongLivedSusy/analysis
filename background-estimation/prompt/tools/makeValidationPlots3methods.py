@@ -132,6 +132,8 @@ tag = '2022_Apr17muon'
 tag = '2022_Apr17muonFine'
 tag = '2022_Apr17muonCoarse'
 tag = '2022_Apr19_threemethods'
+tag = '2022_May26_RenewMu'
+tag = '2022_May28_RenewMuHyb'
 
 '''
 rm -rf pdfs/Validation/prompt-bkg/* 
