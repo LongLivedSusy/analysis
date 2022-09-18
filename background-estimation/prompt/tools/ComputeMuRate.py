@@ -25,7 +25,6 @@ python tools/ComputeFakeRate.py 2016 data &
 python tools/ComputePromptRate.py 2016 data &
 python tools/ComputeMuRate.py 2016 data &
 
-
 python tools/ComputeFakeRate.py 2017 data &
 python tools/ComputePromptRate.py 2017 data &
 python tools/ComputeMuRate.py 2017 data &

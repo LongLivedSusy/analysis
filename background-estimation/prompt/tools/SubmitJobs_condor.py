@@ -74,7 +74,7 @@ def main():
 			fjob.write(jobscript.replace('CWD',cwd).replace('FNAMEKEYWORD',files).replace('ANALYZER',analyzer).replace('MOREARGS',moreargs).replace('JOBNAME',jobname).replace('OUTDIR',outdir))
 			fjob.close()
 			os.chdir('jobs')
-			if doitlocal: command = 'nohup source '+jobname+'.sh > '+jobname.replace('.sh','.sh.e1075')+'&'
+			if doitlocal: command = 'nohup bash '+jobname+'.sh > '+jobname.replace('.sh','.sh.e1075')+'&'
 			else: command = 'condor_qsub -cwd '+jobname+'.sh &'
 			jobcounter_+=1
 			print 'command', command
