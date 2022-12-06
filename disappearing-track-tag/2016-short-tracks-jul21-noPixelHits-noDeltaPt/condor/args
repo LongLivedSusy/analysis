@@ -1,1 +1,0 @@
-cd /nfs/dust/cms/user/kutznerv/shorttrack/analysis/disappearing-track-tag/2016-short-tracks-jul21-noPixelHits-noDeltaPt; cp ../trainBDT_template.py trainBDT.py; chmod +x trainBDT.py; ./trainBDT.py --category short --phase 0 --path /afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged

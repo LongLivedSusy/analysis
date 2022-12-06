@@ -15,10 +15,10 @@ parser = OptionParser()
 parser.add_option("--inputfile", dest = "inputfile", default = "")
 parser.add_option("--outputfile", dest = "outputfile")
 parser.add_option("--mode", dest="mode")
-parser.add_option("--outputfolder", dest="outputfolder", default = "ddbg_400")
-parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_120_full_merged")
+parser.add_option("--outputfolder", dest="outputfolder", default = "ddbg_500")
+parser.add_option("--skimfolder", dest="skimfolder", default = "../ntupleanalyzer/skim_128_pmssm")
 parser.add_option("--nev", dest = "nev", default = -1)
-parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 10)
+parser.add_option("--jobs_per_file", dest = "jobs_per_file", default = 1)
 parser.add_option("--files_per_job", dest = "files_per_job", default = 1)
 parser.add_option("--event_start", dest = "event_start", default = 0)
 parser.add_option("--runmode", dest="runmode", default="grid")
@@ -148,15 +148,7 @@ variables["analysis"] = [
 variables["mcplots"] = variables["analysis"]
 
 variables["fakerate"] = [
-                          #"HT:n_allvertices",
-                          #"tracks_pt",
                           "tracks_eta",
-                          #"tracks_is_pixel_track",
-                          #"HT",
-                          #"MHT",
-                          #"n_goodjets",
-                          #"n_allvertices",
-                          #"n_btags",
                         ]
 
 variables["kappa"] = [
@@ -187,7 +179,7 @@ categories = [
 
 event_selections = {}
 event_selections["analysis"] = collections.OrderedDict()
-event_selections["analysis"]["Baseline"] =               "(event.n_goodjets>=1 and event.MHT>30 and (event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.leadinglepton_mt>110 and event.tracks_invmass[i_track]>120))"
+event_selections["analysis"]["Baseline"] =               "(event.HT>150 and event.MHT>150 and event.n_goodjets>=1 and event.n_goodelectrons==0 and event.n_goodmuons==0) or (event.MHT>30 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>120 and event.leadinglepton_mt>110) or (event.MHT>30 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.tracks_invmass[i_track]>120 and event.leadinglepton_mt>110)"
 #event_selections["analysis"]["QCDLowMHTValidationJets"] = "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100 and event.n_goodjets>=1"
 #event_selections["analysis"]["QCDLowMHTJets"] =         "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>30 and event.MHT<60 and event.n_goodjets>=1"
 #event_selections["analysis"]["QCDLowMHT"] =             "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>30 and event.MHT<60"
@@ -196,14 +188,14 @@ event_selections["analysis"]["HadBaseline"] =            "event.HT>150 and event
 event_selections["analysis"]["SMuBaseline"] =            "event.MHT>30 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>120 and event.leadinglepton_mt>110"
 event_selections["analysis"]["SMuValidationZLL"] =       "event.MHT>30 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
 event_selections["analysis"]["SMuValidationLowMT"] =     "event.MHT>30 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>120 and event.leadinglepton_mt>30 and event.leadinglepton_mt<100"
-event_selections["analysis"]["SMuValidationHighMT"] =    "event.MHT>30 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<120 and event.leadinglepton_mt>100"
+#event_selections["analysis"]["SMuValidationHighMT"] =    "event.MHT>30 and event.n_goodjets>=1 and event.n_goodmuons>=1 and event.n_goodelectrons==0 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<120 and event.leadinglepton_mt>100"
 event_selections["analysis"]["SElBaseline"] =            "event.MHT>30 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.tracks_invmass[i_track]>120 and event.leadinglepton_mt>110"
 event_selections["analysis"]["SElValidationZLL"] =       "event.MHT>30 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
 event_selections["analysis"]["SElValidationLowMT"] =     "event.MHT>30 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.tracks_invmass[i_track]>120 and event.leadinglepton_mt>30 and event.leadinglepton_mt<100"
-event_selections["analysis"]["SElValidationHighMT"] =    "event.MHT>30 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<120 and event.leadinglepton_mt>100"
-event_selections["analysis"]["QCDLowMHTVal"] =           "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100 and event.n_goodjets>=1"
-event_selections["analysis"]["QCDLowMHT"] =              "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<60"
-event_selections["analysis"]["PromptDY"] =               "event.n_goodelectrons==1 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
+#event_selections["analysis"]["SElValidationHighMT"] =    "event.MHT>30 and event.n_goodjets>=1 and event.n_goodelectrons>=1 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<120 and event.leadinglepton_mt>100"
+#event_selections["analysis"]["QCDLowMHTVal"] =           "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT>60 and event.MHT<100 and event.n_goodjets>=1"
+#event_selections["analysis"]["QCDLowMHT"] =              "event.n_goodelectrons==0 and event.n_goodmuons==0 and event.MHT<60"
+#event_selections["analysis"]["PromptDY"] =               "event.n_goodelectrons==1 and event.tracks_invmass[i_track]>65 and event.tracks_invmass[i_track]<110"
 
 event_selections["mcplots"] = event_selections["analysis"]
 
@@ -225,58 +217,83 @@ event_selections["trackvars"]["DYMuSingle"] =            "event.n_goodmuons>=1 a
 #vetoes = " and event.tracks_passpionveto[i_track]==1 and event.tracks_passjetveto[i_track]==1 and event.tracks_passleptonveto[i_track]==1"
 #baselineShort = "event.tracks_is_pixel_track[i_track]==1 and abs(event.tracks_eta[i_track])<2.0" + vetoes
 #baselineLong = "event.tracks_is_pixel_track[i_track]==0 and event.tracks_nMissingOuterHits>=2 and abs(event.tracks_eta[i_track])<2.0" + vetoes
-baselineShort = "event.tracks_is_pixel_track[i_track]==1 "
-baselineLong = "event.tracks_is_pixel_track[i_track]==0 "
 
+#       #########################
+#       #           #           #
+#  Side #     A     #     C     #
+#  band #"sideband" #   "CR"    #
+#       #           #           #
+#       #########################           D_SR = C_CR * TF(B / A)
+#  BDT  #           #           #
+#  EDep #     B     #     D     #
+#  SR   #   "SR"    #   "SR"    #
+#       #           #           #
+#       #########################
+#          transf.     analysis
+#           meas.      baseline
+#          DY / QCD      MHT
+
+replacevars = {
+                'pixeltrack': 'event.tracks_is_pixel_track[i_track]',
+                'BDT': 'event.tracks_mva_sep21v1_baseline[i_track]',
+                'EDep': 'event.tracks_matchedCaloEnergy[i_track]',
+                'MinDeltaPhi': 'event.tracks_MinDeltaPhiTrackMht[i_track]',
+                'trackp': 'event.tracks_p[i_track]',
+}
 
 if phase == 0:
-    SignalShort = "event.tracks_mva_nov20_noEdep[i_track]>0.1 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    SignalLong = "event.tracks_mva_nov20_noEdep[i_track]>0.1 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    FakeSidebandShort = "event.tracks_mva_nov20_noEdep[i_track]>-0.5 and event.tracks_mva_nov20_noEdep[i_track]<0.1 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    FakeSidebandLong = "event.tracks_mva_nov20_noEdep[i_track]>-0.5 and event.tracks_mva_nov20_noEdep[i_track]<0.1 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    PromptSidebandShort = "event.tracks_mva_nov20_noEdep[i_track]>0.1 and event.tracks_matchedCaloEnergy[i_track]>20 and event.tracks_matchedCaloEnergy[i_track]<90"
-    PromptSidebandLong = "event.tracks_mva_nov20_noEdep[i_track]>0.1 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.45 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.95"
-    FakeSidebandCRShort = "event.tracks_mva_nov20_noEdep[i_track]>-0.1 and event.tracks_mva_nov20_noEdep[i_track]<0.1 and event.tracks_matchedCaloEnergy[i_track]<5"
-    FakeSidebandCRLong = "event.tracks_mva_nov20_noEdep[i_track]>-0.3 and event.tracks_mva_nov20_noEdep[i_track]<0.1 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.05"
-    PromptSidebandCRShort = "event.tracks_mva_nov20_noEdep[i_track]>-0.4 and event.tracks_matchedCaloEnergy[i_track]>20 and event.tracks_matchedCaloEnergy[i_track]<50"
-    PromptSidebandCRLong = "event.tracks_mva_nov20_noEdep[i_track]>-0.3 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.45 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.90"
+    SignalShort = "pixeltrack==1 and BDT>0.1 and EDep<15"
+    SignalLong = "pixeltrack==0 and BDT>0.12 and EDep/trackp<0.2"
+    FakeSidebandShort = "pixeltrack==1 and BDT>-0.5 and BDT<0.1 and (EDep<15 or EDep/trackp<0.15)"
+    FakeSidebandLong = "pixeltrack==0 and BDT>-0.5 and BDT<0.1 and (EDep<15 or EDep/trackp<0.15)"
+    PromptSidebandShort = "pixeltrack==1 and BDT>0.1 and EDep>20 and EDep<90"
+    PromptSidebandLong = "pixeltrack==0 and BDT>0.1 and EDep/trackp>0.45 and EDep/trackp<0.95"
+    FakeSidebandCRShort = "pixeltrack==1 and BDT>-0.1 and BDT<0.1 and EDep<5"
+    FakeSidebandCRLong = "pixeltrack==0 and BDT>-0.3 and BDT<0.1 and EDep/trackp<0.05"
+    PromptSidebandCRShort = "pixeltrack==1 and BDT>-0.4 and EDep>20 and EDep<50"
+    PromptSidebandCRLong = "pixeltrack==0 and BDT>-0.3 and EDep/trackp>0.45 and EDep/trackp<0.90"
 else:
-    SignalShort = "event.tracks_mva_nov20_noEdep[i_track]>0.12 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    SignalLong = "event.tracks_mva_nov20_noEdep[i_track]>0.15 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    FakeSidebandShort = "event.tracks_mva_nov20_noEdep[i_track]>-0.5 and event.tracks_mva_nov20_noEdep[i_track]<0.1 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    FakeSidebandLong = "event.tracks_mva_nov20_noEdep[i_track]>-0.5 and event.tracks_mva_nov20_noEdep[i_track]<0.1 and (event.tracks_matchedCaloEnergy[i_track]<15 or event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.15)"
-    PromptSidebandShort = "event.tracks_mva_nov20_noEdep[i_track]>0.12 and event.tracks_matchedCaloEnergy[i_track]>20 and event.tracks_matchedCaloEnergy[i_track]<90"
-    PromptSidebandLong = "event.tracks_mva_nov20_noEdep[i_track]>0.15 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.45 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.95"
-    FakeSidebandCRShort = "event.tracks_mva_nov20_noEdep[i_track]>-0.3 and event.tracks_mva_nov20_noEdep[i_track]<0.12 and event.tracks_matchedCaloEnergy[i_track]<5"
-    FakeSidebandCRLong = "event.tracks_mva_nov20_noEdep[i_track]>-0.3 and event.tracks_mva_nov20_noEdep[i_track]<0.15 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.05"
-    PromptSidebandCRShort = "event.tracks_mva_nov20_noEdep[i_track]>-0.5 and event.tracks_matchedCaloEnergy[i_track]>20 and event.tracks_matchedCaloEnergy[i_track]<40"
-    PromptSidebandCRLong = "event.tracks_mva_nov20_noEdep[i_track]>-0.2 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]>0.2 and event.tracks_matchedCaloEnergy[i_track]/event.tracks_p[i_track]<0.5"
+    SignalShort = "pixeltrack==1 and BDT>0.15 and EDep<15"
+    SignalLong = "pixeltrack==0 and BDT>0.08 and EDep/trackp<0.2"
+    FakeSidebandShort = "pixeltrack==1 and BDT>-0.5 and BDT<0.1 and (EDep<15 or EDep/trackp<0.15)"
+    FakeSidebandLong = "pixeltrack==0 and BDT>-0.5 and BDT<0.1 and (EDep<15 or EDep/trackp<0.15)"
+    PromptSidebandShort = "pixeltrack==1 and BDT>0.12 and EDep>20 and EDep<90"
+    PromptSidebandLong = "pixeltrack==0 and BDT>0.15 and EDep/trackp>0.45 and EDep/trackp<0.95"
+    FakeSidebandCRShort = "pixeltrack==1 and BDT>-0.3 and BDT<0.12 and EDep<5"
+    FakeSidebandCRLong = "pixeltrack==0 and BDT>-0.3 and BDT<0.15 and EDep/trackp<0.05"
+    PromptSidebandCRShort = "pixeltrack==1 and BDT>-0.5 and EDep>20 and EDep<40"
+    PromptSidebandCRLong = "pixeltrack==0 and BDT>-0.2 and EDep/trackp>0.2 and EDep/trackp<0.5"
 
 regions = collections.OrderedDict()
-regions["sr_short"] = baselineShort + " and " + SignalShort
-regions["sr_long"] = baselineLong + " and " + SignalLong
-regions["promptSideband_short"] = baselineShort + " and " + PromptSidebandShort
-regions["promptSideband_long"] = baselineLong + " and " + PromptSidebandLong    
-regions["fakeSideband_short"] = baselineShort + " and " + FakeSidebandShort
-regions["fakeSideband_long"] = baselineLong + " and " + FakeSidebandLong    
-regions["promptcr_short"] = baselineShort + " and " + PromptSidebandCRShort + " and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)"
-regions["promptcr_long"] = baselineLong + " and " + PromptSidebandCRLong + " and event.tracks_MinDeltaPhiTrackMht[i_track]<(3.14/3)"
-regions["fakecr_short"] = baselineShort + " and " + FakeSidebandCRShort + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(3.14/2)"
-regions["fakecr_long"] = baselineLong + " and " + FakeSidebandCRLong + " and event.tracks_MinDeltaPhiTrackMht[i_track]>(3.14/2)"
-
-for kappa_variable in variables["kappa"]:
-    regions["promptprediction_%s_short" % kappa_variable] = regions["promptcr_short"]
-    regions["promptprediction_%s_long" % kappa_variable] = regions["promptcr_long"]
-
-for fakerate_variable in variables["fakerate"]:
-    regions["fakeprediction_%s_short" % fakerate_variable] = regions["fakecr_short"]
-    regions["fakeprediction_%s_long" % fakerate_variable] = regions["fakecr_long"]
-
-######### add genfake and genprompt info to all regions #########
-
+#regions["sr_short"] = baselineShort + " and " + SignalShort
+#regions["sr_long"] = baselineLong + " and " + SignalLong
+regions["sr"] = "(%s) or (%s)" % (SignalShort, SignalLong)
+#regions["promptSideband_short"] = baselineShort + " and " + PromptSidebandShort
+#regions["promptSideband_long"] = baselineLong + " and " + PromptSidebandLong    
+#regions["fakeSideband_short"] = baselineShort + " and " + FakeSidebandShort
+#regions["fakeSideband_long"] = baselineLong + " and " + FakeSidebandLong    
+#regions["promptcr_short"] = baselineShort + " and " + PromptSidebandCRShort + " and MinDeltaPhi<(3.14/3)"
+#regions["promptcr_long"] = baselineLong + " and " + PromptSidebandCRLong + " and MinDeltaPhi<(3.14/3)"
+#regions["fakecr_short"] = baselineShort + " and " + FakeSidebandCRShort + " and MinDeltaPhi>(3.14/2)"
+#regions["fakecr_long"] = baselineLong + " and " + FakeSidebandCRLong + " and MinDeltaPhi>(3.14/2)"
+#
+#for kappa_variable in variables["kappa"]:
+#    regions["promptprediction_%s_short" % kappa_variable] = regions["promptcr_short"]
+#    regions["promptprediction_%s_long" % kappa_variable] = regions["promptcr_long"]
+#
+#for fakerate_variable in variables["fakerate"]:
+#    regions["fakeprediction_%s_short" % fakerate_variable] = regions["fakecr_short"]
+#    regions["fakeprediction_%s_long" % fakerate_variable] = regions["fakecr_long"]
+#
+########## add genfake and genprompt info to all regions #########
+#
 for regionlabel in regions.keys():
-    regions[regionlabel.replace("_short", "_genfake_short").replace("_long", "_genfake_long")] = regions[regionlabel] + " and event.tracks_fake[i_track]==1"
-    regions[regionlabel.replace("_short", "_genprompt_short").replace("_long", "_genprompt_long")] = regions[regionlabel] + " and event.tracks_fake[i_track]==0"
+
+    for shortvar in replacevars:
+        regions[regionlabel] = regions[regionlabel].replace(shortvar, replacevars[shortvar])
+
+    #regions[regionlabel.replace("_short", "_genfake_short").replace("_long", "_genfake_long")] = regions[regionlabel] + " and event.tracks_fake[i_track]==1"
+    #regions[regionlabel.replace("_short", "_genprompt_short").replace("_long", "_genprompt_long")] = regions[regionlabel] + " and event.tracks_fake[i_track]==0"
 
 ######### samples #########
 
@@ -351,19 +368,19 @@ samples["mcplots"] = {
             #"T1qqqq16": ["RunIISummer16MiniAODv3.SMS-T1qqqq*root"],
             #"T2bt16": ["RunIISummer16MiniAODv3.SMS-T2bt*root"],
             "PMSSM17": ["RunIIFall17FS.PMSSM*root"],
-            "PMSSM18": ["RunIIFall18FS.PMSSM*root"],
+            "PMSSM18": ["RunIIAutumn18FS.PMSSM*root"],
           }
 
 signal_cuts = {
                "pooled": "event.tracks_chiCandGenMatchingDR[i_track]<0.01",
-               "glu2000_lsp1000": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2000 and event.signal_lsp_mass==1000",
-               "glu2000_lsp1975": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2000 and event.signal_lsp_mass==1975",
-               "glu2700_lsp1700": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2700 and event.signal_lsp_mass==1700",
-               "glu2700_lsp2672": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2700 and event.signal_lsp_mass==2672",
-               "stop2000_lsp1000": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2000 and event.signal_lsp_mass==1000",
-               "stop2000_lsp1900": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2000 and event.signal_lsp_mass==1900",
-               "stop2500_lsp1500": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2500 and event.signal_lsp_mass==1500",
-               "stop2500_lsp2000": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2500 and event.signal_lsp_mass==2000",
+               #"glu2000_lsp1000": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2000 and event.signal_lsp_mass==1000",
+               #"glu2000_lsp1975": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2000 and event.signal_lsp_mass==1975",
+               #"glu2700_lsp1700": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2700 and event.signal_lsp_mass==1700",
+               #"glu2700_lsp2672": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_gluino_mass==2700 and event.signal_lsp_mass==2672",
+               #"stop2000_lsp1000": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2000 and event.signal_lsp_mass==1000",
+               #"stop2000_lsp1900": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2000 and event.signal_lsp_mass==1900",
+               #"stop2500_lsp1500": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2500 and event.signal_lsp_mass==1500",
+               #"stop2500_lsp2000": "event.tracks_chiCandGenMatchingDR[i_track]<0.01 and event.signal_stop_mass==2500 and event.signal_lsp_mass==2000",
             }
 
 
@@ -381,10 +398,9 @@ def calculate_ratio(mode, rootfile, path, numerator_label, denominator_label, ra
                     fakes_denominator.SetDirectory(0)
                     tfile_merged.Close()
 
-                    print "histo", run_period + "_" + variable + "_" + event_selection + "_" + numerator_label + "_" + category
-                    print "last", fakes_numerator.GetBinCenter(fakes_numerator.GetXaxis().GetNbins())
-                    print "overflow", fakes_numerator.GetBinCenter(fakes_numerator.GetXaxis().GetNbins()+1)
-                    
+                    print("histo", run_period + "_" + variable + "_" + event_selection + "_" + numerator_label + "_" + category)
+                    print("last", fakes_numerator.GetBinCenter(fakes_numerator.GetXaxis().GetNbins()))
+                    print("overflow", fakes_numerator.GetBinCenter(fakes_numerator.GetXaxis().GetNbins()+1))
 
                     tfile_fakerate = TFile(rootfile, "update")
                     fakes_numerator.Write()
@@ -447,7 +463,7 @@ def submit_files(mode, outputfolder, options, submit = True):
     commands = []
 
     for i, inputfile in enumerate(inputfiles):            
-        print inputfile
+        print(inputfile)
         if options.jobs_per_file>1:
             fin = TFile(inputfile)
             tree = fin.Get("Events")
@@ -458,7 +474,7 @@ def submit_files(mode, outputfolder, options, submit = True):
                     cmd = "./%s/%s --outputfolder %s --inputfile %s --outputfile %s --mode %s --event_start %s --nev %s; " % (options.outputfolder, this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode, iStart, int(nev/options.jobs_per_file))
                     commands.append(cmd)
         else:
-            cmd = "./%s/%s --outputfolder %s --inputfile ../%s --outputfile ../%s --mode %s; " % (options.outputfolder, this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode)
+            cmd = "./%s/%s --outputfolder %s --inputfile %s --outputfile %s --mode %s; " % (options.outputfolder, this_script_name, outputfolder, inputfile, outputfolder + "/" + inputfile.split("/")[-1], mode)
             commands.append(cmd)
             
     if options.files_per_job>1:
@@ -468,7 +484,10 @@ def submit_files(mode, outputfolder, options, submit = True):
             commands.append(" ".join(chunk))
 
     if submit:
-        print "Running %s jobs..." % len(commands)        
+        print(commands)
+        raw_input("Submit?")
+
+        print("Running %s jobs..." % len(commands))
         GridEngineTools.runParallel(commands, options.runmode, "%s.condor" % outputfolder, confirm=False)
 
     return commands
@@ -483,13 +502,13 @@ def spawn_jobs(options):
         this_script_name = os.path.basename(__file__)
         os.system("cp %s %s/" % (this_script_name, options.outputfolder) )
         os.system("cp ../tools/shared_utils.py %s/" % options.outputfolder )
-                
+               
         submit_files(options.mode, options.outputfolder, options)
         hadd_everything(samples[options.mode], options.outputfolder)                
 
     else:
         
-        print "Full chain..."
+        print("Full chain...")
         
         os.system("mkdir -p %s" % options.outputfolder)
         os.system("mkdir -p %s_fakerate" % options.outputfolder)
@@ -507,8 +526,8 @@ def spawn_jobs(options):
         cmds_fakerate = submit_files("fakerate", outputfolder_fakerate, options, submit = False)
         cmds_kappa = submit_files("kappa", outputfolder_kappa, options, submit = False)
 
-        print cmds_fakerate[0]
-        raw_input()
+        print(cmds_fakerate[0])
+        raw_input("Submit?")
 
         GridEngineTools.runParallel(cmds_fakerate + cmds_kappa, options.runmode, "%s_tfactors.condor" % options.outputfolder, confirm=False)
         
@@ -592,16 +611,16 @@ def get_value(event, variable, i_track, filename):
 
 def getBinContent_with_overflow(histo, xval, yval = False):
     
-    print "xval", xval
+    print("xval", xval)
     
     if not yval:
         # overflow for TH1Fs:
         if xval >= histo.GetXaxis().GetXmax():
-            print histo.GetTitle()
-            print "Overflow", xval, histo.GetXaxis().GetXmax()
-            print "last val:", histo.GetBinContent(histo.GetXaxis().GetNbins()-1)            
+            print(histo.GetTitle())
+            print("Overflow", xval, histo.GetXaxis().GetXmax())
+            print("last val:", histo.GetBinContent(histo.GetXaxis().GetNbins()-1))
             value = histo.GetBinContent(histo.GetXaxis().GetNbins())
-            print value
+            print(value)
         else:
             value = histo.GetBinContent(histo.GetXaxis().FindBin(xval))
         return value
@@ -631,333 +650,353 @@ def fill_histogram(variable, value, histograms, event_selection, data_period, re
         histograms[h_name].Fill(value[0], value[1], weight*scaling)
 
 
+def fill_sparse(event, signal_region, weight, hnsparse, hnsparse_noweights, hnsparse_onlyZeroUnweighted):
+
+    pMSSMid1 = event.SusyMotherMass
+    pMSSMid2 = event.SusyLSPMass
+    coordinates = np.float64([pMSSMid1, pMSSMid2, signal_region])
+    hnsparse.Fill(coordinates, weight)
+    hnsparse_onlyZeroUnweighted.Fill(coordinates, weight)
+    hnsparse_noweights.Fill(coordinates, 1)
+
+
 def event_loop(input_filenames, output_file, outputfolder, mode, event_start, nevents):
 
     gROOT.SetBatch(True)
     gStyle.SetOptStat(0)
     TH1D.SetDefaultSumw2()
 
-    if "SMS" in input_filenames[0] and "T1qqqq" in input_filenames[0]:
+    if "SMS" in input_filenames[0]:
         is_signal = True
-        extracuts = signal_cuts
-    elif "SMS" in input_filenames[0] and "T2bt" in input_filenames[0]:
-        is_signal = True
-        extracuts = signal_cuts
     else:
         is_signal = False
-        extracuts = {
-                      "": "",
-                    }
 
     if "PMSSM" in input_filenames[0]:
         is_pmssm = True
     else:
         is_pmssm = False
         
-    for extracut_label in extracuts:
+    # check if data:
+    phase = 0
+    data_period = ""
+    is_data = False
+    filename = input_filenames[0]
+    for label in ["Run2016", "Run2017", "Run2018", "Summer16", "Fall17", "Autumn18"]:
+        if label in filename:
+            data_period = label
+            if "Run201" in label:
+                is_data = True
+            if label == "Run2016" or label == "Summer16":
+                phase = 0
+            elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
+                phase = 1
 
-        if "glu" in extracut_label and "T2bt" in input_filenames[0]:
-            continue
-        elif "stop" in extracut_label and "T1qqqq" in input_filenames[0]:
-            continue
+    # implement THnSparse:
+    if is_pmssm:
+        pMSSMid1_max = 600
+        pMSSMid1_low = 0.5
+        pMSSMid1_up = pMSSMid1_max + 0.5
+        pMSSMid2_max = 144855
+        pMSSMid2_low = 0.5
+        pMSSMid2_up = pMSSMid2_max + 0.5
+        sr_max = 51+1
+        sr_low = 0.5-1
+        sr_up = 51.5
+        bins = np.intc([pMSSMid1_max, pMSSMid2_max, sr_max])
+        low = np.float64([pMSSMid1_low, pMSSMid2_low, sr_low])
+        high = np.float64([pMSSMid1_up, pMSSMid2_up, sr_up])
+        hnsparse = THnSparseF("disappearingtracks", "disappearingtracks", 3, bins, low, high)
+        hnsparse_noweights = THnSparseF("disappearingtracks_noweights", "disappearingtracks_noweights", 3, bins, low, high)
+        hnsparse_onlyZeroUnweighted = THnSparseF("disappearingtracks_onlyZeroUnweighted", "disappearingtracks_onlyZeroUnweighted", 3, bins, low, high)
+    
+    nev = 0
+    nev_puweighted = 0
+    for tree_file in input_filenames:
+        
+        print "Loading %s" % tree_file
+            
+        fin = TFile(tree_file)
+    
+        # get nev count:
+        h_nev = fin.Get("nev")
+        nev += int(h_nev.GetBinContent(1))
+        #nev_puweighted += float(h_nev.GetBinContent(2))
 
-        # check if data:
-        phase = 0
-        data_period = ""
-        is_data = False
-        filename = input_filenames[0]
-        for label in ["Run2016", "Run2017", "Run2018", "Summer16", "Fall17", "Autumn18"]:
-            if label in filename:
-                data_period = label
-                if "Run201" in label:
-                    is_data = True
-                if label == "Run2016" or label == "Summer16":
-                    phase = 0
-                elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
-                    phase = 1
-        
-        nev = 0
-        for tree_file in input_filenames:
-            fin = TFile(tree_file)
-            h_nev = fin.Get("nev")
-            nev += int(h_nev.GetBinContent(1))
-            fin.Close()
-        
-        print "data period: %s, phase: %s, N_ev: %s" % (data_period, phase, nev)
-        
-        tree = TChain("Events")       
-        for i, tree_file in enumerate(input_filenames):
-            tree.Add(tree_file)
-        
-        # construct all histograms:
-        histograms = {}
-        for variable in variables[mode]:
-            for event_selection in event_selections[mode]:
-                for region in regions:
-                    h_name = data_period + "_" + variable + "_" + event_selection + "_" + region
-                    if ":" not in variable:
-                        if binnings[mode][variable][0] == "variable":
-                            histograms[h_name] = TH1F(h_name, h_name, len(binnings[mode][variable][1:]) - 1, array('d', binnings[mode][variable][1:]) )                    
-                        else:
-                            histograms[h_name] = TH1F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2])
-                    else:
-                        histograms[h_name] = TH2F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2], binnings[mode][variable][3], binnings[mode][variable][4], binnings[mode][variable][5])
-        
-        # speed things up:
-        event_selections_converted_notracks = {}
+        # get Sparse:
+        if "PMSSM" in tree_file:
+            current_sparse = fin.Get("disappearingtracks")
+            hnsparse.Add(current_sparse)
+            current_sparse_noweights = fin.Get("disappearingtracks_noweights") 
+            hnsparse_noweights.Add(current_sparse_noweights)
+            hnsparse_onlyZeroUnweighted.Add(current_sparse_noweights)
+
+        fin.Close()
+    
+    print("data period: %s, phase: %s, N_ev: %s" % (data_period, phase, nev))
+    
+    tree = TChain("Events")       
+    for i, tree_file in enumerate(input_filenames):
+        tree.Add(tree_file)
+    
+    # construct all histograms:
+    histograms = {}
+    for variable in variables[mode]:
         for event_selection in event_selections[mode]:
-            if event_selection == "Baseline":
-                # don't change this
-                event_selections_converted_notracks[event_selection] = event_selections["analysis"]["Baseline"].replace("and event.tracks_invmass[i_track]>120", "")
+            for region in regions:
+                h_name = data_period + "_" + variable + "_" + event_selection + "_" + region
+                if ":" not in variable:
+                    if binnings[mode][variable][0] == "variable":
+                        histograms[h_name] = TH1F(h_name, h_name, len(binnings[mode][variable][1:]) - 1, array('d', binnings[mode][variable][1:]) )                    
+                    else:
+                        histograms[h_name] = TH1F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2])
+                else:
+                    histograms[h_name] = TH2F(h_name, h_name, binnings[mode][variable][0], binnings[mode][variable][1], binnings[mode][variable][2], binnings[mode][variable][3], binnings[mode][variable][4], binnings[mode][variable][5])
+    
+    # speed things up:
+    event_selections_converted_notracks = {}
+    for event_selection in event_selections[mode]:
+        if event_selection == "Baseline":
+            # don't change this
+            event_selections_converted_notracks[event_selection] = event_selections["analysis"]["Baseline"].replace("and event.tracks_invmass[i_track]>120", "")
+        else:
+            cutstring = event_selections[mode][event_selection]
+            # remove tracks variables:
+            cutstring_parts = cutstring.split()
+            new_cutstring = ""
+            for cutstring_part in cutstring_parts:
+                if "tracks_" not in cutstring_part:
+                    new_cutstring += cutstring_part + " "
+            for i in range(10):
+                new_cutstring = new_cutstring.replace("and and", "and")
+            if new_cutstring.split()[-1] == "and":
+                new_cutstring = " ".join(new_cutstring.split()[:-1])            
+            event_selections_converted_notracks[event_selection] = new_cutstring
+    
+    # Get fakerate and kappa histograms:
+    if mode == "analysis":
+        tfile_factors = TFile(outputfolder + "/fakeratekappa.root", "open")
+        tfactors = {}
+        
+        for variable in variables["kappa"]:
+            tfactors["kappa_%s_short" % variable] = tfile_factors.Get(data_period + "_%s_PromptDY_kappa_short" % variable)
+            tfactors["kappa_%s_long" % variable] = tfile_factors.Get(data_period + "_%s_PromptDY_kappa_long" % variable)
+            tfactors["kappa_%s_short" % variable].SetDirectory(0)
+            tfactors["kappa_%s_long" % variable].SetDirectory(0)
+            
+        for variable in variables["fakerate"]:
+            tfactors["fakerate_%s_short" % variable] = tfile_factors.Get(data_period + "_%s_QCDLowMHT_fakerate_short" % variable)
+            tfactors["fakerate_%s_long" % variable] = tfile_factors.Get(data_period + "_%s_QCDLowMHT_fakerate_long" % variable)
+            tfactors["fakerate_%s_short" % variable].SetDirectory(0)
+            tfactors["fakerate_%s_long" % variable].SetDirectory(0)
+        
+        tfile_factors.Close()
+        
+    # main event loop:
+    nev_tree = tree.GetEntries()
+    print("nev_tree", nev_tree)
+    for iEv, event in enumerate(tree):
+    
+        if iEv < int(event_start):
+            continue
+        if int(nevents) > 0 and iEv > int(nevents) + int(event_start):
+            break
+        
+        if (iEv+1) % 1000 == 0:
+            if int(event_start) < 0:
+                Nstart = iEv
             else:
-                cutstring = event_selections[mode][event_selection]
-                # remove tracks variables:
-                cutstring_parts = cutstring.split()
-                new_cutstring = ""
-                for cutstring_part in cutstring_parts:
-                    if "tracks_" not in cutstring_part:
-                        new_cutstring += cutstring_part + " "
-                for i in range(10):
-                    new_cutstring = new_cutstring.replace("and and", "and")
-                if new_cutstring.split()[-1] == "and":
-                    new_cutstring = " ".join(new_cutstring.split()[:-1])            
-                event_selections_converted_notracks[event_selection] = new_cutstring
-        
-        # Get fakerate and kappa histograms:
-        if mode == "analysis":
-            tfile_factors = TFile(outputfolder + "/fakeratekappa.root", "open")
-            tfactors = {}
+                Nstart = int(event_start) + iEv
+            if int(event_start) + int(nevents) > nev_tree:
+                Nend = nev_tree
+            else:
+                Nend = int(event_start) + int(nevents)
+            print("Running %s on %s: %s/%s" % (mode, filename.split("/")[-1], Nstart, Nend))
+    
+        weight = 1.0
+        if not is_data:
+            weight = 1.0 * event.CrossSection * event.puWeight / nev
             
-            for variable in variables["kappa"]:
-                tfactors["kappa_%s_short" % variable] = tfile_factors.Get(data_period + "_%s_PromptDY_kappa_short" % variable)
-                tfactors["kappa_%s_long" % variable] = tfile_factors.Get(data_period + "_%s_PromptDY_kappa_long" % variable)
-                tfactors["kappa_%s_short" % variable].SetDirectory(0)
-                tfactors["kappa_%s_long" % variable].SetDirectory(0)
+        # loop over all event selections:
+        for event_selection in event_selections[mode]:
+    
+            for region in regions:
+    
+                if "gen" in region and is_data:
+                    continue
                 
-            for variable in variables["fakerate"]:
-                tfactors["fakerate_%s_short" % variable] = tfile_factors.Get(data_period + "_%s_QCDLowMHT_fakerate_short" % variable)
-                tfactors["fakerate_%s_long" % variable] = tfile_factors.Get(data_period + "_%s_QCDLowMHT_fakerate_long" % variable)
-                tfactors["fakerate_%s_short" % variable].SetDirectory(0)
-                tfactors["fakerate_%s_long" % variable].SetDirectory(0)
-            
-            tfile_factors.Close()
-            
-        # implement THnSparse:
-        if is_pmssm:
-            pMSSMid1_max = 600
-            pMSSMid1_low = 0.5
-            pMSSMid1_up = pMSSMid1_max + 0.5
-            pMSSMid2_max = 144855
-            pMSSMid2_low = 0.5
-            pMSSMid2_up = pMSSMid2_max + 0.5
-            sr_max = 50
-            sr_low = 0.5
-            sr_up = sr_max + 0.5
-            
-            bins = np.intc([pMSSMid1_max, pMSSMid2_max, sr_max])
-            low = np.float64([pMSSMid1_low, pMSSMid2_low, sr_low])
-            high = np.float64([pMSSMid1_up, pMSSMid2_up, sr_up])
-            hnsparse = THnSparseS("disappearingtracks", "disappearingtracks", 3, bins, low, high)
-
-        # main event loop:
-        nev_tree = tree.GetEntries()
-        print "nev_tree", nev_tree
-        for iEv, event in enumerate(tree):
-        
-            if iEv < int(event_start):
-                continue
-            if int(nevents) > 0 and iEv > int(nevents) + int(event_start):
-                break
-            
-            if (iEv+1) % 100 == 0:
-                if int(event_start) < 0:
-                    Nstart = iEv
-                else:
-                    Nstart = int(event_start) + iEv
-                if int(event_start) + int(nevents) > nev_tree:
-                    Nend = nev_tree
-                else:
-                    Nend = int(event_start) + int(nevents)
-                print "Running %s on %s: %s/%s" % (mode, filename.split("/")[-1], Nstart, Nend)
-        
-            weight = 1.0
-            if not is_data:
-                weight = 1.0 * event.CrossSection * event.puWeight / nev
-                
-            # loop over all event selections:
-            for event_selection in event_selections[mode]:
-        
-                for region in regions:
-        
-                    if "gen" in region and is_data:
-                        continue
-                    
-                    # this is to speed things up       
-                    if not eval(event_selections_converted_notracks[event_selection]):
-                        continue
-        
-                    cutstring = event_selections[mode][event_selection] + " and " + regions[region]
-        
-                    n_DT = 0
-        
-                    kappas = []
-        
-                    values = {}
-                    for variable in variables[mode]:
-                        values[variable] = []
-                    if "tracks_is_pixel_track" not in variables[mode]:
-                        values["tracks_is_pixel_track"] = []
-                                    
-                    # loop over all tracks:
-                    for i_track in xrange(len(event.tracks_ptError)):
-                            
-                        # check signal cut:
-                        if is_signal and not eval(extracuts[extracut_label]):
-                            continue
-                                                                                    
-                        if eval(cutstring):
-                                                    
-                            # save track info....
-                            for variable in variables[mode]:
-        
-                                if variable == "n_tags": continue
-        
-                                # for event level quantities, fill only once:
-                                if "tracks_" not in variable and len(values[variable]) > 0:
-                                    continue
-        
-                                values[variable].append(get_value(event, variable, i_track, filename))
-                            
-                            if "tracks_is_pixel_track" not in variables[mode]:
-                                values["tracks_is_pixel_track"].append(event.tracks_is_pixel_track[i_track])
-                            
-                            # get fakerate:
-                            if mode == "analysis":
-                                fakerates = {}
-                                for tfactortype in ["fakerate", "kappa"]:
-                                    for variable in variables[tfactortype]:
-                                        if ":" not in variable:
-                                            if "tracks_" in variable:
-                                                xval = eval("event.%s[i_track]" % variable)
-                                            else:
-                                                xval = eval("event.%s" % variable)
-                                            fakerates["%s_%s_short" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_short" % (tfactortype, variable)], xval)
-                                            fakerates["%s_%s_long" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_long" % (tfactortype, variable)], xval)
-                                        else:
-                                            xval = eval("event.%s" % variable.split(":")[0])
-                                            yval = eval("event.%s" % variable.split(":")[1])
-                                            fakerates["%s_%s_short" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_short" % (tfactortype, variable)], xval, yval = yval)
-                                            fakerates["%s_%s_long" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_long" % (tfactortype, variable)], xval, yval = yval)
-                            
-                            # save kappa:
-                            if mode == "analysis" and "prompt" in region:
-                                if is_pixel_track:
-                                    kappa = getBinContent_with_overflow(tfactors["kappa_tracks_pt_short"], event.tracks_pt[i_track])
-                                else:
-                                    kappa = getBinContent_with_overflow(tfactors["kappa_tracks_pt_long"], event.tracks_pt[i_track])
-                                kappas.append(kappa)
+                # this is to speed things up       
+                if not eval(event_selections_converted_notracks[event_selection]):
+                    continue
+    
+                cutstring = event_selections[mode][event_selection] + " and " + regions[region]
+    
+                n_DT = 0
+    
+                kappas = []
+    
+                values = {}
+                for variable in variables[mode]:
+                    values[variable] = []
+                if "tracks_is_pixel_track" not in variables[mode]:
+                    values["tracks_is_pixel_track"] = []
                                 
-                            # fill THnSparse:
-                            if is_pmssm:
-                                signal_region = 1            
-                                pMSSMid1 = event.SusyMotherMass
-                                pMSSMid2 = event.SusyLSPMass
-                                coordinates = np.float64([pMSSMid1, pMSSMid2, signal_region])
-                                hnsparse.Fill(coordinates, weight)
-
-                            if "Single" in event_selection:
-                                # look at only one selected track per event
-                                continue
-        
-                    n_tags = len(values["tracks_is_pixel_track"])
-                    if variable == "n_tags":
-                        values["n_tags"].append(n_tags)
-                    
-                    if n_tags == 0: continue
-        
-                    # Last but not least fill n_tags:
-                    values["n_tags"] = [n_tags]
-                    event.n_tags = n_tags
-        
-                    if n_tags>1 and "region" in values:
-                        if event.n_goodelectrons == 0 and event.n_goodmuons == 0:
-                            values["region"] = [49]
-                        if event.n_goodelectrons == 0 and event.n_goodmuons > 0:
-                            values["region"] = [50]
-                        if event.n_goodelectrons > 0 and event.n_goodmuons > 0:
-                            values["region"] = [51]
-        
-                    for i, is_pixel_track in enumerate(values["tracks_is_pixel_track"]):
+                # loop over all tracks:
+                for i_track in xrange(len(event.tracks_ptError)):
+                        
+                    # check signal cut:
+                    if is_signal and not eval(event.tracks_chiCandGenMatchingDR[i_track]<0.01):
+                        continue
+                                                                                
+                    if eval(cutstring):
+                                                
+                        # save track info....
                         for variable in variables[mode]:
-        
-                            if variable == "n_tags" and i>0: continue
-        
-                            value = values[variable][i]
-        
-                            scaling = 1.0
-                            if mode == "analysis" and "fakeprediction" in region:
-                                for fakevariable in variables["fakerate"]:
-                                    if fakevariable in region:
-                                        if is_pixel_track:
-                                            scaling = fakerates["fakerate_%s_short" % fakevariable]
+    
+                            if variable == "n_tags": continue
+    
+                            # for event level quantities, fill only once:
+                            if "tracks_" not in variable and len(values[variable]) > 0:
+                                continue
+    
+                            values[variable].append(get_value(event, variable, i_track, filename))
+                        
+                        if "tracks_is_pixel_track" not in variables[mode]:
+                            values["tracks_is_pixel_track"].append(event.tracks_is_pixel_track[i_track])
+                        
+                        # get fakerate:
+                        if mode == "analysis":
+                            fakerates = {}
+                            for tfactortype in ["fakerate", "kappa"]:
+                                for variable in variables[tfactortype]:
+                                    if ":" not in variable:
+                                        if "tracks_" in variable:
+                                            xval = eval("event.%s[i_track]" % variable)
                                         else:
-                                            scaling = fakerates["fakerate_%s_long" % fakevariable]
-                                        break
+                                            xval = eval("event.%s" % variable)
+                                        fakerates["%s_%s_short" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_short" % (tfactortype, variable)], xval)
+                                        fakerates["%s_%s_long" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_long" % (tfactortype, variable)], xval)
+                                    else:
+                                        xval = eval("event.%s" % variable.split(":")[0])
+                                        yval = eval("event.%s" % variable.split(":")[1])
+                                        fakerates["%s_%s_short" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_short" % (tfactortype, variable)], xval, yval = yval)
+                                        fakerates["%s_%s_long" % (tfactortype, variable)] = getBinContent_with_overflow(tfactors["%s_%s_long" % (tfactortype, variable)], xval, yval = yval)
+                        
+                        # save kappa:
+                        if mode == "analysis" and "prompt" in region:
+                            if is_pixel_track:
+                                kappa = getBinContent_with_overflow(tfactors["kappa_tracks_pt_short"], event.tracks_pt[i_track])
+                            else:
+                                kappa = getBinContent_with_overflow(tfactors["kappa_tracks_pt_long"], event.tracks_pt[i_track])
+                            kappas.append(kappa)
+                            
+                        if "Single" in event_selection:
+                            # look at only one selected track per event
+                            continue
+    
+                n_tags = len(values["tracks_is_pixel_track"])
+                if variable == "n_tags":
+                    values["n_tags"].append(n_tags)
+                
+                if n_tags == 0:
+                    continue
+    
+                # Last but not least fill n_tags:
+                values["n_tags"] = [n_tags]
+                event.n_tags = n_tags
+                if n_tags>1 and "region" in values:
+                    if event.n_goodelectrons == 0 and event.n_goodmuons == 0:
+                        values["region"] = [49]
+                    if event.n_goodelectrons == 0 and event.n_goodmuons > 0:
+                        values["region"] = [50]
+                    if event.n_goodelectrons > 0 and event.n_goodmuons > 0:
+                        values["region"] = [51]
         
-                                if n_tags > 1:
-                                    scaling = fakerate_short * fakerate_long
+                # fill THnSparse:
+                sr_bin = values["region"][0]
+                if is_pmssm and event_selection == "Baseline" and region == "sr" and sr_bin>0:
+                    fill_sparse(event, sr_bin, event.puWeight, hnsparse, hnsparse_noweights, hnsparse_onlyZeroUnweighted)
         
-                            #elif mode == "analysis" and "promptpredictionsubtracted" in region:
-                            #    scaling = kappas[i]
-                            #    if n_tags > 1:
-                            #        scaling = kappas[i] * kappas[i]
-                            #        
-                            #    # subtract fake background: N_ev * kappa - N_ev * FR = N_ev * (kappa - FR)
-                            #    if is_pixel_track:
-                            #        scaling -= fakerate_short
-                            #    else:
-                            #        scaling -= fakerate_long
-                            #    
-                            #    if scaling < 0:
-                            #        scaling = 0
+                # fill histograms:
+                for i, is_pixel_track in enumerate(values["tracks_is_pixel_track"]):
+                    for variable in variables[mode]:
         
-                            #elif mode == "analysis" and "promptprediction" in region:
-                            #    
-                            #    for fakevariable in variables["fakerate"]:
-                            #        if fakevariable in region:
-                            #            if is_pixel_track:
-                            #                scaling = kappas[i] * fakerates["fakerate_%s_short" % fakevariable]
-                            #            else:
-                            #                scaling = kappas[i] * fakerates["fakerate_%s_long" % fakevariable]
-                            #            break
-                            #    
-                            #    #if is_pixel_track:
-                            #    #    scaling = kappas[i] * fakerate_short
-                            #    #else:
-                            #    #    scaling = kappas[i] * fakerate_long
-                            #    #elif n_tags > 1:
-                            #    #    scaling = kappas[i] * kappas[i] * fakerate_short * fakerate_long
-                                    
-                            elif mode == "analysis" and "promptprediction" in region:
-                                scaling = kappas[i]
-                                if n_tags > 1:
-                                    scaling = kappas[i] * kappas[i]
-        
-                            fill_histogram(variable, value, histograms, event_selection, data_period, region, weight, scaling)
+                        if variable == "n_tags" and i>0: continue
+                        if "tracks_" not in variable and i>0: continue
+    
+                        value = values[variable][i]
+    
+                        scaling = 1.0
+                        if mode == "analysis" and "fakeprediction" in region:
+                            for fakevariable in variables["fakerate"]:
+                                if fakevariable in region:
+                                    if is_pixel_track:
+                                        scaling = fakerates["fakerate_%s_short" % fakevariable]
+                                    else:
+                                        scaling = fakerates["fakerate_%s_long" % fakevariable]
+                                    break
+    
+                            if n_tags > 1:
+                                scaling = fakerate_short * fakerate_long
+    
+                        #elif mode == "analysis" and "promptpredictionsubtracted" in region:
+                        #    scaling = kappas[i]
+                        #    if n_tags > 1:
+                        #        scaling = kappas[i] * kappas[i]
+                        #        
+                        #    # subtract fake background: N_ev * kappa - N_ev * FR = N_ev * (kappa - FR)
+                        #    if is_pixel_track:
+                        #        scaling -= fakerate_short
+                        #    else:
+                        #        scaling -= fakerate_long
+                        #    
+                        #    if scaling < 0:
+                        #        scaling = 0
+    
+                        #elif mode == "analysis" and "promptprediction" in region:
+                        #    
+                        #    for fakevariable in variables["fakerate"]:
+                        #        if fakevariable in region:
+                        #            if is_pixel_track:
+                        #                scaling = kappas[i] * fakerates["fakerate_%s_short" % fakevariable]
+                        #            else:
+                        #                scaling = kappas[i] * fakerates["fakerate_%s_long" % fakevariable]
+                        #            break
+                        #    
+                        #    #if is_pixel_track:
+                        #    #    scaling = kappas[i] * fakerate_short
+                        #    #else:
+                        #    #    scaling = kappas[i] * fakerate_long
+                        #    #elif n_tags > 1:
+                        #    #    scaling = kappas[i] * kappas[i] * fakerate_short * fakerate_long
                                 
-        if event_start>0:
-            this_output_file = output_file.replace(".root", "_%s.root" % event_start)
-            if is_signal:
-                this_output_file = this_output_file.replace(".root", "_%s.root" % extracut_label)
-        
-        fout = TFile(this_output_file, "recreate")
-        for h_name in histograms:
-            histograms[h_name].Write()
+                        elif mode == "analysis" and "promptprediction" in region:
+                            scaling = kappas[i]
+                            if n_tags > 1:
+                                scaling = kappas[i] * kappas[i]
+    
+                        # FastSim weight: apply for displacements < 30 cm
+                        if event.tracks_chiLabXY[i_track]>-1 and event.tracks_chiLabXY[i_track]<300:
+                            weight_final = 0.75 * weight
+                        else:
+                            weight_final = weight
 
-        if is_pmssm:
-            hnsparse.Write()
+                        fill_histogram(variable, value, histograms, event_selection, data_period, region, weight_final, scaling)
+                            
+    if event_start>0:
+        this_output_file = output_file.replace(".root", "_%s.root" % event_start)
+    else:
+        this_output_file = output_file
+    
+    fout = TFile(this_output_file, "recreate")
+    for h_name in histograms:
+        histograms[h_name].Write()
 
-        fout.Close()
+    if is_pmssm:
+        hnsparse.Write()
+        hnsparse_noweights.Write()
+        hnsparse_onlyZeroUnweighted.Write()
+
+    fout.Close()
 
 
 if __name__ == "__main__":

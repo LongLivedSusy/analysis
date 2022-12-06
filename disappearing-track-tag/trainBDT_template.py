@@ -55,6 +55,7 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
         labels = [
             "Summer16.WJetsToLNu_TuneCUETP8M1",
             "Summer16.WJetsToLNu_HT-200To400_TuneCUETP8M1",
+            #"Summer16.WJetsToLNu_HT-400To600_TuneCUETP8M1",
             "Summer16.WJetsToLNu_HT-600To800_TuneCUETP8M1",
             "Summer16.WJetsToLNu_HT-800To1200_TuneCUETP8M1",
             "Summer16.WJetsToLNu_HT-1200To2500_TuneCUETP8M1",
@@ -73,6 +74,25 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
             "Summer16.ZZ_TuneCUETP8M1",
             "Summer16.WW_TuneCUETP8M1",
             "Summer16.WZ_TuneCUETP8M1",
+            ]
+            
+        if "allMC" in cwd:
+            labels += [
+            "Summer16.QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
+            "Summer16.ZJetsToNuNu_HT-100To200_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_HT-200To400_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_HT-400To600_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_HT-600To800_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_HT-800To1200_13TeV-madgraph.root",
+            "Summer16.ZJetsToNuNu_Zpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root",
             ]
             
         if not "onlyT1qqqq" in cwd:
@@ -165,13 +185,6 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
             "RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8ext1",
             #"RunIIFall17MiniAODv2.GJets_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
             #"RunIIFall17MiniAODv2.GJets_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT1000to1500_TuneCP5_13TeV-madgraph-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT200to300_TuneCP5_13TeV-madgraph-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT300to500_TuneCP5_13TeV-madgraph-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV-madgraph-pythia8",
-            #"RunIIFall17MiniAODv2.QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8",
             #"RunIIFall17MiniAODv2.TTGJets_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8",
             #"RunIIFall17MiniAODv2.TTGamma_Dilept_TuneCP5_PSweights_13TeV_madgraph_pythia8",
             #"RunIIFall17MiniAODv2.TTGamma_SingleLeptFromT_TuneCP5_PSweights_13TeV_madgraph_pythia8",
@@ -217,6 +230,24 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
             #"RunIIFall17MiniAODv2.ZJetsToNuNu_HT-800To1200_13TeV-madgraph",
             #"RunIIFall17MiniAODv2.ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8.root",
             ]
+            
+        if "allMC" in cwd:
+            labels += [
+                "RunIIFall17MiniAODv2.QCD_HT1000to1500_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.QCD_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.QCD_HT200to300_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.QCD_HT300to500_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-100To200_13TeV-madgraph",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-1200To2500_13TeV-madgraph",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-200To400_13TeV-madgraph",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-400To600_13TeV-madgraph",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-600To800_13TeV-madgraph",
+                "RunIIFall17MiniAODv2.ZJetsToNuNu_HT-800To1200_13TeV-madgraph",
+                      ]        
     
     print "labels", labels
     
@@ -243,18 +274,55 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
                                          
     # add discriminating variables for training
     dataloader = TMVA.DataLoader("dataset")
-    dataloader.AddVariable("tracks_dxyVtx", "F")
-    dataloader.AddVariable("tracks_dzVtx", "F")
-    #dataloader.AddVariable("tracks_matchedCaloEnergy", "F")
-    if not "-noRelIso" in cwd:
-        dataloader.AddVariable("tracks_trkRelIso", "F")
-    if category == "short":  
-        if not "-noPixelHits" in cwd:
-            if "-useLayers" in cwd:
-                dataloader.AddVariable("tracks_pixelLayersWithMeasurement", "I")
-            else:
+
+    if category == "short":
+
+        if "-with" in cwd:
+            if "-withDxy" in cwd:
+                if "corrected" in cwd or "corrdxy" in cwd:
+                    dataloader.AddVariable("tracks_dxyVtxCorrected", "F")
+                else:
+                    dataloader.AddVariable("tracks_dxyVtx", "F")
+            if "-withDz" in cwd:
+                if "corrected" in cwd or "corrdz" in cwd:
+                    dataloader.AddVariable("tracks_dzVtxCorrected", "F")
+                else:
+                    dataloader.AddVariable("tracks_dzVtx", "F")
+            if "-withRIso" in cwd:
+                dataloader.AddVariable("tracks_trkRelIso", "F")
+            if "-withPHits" in cwd:
                 dataloader.AddVariable("tracks_nValidPixelHits", "I")
+            if "-withDPt" in cwd:
+                dataloader.AddVariable("tracks_ptErrOverPt2", "F")
+            if "-withChi2" in cwd:
+                dataloader.AddVariable("tracks_chi2perNdof", "F")
+
+        else:    
+            if not "-noDxy" in cwd:
+                if "corrected" in cwd or "corrdxy" in cwd:
+                    dataloader.AddVariable("tracks_dxyVtxCorrected", "F")
+                else:
+                    dataloader.AddVariable("tracks_dxyVtx", "F")
+            if not "-noDz" in cwd:
+                if "corrected" in cwd or "corrdz" in cwd:
+                    dataloader.AddVariable("tracks_dzVtxCorrected", "F")
+                else:
+                    dataloader.AddVariable("tracks_dzVtx", "F")
+            if not "-noRelIso" in cwd:
+                dataloader.AddVariable("tracks_trkRelIso", "F")
+            if not "-noPixelHits" in cwd:
+                if "-useLayers" in cwd:
+                    dataloader.AddVariable("tracks_pixelLayersWithMeasurement", "I")
+                else:
+                    dataloader.AddVariable("tracks_nValidPixelHits", "I")
+            if not "-noDeltaPt" in cwd:
+                dataloader.AddVariable("tracks_ptErrOverPt2", "F")
+            if not "-noChi2perNdof" in cwd:
+                dataloader.AddVariable("tracks_chi2perNdof", "F")
     elif category == "long":
+        dataloader.AddVariable("tracks_dxyVtx", "F")
+        dataloader.AddVariable("tracks_dzVtx", "F")
+        dataloader.AddVariable("tracks_trkRelIso", "F")
         if "-useLayers" in cwd:
             dataloader.AddVariable("tracks_pixelLayersWithMeasurement", "I")
             dataloader.AddVariable("tracks_trackerLayersWithMeasurement", "I")
@@ -262,10 +330,9 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
             dataloader.AddVariable("tracks_nValidPixelHits", "I")
             dataloader.AddVariable("tracks_nValidTrackerHits", "I")
         dataloader.AddVariable("tracks_nMissingOuterHits", "I")
-    if not "-noDeltaPt" in cwd:
         dataloader.AddVariable("tracks_ptErrOverPt2", "F")
-    dataloader.AddVariable("tracks_chi2perNdof", "F")
-    
+        dataloader.AddVariable("tracks_chi2perNdof", "F")
+
     # define signal and background trees
     for label in trees:
         if "SMS" in label:
@@ -286,9 +353,12 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
     print "@@@ vetoes = %s" % vetoes
     
     if category == "short":
-        cuts = "tracks_pt>15 && tracks_is_pixel_track==1 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        #cuts = "tracks_pt>15 && tracks_is_pixel_track==1 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        #cuts = "tracks_pt>25 && tracks_is_pixel_track==1 && abs(tracks_dxyVtx<0.05) && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        cuts = "tracks_pt>25 && tracks_is_pixel_track==1 && abs(tracks_dxyVtx)<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
     elif category == "long":
-        cuts = "tracks_pt>40 && tracks_is_pixel_track==0 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        #cuts = "tracks_pt>40 && tracks_is_pixel_track==0 && tracks_dxyVtx<0.1 && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
+        cuts = "tracks_pt>40 && tracks_is_pixel_track==0 && abs(tracks_dxyVtx<0.1) && tracks_chi2perNdof>0 && tracks_chi2perNdof<999999" + vetoes
     
     if "-TighterDxy" in cwd:
         print "@@@ TighterDxy"
@@ -348,7 +418,6 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
                                            "SeparationType=GiniIndex",
                                            "PruneMethod=NoPruning",
                                            ]))
-   
    
     # self-explaining
     factory.TrainAllMethods()

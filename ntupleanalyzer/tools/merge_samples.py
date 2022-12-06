@@ -7,7 +7,7 @@ import sys
 from GridEngineTools import runParallel
 import json
 
-def hadd_histograms(folder, runmode, delete_input_files = False, start = False, use_custom_hadd = True):
+def hadd_histograms(folder, runmode, delete_input_files = False, start = False, use_custom_hadd = True, merge_sparse = False):
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -40,9 +40,18 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
         if sample_name[-3:] == "AOD":
             sample_name = sample_name[:-3]
 
+        if "FSv3.SMS" in sample_name:
+            sample_name = "-".join(sample_name.split("-")[:7])
+            sample_name = sample_name.split("_")[0]
+
+        if "RunIIFall17MiniAODv2.FastSim" in sample_name:
+            sample_name = sample_name.split("-madgraphMLM")[0]
+
         samples.append(sample_name)
 
     samples = list(set(samples))
+    print "samples: %s" % samples
+    print "\n**************************\n"
     print "Merging samples of folder %s:" % folder
     for sample in samples:
         print sample
@@ -51,21 +60,29 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
     for i, sample in enumerate(samples):
         if use_custom_hadd:
             #command = "./terahadd.py %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
-            command = "hadd %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
+            command = "hadd -fk %s_merged/%s.root %s/%s*skim.root " % (folder, sample, folder, sample)
         else:
-            command = "hadd -f %s_merged/%s.root %s/%s*.root " % (folder, sample, folder, sample)
+            command = "hadd -fk %s_merged/%s.root %s/%s*skim.root " % (folder, sample, folder, sample)
         if delete_input_files:
             command += " && rm %s/%s*.root " % (folder, sample)
             if " *" in command:
                 print "Wildcard rm command found, this should never happen!"
                 quit()
+
+        if merge_sparse:
+            command = command.replace(".root", "_sparse.root")
+
         cmds.append(command)
 
-    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=True, confirm=(not start), use_more_time=False)
     os.system("cp %s/*py %s_merged/" % (folder, folder))
+    runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=True, confirm=(not start), use_more_time=False)
 
 
 def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
+
+    #FIXME
+    json_cleaning = False
+    json_compacting = True
 
     if folder[-1] == "/":
         folder = folder[:-1]
@@ -73,22 +90,44 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
     for year in years:
         for datastream in datastreams:
         
-            filename = "%s_merged/Run%s_%s.json" % (folder, year, datastream)
+            filename = "%s_merged/*Run%s_%s.json" % (folder, year, datastream)
 
             print "Doing datastream Run%s_%s" % (year, datastream)
         
             combined_json = {}
-            #filelist = sorted(glob.glob("%s/*Run%s*%s*json" % (folder, year, datastream)))
             filelist = sorted(glob.glob("%s/*Run%s*%s*.json" % (folder, year, datastream)))
             
             for i_ifile, ifile in enumerate(filelist):
+                            
+                if "merged_" in ifile:
+                    continue   
                                
                 if i_ifile % 100 == 0:
                      sys.stderr.write("%s/%s\n" % (i_ifile, len(filelist)))
                 idict = ""
                 with open(ifile, "r") as fin:
                     idict = fin.read()
+                
+                if idict == "":
+                    continue
+                
+                print ifile
+                
                 idict = eval(idict) 
+            
+                if json_compacting:
+                    runs_compacted = {}
+                    for run in idict:
+                        if run not in runs_compacted:
+                            runs_compacted[run] = []
+                        for lumisec in idict[run]:
+                            if len(runs_compacted[run]) > 0 and lumisec == runs_compacted[run][-1][-1]+1:
+                                runs_compacted[run][-1][-1] = lumisec
+                            else:
+                                runs_compacted[run].append([lumisec, lumisec])
+
+                    idict = runs_compacted
+
                 for run in idict:
                     if run not in combined_json:
                         combined_json[run] = []
@@ -116,7 +155,7 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
                         
             combined_json_text = str(combined_json).replace("'", '"')
         
-            with open(filename, "w+") as fout:
+            with open(filename.replace("*", ""), "w+") as fout:
                 fout.write(combined_json_text)
         
                 print "%s written" % filename
@@ -143,7 +182,10 @@ def get_lumi_from_bril(json_file_name, cern_username, retry=False):
                 print "Did you set your CERN username with '--cern_username'?"
         lumi = -1
     else:
-        lumi = float(out.split("|")[-2])
+        try:
+            lumi = float(out.split("|")[-2])
+        except:
+            lumi = -1
     
     print "lumi:", lumi
     return lumi
@@ -154,11 +196,17 @@ def get_lumis(folder, cern_username):
     lumis = {}
     for json_file in glob.glob("%s_merged/*.json" % folder):
 
-        #try:
+        with open(json_file, "r") as fin:
+            contents = fin.read()
+            if contents == "{}":
+                print "Ignoring empty json: %s" % json_file
+                continue
+            
+        try:
             lumi = get_lumi_from_bril(json_file, cern_username)
             lumis[json_file.split("/")[-1].split(".json")[0]] = lumi
-        #except:
-        #    print "Couldn't get lumi for %s. Empty JSON?" % json_file
+        except:
+            print "Couldn't get lumi for %s. Empty JSON?" % json_file
         
     with open("%s_merged/luminosity.py" % folder, "w+") as fout:
         output = json.dumps(lumis)
@@ -173,11 +221,15 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("--json", dest="json", action="store_true")
+    parser.add_option("--jsonmulti", dest="jsonmulti", action="store_true")
+    parser.add_option("--jsonyear", dest="jsonyear", default=False)
+    parser.add_option("--jsonstream", dest="jsonstream", default=False)
     parser.add_option("--bril", dest="bril", action="store_true")
     parser.add_option("--hadd", dest="hadd", action="store_true")
     parser.add_option("--runmode", dest="runmode", default="grid")
     parser.add_option("--start", dest="start", action="store_true")
     parser.add_option("--cern_username", dest="cern_username", default="vkutzner")
+    parser.add_option("--merge_sparse", dest="merge_sparse", action="store_true")
     (options, args) = parser.parse_args()
 
     if len(args) > 0:
@@ -207,10 +259,17 @@ if __name__ == "__main__":
             print "Existing tunnel for brilcalc found"
 
     if options.hadd:
-        hadd_histograms(folder, options.runmode, start = options.start)
+        hadd_histograms(folder, options.runmode, start = options.start, merge_sparse = options.merge_sparse)
     if options.json:
-        merge_json_files(folder, years = ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F"], datastreams = ["JetHT", "MET", "SingleElectron", "SingleMuon"])
-        merge_json_files(folder, years = ["2018A", "2018B", "2018C", "2018D"], datastreams = ["JetHT", "MET", "SingleMuon", "EGamma"])
+        if not options.jsonyear:
+            for year in ["2016B", "2016C", "2016D", "2016E", "2016F", "2016G", "2016H", "2017B", "2017C", "2017D", "2017E", "2017F", "2018A", "2018B", "2018C", "2018D"]:
+                for datastream in ["JetHT", "MET", "SingleElectron", "SingleMuon"]:
+                    if "2018" in year and datastream == "SingleElectron":
+                        datastream = "EGamma"
+                    os.system("./tools/merge_samples.py --json %s --jsonyear %s --jsonstream %s &" % (folder, year, datastream))
+        else:
+            merge_json_files(folder, years = [options.jsonyear], datastreams = [options.jsonstream])
+        
     if options.bril:
         get_lumis(folder, options.cern_username)
     

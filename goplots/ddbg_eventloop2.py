@@ -52,7 +52,8 @@ binnings["analysis"]["MET"] = binnings["analysis"]["Met"]
 binnings["analysis"]["Mht"] = binnings["analysis"]["Met"]
 binnings["analysis"]["MHT"] = binnings["analysis"]["Met"]
 #binnings["analysis"]["tracks_pt"] = [50, 0, 1000]
-binnings["analysis"]["tracks_pt"] = ["variable", 0, 300]
+#binnings["analysis"]["tracks_pt"] = ["variable", 0, 300]
+binnings["analysis"]["tracks_pt"] = ["variable", 0,25,30,40,50,60,70,100,225,300]
 binnings["analysis"]["leadinglepton_pt"] = binnings["analysis"]["Ht"]
 binnings["analysis"]["leadinglepton_eta"] = [15, 0, 3]
 #binnings["analysis"]["tracks_eta"] = [15, 0, 3]
@@ -114,14 +115,14 @@ variables["analysis"] = [
                           "n_btags",
                           "leadinglepton_mt",
                           "invmass",
-                          "tracks_mva_sep21v1_baseline_corrdxydz",
+                          #"tracks_mva_sep21v1_baseline_corrdxydz",
                           "tracks_pt",
                           "tracks_eta",
                           "tracks_deDxHarmonic2pixel",
                           "tracks_matchedCaloEnergy",
-                          "tracks_nMissingOuterHits",
-                          "n_tags",
-                          "region",
+                          #"tracks_nMissingOuterHits",
+                          #"n_tags",
+                          #"region",
                         ]
                       
 if False:
@@ -229,16 +230,24 @@ event_selections["fakerate"]["QCDLowMHT"] =         "event.MHT>30 and \
 event_selections["kappa"]["PromptDYEl"] =           "event.n_goodelectrons==1 and \
                                                      event.n_goodmuons==0 and \
                                                      event.MinDeltaPhiMhtJets>0.4 and \
-                                                     event.leadinglepton_mt<100"
+                                                     event.leadinglepton_mt<100 and \
+                                                     event.invmass>70 and event.invmass<110"
 event_selections["mukappa"]["PromptDYMu"] =         "event.n_goodelectrons==0 and \
                                                      event.n_goodmuons==1 and \
                                                      event.MinDeltaPhiMhtJets>0.4 and \
-                                                     event.leadinglepton_mt<100"
+                                                     event.leadinglepton_mt<100 and \
+                                                     event.invmass>70 and event.invmass<110"
                                                
 # tf measurement regions:
 event_selections["analysis"]["QCDLowMHT"] =         event_selections["fakerate"]["QCDLowMHT"]
 event_selections["analysis"]["PromptDYEl"] =        event_selections["kappa"]["PromptDYEl"]
 event_selections["analysis"]["PromptDYMu"] =        event_selections["mukappa"]["PromptDYMu"]
+
+#FIXME
+event_selections["analysis"] = collections.OrderedDict()
+event_selections["analysis"]["QCDLowMHT"] =        event_selections["fakerate"]["QCDLowMHT"]
+
+
 
 ######### region definitons #########
 
@@ -316,7 +325,7 @@ elif options.mode == "fakerate":
 else:
     regions["sr_short"] = baselineShort + SignalShort
     regions["sr_long"] = baselineLong + SignalLong
-    regions["sr"] = "(%s) or (%s)" % (SignalShort, SignalLong)
+    #regions["sr"] = "((%s) or (%s))" % (SignalShort, SignalLong)
     regions["promptSideband_short"] = baselineShort + PromptSidebandShort
     regions["promptSideband_long"] = baselineLong + PromptSidebandLong
     regions["fakeSideband_short"] = baselineShort + FakeSidebandShort
@@ -402,23 +411,26 @@ samples["mukappa"] = {
             #"Run2018": ["Run2018*SingleMuon*root"],
           }
 samples["analysis"] = {
-            "Summer16": mc_summer16,
-            "Fall17": mc_fall17,
+            #"Summer16": mc_summer16,
+            #"Fall17": mc_fall17,
             #"T1qqqq16": ["RunIISummer16MiniAODv3.SMS-T1qqqq*root"],
             #"T2bt16": ["RunIISummer16MiniAODv3.SMS-T2bt*root"],
             #"T1qqqq17": ["RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*root"],
 
-            "Run2016MET": ["Run2016*MET*root"],
-            "Run2016SingleElectron": ["Run2016*SingleElectron*root"],
-            "Run2016SingleMuon": ["Run2016*SingleMuon*root"],
+            #"Run2016MET": ["Run2016*MET*root"],
+            #"Run2016SingleElectron": ["Run2016*SingleElectron*root"],
+            #"Run2016SingleMuon": ["Run2016*SingleMuon*root"],
+            #"Run2016JetHT": ["Run2016*JetHT*root"],
 
-            "Run2017MET": ["Run2017*MET*root"],
-            "Run2017SingleElectron": ["Run2017*SingleElectron*root"],
-            "Run2017SingleMuon": ["Run2017*SingleMuon*root"],
+            #"Run2017MET": ["Run2017*MET*root"],
+            #"Run2017SingleElectron": ["Run2017*SingleElectron*root"],
+            #"Run2017SingleMuon": ["Run2017*SingleMuon*root"],
+            "Run2017JetHT": ["Run2017*JetHT*root"],
 
-            "Run2018MET": ["Run2018*MET*root"],
-            "Run2018SingleElectron": ["Run2018*EGamma*root"],
-            "Run2018SingleMuon": ["Run2018*SingleMuon*root"],
+            #"Run2018MET": ["Run2018*MET*root"],
+            #"Run2018SingleElectron": ["Run2018*EGamma*root"],
+            #"Run2018SingleMuon": ["Run2018*SingleMuon*root"],
+            "Run2018JetHT": ["Run2018*JetHT*root"],
           }
 
 signal_cuts = {
@@ -609,6 +621,7 @@ def spawn_jobs(options):
         os.system("cd %s; hadd -f merged_Run2MET.root merged_Run2016MET.root merged_Run2017MET.root merged_Run2018MET.root" % options.outputfolder)
         os.system("cd %s; hadd -f merged_Run2SingleMuon.root merged_Run2016SingleMuon.root merged_Run2017SingleMuon.root merged_Run2018SingleMuon.root" % options.outputfolder)
         os.system("cd %s; hadd -f merged_Run2SingleElectron.root merged_Run2016SingleElectron.root merged_Run2017SingleElectron.root merged_Run2018SingleElectron.root" % options.outputfolder)
+        os.system("cd %s; hadd -f merged_Run2JetHT.root merged_Run2016JetHT.root merged_Run2017JetHT.root merged_Run2018JetHT.root" % options.outputfolder)
 
 
 def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixel_track, DeDxAverage, n_goodelectrons, n_goodmuons, filename):
@@ -867,7 +880,10 @@ def event_loop(input_filenames, output_file, outputfolder, mode, event_start, ne
                     if is_signal and not eval(event.tracks_chiCandGenMatchingDR[i_track]<0.01):
                         continue
                             
-                    #print "cutstring", cutstring
+                    #if 'sr' in region:
+                    #    print region, "cutstring", cutstring
+                    #    raw_input("OK")
+
                     if eval(cutstring):
                                                                              
                         # save this track:

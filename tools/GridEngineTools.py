@@ -5,6 +5,7 @@ from time import sleep
 import multiprocessing
 from optparse import OptionParser
 import time
+import math
 import commands
 import getpass
 
@@ -60,10 +61,30 @@ def get_info(condor_dir, showfailed = False):
     return {"success": n_succeeded_jobs, "njobs": n_all, "fail": n_failed_jobs, "percent_done": float(n_succeeded_jobs)/n_all}
 
 
-def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit = True):
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
-    if use_sl6:
+
+def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOptions=False, ncores_percentage=0.60, max_jobs=False, dontCheckOnJobs=True, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit = True, tarball = False, recreateTarball = False):
+
+    if max_jobs and runmode == "grid":
+        n_chunks = int(math.ceil(len(mycommands)/float(max_jobs)))
+        if n_chunks > 1:
+            mycommands = list(chunks(mycommands, n_chunks))
+            for i in range(len(mycommands)):
+                mycommands[i] = "; ".join(mycommands[i])
+                mycommands[i] = mycommands[i].replace(";;", ";")
+                mycommands[i] = mycommands[i].replace("; ;", ";")
+
+    if use_sl6 and runmode != "grid":
         mycommands = runCommandsWithSL6(mycommands)
+
+    if tarball and recreateTarball:
+        print "Creating tarball..."
+        os.system("tar --exclude-caches-all --exclude-vcs -zcf %s/../%s.tar.gz -C %s/.. %s" % (cmsbase, cmsbase.split("/")[-1], cmsbase, cmsbase.split("/")[-1]))
+        print "OK done"
 
     print "jobs:", len(mycommands)
     print mycommands[0]
@@ -81,8 +102,8 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
         print "Using %i core(s)..." % nCores
 
         # save outputs:
-        for i in range(len(mycommands)):
-            mycommands[i] = """sh -c \" """ + mycommands[i] + """ \" 2>&1 | tee %s/%s.sh.o""" % (condorDir, i) 
+        #for i in range(len(mycommands)):
+        #    mycommands[i] = """sh -c \" """ + mycommands[i] + """ \" 2>&1 | tee %s/%s.sh.o""" % (condorDir, i) 
         
         pool = multiprocessing.Pool(nCores)
         pool.map(ShellExec, mycommands)
@@ -100,7 +121,7 @@ def runParallel(mycommands, runmode, condorDir="condor", cmsbase=False, qsubOpti
 
         print "Using CMSSW base", cmsbase
 
-        runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit)
+        runCommands(mycommands, condorDir=condorDir, cmsbase=cmsbase, qsubOptions=qsubOptions, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, use_sl6=use_sl6, confirm=confirm, babysit=babysit, tarball = tarball)
     
         if babysit:
             summary = get_info(condorDir)
@@ -136,7 +157,7 @@ def babysit_jobs(condorDir):
     return 0
 
 
-def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit=True):
+def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False, dontCheckOnJobs=False, useGUI=False, use_more_mem=False, use_more_time=False, use_sl6=False, confirm=True, babysit=True, tarball=False):
 
     # check VOMS proxy:
     status, output = commands.getstatusoutput("voms-proxy-info | grep path | cut -b 13-")
@@ -162,7 +183,7 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     # then
       source /cvmfs/grid.desy.de/etc/profile.d/grid-ui-env.sh
     # fi
-    cd CMSBASE
+    cd CMSBASE/src
     eval `scramv1 runtime -sh`
     echo $CMSSW_BASE
     # set up proxy
@@ -190,9 +211,22 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     fi
     '''
     
-    #if use_sl6:
-    #    additional_parameters += '+MySingularityImage="/nfs/dust/cms/user/%s/slc6_latest.sif"\n' % getpass.getuser()
-    
+    if tarball:
+        cmsswver = cmsbase.split("/")[-1]
+        tarball_replacement = '''
+    cd $(mktemp -d)
+    tar -xf CMSBASE/../%s.tar.gz 
+    cd %s/src/
+    THISDIR=$(pwd)
+    eval `scramv1 runtime -sh`
+    scram b ProjectRename
+    ''' % (cmsswver, cmsswver)
+        jobscript = jobscript.replace("cd CMSBASE", tarball_replacement)
+        jobscript = jobscript.replace("    eval $CMD", '''
+    cd $THISDIR
+    eval $CMD
+    ''')
+   
     # make some adjustments for running at KNU:
     if 'knu' in os.uname()[1] :
         jobscript = jobscript.replace("slc6_amd64_gcc530", "slc6_amd64_gcc630")
@@ -219,9 +253,18 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
             jobscript = jobscript.replace('CMSBASE',cmsbase)
         fout.write(jobscript)
 
+    if use_sl6:    
+        wrapperscript = '''#!/bin/bash
+    singularity exec --contain --bind /afs:/afs --bind /nfs:/nfs --bind /pnfs:/pnfs --bind /cvmfs:/cvmfs --bind /var/lib/condor:/var/lib/condor --bind /tmp:/tmp --pwd . ~/dust/slc6_latest.sif sh -c "source /cvmfs/cms.cern.ch/cmsset_default.sh; cd %s; chmod +x runjobs.sh; ./runjobs.sh $1"
+        ''' % (cwd + "/" + condorDir)
+        with open("%s/sl6wrapper.sh" % condorDir, "w+") as fout:
+            fout.write(wrapperscript)
+
     os.chdir(condorDir)
 
     additional_parameters = ""
+    #if use_sl6:
+    #    additional_parameters += '+MySingularityImage="/nfs/dust/cms/user/%s/slc6_latest.sif"\nRequirements = ( OpSysAndVer == "CentOS7" )\n' % getpass.getuser()
     if use_more_mem:
         if use_more_mem == 1:
             #use_more_mem = 4096
@@ -230,11 +273,13 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
     if use_more_time:
         if use_more_time == 1:
             use_more_time = 86400
+        additional_parameters += "+RequestRuntime = %s\n" % use_more_time
 
     def write_submission_file(queue_start_index, queue_length, file_name):
 
         if use_proxy:
-            transfer_files = "should_transfer_files = YES\ntransfer_input_files = args,runjobs.sh,%s\n" % proxyfile
+            #transfer_files = "should_transfer_files = YES\ntransfer_input_files = args,runjobs.sh,%s\n" % proxyfile
+            transfer_files = "should_transfer_files = YES\ntransfer_input_files = runjobs.sh,%s\n" % proxyfile
         else:
             transfer_files = "should_transfer_files = IF_NEEDED\n"
             
@@ -254,6 +299,10 @@ def runCommands(mycommands, condorDir="condor", cmsbase=False, qsubOptions=False
             priority = 0
             Queue %s
         """ % (queue_start_index, transfer_files, cwd + "/" + condorDir, additional_parameters, queue_length)
+
+        if use_sl6:
+            submission_file_content = submission_file_content.replace("transfer_input_files = runjobs.sh", "transfer_input_files = sl6wrapper.sh,runjobs.sh")
+            submission_file_content = submission_file_content.replace("arguments = runjobs.sh", "arguments = sl6wrapper.sh")
 
         with open(file_name, 'w') as outfile:
             outfile.write(submission_file_content)

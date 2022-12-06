@@ -14,10 +14,10 @@ plot_data = True
 
 def get_histo(root_file, label, lumi = False, title = False, color = False):
 
-    if "Run2MET" in label or "Run2Single" in label:
-        h_2016 = get_histo(root_file, label.replace("Run2MET", "Run2016MET").replace("Run2Single", "Run2016Single"), lumi = 36170, title = title, color = color)
-        h_2017 = get_histo(root_file, label.replace("Run2MET", "Run2017MET").replace("Run2Single", "Run2016Single"), lumi = 41400, title = title, color = color)
-        h_2018 = get_histo(root_file, label.replace("Run2MET", "Run2018MET").replace("Run2Single", "Run2016Single"), lumi = 58400, title = title, color = color)
+    if "Run2MET" in label or "Run2Single" in label or "Run2JetHT" in label:
+        h_2016 = get_histo(root_file, label.replace("Run2MET", "Run2016MET").replace("Run2Single", "Run2016Single").replace("Run2JetHT", "Run2016JetHT"), lumi = 36170, title = title, color = color)
+        h_2017 = get_histo(root_file, label.replace("Run2MET", "Run2017MET").replace("Run2Single", "Run2017Single").replace("Run2JetHT", "Run2017JetHT"), lumi = 41400, title = title, color = color)
+        h_2018 = get_histo(root_file, label.replace("Run2MET", "Run2018MET").replace("Run2Single", "Run2018Single").replace("Run2JetHT", "Run2018JetHT"), lumi = 58400, title = title, color = color)
         h_2016.Add(h_2017)
         h_2016.Add(h_2018)
         return h_2016
@@ -211,9 +211,6 @@ def plot_prediction(variable, root_file, datalabel, category, lumi, region, pdff
         canvas.SetLogy()
         canvas.SaveAs(foldername + "_CR/" + pdffile + "_cr" + ".pdf")
 
-        return 1
-
-
     else:
         datahist = histos["promptprediction"]
         datahist.Add(histos["fakeprediction"])
@@ -309,12 +306,12 @@ if __name__ == "__main__":
         quit()
         
     regions = [
-                "HadBaseline",
-                "SMuBaseline",
-                "SElBaseline",
-                #"QCDLowMHT",
-                "PromptDYEl",
-                "PromptDYMu",
+                #"HadBaseline",
+                #"SMuBaseline",
+                #"SElBaseline",
+                "QCDLowMHT",
+                #"PromptDYEl",
+                #"PromptDYMu",
                 #"QCDLowMHT",
                 #"PromptDY",
                 #"Baseline",
@@ -423,8 +420,9 @@ if __name__ == "__main__":
 
                     foldername = outputfolder + "/%s/%s%s" % (data_period_in_list, category.replace("short", "Short").replace("long", "Long"), region)
 
-                    #if not os.path.exists(foldername + "/" + region + "_" + variable + "_" + category + ".pdf"):
-                    plot_prediction(variable, merged_histograms_file, data_period, category, lumi, region, region + "_" + variable + "_" + category, foldername)     
+                    if not os.path.exists(foldername + "/" + region + "_" + variable + "_" + category + ".pdf") or \
+                       not os.path.exists(foldername + "_CR/" + region + "_" + variable + "_" + category + "_cr.pdf"):
+                        plot_prediction(variable, merged_histograms_file, data_period, category, lumi, region, region + "_" + variable + "_" + category, foldername)     
 
 
     

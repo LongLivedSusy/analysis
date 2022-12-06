@@ -3,27 +3,45 @@
 
 object electrons
   take electron
-  select ...
+  select pt > 40
+  select abs(eta) < 2.4
+  select passIso == 1
+  select id == 'tight'
 
 object muons
   take muon
-  select ...
+  select pt > 30
+  select abs(eta) < 2.4
+  select passIso == 1
+  select id == 'medium'
+
+object electrons_transferfactor
+  take electrons
+  select pt > 30
+
+object muons_transferfactor
+  take muons
+  select pt > 30
 
 object leptons
   take union(electrons, muons)
 
 object jets
   take ak4jets
-  select ...
+  select jetid === 1
+  select pt > 30
+  select abs(eta) < 2.4
 
 object bjets
-  take ak4jets
-  select ...
+  take jets
+  select Jets_bJetTagDeepCSVBvsAll(2016) > 0.6324
+  select Jets_bJetTagDeepCSVBvsAll(2017) > 0.4941
+  select Jets_bJetTagDeepCSVBvsAll(2018) > 0.4184
 
 object DTspresel
   take tracks
-  select pt > 15
-  select abs(eta) < 2
+  select pt > 25
+  select abs(eta) < 2.0
   select reliso < 0.2
   reject dR(track, PFcand) < 0.01
   reject dR(track, lepton) < 0.1
@@ -120,7 +138,9 @@ region baselinehad
 region baselineele
   select size(DTs) >= 1
   select mht > 30
-  select size(electrons) == 1 # shouldn't this be >= 1 ?
+  select electron pt > 40
+  select muon pt > 40
+  select size(electrons) >= 1
   select size(muons) >= 0
   select size(jets) >= 1
   select mTele > 110
@@ -130,6 +150,8 @@ region baselineele
 region baselinemu
   select size(DTs) >= 1
   select mht > 30
+  select electron pt > 40
+  select muon pt > 40
   select size(muons) >= 1
   select size(electrons) == 0
   select size(jets) >= 1

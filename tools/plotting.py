@@ -13,7 +13,37 @@ TH1D.SetDefaultSumw2()
 # a collection of generic functions to retrieve a 1D or 2D histogram from a collection of files containing a TTree
 # comments @ viktor.kutzner@desy.de
 
-def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, add_overflow = True):
+
+def get_nMinus1_cuts(cuts, variable):
+    position = -1
+    for i_item, item in enumerate(cuts.split()):
+        i_var = item.split(">=")[0].split("<=")[0].split(">")[0].split("<")[0].split("==")[0].split("!=")[0]
+        if variable == i_var:
+            position = i_item
+            
+    #print variable, ":", cuts, ":", position
+    
+    if position == -1:
+        return cuts
+    elif position == 0 and len(cuts.split()) == 1:
+        return ""
+    elif position == 0:
+        return " ".join(cuts.split()[2:])
+    elif position == len(cuts.split())-1:
+        return " ".join(cuts.split()[:-2])
+    else:
+        return " ".join(cuts.split()[:position-1] + cuts.split()[position+1:]) 
+
+def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, add_overflow = True, nMinus1=False):
+
+    if nMinus1:
+        if ":" not in var:
+            cutstring_corrected = get_nMinus1_cuts(cutstring, var)
+        else:
+            cutstring_corrected = get_nMinus1_cuts(cutstring, var.split(":")[0])
+            cutstring_corrected = get_nMinus1_cuts(cutstring_corrected, var.split(":")[1])
+
+        cutstring = cutstring_corrected
 
     hName = str(uuid.uuid1()).replace("-", "")
 
@@ -25,7 +55,14 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
         else:
             histo = TH1F(hName, hName, nBinsX, xmin, xmax)
     else:
-        histo = TH2F(hName, hName, nBinsX, xmin, xmax, nBinsY, ymin, ymax)
+        if isinstance(nBinsX, list) and isinstance(nBinsY, list):
+            histo = TH2F(hName, hName, len(nBinsX) - 1, array('d', nBinsX), len(nBinsY) - 1, array('d', nBinsY))
+        elif isinstance(nBinsX, list):
+            histo = TH2F(hName, hName, len(nBinsX) - 1, array('d', nBinsX), nBinsY, ymin, ymax)
+        elif isinstance(nBinsY, list):
+            histo = TH2F(hName, hName, nBinsX, xmin, xmax, len(nBinsY) - 1, array('d', nBinsY))
+        else:
+            histo = TH2F(hName, hName, nBinsX, xmin, xmax, nBinsY, ymin, ymax)
 
     if numevents>0:
         tree.Draw("%s>>%s" % (var, hName), cutstring, drawoptions, numevents)
@@ -35,9 +72,10 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     # add overflow bin(s) for 1D and 2D histograms:
     if add_overflow:
         if not nBinsY:
-            bin = histo.GetNbinsX()+1
-            overflow = histo.GetBinContent(bin)
-            histo.AddBinContent((bin-1), overflow)
+            jbin = histo.GetNbinsX()+1
+            overflow = histo.GetBinContent(jbin)
+            #histo.AddBinContent((jbin-1), overflow)
+            histo.SetBinContent(jbin-1, histo.GetBinContent(jbin-1) + overflow)
         else:
             binX = histo.GetNbinsX()+1
             binY = histo.GetNbinsX()+1
@@ -63,10 +101,16 @@ def get_histogram_from_tree(tree, var, cutstring="", drawoptions="", nBinsX=Fals
     return histo
 
 
-def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, unweighted=False):
+def get_histogram_from_file(tree_files, tree_folder_name, variable, lowStats=False, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, unweighted=False, nMinus1=False):
+
+    #print "tree_files", tree_files
     
     if "*" in tree_files:
         tree_files = glob.glob(tree_files)
+
+    if lowStats and lowStats>0:
+        print lowStats
+        tree_files = tree_files[:lowStats]
 
     if not isinstance(tree_files, list):
         tree_files = [tree_files]
@@ -79,7 +123,10 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
             else:
                 return TH1F("empty", "emtpy", nBinsX, xmin, xmax)
         else:
-            return TH2F("empty", "emtpy", nBinsX, xmin, xmax, nBinsY, ymin, ymax)
+            if isinstance(nBinsX, list) and isinstance(nBinsY, list):
+                return TH2F("empty", "emtpy", len(nBinsX) - 1, array('d', nBinsX), len(nBinsY) - 1, array('d', nBinsY))
+            else:
+                return TH2F("empty", "emtpy", nBinsX, xmin, xmax, nBinsY, ymin, ymax)
                 
     is_data = False
     if "Run201" in tree_files[0]:
@@ -130,9 +177,9 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
         print "Limiting to %s events" % numevents
 
     if not nBinsY:
-        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, numevents=numevents)
+        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, numevents=numevents, nMinus1=nMinus1)
     else:
-        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
+        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents, nMinus1=nMinus1)
 
     #print "cutstring:", cutstring
     if not is_data and not unweighted and nev>0:
@@ -140,11 +187,30 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, cutstring="1
     return histo
 
 
-def get_all_histos(tree_files, tree_folder_name, variable, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, unweighted=False):
+
+        
+
+def get_all_histos(tree_files, tree_folder_name, variable, lowStats=False, nMinus1=False, cutstring="1", scaling="", nBinsX=False, xmin=False, xmax=False, nBinsY=False, ymin=False, ymax=False, numevents=-1, unweighted=False):
+
+    if nMinus1:
+        if ":" not in variable:
+            cutstring_corrected = get_nMinus1_cuts(cutstring, variable)
+        else:
+            cutstring_corrected = get_nMinus1_cuts(cutstring, variable.split(":")[0])
+            cutstring_corrected = get_nMinus1_cuts(cutstring_corrected, variable.split(":")[1])
+
+        cutstring = cutstring_corrected
+
+    if ":" in variable and not nBinsY:
+        # symmetric 2D plot if no dedicated ranges are given
+        nBinsY = nBinsX
+        ymin = xmin
+        ymax = xmax
 
     h_output = False
     for i, tree_file in enumerate(tree_files):
-        h_tmp = get_histogram_from_file(tree_file, tree_folder_name, variable, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents, unweighted=unweighted)    
+                
+        h_tmp = get_histogram_from_file(tree_file, tree_folder_name, variable, lowStats=lowStats, cutstring=cutstring, scaling=scaling, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents, unweighted=unweighted)    
         if not h_output:
             h_output = h_tmp
         else:

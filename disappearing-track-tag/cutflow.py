@@ -15,11 +15,12 @@ cuts = {}
 
 cuts["BDT_short"] = [
             "tracks_is_pixel_track==1",
-            "tracks_pt>15",
+            "tracks_pt>25",
             "tracks_passmask==1",
             "tracks_trackQualityHighPurity==1",
             "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
+            "tracks_dxyVtx<0.1",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
@@ -32,8 +33,8 @@ cuts["BDT_short"] = [
             "tracks_passjetveto==1",
             #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=0",
-            "tracks_matchedCaloEnergy/tracks_p<0.2",
-            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy<0.15",
+            "tracks_mva_nov20_noEdep>0.1",
 ]
 
 cuts["BDT_long"] = [
@@ -43,6 +44,7 @@ cuts["BDT_long"] = [
             "tracks_trackQualityHighPurity==1",
             "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
+            "tracks_dxyVtx<0.1",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
@@ -56,16 +58,17 @@ cuts["BDT_long"] = [
             #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=2",
             "tracks_matchedCaloEnergy/tracks_p<0.2",
-            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_mva_nov20_noEdep>0.12",
 ]
 
 cuts["BDT_noJetVeto_short"] = [
             "tracks_is_pixel_track==1",
-            "tracks_pt>15",
+            "tracks_pt>25",
             "tracks_passmask==1",
             "tracks_trackQualityHighPurity==1",
             "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
+            "tracks_dxyVtx<0.1",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
@@ -78,8 +81,8 @@ cuts["BDT_noJetVeto_short"] = [
             #"tracks_passjetveto==1",
             #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=0",
-            "tracks_matchedCaloEnergy/tracks_p<0.2",
-            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy/tracks_p<0.2 && tracks_matchedCaloEnergy<20",
+            "tracks_mva_nov20_noEdep>0.1",
 
 ]
 
@@ -90,6 +93,7 @@ cuts["BDT_noJetVeto_long"] = [
             "tracks_trackQualityHighPurity==1",
             "abs(tracks_eta)<2.0",
             "tracks_ptErrOverPt2<10",
+            "tracks_dxyVtx<0.1",
             "tracks_dzVtx<0.1",
             "tracks_trkRelIso<0.2",
             "tracks_trackerLayersWithMeasurement>=2",
@@ -99,11 +103,11 @@ cuts["BDT_noJetVeto_long"] = [
             "tracks_passPFCandVeto==1",
             "tracks_passleptonveto==1",
             "tracks_passpionveto==1",
-            #"tracks_passjetveto==1",
+            "tracks_passjetveto==1",
             #"tracks_deDxHarmonic2pixel>2.0",
             "tracks_nMissingOuterHits>=2",
-            "tracks_matchedCaloEnergy/tracks_p<0.2",
-            "tracks_mva_tight_may20_chi2_pt10>0",
+            "tracks_matchedCaloEnergy/tracks_p<0.2 && tracks_matchedCaloEnergy<20",
+            "tracks_mva_nov20_noEdep>0.1",
 ]
 
 cuts["MT2_short"] = [

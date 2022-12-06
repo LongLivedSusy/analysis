@@ -175,7 +175,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     TH1D.SetDefaultSumw2()
 
     # check if output file exists:
-    if not overwrite and os.path.exists(track_tree_output):
+    if lumi_report and not overwrite and os.path.exists(track_tree_output.replace(".root", ".json")):
+        print "Already done, file ok"
+        return()
+
+    if not lumi_report and not overwrite and os.path.exists(track_tree_output):
         try:
             test = TFile(track_tree_output)
             test.Get("nev")
@@ -209,7 +213,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
          
     if data_period == "RunIISummer16MiniAODv3":
         data_period = "Summer16"
-
+        
     if "FastSim" in event_tree_filenames[0] or "FS" in event_tree_filenames[0]:
         is_fastsim = True
 
@@ -245,6 +249,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     # load tree
     tree = TChain("TreeMaker2/PreSelection")
     for iFile in event_tree_filenames:
+
+        # ignore list: broken/corrupt files
+        if "Run2018A-17Sep2018-v1.JetHTAOD_270000-DDC26769-F24F-F64B-B83E-0AB519FF9B4F_RA2AnalysisTree.root" in iFile or \
+           "Run2018D-PromptReco-v2.SingleMuonAOD4_00000-B6FEAD33-1AB0-E811-AC2D-FA163EC57F99_RA2AnalysisTree.root" in iFile or \
+           "Run2017E-31Mar2018-v1.SingleElectronAOD_20000-DC2DA888-5805-E811-B181-7CD30ACE1239_RA2AnalysisTree.root" in iFile or \
+           "Run2017B-31Mar2018-v1.SingleElectronAOD_70001-78C69E02-C1DE-E711-857E-FA163E6659D1_RA2AnalysisTree.root" in iFile:
+            continue
+
         iFile = iFile.replace("'", "")
         if not "root.mimes" in iFile:
             tree.Add(iFile)
@@ -299,6 +311,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     "long_phase1":  ["../../disappearing-track-tag/2017-long-tracks-sep21v2-corrected/dataset/weights/TMVAClassification_BDT.weights.xml",  ["tracks_dxyVtx", "tracks_dzVtx", "tracks_trkRelIso", "tracks_nValidPixelHits", "tracks_nValidTrackerHits", "tracks_nMissingOuterHits", "tracks_ptErrOverPt2", "tracks_chi2perNdof"] ],          
                  },
            }
+
+    if is_pmssm:
+        # only evaluate one BDT for this
+        bdts = {"sep21v1_baseline": dict(bdts["sep21v1_baseline"])}
 
     readers = {}
     for label in bdts:
@@ -504,7 +520,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             tree_branch_values[branch] = 0
             tout.Branch(branch, 'std::vector<double>', tree_branch_values[branch])   
     
-    if is_pmssm:
+    if is_pmssm and write_only_sparse:
         pMSSMid1_max = 600
         pMSSMid1_low = 0.5
         pMSSMid1_up = pMSSMid1_max + 0.5
@@ -541,8 +557,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                                    event.n_goodjets>=1 and \
                                                    event.n_goodelectrons==0 and \
                                                    event.n_goodmuons==0 and \
-                                                   event.mtDtMht>20 and \
-                                                   event.tracks_DrJetDt[i_track]>0.2"
+                                                   event.mtDtMht>20"
     event_selections["analysis"]["SMuBaseline"] = "event.MHT>30 and \
                                                    event.MinDeltaPhiMhtJets>0.4 and \
                                                    event.n_goodjets>=1 and \
@@ -550,16 +565,14 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                                    event.n_goodelectrons==0 and \
                                                    event.invmass>140 and \
                                                    event.leadinglepton_mt>110 and \
-                                                   event.mtDtMht>20 and \
-                                                   event.tracks_DrJetDt[i_track]>0.2"
+                                                   event.mtDtMht>20"
     event_selections["analysis"]["SElBaseline"] = "event.MHT>30 and \
                                                    event.MinDeltaPhiMhtJets>0.4 and \
                                                    event.n_goodjets>=1 and \
                                                    event.n_goodelectrons>=1 and \
                                                    event.invmass>140 and \
                                                    event.leadinglepton_mt>110 and \
-                                                   event.mtDtMht>20 and \
-                                                   event.tracks_DrJetDt[i_track]>0.2"
+                                                   event.mtDtMht>20"
     event_selections["fakerate"]["QCDLowMHT"] =   "event.MHT>30 and \
                                                    event.MHT<60 and \
                                                    event.n_goodjets>=1 and \
@@ -567,18 +580,15 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                                    event.n_goodelectrons==0 and \
                                                    event.n_goodmuons==0 and \
                                                    event.n_btags==0 and \
-                                                   event.mtDtMht>20 and \
-                                                   event.tracks_DrJetDt[i_track]>0.2"
+                                                   event.mtDtMht>20"
     event_selections["kappa"]["PromptDYEl"] =     "event.n_goodelectrons==1 and \
                                                    event.n_goodmuons==0 and \
                                                    event.MinDeltaPhiMhtJets>0.4 and \
                                                    event.leadinglepton_mt<100"
-                                                   #event.tracks_DrJetDt[i_track]>0.2"
     event_selections["mukappa"]["PromptDYMu"] =   "event.n_goodelectrons==0 and \
                                                    event.n_goodmuons==1 and \
                                                    event.MinDeltaPhiMhtJets>0.4 and \
-                                                   event.leadinglepton_mt<100 and \
-                                                   event.tracks_DrJetDt[i_track]>0.2"
+                                                   event.leadinglepton_mt<100"
 
     replacevars = collections.OrderedDict()
     replacevars['pixeltrack'] =   'event.tracks_is_pixel_track[i_track]'
@@ -590,39 +600,40 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     replacevars['leptonveto'] =   'event.tracks_passleptonveto[i_track]'
     replacevars['pfveto'] =       'event.tracks_passPFCandVeto[i_track]'
     replacevars['invmass'] =      'event.invmass'
+    replacevars['DrJetDt'] =      'event.tracks_DrJetDt[i_track]'
 
     baselineShort =             "baseline==1 and pixeltrack==1 and "
     baselineLong =              "baseline==1 and pixeltrack==0 and "
 
     if phase == 0:
-        SignalShort =           "BDT>0.1 and EDep<15" 
-        SignalLong =            "BDT>0.12 and EDep/trackp<0.2" 
-        PromptSidebandShort =   "BDT>0.1 and EDep>30 and EDep<300" 
-        PromptSidebandLong =    "BDT>0.1 and EDep/trackp>0.30 and EDep/trackp<1.20" 
+        SignalShort =           "BDT>0.1 and EDep<15 and DrJetDt>0.2" 
+        SignalLong =            "BDT>0.12 and EDep/trackp<0.2 and DrJetDt>0.2" 
+        PromptSidebandShort =   "BDT>0.1 and EDep>30 and EDep<300 and DrJetDt>0.1" 
+        PromptSidebandLong =    "BDT>0.1 and EDep/trackp>0.30 and EDep/trackp<1.20 and DrJetDt>0.1" 
         PromptSidebandCRShort =  PromptSidebandShort 
         PromptSidebandCRLong =   PromptSidebandLong
-        FakeSidebandShort =     "BDT>-0.1 and BDT<-0.05 and EDep<15"   
-        FakeSidebandLong =      "BDT>-0.1 and BDT<0.0 and EDep/trackp<0.2"    
+        FakeSidebandShort =     "BDT>-0.1 and BDT<-0.05 and EDep<15 and DrJetDt>0.2"   
+        FakeSidebandLong =      "BDT>-0.1 and BDT<0.0 and EDep/trackp<0.2 and DrJetDt>0.2"    
         FakeSidebandCRShort =   FakeSidebandShort
         FakeSidebandCRLong =    FakeSidebandLong
     else:
-        SignalShort =           "BDT>0.15 and EDep<15"          
-        SignalLong =            "BDT>0.08 and EDep/trackp<0.2" 
-        PromptSidebandShort =   "BDT>0.05 and EDep>30 and EDep<300" 
-        PromptSidebandLong =    "BDT>0.08 and EDep/trackp>0.30 and EDep/trackp<1.20" 
+        SignalShort =           "BDT>0.15 and EDep<15 and DrJetDt>0.2"          
+        SignalLong =            "BDT>0.08 and EDep/trackp<0.2 and DrJetDt>0.2" 
+        PromptSidebandShort =   "BDT>0.05 and EDep>30 and EDep<300 and DrJetDt>0.1" 
+        PromptSidebandLong =    "BDT>0.08 and EDep/trackp>0.30 and EDep/trackp<1.20 and DrJetDt>0.1" 
         PromptSidebandCRShort =  PromptSidebandShort
         PromptSidebandCRLong =   PromptSidebandLong
-        FakeSidebandShort =     "BDT>-0.1 and BDT<0.0 and EDep<15"                 
-        FakeSidebandLong =      "BDT>-0.1 and BDT<0.0 and EDep/trackp<0.2"                  
+        FakeSidebandShort =     "BDT>-0.1 and BDT<0.0 and EDep<15 and DrJetDt>0.2"                 
+        FakeSidebandLong =      "BDT>-0.1 and BDT<0.0 and EDep/trackp<0.2 and DrJetDt>0.2"                  
         FakeSidebandCRShort =    FakeSidebandShort               
         FakeSidebandCRLong =     FakeSidebandLong             
 
     regions = collections.OrderedDict()
 
-    regions["kappa_sr_short"] = baselineShort + SignalShort + " and dphiMhtDt<3.14/4 and invmass>70 and invmass<105 and event.tracks_DrJetDt[i_track]>0.2"
-    regions["kappa_promptSideband_short"] = baselineShort + PromptSidebandShort + " and dphiMhtDt<3.14/4 and invmass>70 and invmass<105 and event.tracks_DrJetDt[i_track]>0.1"
-    regions["kappa_sr_long"] = baselineLong + SignalLong + " and dphiMhtDt<3.14/2 and invmass>75 and invmass<100 and event.MHT>30 and event.tracks_DrJetDt[i_track]>0.2"
-    regions["kappa_promptSideband_long"] = baselineLong + PromptSidebandLong + " and dphiMhtDt<3.14/2 and invmass>75 and invmass<100 and event.MHT>30 and event.tracks_DrJetDt[i_track]>0.1"
+    regions["kappa_sr_short"] = baselineShort + SignalShort + " and dphiMhtDt<3.14/4 and invmass>70 and invmass<105"
+    regions["kappa_promptSideband_short"] = baselineShort + PromptSidebandShort + " and dphiMhtDt<3.14/4 and invmass>70 and invmass<105"
+    regions["kappa_sr_long"] = baselineLong + SignalLong + " and dphiMhtDt<3.14/2 and invmass>75 and invmass<100 and event.MHT>30"
+    regions["kappa_promptSideband_long"] = baselineLong + PromptSidebandLong + " and dphiMhtDt<3.14/2 and invmass>75 and invmass<100 and event.MHT>30"
 
     regions["mukappa_sr_short"] = "pixeltrack==1 and " + SignalShort + " and dphiMhtDt<3.14/4 and invmass>70 and invmass<105 and event.MHT>30"
     regions["mukappa_sr_long"] = "pixeltrack==0 and " + SignalLong + " and dphiMhtDt<3.14/2 and invmass>75 and invmass<100"
@@ -645,18 +656,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     regions["promptcr_long"] = baselineLong + PromptSidebandCRLong
     regions["fakecr_short"] = baselineShort + FakeSidebandCRShort
     regions["fakecr_long"] = baselineLong + FakeSidebandCRLong
-
-    #analysisregion = 0
-    #for mode in event_selections:
-    #    for event_selection in event_selections[mode]:
-    #        for region in regions:
-    #            analysisregion += 1
-    #            print analysisregion, event_selection, region
     
     for regionlabel in regions.keys():
         for shortvar in replacevars:
             regions[regionlabel] = regions[regionlabel].replace(shortvar, replacevars[shortvar])
-    
+   
     print "Looping over %s events" % nev
     for iEv, event in enumerate(tree):
         
@@ -681,7 +685,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
 
         current_file_name = tree.GetFile().GetName()
 
-        if is_pmssm:
+        if is_pmssm and write_only_sparse:
             # fill zero bin with weight=1.0 (unweighted)
             fill_sparse(event, 0, 1.0, hnsparse)
 
@@ -985,7 +989,6 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     if -3.2<track.Eta() and track.Eta()<-1.2 and -1.77<track.Phi() and track.Phi()<-0.67: 
                         continue
             
-
             # check if actual fake track (no genparticle in cone around track):
             is_prompt_electron = False
             is_prompt_muon = False
@@ -1185,8 +1188,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 mva_scores[label + "_corrdxydz"] = get_BDT_score(label, event, iCand, readers, is_pixel_track, phase, ptErrOverPt2, tracks_dxyVtxCorrected, tracks_dzVtxCorrected)
 
             # discard tracks with BDT<-0.1:
-            if mva_scores["sep21v1_baseline_corrdxydz"]<-0.1:
-                continue
+            #if mva_scores["sep21v1_baseline_corrdxydz"]<-0.1:
+            #    continue
 
             # if we're in either the muon TF measurement region or the prompt mu CR,
             # we want to keep tracks which fail pass_leptonveto and bool(event.tracks_passPFCandVeto[iCand])
@@ -1211,7 +1214,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             #    invariant_mass = -1
                                         
             DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name, abs(track.Eta()), phase, is_data, fsmear_barrel, fsmear_endcap)
-                            
+                           
             tagged_tracks.append(
                                    {
                                      "tracks_is_pixel_track": is_pixel_track,
@@ -1261,7 +1264,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                      "tracks_exo_leptoniso": exo_leptoniso,
                                      "tracks_exo_trackiso": exo_trackiso,
                                      "tracks_exo_jetiso": exo_jetiso,
-                                     "tracks_DrJetDt": event.tracks_trackJetIso[iCand],
+                                     "tracks_DrJetDt": event.tracks_trackJetIso[iCand],                     #trackIsoDR = getParticleIsolation(track, jets); // gets minimum deltaR
                                    }
                                   )
 
@@ -1298,7 +1301,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         track_debug_output += "%s long tracks_mva_sep21v1_baseline_corrdxydz %s tracks_pt %s; " % (iEv, track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"], track_output_dict["tracks_pt"])
                                                
         # keep only events with candidate tracks
-        if not trigger_study and len(tagged_tracks)==0:
+        #if not trigger_study and len(tagged_tracks)==0:
+        if len(tagged_tracks)==0:
             continue
                 
         # check if genLeptons are present in event:
@@ -1339,15 +1343,23 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 leadingDT_mva = track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"]
                 leadingDT_mva_index = i_tagged
             
-            if track_output_dict["tracks_is_pixel_track"]:
+            if track_output_dict["tracks_is_pixel_track"] and track_output_dict["tracks_baseline"]:
                 if (phase == 0 and track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > 0.1) or (phase == 1 and track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > 0.15):
                     if track_output_dict["tracks_matchedCaloEnergy"] < 15 and track_output_dict["tracks_DrJetDt"]>0.2:
+                        if is_signal:
+                            #ignore non-chargino-matched signal tracks:
+                            if track_output_dict["tracks_chiCandGenMatchingDR"]>0.01: continue
+
                         n_DTShort += 1
                         dedx_short = track_output_dict["tracks_deDxHarmonic2pixel"]
                         track_pt = track_output_dict["tracks_pt"]
-            else:
+            elif not track_output_dict["tracks_is_pixel_track"] and track_output_dict["tracks_baseline"]:
                 if (phase == 0 and track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > 0.12) or (phase == 1 and track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > 0.08):
                     if track_output_dict["tracks_matchedCaloEnergy"]/track_output_dict["tracks_p"] < 0.20 and track_output_dict["tracks_DrJetDt"]>0.2:
+                        if is_signal:
+                            #ignore non-chargino-matched signal tracks:
+                            if track_output_dict["tracks_chiCandGenMatchingDR"]>0.01: continue
+
                         n_DTLong += 1
                         dedx_long = track_output_dict["tracks_deDxHarmonic2pixel"]
                         track_pt = track_output_dict["tracks_pt"]
@@ -1469,7 +1481,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             leppt = goodmuons[0].Pt()
         else: 
             mT = 999
-            invmass = 999
+            invmass = -1
             #DrJetDt = 999
             mtautau = 999
             leppt = 999
@@ -1496,14 +1508,18 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             sr_bin = 0
         elif (n_goodelectrons+n_goodmuons)>0 and not mT>110:
             sr_bin = 0
+        elif (n_goodelectrons+n_goodmuons)>0 and not invmass>140:
+            sr_bin = 0
+        elif (n_goodelectrons+n_goodmuons)>0 and not tree_branch_values["leadinglepton_pt"][0]>40:
+            sr_bin = 0
 
         if debug and track_debug_output != "":
             print "%s sr=%s" % (track_debug_output, sr_bin)
 
-        #if sr_bin > 0:
-        #    print "DTSR", sr_bin, current_file_name, event.RunNum, event.LumiBlockNum, event.EvtNum, track_pt
+        if sr_bin > 0 and not is_signal:
+            print "DTSR", sr_bin, current_file_name, event.RunNum, event.LumiBlockNum, event.EvtNum, track_pt
             
-        if is_pmssm and sr_bin>0:
+        if is_pmssm and write_only_sparse and sr_bin>0:
             fill_sparse(event, sr_bin, event.puWeight, hnsparse)
         
         # save event-level variables:
@@ -1549,7 +1565,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             tree_branch_values["chargino_parent_mass"][0] = chargino_parent_mass        
        
         # update event vector and check event selection regions:
-        if True:
+        if False:
             for tree_branch_value_label in tree_branch_values:
                 if "tracks_" not in tree_branch_value_label and "leptons_" not in tree_branch_value_label:
                     value = tree_branch_values[tree_branch_value_label][0]
@@ -1562,8 +1578,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     for region in regions:
                         analysisregion += 1
 
-                        if "gen" in region and is_data:
-                            continue
+                        if "gen" in region and is_data: continue
 
                         # build cutstring
                         cutstring = event_selections[mode][event_selection] + " and " + regions[region]
@@ -1573,7 +1588,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         # check
                         for i_track in range(len(tagged_tracks)):
                             if eval(cutstring):
-                                print current_file_name, event_selection, region, "sr=%s" % sr_bin, "pt=%s" % tagged_tracks[i_track]['tracks_pt']
+                                #print current_file_name, iEv, event_selection, region, "sr=%s" % sr_bin, "pt=%s" % tagged_tracks[i_track]['tracks_pt']
                                 # save track-level properties again:
                                 tree_branch_values["tracks_analysisregion"][i_track] = analysisregion
 
@@ -1620,7 +1635,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         print processed_files
         print "@@@@@@@"
 
-    if not lumi_report and is_pmssm:
+    if not lumi_report and is_pmssm and write_only_sparse:
         sparse_filename = track_tree_output.replace(".root", "_sparse.root")
         fout = TFile(sparse_filename, "recreate")
         fout.cd()
@@ -1670,9 +1685,9 @@ if __name__ == "__main__":
                       #["/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.SingleMuonAOD0_60000-C6289DD6-95D7-E711-B4E1-02163E01A723_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/Run2016F-17Jul2018-v1.SingleElectronAOD_10000-9416936D-D78E-E711-AD34-E0DB55FC1055_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FSv3.SMS-T2tb-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211121_205321-0001-SUS-RunIIAutumn18FSPremix-00156_1040_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FSv3.SMS-T2tb-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211121_205321-0001-SUS-RunIIAutumn18FSPremix-00156_1040_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.SMS-T1btbt-LLC1_ctau10to200-mGluino-1000to2800-mLSP0to2800_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_2510000-97E47666-139B-454F-8CC0-97767A14F1FF_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],

@@ -69,10 +69,10 @@ def roc_and_efficiencies(sg_filelist, bg_filelist, phase, batchname, style = "A"
     # get histograms:
 
     def fill_histos(label, variable, shortcuts, longcuts):
-        histos["bg_short_%s" % label] = plotting.get_all_histos(bg_filelist, "Events", variable, "tracks_is_pixel_track==1 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
-        histos["bg_long_%s" % label] =  plotting.get_all_histos(bg_filelist, "Events", variable, "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
-        histos["sg_short_%s" % label] = plotting.get_all_histos(sg_filelist, "Events", variable, "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
-        histos["sg_long_%s" % label] =  plotting.get_all_histos(sg_filelist, "Events", variable, "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["bg_short_%s" % label] = plotting.get_all_histos(bg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==1 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["bg_long_%s" % label] =  plotting.get_all_histos(bg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["sg_short_%s" % label] = plotting.get_all_histos(sg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["sg_long_%s" % label] =  plotting.get_all_histos(sg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
     
     # get common denominator:
     #fill_histos("denom", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15", "tracks_pt>40")
@@ -99,28 +99,28 @@ def roc_and_efficiencies(sg_filelist, bg_filelist, phase, batchname, style = "A"
 
     if style == "A":
 
-        fill_histos("pt15noEdep", "tracks_mva_nov20_noEdep", "tracks_pt>15 && " + bdt_short, "tracks_pt>40 && " + bdt_long)
-        drawoptions["pt15noEdep"] = ["BDT (track p_{T}>15 GeV)", "same", kOrange, 1, True, False]
+        fill_histos("pt15noEdep", "tracks_mva_nov20_noEdep", "tracks_pt>25 && " + bdt_short, "tracks_pt>40 && " + bdt_long)
+        drawoptions["pt15noEdep"] = ["BDT (track p_{T}>25 GeV)", "same", kOrange, 1, True, False]
         
         fill_histos("pt30noEdep", "tracks_mva_nov20_noEdep", "tracks_pt>40 && " + bdt_short, "tracks_pt>40 && " + bdt_long)
         drawoptions["pt30noEdep"] = ["BDT (track p_{T}>40 GeV)", "same", kOrange, 1, False, True]
         
-        fill_histos("pt30noEdep", "tracks_mva_nov20_noEdep", "tracks_pt>40 && " + bdt_short.replace("tracks_passjetveto==1 &&", " "), "tracks_pt>40 && " + bdt_long.replace("tracks_passjetveto==1 &&", " "))
-        drawoptions["pt30noEdep"] = ["BDT (track p_{T}>40 GeV, no jet veto)", "same", kOrange, 2, False, True]
+        #fill_histos("pt30noEdepNoJetVeto", "tracks_mva_nov20_noEdep", "tracks_pt>25 && " + bdt_short.replace("tracks_passjetveto==1 &&", " "), "tracks_pt>40 && " + bdt_long.replace("tracks_passjetveto==1 &&", " "))
+        #drawoptions["pt30noEdepNoJetVeto"] = ["BDT (track p_{T}>40 GeV, no jet veto)", "same", kOrange, 2, False, True]
 
-        fill_histos("pt15_ratio12", "tracks_mva_nov20_noEdep", "tracks_pt>15 && tracks_matchedCaloEnergy<15 && " + bdt_short, "tracks_pt>40 && tracks_matchedCaloEnergy/tracks_p<0.15 && " + bdt_long)
-        drawoptions["pt15_ratio12"] = ["BDT (track p_{T}>15 GeV, with cut on E_{dep}", "same", kRed, 1, True, True]
+        fill_histos("pt15_ratio12", "tracks_mva_nov20_noEdep", "tracks_pt>25 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_short, "tracks_pt>40 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_long)
+        drawoptions["pt15_ratio12"] = ["BDT (track p_{T}>25 GeV, with cut on E_{dep}/p)", "same", kRed, 1, True, True]
 
     if style == "B":
     
         #fill_histos("pt15", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && " + bdt_short, "tracks_pt>40 && " + bdt_long)
         #drawoptions["pt15"] = ["BDT (track p_{T}>15 GeV), trained with E_{dep}", "same", kOrange, 1, True, True]
     
-        fill_histos("pt15noEdep", "tracks_mva_nov20_noEdep", "tracks_pt>15 && " + bdt_short, "tracks_pt>40 && " + bdt_long)
-        drawoptions["pt15noEdep"] = ["BDT (track p_{T}>15 GeV)", "same", kOrange, 1, True, True]
+        fill_histos("pt15noEdep", "tracks_mva_nov20_noEdep", "tracks_pt>25 && " + bdt_short, "tracks_pt>40 && " + bdt_long)
+        drawoptions["pt15noEdep"] = ["BDT (track p_{T}>25 GeV)", "same", kOrange, 1, True, True]
 
-        fill_histos("pt15_ratio12", "tracks_mva_nov20_noEdep", "tracks_pt>15 && tracks_matchedCaloEnergy<15 && " + bdt_short, "tracks_pt>40 && tracks_matchedCaloEnergy/tracks_p<0.15 && " + bdt_long)
-        drawoptions["pt15_ratio12"] = ["BDT (track p_{T}>15 GeV, E_{Dep}<15 GeV (<0.15/p))", "same", kRed, 1, True, True]
+        fill_histos("pt15_ratio12", "tracks_mva_nov20_noEdep", "tracks_pt>25 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_short, "tracks_pt>40 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_long)
+        drawoptions["pt15_ratio12"] = ["BDT (track p_{T}>25 GeV, E_{Dep}<20 GeV, E_{Dep}<0.2*p)", "same", kRed, 1, True, True]
 
     #fill_histos("noBLpt15c", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && " + bdt_short.replace("tracks_passjetveto==1", "MHT>=0"), "tracks_pt>30 && " + bdt_long.replace("tracks_passjetveto==1", "MHT>=0"))
     #drawoptions["noBLpt15c"] = ["BDT (track p_{T}>15 GeV, no jet veto)", "same", kOrange, 2, True, True]
@@ -150,14 +150,14 @@ def roc_and_efficiencies(sg_filelist, bg_filelist, phase, batchname, style = "A"
     # get numerator, working points:
     if phase == 0:
         #fill_histos("wpA", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>30 && tracks_mva_tight_may20_chi2>0.13 && tracks_matchedCaloEnergy/tracks_p<0.12 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2>0.13 && tracks_matchedCaloEnergy/tracks_p<0.12 && " + bdt_long) 
-        fill_histos("wpA", "tracks_mva_nov20_noEdep", "tracks_pt>15 && tracks_mva_nov20_noEdep>0.1 && tracks_matchedCaloEnergy<15 && " + bdt_short, "tracks_pt>40 && tracks_mva_nov20_noEdep>0.1 && tracks_matchedCaloEnergy/tracks_p<0.15 && " + bdt_long) 
+        fill_histos("wpA", "tracks_mva_nov20_noEdep", "tracks_pt>25 && tracks_mva_nov20_noEdep>0.1 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_short, "tracks_pt>40 && tracks_mva_nov20_noEdep>0.1 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_long) 
         #fill_histos("wpB", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>-0.02 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>0 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)        
         #fill_histos("wpC", "tracks_mva_nov20_noEdep", "tracks_pt>15 && tracks_mva_nov20_noEdep>0 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>40 && tracks_mva_nov20_noEdep>0.05 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)        
         #fill_histos("wpB_pt150", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>-0.02 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>150 && tracks_mva_tight_may20_chi2_pt15>0 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)        
         #fill_histos("wpB", "tracks_mva_tight_may20_chi2", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>0.05 && tracks_matchedCaloEnergy/tracks_p<0.30 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>0.1 && tracks_matchedCaloEnergy/tracks_p<0.30 && " + bdt_long)        
     elif phase == 1:
         #fill_histos("wpA", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>30 && tracks_mva_tight_may20_chi2>0 && tracks_matchedCaloEnergy/tracks_p<0.12 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2>0 && tracks_matchedCaloEnergy/tracks_p<0.12 && " + bdt_long)        
-        fill_histos("wpA", "tracks_mva_nov20_noEdep", "tracks_pt>15 && tracks_mva_nov20_noEdep>0.12 && tracks_matchedCaloEnergy<15 && " + bdt_short, "tracks_pt>40 && tracks_mva_nov20_noEdep>0.15 && tracks_matchedCaloEnergy/tracks_p<0.15 && " + bdt_long)        
+        fill_histos("wpA", "tracks_mva_nov20_noEdep", "tracks_pt>25 && tracks_mva_nov20_noEdep>0.12 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_short, "tracks_pt>40 && tracks_mva_nov20_noEdep>0.15 && tracks_matchedCaloEnergy<20 && tracks_matchedCaloEnergy/tracks_p<0.2 && " + bdt_long)        
         #fill_histos("wpB", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>-0.1 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>30 && tracks_mva_tight_may20_chi2_pt15>-0.14 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)        
         #fill_histos("wpC", "tracks_mva_nov20_noEdep", "tracks_pt>15 && tracks_mva_nov20_noEdep>-0.1 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>40 && tracks_mva_nov20_noEdep>0 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)        
         #fill_histos("wpB_pt150", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && tracks_mva_tight_may20_chi2_pt15>-0.1 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>150 && tracks_mva_tight_may20_chi2_pt15>-0.14 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)        
@@ -311,16 +311,17 @@ def roc_and_efficiencies(sg_filelist, bg_filelist, phase, batchname, style = "A"
             
             if category == "long":
                 legendlabel = legendlabel.replace("p_{T}>15 GeV", "p_{T}>40 GeV")
+                legendlabel = legendlabel.replace("p_{T}>25 GeV", "p_{T}>40 GeV")
         
             legend.AddEntry(graphs_roc[label], legendlabel)
                             
         #legend.SetTextSize(0.045)
-        legend.SetTextSize(0.04)
+        legend.SetTextSize(0.035)
         legend.SetHeader("Phase %s, %s tracks" % (phase, category))
         legend.Draw()
         #shared_utils.stamp()
         
-        pdfname = "plots/roc_%s_%s_phase%s_noedep.pdf" % (batchname, category, phase)
+        pdfname = "plots/roc_%s_%s_phase%s_noedep_sep21v2_baseline.pdf" % (batchname, category, phase)
         
         if style == "A":
             pdfname = pdfname.replace(".pdf", "_styleA.pdf")
@@ -346,10 +347,10 @@ def significances(sg_filelist, bg_filelist, phase, batchname, signalcut = ""):
     # get histograms:
 
     def fill_histos(label, variable, shortcuts, longcuts):
-        histos["bg_short_%s" % label] = plotting.get_all_histos(bg_filelist, "Events", variable, "tracks_is_pixel_track==1 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
-        histos["bg_long_%s" % label] =  plotting.get_all_histos(bg_filelist, "Events", variable, "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
-        histos["sg_short_%s" % label] = plotting.get_all_histos(sg_filelist, "Events", variable, "tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01 && " + shortcuts + signalcut, nBinsX=200, xmin=-1, xmax=1)
-        histos["sg_long_%s" % label] =  plotting.get_all_histos(sg_filelist, "Events", variable, "tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01 && " + longcuts + signalcut, nBinsX=200, xmin=-1, xmax=1)
+        histos["bg_short_%s" % label] = plotting.get_all_histos(bg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==1 && " + shortcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["bg_long_%s" % label] =  plotting.get_all_histos(bg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && " + longcuts, nBinsX=200, xmin=-1, xmax=1)
+        histos["sg_short_%s" % label] = plotting.get_all_histos(sg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==1 && tracks_chiCandGenMatchingDR<0.01 && " + shortcuts + signalcut, nBinsX=200, xmin=-1, xmax=1)
+        histos["sg_long_%s" % label] =  plotting.get_all_histos(sg_filelist, "Events", variable, cutstring="tracks_is_pixel_track==0 && tracks_nMissingOuterHits>=2 && tracks_chiCandGenMatchingDR<0.01 && " + longcuts + signalcut, nBinsX=200, xmin=-1, xmax=1)
     
     # get common denominator:
     fill_histos("study", "tracks_mva_tight_may20_chi2_pt15", "tracks_pt>15 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_short, "tracks_pt>40 && tracks_matchedCaloEnergy/tracks_p<0.20 && " + bdt_long)
@@ -477,32 +478,22 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("--index", dest = "index", default = False)
-    parser.add_option("--quick", dest = "quick", action = "store_true")
     (options, args) = parser.parse_args()
 
     if not options.index:
-        for i in range(1,10):
-            os.system("./comparetags.py --index %s &" % i)
+        os.system("./comparetags.py --index 1 &")
+        os.system("./comparetags.py --index 2 &")
 
     os.system("mkdir -p plots")
-
-    if not options.quick:
-        signal_p0 = ["../ntupleanalyzer/skim_67_newmask/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*root"]
-        background_p0 = ["../ntupleanalyzer/skim_67_newmask/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM*root"]
-        signal_p1 = ["../ntupleanalyzer/skim_67_newmask/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110001-F48D076B-623B-E911-8432-FA163E754652_skim*root"]
-        background_p1 = ["../ntupleanalyzer/skim_67_newmask/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_70000*root"]
     
-        #signal_p0 = ["../ntupleanalyzer/skim_67_newmask/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*root"]
-        #background_p0 = ["../ntupleanalyzer/skim_67_newmask/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM*root"]
-        #signal_p1 = []
-        #background_p1 = []
-    
-    else:
-        signal_p0 = ["../ntupleanalyzer/tools/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*root"]
-        background_p0 = ["../ntupleanalyzer/tools/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM*root"]
-        signal_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8*root"]
-        background_p1 = ["../ntupleanalyzer/tools/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraph*root"]
+    skim = "skim_67_newmask"
+    #skim = "skim_108_cutflow"
 
+    signal_p0 = ["../ntupleanalyzer/%s/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP*root" % skim]
+    background_p0 = ["../ntupleanalyzer/%s/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM*root" % skim]
+    signal_p1 = ["../ntupleanalyzer/%s/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110001-F48D076B-623B-E911-8432-FA163E754652_skim*root" % skim]
+    background_p1 = ["../ntupleanalyzer/%s/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_70000*root" % skim]
+    
     if options.index == "1":
         roc_and_efficiencies(signal_p0, background_p0, 0, signal_p0[0].split("/")[2])
     elif options.index == "2":

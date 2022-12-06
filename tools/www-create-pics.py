@@ -28,15 +28,13 @@ for ifile in sorted(glob.glob(outfolder + "/*.pdf")):
     print ifile
     outfile = ifile.split("/")[-1]
     
-    os.system("convert ~/www/%s/%s/%s ~/www/track-shortening/%s/%s" % (label, outfolder, outfile, outfolder, outfile.replace(".pdf", ".png")))
-    
-    #html += """<a href="%s"><img src="%s" width="400"></a>\n""" % (outfile, outfile.replace(".pdf", ".png"))
-    
+    os.system("convert ~/www/%s/%s/%s ~/www/%s/%s/%s" % (label, outfolder, outfile, label, outfolder, outfile.replace(".pdf", ".png")))
+        
     html += """
-    <table class="tg" style="display: inline-block;">
+    <table width="400" class="tg" style="display: inline-block;">
     <thead>
       <tr>
-        <th class="tg-0lax"><center>%s</center><br><a href="%s"><img src="%s" width="400"></a></th>
+        <th class="tg-0lax"><center>%s</center><br><a href="%s"><img src="%s" width="100%%"></a></th>
       </tr>
     </thead>
     </table>
