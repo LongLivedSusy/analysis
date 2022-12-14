@@ -16,10 +16,16 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
 
     commands = []
 
+    verify_outfiles = []
+    verify_ntotal = 0
+
+    print "looping over %s" % (ntuples_folder)
+
     for sample in samples:
 
         #ifile_list = sorted(glob.glob(ntuples_folder + "/" + sample + "*.root"))
-        ifile_list = glob.glob(ntuples_folder + "/" + sample + "*.root")
+        #ifile_list = glob.glob(ntuples_folder + "/" + sample + "*.root")
+        ifile_list = glob.glob(ntuples_folder + "/" + sample + "_*.root")
         
         if files_per_sample != -1:
             ifile_list = ifile_list[:files_per_sample]
@@ -27,7 +33,7 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
         if len(ifile_list)==0:
             continue
         
-        print "%s: looping over %s files (%s)" % (ntuples_folder, len(ifile_list), sample)
+        #print "%s: looping over %s files (%s)" % (ntuples_folder, len(ifile_list), sample)
        
         file_segments = [ifile_list[x:x+files_per_job] for x in range(0,len(ifile_list),files_per_job)]
 
@@ -44,6 +50,8 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
                 #out_tree = "%s/%s_%s_skim.root" % (output_folder, sample, i_inFile_segment)
                 out_tree = output_folder + "/" + inFile_segment[0].split("/")[-1].replace("_RA2AnalysisTree.root", "") + "_skim.root"
                 cmd = command.replace("$INPUT", inFile).replace("$OUTPUT", out_tree) + " ; "
+                verify_outfiles.append(out_tree)
+                verify_ntotal += len(ifile_list)
             commands.append(cmd)
 
     return commands
@@ -82,6 +90,7 @@ def get_ntuple_datasets(globstring_list, lowstats=False):
                     "/pnfs/desy.de/cms/tier2/store/user/ssekmen/NtupleHub/ProductionRun2v3",
                     "/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3",
                     "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3",
+                    "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_restored",
                     "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_SMS2",
                     "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_SMS3",
                     "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh",
@@ -94,7 +103,8 @@ def get_ntuple_datasets(globstring_list, lowstats=False):
         print "Searching for dataset identifiers in %s..." % folder
         ntuples[folder] = []
         for i_globstring in globstrings:
-            if "FSv3.SMS" in i_globstring and "SMS2" not in folder:
+            #if "FSv3.SMS" in i_globstring and "SMS2" not in folder:
+            if "FSv3.SMS" in i_globstring and not ("SMS2" in folder or "SMS3" in folder):
                 #don't add SMS from any other folder...
                 continue
                 
@@ -106,7 +116,7 @@ def get_ntuple_datasets(globstring_list, lowstats=False):
 if __name__ == "__main__":
 
     parser = OptionParser()
-    parser.add_option("--nfiles", dest="files_per_job", default = 10)
+    parser.add_option("--nfiles", dest="files_per_job", default = 20)
     parser.add_option("--njobs", dest="njobs", default = -1)
     parser.add_option("--start", dest="start", action = "store_true")
     parser.add_option("--checkcomplete", dest="checkcomplete", action = "store_true")
@@ -124,56 +134,87 @@ if __name__ == "__main__":
     data_phase1 = "Run2017*,Run2018*"
     mc_sms = "RunIISummer16MiniAODv3.SMS*"
 
-    sms_pmssm = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*"
+    sms_pmssm = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIAutumn18FSv3.PMSSM*"
+    #sms_pmssm = "RunIIAutumn18FSv3.PMSSM*"
     
-    ######## defaults ########
-    if not options.command:
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
-        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --trigger_study "
-        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow "
-    if not options.dataset:
-        options.dataset = ""
-        #options.dataset += sms_pmssm
-        #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-        #options.dataset = "RunIISummer16MiniAODv3.SMS*," + "," + mc_summer16
-        #options.dataset = "Run201*Single*,Run201*EGamma*," + mc_fall17 + "," + mc_summer16
-        #options.dataset += "Run2016*SingleElectron*,Run2016*JetHT*"
-        options.dataset += "Run2016*,Run2017*,Run2018*"
-        #options.dataset += "Run2016*JetHT*,Run2017*JetHT*,Run2018*JetHT*"
-        #options.dataset += ","
-        #options.dataset += mc_fall17 + "," + mc_summer16
-        #options.dataset += ","
-        ###options.dataset += "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
-        #options.dataset += "RunIISummer16MiniAODv3.SMS*"
-        #options.dataset += "Run2016*"
-        #options.dataset += ","
-        #options.dataset += "RunIIAutumn18FSv3.SMS-T2tb*,RunIIAutumn18FSv3.SMS-T2bt*,RunIIAutumn18FSv3.SMS-T1btbt*,RunIIFall17FSv3.SMS-T2tb*,RunIIFall17FSv3.SMS-T2bt*,RunIIFall17FSv3.SMS-T1btbt*"
-        #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17
-        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-        #options.dataset = "RunIIAutumn18FS.*"
-        #options.dataset = "Run201*Single*,Run201*JetHT*,Run2018*EGamma*"
-        #options.dataset = "Run2018*EGamma*"
-        #options.dataset = "Run201*MET*"
-        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
-        #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
-        #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*"
-        #options.dataset = "Run2017F*," + mc_fall17
-        #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17 
-        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
-        #options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
-        #options.dataset = "Summer16.QCD_HT500to700_TuneCUETP8M1*,RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV*"
-        #options.dataset = "RunIIAutumn18FSv3.SMS-T2bt-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211114_042348-0005-SUS-RunIIAutumn18FSPremix-00155_54*"
-        #options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS-*,RunIISummer16MiniAODv3.SMS-T1qqqq*"
-        #options.dataset +=  mc_summer16 + ",RunIISummer16MiniAODv3.SMS*"
-        #options.dataset += "Run2016B*SingleEl*13*"
+    do_lumi = False
+    do_pmssm = True
+    do_all = False
 
-    #skimname = "skim_fullC1"
-    #skimname = "skim_mcfullbdt2016"
-    skimname = "skim_lumiOct27"
-    #skimname = "skim_triggerOct17c"
+    if do_lumi:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
+        options.dataset = "Run2016*,Run2017*,Run2018*"
+        skimname = "skim_lumiOct31"
+        options.start = True
+        options.files_per_job = 10
+        options.njobs = 2000
+    elif do_pmssm:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
+        options.dataset = sms_pmssm
+        skimname = "skim_pmssmDec14"
+        options.start = True
+        options.files_per_job = 10
+        options.njobs = 3000
+    elif do_all:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
+        #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS*"
+        skimname = "skim_completeDez2Fast"
+        options.start = True
+        options.files_per_job = 1
+        options.njobs = 2000
+
+    else:
+
+        ######## defaults ########
+        if not options.command:
+            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
+            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
+            options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
+            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --trigger_study "
+            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow "
+        if not options.dataset:
+            options.dataset = ""
+            #options.dataset += sms_pmssm
+            #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+            #options.dataset = "RunIISummer16MiniAODv3.SMS*," + "," + mc_summer16
+            #options.dataset = "Run201*Single*,Run201*EGamma*," + mc_fall17 + "," + mc_summer16
+            #options.dataset += "Run2016*SingleElectron*,Run2016*JetHT*"
+            options.dataset += "Run2016*,Run2017*,Run2018*"
+            #options.dataset += "Run2016*JetHT*,Run2017*JetHT*,Run2018*JetHT*"
+            #options.dataset += ","
+            #options.dataset += mc_fall17 + "," + mc_summer16
+            #options.dataset += ","
+            ###options.dataset += "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+            #options.dataset += "RunIISummer16MiniAODv3.SMS*"
+            #options.dataset += "Run2016*"
+            #options.dataset += ","
+            #options.dataset += "RunIIAutumn18FSv3.SMS-T2tb*,RunIIAutumn18FSv3.SMS-T2bt*,RunIIAutumn18FSv3.SMS-T1btbt*,RunIIFall17FSv3.SMS-T2tb*,RunIIFall17FSv3.SMS-T2bt*,RunIIFall17FSv3.SMS-T1btbt*"
+            #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17
+            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+            #options.dataset = "RunIIAutumn18FS.*"
+            #options.dataset = "Run201*Single*,Run201*JetHT*,Run2018*EGamma*"
+            #options.dataset = "Run2018*EGamma*"
+            #options.dataset = "Run201*MET*"
+            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+            #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+            #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*"
+            #options.dataset = "Run2017F*," + mc_fall17
+            #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17 
+            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
+            #options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
+            #options.dataset = "Summer16.QCD_HT500to700_TuneCUETP8M1*,RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV*"
+            #options.dataset = "RunIIAutumn18FSv3.SMS-T2bt-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211114_042348-0005-SUS-RunIIAutumn18FSPremix-00155_54*"
+            #options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS-*,RunIISummer16MiniAODv3.SMS-T1qqqq*"
+            #options.dataset +=  mc_summer16 + ",RunIISummer16MiniAODv3.SMS*"
+            #options.dataset += "Run2016B*SingleEl*13*"
+
+        #skimname = "skim_fullC1"
+        #skimname = "skim_mcfullbdt2016"
+        skimname = "skim_lumiOct29"
+        #skimname = "skim_pmssmOct29"
+        #skimname = "skim_triggerOct17c"
 
     ######## defaults ########
 
@@ -181,7 +222,14 @@ if __name__ == "__main__":
         options.output_folder = "../" + skimname
 
     commands = []
-    ntuples = get_ntuple_datasets(options.dataset)
+
+    if options.dataset == "Run2016*,Run2017*,Run2018*":
+        ntuples = {'/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3': ['Run2016F-17Jul2018-v1.JetHTAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016H-17Jul2018-v1.SingleMuonAOD', 'Run2016H-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.SingleMuonAOD', 'Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.JetHTAOD', 'Run2018C-17Sep2018-v1.METAOD', 'Run2018C-17Sep2018-v1.JetHTAOD', 'Run2018C-17Sep2018-v1.SingleMuonAOD'], '/pnfs/desy.de/cms/tier2/store/user/spak/NtupleHub/ProductionRun2v3': ['Run2016H-17Jul2018-v2.METAOD', 'Run2016H-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.SingleElectronAOD', 'Run2016E-17Jul2018-v1.SingleMuonAOD', 'Run2016E-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.JetHTAOD', 'Run2016E-17Jul2018-v1.JetHTAOD', 'Run2016F-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.JetHTAOD', 'Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016D-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.SingleMuonAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016C-17Jul2018-v1.SingleMuonAOD', 'Run2016H-17Jul2018-v1.SingleElectronAOD', 'Run2016B-17Jul2018_ver2-v2.JetHTAOD', 'Run2016B-17Jul2018_ver2-v1.SingleElectronAOD', 'Run2016G-17Jul2018-v1.SingleMuonAOD', 'Run2016B-17Jul2018_ver2-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleMuonAOD', 'Run2017F-31Mar2018-v1.SingleElectronAOD', 'Run2017F-31Mar2018-v1.SingleMuonAOD0', 'Run2017F-31Mar2018-v1.SingleMuonAOD1', 'Run2017F-31Mar2018-v1.METAOD0', 'Run2017F-31Mar2018-v1.JetHTAOD', 'Run2017F-31Mar2018-v1.METAOD1', 'Run2018B-17Sep2018-v1.SingleMuonAOD', 'Run2018B-17Sep2018-v1.JetHTAOD', 'Run2018C-17Sep2018-v1.METAOD', 'Run2018C-17Sep2018-v1.SingleMuonAOD', 'Run2018C-17Sep2018-v1.JetHTAOD', 'Run2018D-PromptReco-v2.JetHTAOD2', 'Run2018D-PromptReco-v2.JetHTAOD3', 'Run2018D-PromptReco-v2.JetHTAOD0', 'Run2018D-PromptReco-v2.JetHTAOD1', 'Run2018D-PromptReco-v2.JetHTAOD6', 'Run2018D-PromptReco-v2.JetHTAOD4', 'Run2018D-PromptReco-v2.JetHTAOD5', 'Run2018A-17Sep2018-v1.SingleMuonAOD0', 'Run2018A-17Sep2018-v1.SingleMuonAOD1', 'Run2018D-PromptReco-v2.METAOD2', 'Run2018D-PromptReco-v2.METAOD1', 'Run2018D-PromptReco-v2.METAOD0', 'Run2018A-17Sep2018-v1.JetHTAOD', 'Run2018A-17Sep2018-v1.METAOD', 'Run2018D-PromptReco-v2.SingleMuonAOD8', 'Run2018D-PromptReco-v2.SingleMuonAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD0', 'Run2018D-PromptReco-v2.SingleMuonAOD3', 'Run2018D-PromptReco-v2.SingleMuonAOD2', 'Run2018D-PromptReco-v2.SingleMuonAOD5', 'Run2018D-PromptReco-v2.SingleMuonAOD4', 'Run2018D-PromptReco-v2.SingleMuonAOD7', 'Run2018D-PromptReco-v2.SingleMuonAOD6'], '/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3': [], '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3': ['Run2016H-17Jul2018-v2.METAOD', 'Run2016H-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.METAOD', 'Run2016E-17Jul2018-v1.SingleMuonAOD', 'Run2016E-17Jul2018-v1.SingleElectronAOD', 'Run2016B-17Jul2018_ver2-v2.JetHTAOD', 'Run2016F-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.JetHTAOD', 'Run2016E-17Jul2018-v1.METAOD', 'Run2016E-17Jul2018-v1.JetHTAOD', 'Run2016C-17Jul2018-v1.METAOD', 'Run2016F-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.JetHTAOD', 'Run2016F-17Jul2018-v1.METAOD', 'Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016D-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.SingleMuonAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016C-17Jul2018-v1.SingleMuonAOD', 'Run2016H-17Jul2018-v1.SingleElectronAOD', 'Run2016G-17Jul2018-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleElectronAOD', 'Run2016G-17Jul2018-v1.SingleMuonAOD', 'Run2016B-17Jul2018_ver2-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleMuonAOD', 'Run2017B-31Mar2018-v1.SingleElectronAOD', 'Run2017C-31Mar2018-v1.SingleMuonAOD', 'Run2017E-31Mar2018-v1.SingleMuonAOD', 'Run2017B-31Mar2018-v1.JetHTAOD', 'Run2017C-31Mar2018-v1.SingleElectronAOD', 'Run2017D-31Mar2018-v1.JetHTAOD', 'Run2017F-31Mar2018-v1.SingleElectronAOD', 'Run2017F-31Mar2018-v1.SingleMuonAOD0', 'Run2017F-31Mar2018-v1.SingleMuonAOD1', 'Run2017D-31Mar2018-v1.SingleMuonAOD', 'Run2017C-31Mar2018-v1.JetHTAOD', 'Run2017F-31Mar2018-v1.JetHTAOD', 'Run2017E-31Mar2018-v1.METAOD', 'Run2017C-31Mar2018-v1.METAOD', 'Run2017B-31Mar2018-v1.METAOD', 'Run2017D-31Mar2018-v1.METAOD', 'Run2017B-31Mar2018-v1.SingleMuonAOD', 'Run2017F-31Mar2018-v1.METAOD0', 'Run2017F-31Mar2018-v1.METAOD1', 'Run2018B-17Sep2018-v1.SingleMuonAOD', 'Run2018B-17Sep2018-v1.JetHTAOD', 'Run2018C-17Sep2018-v1.METAOD', 'Run2018C-17Sep2018-v1.SingleMuonAOD', 'Run2018D-PromptReco-v2.EGammaAOD12', 'Run2018D-PromptReco-v2.EGammaAOD13', 'Run2018D-PromptReco-v2.EGammaAOD10', 'Run2018A-17Sep2018-v1.METAOD', 'Run2018C-17Sep2018-v1.JetHTAOD', 'Run2018D-PromptReco-v2.EGammaAOD0', 'Run2018D-PromptReco-v2.EGammaAOD1', 'Run2018D-PromptReco-v2.EGammaAOD2', 'Run2018D-PromptReco-v2.EGammaAOD3', 'Run2018D-PromptReco-v2.EGammaAOD4', 'Run2018D-PromptReco-v2.EGammaAOD5', 'Run2018D-PromptReco-v2.EGammaAOD6', 'Run2018D-PromptReco-v2.EGammaAOD7', 'Run2018D-PromptReco-v2.JetHTAOD2', 'Run2018D-PromptReco-v2.JetHTAOD3', 'Run2018D-PromptReco-v2.JetHTAOD0', 'Run2018D-PromptReco-v2.JetHTAOD1', 'Run2018D-PromptReco-v2.JetHTAOD6', 'Run2018D-PromptReco-v2.JetHTAOD4', 'Run2018D-PromptReco-v2.JetHTAOD5', 'Run2018A-17Sep2018-v1.SingleMuonAOD0', 'Run2018A-17Sep2018-v1.SingleMuonAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD8', 'Run2018B-17Sep2018-v1.EGammaAOD2', 'Run2018D-PromptReco-v2.METAOD2', 'Run2018D-PromptReco-v2.METAOD1', 'Run2018D-PromptReco-v2.METAOD0', 'Run2018D-PromptReco-v2.EGammaAOD8', 'Run2018D-PromptReco-v2.EGammaAOD11', 'Run2018A-17Sep2018-v1.JetHTAOD', 'Run2018B-17Sep2018-v1.EGammaAOD0', 'Run2018D-PromptReco-v2.EGammaAOD9', 'Run2018B-17Sep2018-v1.EGammaAOD1', 'Run2018B-17Sep2018-v1.METAOD', 'Run2018A-17Sep2018-v1.EGammaAOD5', 'Run2018A-17Sep2018-v1.EGammaAOD4', 'Run2018A-17Sep2018-v1.EGammaAOD6', 'Run2018A-17Sep2018-v1.EGammaAOD1', 'Run2018A-17Sep2018-v1.EGammaAOD0', 'Run2018A-17Sep2018-v1.EGammaAOD3', 'Run2018A-17Sep2018-v1.EGammaAOD2', 'Run2018D-PromptReco-v2.SingleMuonAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD0', 'Run2018D-PromptReco-v2.SingleMuonAOD3', 'Run2018D-PromptReco-v2.SingleMuonAOD2', 'Run2018D-PromptReco-v2.SingleMuonAOD5', 'Run2018D-PromptReco-v2.SingleMuonAOD4', 'Run2018D-PromptReco-v2.SingleMuonAOD7', 'Run2018D-PromptReco-v2.SingleMuonAOD6', 'Run2018C-17Sep2018-v1.EGammaAOD2', 'Run2018C-17Sep2018-v1.EGammaAOD1', 'Run2018C-17Sep2018-v1.EGammaAOD0'], '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_SMS3': [], '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_SMS2': [], '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v3_jsonneve': ['Run2018C-17Sep2018-v1.METAOD', 'Run2018C-17Sep2018-v1.SingleMuonAOD', 'Run2018C-17Sep2018-v1.JetHTAOD', 'Run2018D-PromptReco-v2.JetHTAOD2', 'Run2018D-PromptReco-v2.JetHTAOD3', 'Run2018D-PromptReco-v2.JetHTAOD0', 'Run2018D-PromptReco-v2.JetHTAOD1', 'Run2018D-PromptReco-v2.JetHTAOD6', 'Run2018D-PromptReco-v2.JetHTAOD4', 'Run2018D-PromptReco-v2.JetHTAOD5', 'Run2018D-PromptReco-v2.METAOD2', 'Run2018D-PromptReco-v2.METAOD1', 'Run2018D-PromptReco-v2.METAOD0', 'Run2018D-PromptReco-v1.METAOD', 'Run2018D-PromptReco-v2.SingleMuonAOD8', 'Run2018D-PromptReco-v2.SingleMuonAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD0', 'Run2018D-PromptReco-v2.SingleMuonAOD3', 'Run2018D-PromptReco-v2.SingleMuonAOD2', 'Run2018D-PromptReco-v2.SingleMuonAOD5', 'Run2018D-PromptReco-v2.SingleMuonAOD4', 'Run2018D-PromptReco-v2.SingleMuonAOD7', 'Run2018D-PromptReco-v2.SingleMuonAOD6', 'Run2018D-PromptReco-v1.JetHTAOD'], '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_vormwald': ['Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016H-17Jul2018-v1.SingleMuonAOD'], '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v3': ['Run2016H-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.METAOD', 'Run2016E-17Jul2018-v1.SingleMuonAOD', 'Run2016E-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.JetHTAOD', 'Run2016E-17Jul2018-v1.METAOD', 'Run2016E-17Jul2018-v1.JetHTAOD', 'Run2016C-17Jul2018-v1.METAOD', 'Run2016F-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.JetHTAOD', 'Run2016F-17Jul2018-v1.METAOD', 'Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016D-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.SingleMuonAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016C-17Jul2018-v1.SingleMuonAOD', 'Run2016H-17Jul2018-v1.SingleElectronAOD', 'Run2016B-17Jul2018_ver2-v1.SingleElectronAOD', 'Run2016B-17Jul2018_ver2-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleMuonAOD', 'Run2017E-31Mar2018-v1.SingleMuonAOD', 'Run2017C-31Mar2018-v1.SingleElectronAOD', 'Run2017D-31Mar2018-v1.JetHTAOD', 'Run2017E-31Mar2018-v1.SingleElectronAOD', 'Run2017F-31Mar2018-v1.SingleMuonAOD0', 'Run2017F-31Mar2018-v1.SingleMuonAOD1', 'Run2017B-31Mar2018-v1.SingleMuonAOD2', 'Run2017B-31Mar2018-v1.SingleMuonAOD0', 'Run2017B-31Mar2018-v1.SingleMuonAOD1', 'Run2017B-31Mar2018-v1.JetHTAOD1', 'Run2017B-31Mar2018-v1.JetHTAOD0', 'Run2017F-31Mar2018-v1.METAOD0', 'Run2017F-31Mar2018-v1.METAOD1', 'Run2017E-31Mar2018-v1.JetHTAOD0', 'Run2017D-31Mar2018-v1.SingleElectronAOD', 'Run2017B-31Mar2018-v1.JetHTAOD', 'Run2017D-31Mar2018-v1.METAOD', 'Run2017B-31Mar2018-v1.SingleElectronAOD', 'Run2017C-31Mar2018-v1.SingleMuonAOD', 'Run2017C-31Mar2018-v1.JetHTAOD0', 'Run2017C-31Mar2018-v1.JetHTAOD1', 'Run2017E-31Mar2018-v1.METAOD', 'Run2017C-31Mar2018-v1.METAOD', 'Run2017C-31Mar2018-v1.METAOD0', 'Run2017F-31Mar2018-v1.SingleElectronAOD', 'Run2017D-31Mar2018-v1.SingleMuonAOD', 'Run2017E-31Mar2018-v1.JetHTAOD', 'Run2017C-31Mar2018-v1.JetHTAOD', 'Run2017B-31Mar2018-v1.METAOD', 'Run2017B-31Mar2018-v1.SingleMuonAOD', 'Run2017F-31Mar2018-v1.JetHTAOD', 'Run2018B-17Sep2018-v1.SingleMuonAOD', 'Run2018C-17Sep2018-v1.METAOD', 'Run2018C-17Sep2018-v1.SingleMuonAOD', 'Run2018C-17Sep2018-v1.JetHTAOD', 'Run2018D-PromptReco-v2.JetHTAOD2', 'Run2018D-PromptReco-v2.JetHTAOD3', 'Run2018D-PromptReco-v2.JetHTAOD0', 'Run2018D-PromptReco-v2.JetHTAOD1', 'Run2018D-PromptReco-v2.JetHTAOD6', 'Run2018D-PromptReco-v2.JetHTAOD4', 'Run2018D-PromptReco-v2.JetHTAOD5', 'Run2018A-17Sep2018-v1.SingleMuonAOD0', 'Run2018A-17Sep2018-v1.EGammaAOD4', 'Run2018B-17Sep2018-v1.EGammaAOD2', 'Run2018D-PromptReco-v2.METAOD2', 'Run2018D-PromptReco-v2.METAOD1', 'Run2018D-PromptReco-v2.METAOD0', 'Run2018A-17Sep2018-v1.JetHTAOD', 'Run2018B-17Sep2018-v1.EGammaAOD0', 'Run2018B-17Sep2018-v1.EGammaAOD1', 'Run2018A-17Sep2018-v1.METAOD', 'Run2018D-PromptReco-v1.METAOD', 'Run2018A-17Sep2018-v1.EGammaAOD5', 'Run2018D-PromptReco-v2.SingleMuonAOD8', 'Run2018A-17Sep2018-v1.EGammaAOD6', 'Run2018A-17Sep2018-v1.EGammaAOD1', 'Run2018A-17Sep2018-v1.EGammaAOD0', 'Run2018A-17Sep2018-v1.EGammaAOD3', 'Run2018A-17Sep2018-v1.EGammaAOD2', 'Run2018D-PromptReco-v2.SingleMuonAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD0', 'Run2018D-PromptReco-v2.SingleMuonAOD3', 'Run2018D-PromptReco-v2.SingleMuonAOD2', 'Run2018D-PromptReco-v2.SingleMuonAOD5', 'Run2018D-PromptReco-v2.SingleMuonAOD4', 'Run2018D-PromptReco-v2.SingleMuonAOD7', 'Run2018D-PromptReco-v2.SingleMuonAOD6', 'Run2018D-PromptReco-v1.JetHTAOD'], '/pnfs/desy.de/cms/tier2/store/user/ssekmen/NtupleHub/ProductionRun2v3': ['Run2016H-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.SingleMuonAOD', 'Run2016F-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.METAOD', 'Run2016G-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.METAOD', 'Run2016G-17Jul2018-v1.SingleMuonAOD', 'Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016G-17Jul2018-v1.JetHTAOD', 'Run2017F-31Mar2018-v1.SingleElectronAOD', 'Run2017E-31Mar2018-v1.SingleElectronAOD', 'Run2017F-31Mar2018-v1.SingleMuonAOD0', 'Run2017F-31Mar2018-v1.SingleMuonAOD1', 'Run2017E-31Mar2018-v1.JetHTAOD', 'Run2017F-31Mar2018-v1.JetHTAOD', 'Run2017E-31Mar2018-v1.METAOD', 'Run2017E-31Mar2018-v1.SingleMuonAOD', 'Run2017F-31Mar2018-v1.METAOD0', 'Run2017F-31Mar2018-v1.METAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD1', 'Run2018D-PromptReco-v2.SingleMuonAOD0', 'Run2018C-17Sep2018-v1.JetHTAOD', 'Run2018D-PromptReco-v2.METAOD2', 'Run2018D-PromptReco-v2.METAOD1', 'Run2018D-PromptReco-v2.METAOD0', 'Run2018C-17Sep2018-v1.EGammaAOD2', 'Run2018C-17Sep2018-v1.EGammaAOD1', 'Run2018C-17Sep2018-v1.EGammaAOD0', 'Run2018D-PromptReco-v2.JetHTAOD2', 'Run2018D-PromptReco-v2.JetHTAOD3', 'Run2018D-PromptReco-v2.JetHTAOD0', 'Run2018D-PromptReco-v2.JetHTAOD1', 'Run2018D-PromptReco-v2.JetHTAOD6', 'Run2018C-17Sep2018-v1.SingleMuonAOD', 'Run2018D-PromptReco-v2.JetHTAOD4', 'Run2018D-PromptReco-v2.JetHTAOD5'], '/pnfs/desy.de/cms/tier2/store/user/sbein/NtupleHub/ProductionRun2v3_jarieger': ['Run2016E-17Jul2018-v1.METAOD', 'Run2016D-17Jul2018-v1.SingleMuonAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016F-17Jul2018-v1.SingleMuonAOD', 'Run2016D-17Jul2018-v1.SingleElectronAOD', 'Run2016E-17Jul2018-v1.JetHTAOD', 'Run2016C-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.METAOD', 'Run2016F-17Jul2018-v1.JetHTAOD', 'Run2016C-17Jul2018-v1.SingleElectronAOD', 'Run2016B-17Jul2018_ver2-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.METAOD', 'Run2016F-17Jul2018-v1.METAOD', 'Run2016C-17Jul2018-v1.JetHTAOD', 'Run2016E-17Jul2018-v1.SingleMuonAOD', 'Run2016B-17Jul2018_ver2-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleMuonAOD', 'Run2016E-17Jul2018-v1.SingleElectronAOD'], '/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3_akshansh': ['Run2016E-17Jul2018-v1.METAOD', 'Run2016F-17Jul2018-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.SingleElectronAOD', 'Run2016H-17Jul2018-v1.SingleMuonAOD', 'Run2016C-17Jul2018-v1.METAOD', 'Run2016H-17Jul2018-v1.SingleElectronAOD', 'Run2016C-17Jul2018-v1.SingleElectronAOD', 'Run2016G-17Jul2018-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleElectronAOD', 'Run2016D-17Jul2018-v1.METAOD', 'Run2016F-17Jul2018-v1.METAOD', 'Run2016H-17Jul2018-v1.JetHTAOD', 'Run2016E-17Jul2018-v1.SingleElectronAOD', 'Run2016B-17Jul2018_ver2-v1.METAOD', 'Run2016B-17Jul2018_ver2-v1.SingleMuonAOD', 'Run2016G-17Jul2018-v1.SingleElectronAOD', 'Run2017F-31Mar2018-v1.SingleMuonAOD0', 'Run2017F-31Mar2018-v1.SingleElectronAOD', 'Run2017F-31Mar2018-v1.METAOD0', 'Run2017F-31Mar2018-v1.JetHTAOD']}
+    else:
+        ntuples = get_ntuple_datasets(options.dataset)
+        print ntuples
+        with open("ntuple-identifiers", "write") as fout:
+            fout.write(str(ntuples))
 
     for folder in ntuples:
         commands += prepare_command_list(folder, ntuples[folder], options.output_folder, command=options.command, files_per_job=options.files_per_job)
@@ -208,7 +256,7 @@ if __name__ == "__main__":
     for i in range(len(commands)):
         commands[i] = "$(head -n%s %s/%s.arguments | tail -n1)" % (i+1, options.output_folder + ".condor", skimname)
    
-    if options.njobs>0:
+    if options.njobs>0 and len(commands)>options.njobs:
         file_segments = [list(c) for c in more_itertools.divide(options.njobs, commands)]
         
         new_commands = []
