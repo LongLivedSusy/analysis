@@ -16,7 +16,7 @@ object electrons
 
 object muons
   take muon
-  select pt > 30
+  select pt > 40
   select abs(eta) < 2.4
   select passIso == 1
   select id == 'medium'
@@ -37,7 +37,7 @@ object jets
   select jetid === 1
   select pt > 30
   select abs(eta) < 2.4
-  #veto DeltaR(jet, lepton) < 0.4
+  reject DeltaR(jet, lepton) < 0.4
 
 object bjets
   take jets
@@ -48,12 +48,11 @@ object bjets
 # custom track variables
 define Edep = sum(reducedEcalRecHitsEB DeltaR(track) < 0.5) + sum(reducedEcalRecHitsEE DeltaR(track) < 0.5) + sum(reducedEcalRecHitsES DeltaR(track) < 0.5) + sum(reducedHcalRecHitsHB DeltaR(track) < 0.5) + sum(reducedHcalRecHitsHF DeltaR(track) < 0.5) + sum(reducedHcalRecHitsHO DeltaR(track) < 0.5)
 
-object DTspresel
+object DTspreselMIPs
   take tracks
   select pt > 25
   select abs(eta) < 2.0
   select reliso < 0.2
-  reject dR(track, PFcand) < 0.01
   reject dR(track, lepton) < 0.1
   reject dR(track, pion) < 0.1
   reject dR(track, jet25) < 0.4
@@ -66,12 +65,14 @@ object DTspresel
   select nvalidtrackerhits >= 2
   select nvalidpixelhits >= 2
 
-object DTlpresel
+object DTspresel
+  reject dR(track, PFcand) < 0.01
+
+object DTlpreselMIPs
   take tracks
   select pt > 40
   select abs(eta) < 2
   select reliso < 0.2
-  reject dR(track, PFcand) < 0.01
   reject dR(track, lepton) < 0.1
   reject dR(track, pion) < 0.1
   reject dR(track, jet25) < 0.4
@@ -84,6 +85,10 @@ object DTlpresel
   select nlayerswithmeasurement >= 2
   select nvalidtrackerhits >= 2
   select nvalidpixelhits >= 2
+
+object DTlpresel
+  take DTlpreselMIPs
+  reject dR(track, PFcand) < 0.01
 
 object DTsh
   select DTspresel
@@ -100,40 +105,50 @@ object DT
 
 object DTpromptSBsh
   take DTspresel
-  select phase0 ? Edep [] 20 50 : Edep [] 20 40
-  select phase0 ? BDT > -0.4 : BDT > -0.5
-  select dphi(DTspresel, MHT) < pi / 3
+  select phase0 ? Edep [] 30 300 : Edep [] 30 300
+  select phase0 ? BDT > 0.1 : BDT > 0.05
+  select dphi(DTspresel, MHT) < pi / 4
 
 object DTpromptSBlg
   take DTlpresel
-  select phase0 ? Edep / p [] 0.45*p 0.95*p : Edep / p [] 0.2*p 0.5*p
-  select phase0 ? BDT > -0.2 : BDT > -0.2
-  select dphi(DTspresel, MHT) < pi / 3
+  select phase0 ? Edep / p [] 0.3 1.2 : Edep / p [] 0.3 1.2
+  select phase0 ? BDT > 0.05 : BDT > 0.08
+  select dphi(DTspresel, MHT) < pi / 2
+
+object DTlgMIPs
+  select DTlpreselMIPs
+  select Edep / p < 0.20
+  select phase0 ? BDT > 0.12 : BDT > 0.08
+
+object DTpromptSBlgMIPs
+  take DTlpreselMIPs
+  select phase0 ? Edep / p [] 0.3 1.2 : Edep / p [] 0.3 1.2
+  select phase0 ? BDT > 0.05 : BDT > 0.08
+  select dphi(DTspresel, MHT) < pi / 2
 
 object DTpromptSB
   take union(DTprmoptSBsh, DTpromptSBlg)
 
 object DTfakeSBsh
   take DTspresel
-  select Edep < 5
-  select phase0 ? BDT [] -0.1 0.1 : -0.3 0.12
+  select Edep < 15
+  select phase0 ? BDT [] -0.1 -0.05 : -0.1 0.05
   select dphi(DTspresel, MHT) > pi / 2
 
 object DTfakeSBlg
   take DTlpresel
-  select Edep / p < 0.05
-  select phase0 ? BDT [] -0.3 0.1 : -0.3 0.15
+  select Edep / p < 0.2
+  select phase0 ? BDT [] -0.1 0.0 : -0.1 0.0
   select dphi(DTspresel, MHT) > pi / 2
 
 object DTfakeSB
   take union(DTprmoptSBsh, DTpromptSBlg)
 
-
 # EVENT VARIABLES
 define hardmht = sum(jets pT > 30, eta < 5)
 define HT = sum(jets pT > 30, eta < 2.4)
-define mTele =
-define mTmu =
+define mTele = sqrt(2*electron.Pt() * hardmht.Pt() * (1 - cos(electron.DeltaPhi(hardmht))))
+define mTmu = sqrt(2*muon.Pt() * hardmht.Pt() * (1 - cos(muon.DeltaPhi(hardmht))))
 
 # EVENT SELECTION
 
@@ -309,27 +324,51 @@ region caloSBmu
   namedbin 47 mht > 150 and n(jets) >= 1 and n(DTpromptSBsh) == 1 and n(DTpromptSBlg) == 0 and dedx <= 4
   namedbin 48 mht > 150 and n(jets) >= 1 and n(DTpromptSBsh) == 1 and n(DTpromptSBlg) == 0 and dedx > 4
 
+region calo2dt
+  select caloSBhad or caloSBele or caloSBmu
+  select n(DTpromptSBsh) + n(DTpromptSBlg) >= 2
+
+# transfer factor measurement for the real, showering particle background:
+
 region eplusDTpromptsig
+  select hltsingleele
   select n(electrons) == 1
   select n(DT) == 1
   select m(electrons[0], DT[0]) [] 65 110
+  select mTele < 100
   histo vs DTsh pT
   histo vs DTlg pT
-  # this is separated into low mT CR and high-mT onZ test?  What is the mT threshold?
 
 region eplusDTpromptSB 
-# kappa measurement region
+  select hltsingleele
   select n(electrons) == 1
-  select n(DTedepSB) == 1
+  select n(DTpromptSB) == 1
   select m(electrons[0], DTpromptSB[0]) [] 65 110
+  select mTele < 100
   histo vs DTsh pT
   histo vs DTlg pT
 
-# The region for 2DT is not clear.
+# transfer factor measurement for the real, mipping particle background:
+
+region muplusDTpromptsig
+  select hltsinglemu
+  select n(muons) == 1
+  select n(DTlgMIPs) == 1
+  select m(muons[0], DT[0]) [] 65 110
+  select mTele < 100
+  histo vs DTlg pT
+
+region muplusDTpromptSB 
+  select hltsinglemu
+  select n(muons) == 1
+  select n(DTpromptSBlgMIPs) == 1
+  select m(muons[0], DTpromptSBlgMIPs[0]) [] 65 110
+  select mTmu < 100
+  histo vs DTlg pT
 
 
 # Fake background control regions
-region caloSBhad
+region fakeSBhad
   select baselinehad
   # mht [] 150 300, 0 bjets
   namedbin 1 mht [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTfakeSBsh) == 0 and n(DTfakeSBlg) == 1 and dedx <= 4
@@ -359,7 +398,7 @@ region caloSBhad
   namedbin 23 mht > 300 and n(jets) >= 3 and n(DTfakeSBsh) == 1 and n(DTfakeSBlg) == 0 and dedx <= 4
   namedbin 24 mht > 300 and n(jets) >= 3 and n(DTfakeSBsh) == 1 and n(DTfakeSBlg) == 0 and dedx > 4
 
-region caloSBele
+region fakeSBele
   select baselineele
   # mht [] 30 150 0 b-jets
   namedbin 25 mht [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTfakeSBsh) == 0 and n(DTfakeSBlg) == 1 and dedx <= 4
@@ -377,7 +416,7 @@ region caloSBele
   namedbin 35 mht > 150 and n(jets) >= 1 and n(DTfakeSBsh) == 1 and n(DTfakeSBlg) == 0 and dedx <= 4
   namedbin 36 mht > 150 and n(jets) >= 1 and n(DTfakeSBsh) == 1 and n(DTfakeSBlg) == 0 and dedx > 4
 
-region caloSBmu
+region fakeSBmu
   select baselinemu
   # mht [] 30 150 0 b-jets
   namedbin 37 mht [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTfakeSBsh) == 0 and n(DTfakeSBlg) == 1 and dedx <= 4
@@ -395,12 +434,32 @@ region caloSBmu
   namedbin 47 mht > 150 and n(jets) >= 1 and n(DTfakeSBsh) == 1 and n(DTfakeSBlg) == 0 and dedx <= 4
   namedbin 48 mht > 150 and n(jets) >= 1 and n(DTfakeSBsh) == 1 and n(DTfakeSBlg) == 0 and dedx > 4
 
-region QCDDTfakeCR
-# theta measurement CR
-  select which trigger ?
-  select mht < 50
+region fake2dt
+  select fakeSBhad or fakeSBele or fakeSBmu
+  select n(DTfakeSBsh) + n(DTfakeSBlg) >= 2
+
+# transfer factor measurement for the fake track background:
+
+region lowMHTplusDTfakesig
+  select hltjetht
   select n(leptons) == 0
+  select n(DT) == 1
+  select hardmht < 50
+  histo vs DTsh eta
+  histo vs DTlg eta
 
-# fake CR for closure tests?
+region lowMHTplusDTfakeSB
+  select hltjetht
+  select n(leptons) == 0
+  select n(DTfakeSB) == 1
+  select hardmht < 50
+  histo vs DTsh eta
+  histo vs DTlg eta
 
+
+# measure transfer factors using regions defined above:
+
+showering_tf = eplusDTpromptsig / eplusDTpromptSB
+mipping_tf = muplusDTpromptsig / muplusDTpromptSB
+fake_tf = lowMHTplusDTfakesig / lowMHTplusDTfakeSB
 
