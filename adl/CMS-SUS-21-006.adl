@@ -1,3 +1,9 @@
+info analysis
+  title "Search for long lived SUSY with disappearing tracks in inclusive final states using proton-proton collisions at sqrt(s) = 13 TeV"
+  experiment CMS
+  id SUS-21-006
+  sqrtS 13.0
+  lumi 137fb-1
 
 # OBJECTS
 
@@ -31,12 +37,16 @@ object jets
   select jetid === 1
   select pt > 30
   select abs(eta) < 2.4
+  #veto DeltaR(jet, lepton) < 0.4
 
 object bjets
   take jets
   select Jets_bJetTagDeepCSVBvsAll(2016) > 0.6324
   select Jets_bJetTagDeepCSVBvsAll(2017) > 0.4941
   select Jets_bJetTagDeepCSVBvsAll(2018) > 0.4184
+
+# custom track variables
+define Edep = sum(reducedEcalRecHitsEB DeltaR(track) < 0.5) + sum(reducedEcalRecHitsEE DeltaR(track) < 0.5) + sum(reducedEcalRecHitsES DeltaR(track) < 0.5) + sum(reducedHcalRecHitsHB DeltaR(track) < 0.5) + sum(reducedHcalRecHitsHF DeltaR(track) < 0.5) + sum(reducedHcalRecHitsHO DeltaR(track) < 0.5)
 
 object DTspresel
   take tracks
@@ -49,6 +59,7 @@ object DTspresel
   reject dR(track, jet25) < 0.4
   select highqualitytag == 1
   select dpt / ptsq < 10 # GeV^-1
+  select dxyPV < 0.1 # cm  
   select dzPV < 0.1 # cm
   select nmissinginnerhits == 0
   select nlayerswithmeasurement >= 2
@@ -66,6 +77,7 @@ object DTlpresel
   reject dR(track, jet25) < 0.4
   select highqualitytag == 1
   select dpt / ptsq < 10 # GeV^-1
+  select dxyPV < 0.1 # cm  
   select dzPV < 0.1 # cm
   select nmissinginnerhits == 0
   select nmissingouterhits >= 2
@@ -76,12 +88,12 @@ object DTlpresel
 object DTsh
   select DTspresel
   select Edep < 15
-  select phase0 ? BDT > 0.1 : BDT > 0.12
+  select phase0 ? BDT > 0.1 : BDT > 0.15
 
 object DTlg
   select DTlpresel
-  select Edep / p < 0.15
-  select phase0 ? BDT > 0.1 : BDT > 0.15
+  select Edep / p < 0.20
+  select phase0 ? BDT > 0.12 : BDT > 0.08
 
 object DT
   take union(DTsh, DTlg)
