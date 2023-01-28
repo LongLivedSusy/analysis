@@ -14,6 +14,8 @@ import os, sys
 import glob
 import numpy as np
 import pipes
+from natsort import natsorted, ns
+import lib_systematics
 
 gROOT.SetBatch(True)
 gStyle.SetOptStat(0)
@@ -37,7 +39,7 @@ def correct_dedx_intercalibration(dedx, filename, abseta, phase, is_data, fsmear
     else:
     	dedxcalib_barrel = 1.0
     	dedxcalib_endcap = 1.0	    
-
+        
     #smearing with smear factor:
     if not is_data:
         dedxcalib_barrel += fsmear_barrel.GetRandom()
@@ -156,12 +158,12 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
         return region
 
 
-def fill_sparse(event, signal_region, weight, hnsparse):
+def fill_sparse(event, signal_region, weight, hnsparseobj):
 
     pMSSMid1 = event.SusyMotherMass
     pMSSMid2 = event.SusyLSPMass
     coordinates = np.float64([pMSSMid1, pMSSMid2, signal_region])
-    hnsparse.Fill(coordinates, weight)
+    hnsparseobj.Fill(coordinates, weight)
 
 
 def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_events = False, overwrite = True, debug = False, trigger_study = False, cutflow_study = False, syst = "", lumi_report = False, write_only_sparse = False):
@@ -194,9 +196,11 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
 
     # store runs for JSON output:
     runs = {}
+    runs_fileinfo = {}
     
     # check if data:
     phase = 0
+    year = 0
     data_period = ""
     is_signal = False
     is_data = False
@@ -208,8 +212,16 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 is_data = True
             if label == "Run2016" or label == "Summer16" or label == "RunIISummer16MiniAODv3":
                 phase = 0
+                year = 2016
             elif label == "Run2017" or label == "Run2018" or label == "Fall17" or label == "Autumn18":
                 phase = 1
+                if label == "Run2017" or label == "Fall17":
+                    year = 2017
+                else:
+                    year = 2018
+
+    if year == 0:
+        quit("Wrong filename convention")
          
     if data_period == "RunIISummer16MiniAODv3":
         data_period = "Summer16"
@@ -225,7 +237,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     else:
         is_pmssm = False        
 
-    print "Signal: %s, phase: %s, is_pmssm: %s" % (is_signal, phase, is_pmssm)
+    print "Signal: %s, phase: %s, is_pmssm: %s, year: %s" % (is_signal, phase, is_pmssm, year)
     
     blockhem = False
     partiallyblockhem = False
@@ -245,17 +257,46 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
     hMask = fMask.Get('h_Mask_allyearsLongBaseline_EtaVsPhiDT')
     hMask.SetDirectory(0)
     fMask.Close()
-           
+
+    # load signal systematic scale factor:
+    fsyst = TFile('../../systematics/signal_scalefactor.root')
+    h_short = fsyst.Get('fit_sf_short')
+    h_long = fsyst.Get('fit_sf_long')
+    if year == 2016:
+        signal_sf_short = h_short.GetBinContent(1)
+        signal_sf_long = h_long.GetBinContent(1)
+    elif year == 2017:
+        signal_sf_short = h_short.GetBinContent(2)
+        signal_sf_long = h_long.GetBinContent(2)
+    elif year == 2018:
+        signal_sf_short = h_short.GetBinContent(3)
+        signal_sf_long = h_long.GetBinContent(3)
+    fsyst.Close()
+
+    # load trigger efficiencies:
+    fsyst = TFile('../../triggerefficiency/trigger-efficiencies.root')
+    h_triggereff_mht_highjets = fsyst.Get('mht_SingleEl_highjets/h_triggereff_MHT_MHT_%s' % year)
+    h_triggereff_mht_highjets.SetDirectory(0)
+    h_triggereff_mht_lowjets = fsyst.Get('mht_SingleEl_lowjets/h_triggereff_MHT_MHT_%s' % year)
+    h_triggereff_mht_lowjets.SetDirectory(0)
+    h_triggereff_sel = fsyst.Get('sel_switchdenom/h_triggereff_SEl_leadingelectron_pt_MHT_%s' % year)
+    h_triggereff_sel.SetDirectory(0)
+    h_triggereff_smu = fsyst.Get('smu_switchdenom/h_triggereff_SMu_leadingmuon_pt_MHT_%s' % year)
+    h_triggereff_smu.SetDirectory(0)
+    fsyst.Close()
+    #h_triggereff_sel = fsyst.Get('sel_switchdenom/h_triggereff_SEl_leadinglepton_pt_MHT_%s' % year)
+    #h_triggereff_smu = fsyst.Get('smu_switchdenom/h_triggereff_SMu_leadinglepton_pt_MHT_%s' % year)
+
     # load tree
     tree = TChain("TreeMaker2/PreSelection")
     for iFile in event_tree_filenames:
 
-        # ignore list: broken/corrupt files
-        if "Run2018A-17Sep2018-v1.JetHTAOD_270000-DDC26769-F24F-F64B-B83E-0AB519FF9B4F_RA2AnalysisTree.root" in iFile or \
-           "Run2018D-PromptReco-v2.SingleMuonAOD4_00000-B6FEAD33-1AB0-E811-AC2D-FA163EC57F99_RA2AnalysisTree.root" in iFile or \
-           "Run2017E-31Mar2018-v1.SingleElectronAOD_20000-DC2DA888-5805-E811-B181-7CD30ACE1239_RA2AnalysisTree.root" in iFile or \
-           "Run2017B-31Mar2018-v1.SingleElectronAOD_70001-78C69E02-C1DE-E711-857E-FA163E6659D1_RA2AnalysisTree.root" in iFile:
-            continue
+        ## ignore list: broken/corrupt files
+        #if "Run2018A-17Sep2018-v1.JetHTAOD_270000-DDC26769-F24F-F64B-B83E-0AB519FF9B4F_RA2AnalysisTree.root" in iFile or \
+        #   "Run2018D-PromptReco-v2.SingleMuonAOD4_00000-B6FEAD33-1AB0-E811-AC2D-FA163EC57F99_RA2AnalysisTree.root" in iFile or \
+        #   "Run2017E-31Mar2018-v1.SingleElectronAOD_20000-DC2DA888-5805-E811-B181-7CD30ACE1239_RA2AnalysisTree.root" in iFile or \
+        #   "Run2017B-31Mar2018-v1.SingleElectronAOD_70001-78C69E02-C1DE-E711-857E-FA163E6659D1_RA2AnalysisTree.root" in iFile:
+        #    continue
 
         iFile = iFile.replace("'", "")
         if not "root.mimes" in iFile:
@@ -377,6 +418,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                       "mtautau",
                       "dphiMhtDt",
                       "mtDtMht",
+                      "FastSimWeightPR31285To36122",
                     ]
                                     
     if is_signal:
@@ -509,6 +551,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                              'tracks_chiEta',
                              'tracks_chiPt',
                              'tracks_DrJetDt',
+                             'tracks_fastsimweight_LowLabXYAndDeDx',
+                             'tracks_signalsf',
                             ]
 
     for label in bdts:
@@ -535,6 +579,13 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         low = np.float64([pMSSMid1_low, pMSSMid2_low, sr_low])
         high = np.float64([pMSSMid1_up, pMSSMid2_up, sr_up])
         hnsparse = THnSparseF("disappearingtracks", "disappearingtracks", 3, bins, low, high)
+        hnsparse_fastSimWeightPR31285To36122 = THnSparseF("disappearingtracks_fastSimWeightPR31285To36122", "disappearingtracks_fastSimWeightPR31285To36122", 3, bins, low, high)
+        hnsparse_fastsimweightLowLabXYAndDeDx = THnSparseF("disappearingtracks_fastsimweightLowLabXYAndDeDx", "disappearingtracks_fastsimweightLowLabXYAndDeDx", 3, bins, low, high)
+        hnsparse_triggerweight = THnSparseF("disappearingtracks_triggerweight", "disappearingtracks_triggerweight", 3, bins, low, high)
+        hnsparse_signalscalefactor = THnSparseF("disappearingtracks_signalscalefactor", "disappearingtracks_signalscalefactor", 3, bins, low, high)
+        hnsparse_btaggingSF = THnSparseF("disappearingtracks_btaggingSF", "disappearingtracks_btaggingSF", 3, bins, low, high)
+        hnsparse_ISRSF = THnSparseF("disappearingtracks_ISRSF", "disappearingtracks_ISRSF", 3, bins, low, high)
+        hnsparse_allweights = THnSparseF("disappearingtracks_allweights", "disappearingtracks_allweights", 3, bins, low, high)
 
     # load smearing functions
     if not is_data:
@@ -661,6 +712,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         for shortvar in replacevars:
             regions[regionlabel] = regions[regionlabel].replace(shortvar, replacevars[shortvar])
    
+    # b-tagging SF:
+    readerBtag = lib_systematics.prepareReaderBtagSF()
+
     print "Looping over %s events" % nev
     for iEv, event in enumerate(tree):
         
@@ -668,14 +722,26 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         if (iEv+1) % 1000 == 0:
             print "event %s / %s" % (iEv + 1, nev)
 
+        current_file_name = tree.GetFile().GetName()
+       
         # calculate weight and collect lumisections:
         if is_data:
+
             runnum = event.RunNum
             lumisec = event.LumiBlockNum
             if runnum not in runs:
                 runs[runnum] = []
             if lumisec not in runs[runnum]:
                 runs[runnum].append(lumisec)
+
+            #per-file lumisecs:
+            if current_file_name not in runs_fileinfo:
+                runs_fileinfo[current_file_name] = {}
+            if runnum not in runs_fileinfo[current_file_name]:
+                runs_fileinfo[current_file_name][runnum] = []
+            if lumisec not in runs_fileinfo[current_file_name][runnum]:
+                runs_fileinfo[current_file_name][runnum].append(lumisec)
+
             weight = 1.0
         else:
             weight = 1.0 * event.puWeight * event.CrossSection
@@ -683,11 +749,19 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         if lumi_report:
             continue
 
-        current_file_name = tree.GetFile().GetName()
-
         if is_pmssm and write_only_sparse:
             # fill zero bin with weight=1.0 (unweighted)
             fill_sparse(event, 0, 1.0, hnsparse)
+            fill_sparse(event, 0, 1.0, hnsparse_fastSimWeightPR31285To36122)
+            fill_sparse(event, 0, 1.0, hnsparse_fastsimweightLowLabXYAndDeDx)
+            fill_sparse(event, 0, 1.0, hnsparse_triggerweight)
+            fill_sparse(event, 0, 1.0, hnsparse_signalscalefactor)
+            fill_sparse(event, 0, 1.0, hnsparse_btaggingSF)
+            fill_sparse(event, 0, 1.0, hnsparse_ISRSF)
+            fill_sparse(event, 0, 1.0, hnsparse_allweights)
+
+        # ISR weight:
+        weight_isrnom = lib_systematics.get_isr_weight(event, 0)
 
         # reset all branch values:
         for label in tree_branch_values:
@@ -757,7 +831,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
 
         # basic event selection:
         passed_baseline_selection = True
+        FastSimWeightPR31285To36122 = 1.0
         if is_fastsim:
+            FastSimWeightPR31285To36122 = event.FastSimWeightPR31285To36122
             if not shared_utils.passesUniversalSelectionFastSim(event):
                 passed_baseline_selection = False
         else:
@@ -944,7 +1020,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                 if jet.Pt() > leading_jet_pt:
                     leading_jet_pt = jet.Pt()
                     leading_jet = jet
-                               
+
         mva_scores = {}
         tagged_tracks = []
 
@@ -956,7 +1032,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         if data_period == "Run2018":
             BTAG_deepCSV = 0.4184
         btag_cut = BTAG_deepCSV
-    
+
+        # get b-tagging efficiency:
+        weight_sfbtagnom = lib_systematics.get_btag_weight(event, nSigmaBtagSF = 0, nSigmaBtagFastSimSF = 0, isFastSim = is_fastsim, readerBtag = readerBtag)
+
         if debug:
             track_debug_output = ""
 
@@ -1183,6 +1262,27 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             if n_goodmuons != 1 and not pass_basecuts:
                 continue
           
+            # FastSim:
+            fastsim_weight = 1.0
+            if is_fastsim:
+                # FastSim weight: apply for displacements < 30 cm
+                if chi_LabXY>-1 and chi_LabXY<300:
+                    fastsim_weight = 0.75
+                else:
+                    fastsim_weight = 1.0
+
+                #calibfactor_dedx_fastsim
+                if signal_lsp_mass > 0:
+                    fastsim_dedx_factor = shared_utils.calibfactor_dedx_fastsim(int(signal_lsp_mass))
+                    if fastsim_dedx_factor > 0:
+                        fastsim_weight *= fastsim_dedx_factor
+
+            # DT scale factor
+            if is_pixel_track:
+                signal_sf = signal_sf_short
+            else:
+                signal_sf = signal_sf_long
+
             for label in bdts:
                 mva_scores[label] = get_BDT_score(label, event, iCand, readers, is_pixel_track, phase, ptErrOverPt2, event.tracks_dxyVtx[iCand], event.tracks_dzVtx[iCand])
                 mva_scores[label + "_corrdxydz"] = get_BDT_score(label, event, iCand, readers, is_pixel_track, phase, ptErrOverPt2, tracks_dxyVtxCorrected, tracks_dzVtxCorrected)
@@ -1212,9 +1312,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
             #        invariant_mass = -1
             #else:
             #    invariant_mass = -1
-                                        
+                                       
             DeDxCorrected = correct_dedx_intercalibration(event.tracks_deDxHarmonic2pixel[iCand], current_file_name, abs(track.Eta()), phase, is_data, fsmear_barrel, fsmear_endcap)
-                           
+                          
             tagged_tracks.append(
                                    {
                                      "tracks_is_pixel_track": is_pixel_track,
@@ -1265,6 +1365,8 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                                      "tracks_exo_trackiso": exo_trackiso,
                                      "tracks_exo_jetiso": exo_jetiso,
                                      "tracks_DrJetDt": event.tracks_trackJetIso[iCand],                     #trackIsoDR = getParticleIsolation(track, jets); // gets minimum deltaR
+                                     "tracks_fastsimweight_LowLabXYAndDeDx": fastsim_weight,
+                                     "tracks_signalsf": signal_sf,
                                    }
                                   )
 
@@ -1336,7 +1438,9 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         dedx_long = 0
         leadingDT_mva = -1
         leadingDT_mva_index = -1           
-            
+        weight_fastsim = 1.0
+        weight_signalsf = 1.0
+
         for i_tagged, track_output_dict in enumerate(tagged_tracks):
             
             if track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > leadingDT_mva:
@@ -1353,6 +1457,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         n_DTShort += 1
                         dedx_short = track_output_dict["tracks_deDxHarmonic2pixel"]
                         track_pt = track_output_dict["tracks_pt"]
+                        if is_signal:
+                            weight_fastsim *= track_output_dict["tracks_fastsimweight_LowLabXYAndDeDx"]
+                        weight_signalsf *= track_output_dict["tracks_signalsf"]
+
             elif not track_output_dict["tracks_is_pixel_track"] and track_output_dict["tracks_baseline"]:
                 if (phase == 0 and track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > 0.12) or (phase == 1 and track_output_dict["tracks_mva_sep21v1_baseline_corrdxydz"] > 0.08):
                     if track_output_dict["tracks_matchedCaloEnergy"]/track_output_dict["tracks_p"] < 0.20 and track_output_dict["tracks_DrJetDt"]>0.2:
@@ -1363,6 +1471,10 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                         n_DTLong += 1
                         dedx_long = track_output_dict["tracks_deDxHarmonic2pixel"]
                         track_pt = track_output_dict["tracks_pt"]
+                        if is_signal:
+                            weight_fastsim *= track_output_dict["tracks_fastsimweight_LowLabXYAndDeDx"]
+                        weight_signalsf *= track_output_dict["tracks_signalsf"]
+
 
         tree_branch_values["n_DTShort"][0] = n_DTShort
         tree_branch_values["n_DTLong"][0] = n_DTLong
@@ -1518,10 +1630,38 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
 
         if sr_bin > 0 and not is_signal:
             print "DTSR", sr_bin, current_file_name, event.RunNum, event.LumiBlockNum, event.EvtNum, track_pt
-            
+                   
+        # calculate trigger efficiency with adjustedMht.Pt():
+        weight_trigger = -1
+        if n_goodleptons>=1:
+            if tree_branch_values["leadinglepton_type"][0] == 11:
+                #weight_trigger = h_triggereff_sel.GetBinContent(h_triggereff_sel.FindBin(adjustedMht.Pt()))
+                xax, yax = h_triggereff_sel.GetXaxis(), h_triggereff_sel.GetYaxis()
+                ibinx, ibiny = xax.FindBin(adjustedMht.Pt()), yax.FindBin(tree_branch_values["leadinglepton_pt"][0])
+                weight_trigger = h_triggereff_sel.GetBinContent(ibinx, ibiny)
+            elif tree_branch_values["leadinglepton_type"][0] == 13:
+                #weight_trigger = h_triggereff_smu.GetBinContent(h_triggereff_smu.FindBin(adjustedMht.Pt()))
+                xax, yax = h_triggereff_smu.GetXaxis(), h_triggereff_smu.GetYaxis()
+                ibinx, ibiny = xax.FindBin(adjustedMht.Pt()), yax.FindBin(tree_branch_values["leadinglepton_pt"][0])
+                weight_trigger = h_triggereff_smu.GetBinContent(ibinx, ibiny)
+        else:
+            if adjustedNJets <= 2:
+                weight_trigger = h_triggereff_mht_lowjets.GetBinContent(h_triggereff_mht_lowjets.FindBin(adjustedMht.Pt()))
+            if adjustedNJets >= 3:
+                weight_trigger = h_triggereff_mht_highjets.GetBinContent(h_triggereff_mht_highjets.FindBin(adjustedMht.Pt()))
+
         if is_pmssm and write_only_sparse and sr_bin>0:
             fill_sparse(event, sr_bin, event.puWeight, hnsparse)
-        
+            fill_sparse(event, sr_bin, event.puWeight * FastSimWeightPR31285To36122, hnsparse_fastSimWeightPR31285To36122)
+            fill_sparse(event, sr_bin, event.puWeight * weight_fastsim, hnsparse_fastsimweightLowLabXYAndDeDx)
+            fill_sparse(event, sr_bin, event.puWeight * weight_trigger, hnsparse_triggerweight)
+            fill_sparse(event, sr_bin, event.puWeight * weight_signalsf, hnsparse_signalscalefactor)
+            fill_sparse(event, sr_bin, event.puWeight * weight_sfbtagnom, hnsparse_btaggingSF)
+            fill_sparse(event, sr_bin, event.puWeight * weight_isrnom, hnsparse_ISRSF)
+            weight_combined = event.puWeight * weight_fastsim * FastSimWeightPR31285To36122 * weight_trigger * weight_signalsf * weight_isrnom * weight_sfbtagnom
+            fill_sparse(event, sr_bin, weight_combined, hnsparse_allweights)
+
+
         # save event-level variables:
         if is_data:
             tree_branch_values["run"][0] = event.RunNum
@@ -1549,6 +1689,7 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         tree_branch_values["mtautau"][0] = mtautau
         tree_branch_values["dphiMhtDt"][0] = dphiMhtDt
         tree_branch_values["mtDtMht"][0] = mtDtMht
+        tree_branch_values["FastSimWeightPR31285To36122"][0] = FastSimWeightPR31285To36122
 
         if not is_data:
             tree_branch_values["madHT"][0] = madHT
@@ -1601,8 +1742,12 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
         fout.Close()
                             
     # write JSON containing lumisections:
-    json_compact = False
+    json_compact = True
     json_filename = track_tree_output.replace(".root", ".json")
+
+    #sort lumisection blocks:
+    for run in runs:
+        runs[run] = natsorted(runs[run])
 
     if json_compact:
         if len(runs) > 0:
@@ -1616,30 +1761,47 @@ def main(event_tree_filenames, track_tree_output, nevents = -1, only_tagged_even
                     else:
                         runs_compacted[run].append([lumisec, lumisec])
 
-        json_content = json.dumps(runs_compacted)
+        #json_content = json.dumps(runs_compacted)
 
     if len(runs) > 0:
-        json_content = json.dumps(runs)
+        if json_compact:
+            json_content = json.dumps(runs_compacted)
+        else:
+            json_content = json.dumps(runs)
         with open(json_filename, "w") as fo:
             fo.write(json_content)
 
-        processed_files = "\n".join(event_tree_filenames) + "\n"
-        for run in runs:
-            lumis = runs[run]
-            lumis_string = ""
-            for lumi in lumis:
-                lumis_string += str(int(lumi)) + ","
-            lumis_string = lumis_string[:-2]
-            processed_files += "%s:%s\n" % (run, lumis_string)
-        print "@@@@@@@"
-        print processed_files
-        print "@@@@@@@"
+        with open(json_filename.replace(".json", ".dat"), "w") as fo:
+            content = ""
+            for i_file in runs_fileinfo:
+                content += "%s: %s\n" % (i_file.split("/")[-1], str(runs_fileinfo[i_file]).replace("L", ""))
+            fo.write(content)
+
+        #if False:
+        #    processed_files = "\n".join(event_tree_filenames) + "\n"
+        #    for run in runs:
+        #        lumis = runs[run]
+        #        lumis_string = ""
+        #        for lumi in lumis:
+        #            lumis_string += str(int(lumi)) + ","
+        #        lumis_string = lumis_string[:-2]
+        #        processed_files += "%s:%s\n" % (run, lumis_string)
+        #    print "@@@@@@@"
+        #    print processed_files
+        #    print "@@@@@@@"
 
     if not lumi_report and is_pmssm and write_only_sparse:
         sparse_filename = track_tree_output.replace(".root", "_sparse.root")
         fout = TFile(sparse_filename, "recreate")
         fout.cd()
         hnsparse.Write()
+        hnsparse_fastSimWeightPR31285To36122.Write()
+        hnsparse_fastsimweightLowLabXYAndDeDx.Write()
+        hnsparse_triggerweight.Write()
+        hnsparse_signalscalefactor.Write()
+        hnsparse_btaggingSF.Write()
+        hnsparse_ISRSF.Write()
+        hnsparse_allweights.Write()
         fout.Close()
 
 
@@ -1678,7 +1840,8 @@ if __name__ == "__main__":
     else:
         inputfiles = [
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2016B-17Jul2018_ver2-v1.METAOD_90000-BCA4BDEF-639F-E711-97DF-008CFAE45430_RA2AnalysisTree.root",
+                      # "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2017B-31Mar2018-v1.METAOD_50000-1CAE1898-3EE4-E711-9332-B083FED13C9E_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/Run2018A-17Sep2018-v1.EGammaAOD0_100000-1C45FE2D-8A85-DD43-95F6-1EF8F880B71B_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root"],
                       #['/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/Run2016F-17Jul2018-v1.JetHTAOD_70000-001A7F04-DE7C-E711-95AA-0025905D1E08_RA2AnalysisTree.root', '/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/Run2016F-17Jul2018-v1.JetHTAOD_110000-E81D89E0-097F-E711-B8EB-0025905A48F2_RA2AnalysisTree.root'],
@@ -1686,9 +1849,9 @@ if __name__ == "__main__":
                       #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/Run2016F-17Jul2018-v1.SingleElectronAOD_10000-9416936D-D78E-E711-AD34-E0DB55FC1055_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/tokramer/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8AOD_10000-F8CE1FD1-D253-E811-A8C1-0242AC130002_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FSv3.SMS-T2tb-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211121_205321-0001-SUS-RunIIAutumn18FSPremix-00156_1040_RA2AnalysisTree.root"],
-                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-6C09F057-3A3B-E911-98B8-FA163E453D6D_RA2AnalysisTree.root"],
+                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq-LLChipm_ctau-200_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_110000-6C09F057-3A3B-E911-98B8-FA163E453D6D_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_240000-043F9F4D-DA87-E911-A393-0242AC1C0502_RA2AnalysisTree.root"],
-                      #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
+                      ["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.SMS-T1btbt-LLC1_ctau10to200-mGluino-1000to2800-mLSP0to2800_TuneCP2_13TeV-madgraphMLM-pythia8-AOD_2510000-97E47666-139B-454F-8CC0-97767A14F1FF_RA2AnalysisTree.root"],
                       #["/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_mLSP-1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-AOD_260000-665AE9C6-5DA5-E911-AF5E-B499BAAC0626_RA2AnalysisTree.root"],

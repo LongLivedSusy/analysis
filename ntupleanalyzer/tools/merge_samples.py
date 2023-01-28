@@ -78,6 +78,27 @@ def hadd_histograms(folder, runmode, delete_input_files = False, start = False, 
     runParallel(cmds, runmode, ncores_percentage=0.5, condorDir="%s_merged.condor" % folder, dontCheckOnJobs=True, confirm=(not start), use_more_time=False)
 
 
+
+def merge_json_files_simple(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
+
+    if folder[-1] == "/":
+        folder = folder[:-1]
+
+    for year in years:
+        for datastream in datastreams:
+
+            filename = "%s_merged/*Run%s_%s.json" % (folder, year, datastream)
+            outfile = filename.replace("*", "")
+            print "Doing datastream Run%s_%s" % (year, datastream)
+                
+            filelist = sorted(glob.glob("%s/*Run%s*%s*.json" % (folder, year, datastream)))
+            os.system("cp %s %s" % (filelist[0], outfile))
+
+            for ifile in filelist[1:]:
+                cmd = "compareJSON.py --or %s %s > %s.tmp && mv %s.tmp %s" % (outfile, ifile, outfile, outfile, outfile)
+                os.system(cmd)
+
+
 def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElectron", "SingleMuon"], json_cleaning = True):
 
     #FIXME
@@ -113,7 +134,11 @@ def merge_json_files(folder, years = ["2016"], datastreams = ["MET", "SingleElec
                 
                 print ifile
                 
-                idict = eval(idict) 
+                idict = eval(idict)
+                #sort lumisection blocks:
+                for run in idict:
+                    print "before", idict[run], "after", natsorted(idict[run])
+                    idict[run] = natsorted(idict[run])
             
                 if json_compacting:
                     runs_compacted = {}
@@ -268,7 +293,8 @@ if __name__ == "__main__":
                         datastream = "EGamma"
                     os.system("./tools/merge_samples.py --json %s --jsonyear %s --jsonstream %s &" % (folder, year, datastream))
         else:
-            merge_json_files(folder, years = [options.jsonyear], datastreams = [options.jsonstream])
+            #merge_json_files(folder, years = [options.jsonyear], datastreams = [options.jsonstream])
+            merge_json_files_simple(folder, years = [options.jsonyear], datastreams = [options.jsonstream])
         
     if options.bril:
         get_lumis(folder, options.cern_username)
