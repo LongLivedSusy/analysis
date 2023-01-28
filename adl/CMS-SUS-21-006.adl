@@ -332,7 +332,7 @@ region calo2dt
 
 region eplusDTpromptsig
   select hltsingleele
-  select n(electrons) == 1
+  select n(electrons_transferfactor) == 1
   select n(DT) == 1
   select m(electrons[0], DT[0]) [] 65 110
   select mTele < 100
@@ -341,7 +341,7 @@ region eplusDTpromptsig
 
 region eplusDTpromptSB 
   select hltsingleele
-  select n(electrons) == 1
+  select n(electrons_transferfactor) == 1
   select n(DTpromptSB) == 1
   select m(electrons[0], DTpromptSB[0]) [] 65 110
   select mTele < 100
@@ -352,7 +352,7 @@ region eplusDTpromptSB
 
 region muplusDTpromptsig
   select hltsinglemu
-  select n(muons) == 1
+  select n(muons_transferfactor) == 1
   select n(DTlgMIPs) == 1
   select m(muons[0], DT[0]) [] 65 110
   select mTele < 100
@@ -360,7 +360,7 @@ region muplusDTpromptsig
 
 region muplusDTpromptSB 
   select hltsinglemu
-  select n(muons) == 1
+  select n(muons_transferfactor) == 1
   select n(DTpromptSBlgMIPs) == 1
   select m(muons[0], DTpromptSBlgMIPs[0]) [] 65 110
   select mTmu < 100
