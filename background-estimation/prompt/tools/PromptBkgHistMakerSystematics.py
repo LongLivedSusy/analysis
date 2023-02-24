@@ -12,11 +12,10 @@ gROOT.SetStyle('Plain')
 from code import interact
 import collections
 
-
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False
 
-grandunified = False #doesn't matter for "derive TF" wave
+grandunified = True #doesn't matter for "derive TF" wave
 dedxzones = False # this is a flag to create plots for extra regions to study the de/dx transfer factor to populate depleted prediction bins
 
 '''
@@ -43,7 +42,6 @@ sleep 30
 python /afs/desy.de/user/b/beinsam/www/dir_indexer.py /afs/desy.de/user/b/beinsam/www/DisappearingTracks/ -r -t /afs/desy.de/user/b/beinsam/www/templates/default.html
 python tools/bigindexer.py
 -I guess just hadd the recommnended output root files together and copy them to Indium?
-
 ...
 #python tools/PromptBkgHistMakerFullyInformed.py --fnamekeyword /nfs/dust/cms/user/beinsam/LongLiveTheChi/Analyzer/CMSSW_10_1_0/src/analysis/background-estimation/prompt/output/mediumchunks/Summer16TTJets_SingleLeptFromT_Prompt.root --analyzeskims True
 #python tools/PromptBkgHistMakerMuCr.py --fnamekeyword /nfs/dust/cms/user/beinsam/LongLiveTheChi/Analyzer/CMSSW_10_1_0/src/analysis/background-estimation/prompt/output/mediumchunks/Summer16TTJets_SingleLeptFromT_Prompt.root --analyzeskims True
@@ -69,7 +67,7 @@ defaultInfile = "/pnfs/desy.de/cms/tier2/store/user/vormwald/NtupleHub/Productio
 #/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v2RunIIFall17MiniAODv2.WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8_78_RA2AnalysisTree.root
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", "--verbosity", type=int, default=10000,help="analyzer script to batch")
+parser.add_argument("-v", "--verbosity", type=int, default=100000,help="analyzer script to batch")
 parser.add_argument("-analyzer", "--analyzer", type=str,default='tools/ResponseMaker.py',help="analyzer")
 parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,help="file")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
@@ -88,7 +86,7 @@ doitlocal = args.doitlocal
 verbosity = args.verbosity
 
 maketree = bool(not analyzeskims)
-
+print 'len(inputFiles)', len(inputFiles)
 
 genMatchEverything = False
 RelaxGenKin = True
@@ -101,21 +99,16 @@ hiptcut = 40
 leppt = 40
 
 
-
 verbose = False
 
 isSkimRun2017DSingleMu = False
-
 blockhem = False
 partiallyblockhem = False
-
 isdata = 'Run201' in inputFileNames
 if 'Run2016' in inputFileNames: 
     if grandunified: is2016, is2017, is2018, era = True, False, False, 'Run2'    
     else: is2016, is2017, is2018, era = True, False, False, '2016'
 elif 'Run2017' in inputFileNames: 
-    #is2016, is2017, is2018, era = False, True, False, '2017'
-    #is2016, is2017, is2018, era = False, True, False, 'Phase1'
     if grandunified: is2016, is2017, is2018, era = False, True, False, 'Run2'    
     else: is2016, is2017, is2018, era = False, True, False, 'Phase1'
     if 'skimRun2017D-SingleMu.root' in inputFileNames: isSkimRun2017DSingleMu=True
@@ -136,7 +129,6 @@ elif 'Run2018' in inputFileNames or 'Autumn18' in inputFileNames or 'somthin or 
 ismc = not isdata
 if is2016: phase = 0
 else: phase = 1
-
 
 
 if ismc: hiptcut = 30
@@ -281,12 +273,9 @@ else:
     mvaFakeShortLoose = -0.1 #real stable, but looking to fine tune    
     #mvaFakeShortLoose = 0.0 
     #mvaFakeShortMedium = 0.05#real stable
-    mvaFakeShortMedium = 0.0    
-        
+    mvaFakeShortMedium = 0.0            
     mvaFakeLongLoose = -0.1#<==-0.05#<==-0.15 #tuesday earlymorning    
     mvaFakeLongMedium = 0.0    
-    
-    
     mvaShortTight = 0.15#was feeling good about this after shower, but it was a bit loose########
     mvaLongTight = 0.08#Tuesday earlymorning
     
@@ -302,7 +291,8 @@ mvaminLong  = min([mvaPromptLongLoose,  mvaFakeLongLoose] )
 
 #mvaminLong, mvaminShort = -1, -1 #one more try to expand prompt short CR
 if deriveMask: 
-    mvaLongTight, mvaShortTight = -0.2, -0.2
+    #mvaLongTight, mvaShortTight = -0.2, -0.2
+    mvaLongTight, mvaShortTight = -1, -1
 
 pi = TMath.Pi()
 #                                                   1        2          3        4       5         6       7               8           9                    10          11       12        13           14           15          16              17             18             19           20             21             22                23        24.......25
@@ -358,10 +348,16 @@ kappabinIdx = varlist_.index(varname_kappaBinning)
 thetabinIdx = varlist_.index(varname_thetaBinning)
 
 
+
+
+###Hey, testing trying to synch with Viktor
+#regionCuts = {}
+#regionCuts['LongSElValidZLL']              = [(0,inf), (30,inf), (0,inf), (0,inf), (1,inf), (0,0),   (1,1),  (mdp,inf),      (0,inf),         (1,1 ),     (0,0),      (75,100),  (0,100),  (hiptcut,inf),    (0,2.4),  (0,callLong),   (0,0),  (-inf,inf),      (0,pi/2),   (mvaLongTight,inf), (-0.1,inf), (-inf,inf),    (2,inf),          (-inf,inf),   (0.2,inf)]
+
 regionkeys = regionCuts.keys()
 for key in regionkeys:
 
-    #for prompt measurement
+    #for prompt background
     newlist2 = list(regionCuts[key])
     newlist2[drjidx] = (0.1,inf)
     if 'Short' in key: 
@@ -428,7 +424,7 @@ gtrig = TGraphAsymmErrors(hpass, htotal)
 
 c = TChain("TreeMaker2/PreSelection")
 for ifile, f in enumerate(inputFiles):
-    if ifile>nfpj: break
+    if ifile>=nfpj: break
     print 'adding file:', f
     c.Add(f)
 
@@ -516,7 +512,11 @@ elif 'JetHT' in inputFileNames:
 if isdata:  fMask = TFile('usefulthings/Masks_mcal13to30_Data2016.root')
 else: fMask = TFile('usefulthings/Masks_mcal13to30_MC2016.root')    
 
+#preapproval: 
 hMask = fMask.Get('h_Mask_allyearsLongBaseline_EtaVsPhiDT')#this is the sum of long and short mht sideband
+#after preapproval, I can't seem to be able to reconstruct the old masks well at all! so let's try this one:
+#hMask = fMask.Get('h_Mask_allyearsLongSElValidZLLCaloSideband_EtaVsPhiDT')
+
 
 if exomode: hMask = ''
 if deriveMask: hMask = ''
@@ -538,13 +538,25 @@ readerPixelOnly.SetName('Reader1')
 readerPixelStrips = TMVA.Reader("")
 readerPixelStrips.SetName('Reader2')
 
-print 'going to process', pixelXml
+print 'going to use', pixelXml
 prepareReaderPixel_fullyinformed(readerPixelOnly, pixelXml)
 
-print 'going to process', pixelstripsXml
+print 'going to use', pixelstripsXml
 prepareReaderPixelStrips_fullyinformed(readerPixelStrips, pixelstripsXml)
 
 
+
+# load JSON files:
+if isdata and is2016:
+    with open("/nfs/dust/cms/user/kutznerv/shorttrack/treemaker/CMSSW_10_2_7/src/TreeMaker/Production/test/data/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt", "r") as fjson:
+        goldenJSON = json.load(fjson)
+if isdata and is2017:
+    with open("/nfs/dust/cms/user/kutznerv/shorttrack/treemaker/CMSSW_10_2_7/src/TreeMaker/Production/test/data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt", "r") as fjson:
+        goldenJSON = json.load(fjson)
+if isdata and is2018:
+    with open("/nfs/dust/cms/user/kutznerv/shorttrack/treemaker/CMSSW_10_2_7/src/TreeMaker/Production/test/data/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt", "r") as fjson:
+        goldenJSON = json.load(fjson)
+EnforceGolden = False
 
 #prepareReaderPixelStrips(readerPixelStrips, pixelstripsXml)
 #prepareReaderPixel(readerPixelOnly, pixelXml)
@@ -571,22 +583,32 @@ for ientry in range(nentries):
                 print itrig, trigname, c.TriggerPass[itrig], c.TriggerPrescales[itrig]
             print 'going to process', nentries, 'events'
 
-    if isSkimRun2017DSingleMu:
-        if ientry in [1663,1664,1665,1666,1667]: continue
-        #if ientry> 1663 and ientry<1700: continue
+    #if isSkimRun2017DSingleMu:
+    #    if ientry in [1663,1664,1665,1666,1667]: continue
+    #    #if ientry> 1663 and ientry<1700: continue
     c.GetEntry(ientry) 
     #waters = 0
     if debugmode:
         if not ientry in [566]: continue
         print 'taking a close look at event', ientry
-    if ientry%1000==0:
-        if not (thisfile==c.GetFile().GetName()):
-            thisfile = c.GetFile().GetName()
-            print 'starting new file', thisfile
 
     if isdata:
         runnum = c.RunNum
         lumisec = c.LumiBlockNum
+        
+        #check if in golden JSON:
+        if EnforceGolden: 
+            keep_processing = False
+            if str(runnum) in goldenJSON:
+                lumiblocks = goldenJSON[str(runnum)]
+                for lumiblock in lumiblocks:
+                    if lumisec >= lumiblock[0] and lumisec <= lumiblock[1]:
+                        keep_processing = True
+                        break
+            if not keep_processing:
+                print(ientry, 'skipping due to jason')
+                continue
+                    
         if runnum!=lastrun:
             if runnum not in runs:
                 runs[runnum] = []
@@ -682,29 +704,7 @@ for ientry in range(nentries):
         dtisrecomu = dtisrecomu and isjet
         if isjet and not dtisrecomu: continue
         if not (c.tracks_passPFCandVeto[itrack] or dtisrecomu): continue
-        
-        if blockhem: 
-            if -3.2<track.Eta() and track.Eta()<-1.2 and -1.77<track.Phi() and track.Phi()<-0.67: continue
-            PassesHemVeto = True
-            for recojet in recojets[]:
-                break
-                if not recojet.Pt()>blockHem: continue
-                if -3.0<recojet.Eta() and recojet.Eta()<-1.4 and -1.57<recojet.Phi() and recojet.Phi()<-0.87: 
-                    PassesHemVeto = False
-                    break
-            if not PassesHemVeto: continue            
-        if partiallyblockhem:
-            if c.RunNum>=319077:
-                if -3.2<track.Eta() and track.Eta()<-1.2 and -1.77<track.Phi() and track.Phi()<-0.67: 
-                    continue
-                PassesHemVeto = True
-                for recojet in recojets:
-                    break
-                    if not recojet.Pt()>blockHem: continue
-                    if -3.0<recojet.Eta() and recojet.Eta()<-1.4 and -1.57<recojet.Phi() and recojet.Phi()<-0.87: 
-                        PassesHemVeto = False
-                        break
-                if not PassesHemVeto: continue                                
+                                        
                                     
         if abs(dtlength)==1: nShort+=1
         if abs(dtlength)==2: nLong+=1         
@@ -886,6 +886,28 @@ for ientry in range(nentries):
         if c.Jets_bJetTagDeepCSVBvsAll[ijet]>btag_cut: adjustedBTags+=1
         
     if not passJetID: continue
+    if blockhem and True: 
+        if -3.2<track.Eta() and track.Eta()<-1.2 and -1.77<track.Phi() and track.Phi()<-0.67: continue
+        PassesHemVeto = True
+        for recojet in adjustedJets:
+            break
+            if not recojet.Pt()>blockHem: continue
+            if -3.0<recojet.Eta() and recojet.Eta()<-1.4 and -1.57<recojet.Phi() and recojet.Phi()<-0.87: 
+                PassesHemVeto = False
+                break
+        if not PassesHemVeto: continue            
+    if partiallyblockhem and True:
+        if c.RunNum>=319077:
+            if -3.2<track.Eta() and track.Eta()<-1.2 and -1.77<track.Phi() and track.Phi()<-0.67: 
+                continue
+            PassesHemVeto = True
+            for recojet in adjustedJets:
+                break
+                if not recojet.Pt()>blockHem: continue
+                if -3.0<recojet.Eta() and recojet.Eta()<-1.4 and -1.57<recojet.Phi() and recojet.Phi()<-0.87: 
+                    PassesHemVeto = False
+                    break
+            if not PassesHemVeto: continue    
     
     adjustedNJets = len(adjustedJets)
         
@@ -994,6 +1016,14 @@ for ientry in range(nentries):
         if deriveMask: continue
         for ivar, varname in enumerate(varlist_):
             if selectionFeatureVector(fv,regionkey,varname):
+                if 'Baseline' in regionkey and varname=='BinNumber':
+                    if not ('MuMatched' in regionkey or 'Sideband' in regionkey or 'FakeCr' in regionkey): 
+                        sr = getBinNumber(fv)
+                        if sr>0: print ientry, regionkey, "SR"+str(sr), '%d:%d:%d' % (c.RunNum, c.LumiBlockNum, c.EvtNum)
+                #if 'LongSElValidZLLCalo' in regionkey and varname=='InvMass': 
+                    #print 'found in file', c.GetFile().GetName()
+                    #print ientry, c.GetEntryNumber(), regionkey, fv[:10]#CaloSideband
+                    #for ifv in range(len(varlist_)): print ifv, varlist_[ifv], fv[ifv]
                 if (isPromptEl or isPromptMu or isPromptPi):
                     fillth1(histoStructDict['Prompt'+regionkey+'_'+varname].Truth, fv[ivar], weight_)####
                     if not turnoffpred: 
@@ -1049,3 +1079,8 @@ if isdata:
 
 print 'just created', fnew.GetName()
 fnew.Close()
+
+
+
+
+

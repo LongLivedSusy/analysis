@@ -3,9 +3,10 @@ from utils import *
 import os, sys
 
 
-os.system("find /nfs/dust/cms/user/beinsam/CommonSamples/MC_BSM/CompressedHiggsino/RadiativeMu_2016Fast/v2/ -type f -printf \"%f\n\" | sed 's/_pu.*//g' | sort --unique > uniquehiggsinos.txt")
+#os.system("find /nfs/dust/cms/user/beinsam/CommonSamples/MC_BSM/CompressedHiggsino/RadiativeMu_2016Fast/v2/ -type f -printf \"%f\n\" | sed 's/_pu.*//g' | sort --unique > uniquehiggsinos.txt")
+#os.system("find /pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/RadiativeMu_2016Fast/v3/ -type f -printf %f\\n  | sed 's/_pu.*//g' | sort --unique |grep -v MINI > uniquehiggsinos_v3.txt")
 
-ftext = open('uniquehiggsinos.txt')
+ftext = open('uniquehiggsinos_v3.txt')
 text = ftext.readlines()
 ftext.close()
 

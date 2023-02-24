@@ -5,13 +5,13 @@ def read_sigmas(sigmas_txt):
     sigmas_dict = {}
 
     with open (sigmas_txt, 'r') as fsyst:
-	while True :
-	    line = fsyst.readline().strip()
-	    if not line : break
-	    if line.startswith('#') : continue #To ignore commented line in txt file
-	    line = line.split()
-	    
-	    sigmas_dict[line[0]] = [int(line[1]), int(line[2]), int(line[3]), int(line[4])]
+        while True :
+            line = fsyst.readline().strip()
+            if not line : break
+            if line.startswith('#') : continue #To ignore commented line in txt file
+            line = line.split()
+            
+            sigmas_dict[line[0]] = [int(line[1]), int(line[2]), int(line[3]), int(line[4])]
     
     return sigmas_dict
 
@@ -66,14 +66,15 @@ def prepareReaderBtagSF():
 def get_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim,readerBtag):
     
     ## Get Btagging efficiency map for signal sample
-    if 'T1qqqq' in tree.GetFile().GetName() : 
-	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_merged.root")
-    elif 'T2bt' in tree.GetFile().GetName() :
-	fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_merged.root")
+    if 'T1' in tree.GetFile().GetName() : 
+        fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_merged.root")
+    elif 'T2' in tree.GetFile().GetName() or 'iggsino' in tree.GetFile().GetName() or 'T2tb' in tree.GetFile().GetName() or 'PMSSM' in tree.GetFile().GetName():
+        fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_merged.root")
     else : 
-	print 'Cannot choose efficiency map for this sample, quit'
-	quit()
-
+        print 'Cannot choose efficiency map for this sample, quit'
+        abc = abc
+        quit()
+        
     pMC = 1.0
     pData = 1.0
 
@@ -81,96 +82,100 @@ def get_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim,readerBtag):
     
     # jet loop start here
     for ijet, jet in enumerate(tree.Jets):
-	if not tree.Jets_ID[ijet] : continue
-	if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
-	
+        if not tree.Jets_ID[ijet] : continue
+        if not (abs(jet.Eta())<2.4 and jet.Pt()>30): continue
+        
         eff = 1.0
-	# b tag efficiency
-	if tree.Jets_hadronFlavor[ijet]== 5: # truth b particle
-	    heff = fbeff.Get("efficiency_b")
-	    binx = heff.GetXaxis().FindBin(jet.Pt())
-	    biny = heff.GetYaxis().FindBin(jet.Eta())
-	    eff = heff.GetBinContent(binx,biny)
-	    FLAV = 0
-	    #print 'b jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-        elif tree.Jets_hadronFlavor[ijet]== 4: # truth c particle
-	    heff = fbeff.Get("efficiency_c")
-	    binx = heff.GetXaxis().FindBin(jet.Pt())
+        # b tag efficiency
+        if tree.Jets_hadronFlavor[ijet]== 5: # truth b particle
+            heff = fbeff.Get("efficiency_b")
+            binx = heff.GetXaxis().FindBin(min(999,jet.Pt()))
             biny = heff.GetYaxis().FindBin(jet.Eta())
-	    eff = heff.GetBinContent(binx,biny)
-	    FLAV = 1
-	    #print 'c jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-	elif tree.Jets_hadronFlavor[ijet]== 0: # truth udsg particle
-	    heff = fbeff.Get("efficiency_udsg")
-	    binx = heff.GetXaxis().FindBin(jet.Pt())
-	    biny = heff.GetYaxis().FindBin(jet.Eta())
-	    eff = heff.GetBinContent(binx,biny)
-	    FLAV = 2
-	    #print 'udsg jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
-	else : print 'wired Jets_hadronFlavor : ', tree.Jets_hadronFlavor[ijet]
-	   
-	sf_cen = readerBtag.eval_auto_bounds(
-	    'central',      # systematic (here also 'up'/'down' possible)
-	    FLAV,              # jet flavor
-	    abs(jet.Eta()),      # absolute value of eta
-	    jet.Pt()        # pt
-	)
-	sf_up = readerBtag.eval_auto_bounds(
-	    'up',           # systematic (here also 'up'/'down' possible)
-	    FLAV,              # jet flavor
-	    abs(jet.Eta()),      # absolute value of eta
-	    jet.Pt()        # pt
-	)
-	sf_down = readerBtag.eval_auto_bounds(
-	    'down',         # systematic (here also 'up'/'down' possible)
-	    FLAV,              # jet flavor
-	    abs(jet.Eta()),      # absolute value of eta
-	    jet.Pt()        # pt
-	)
-	#print '%sth jet pt : %.2f, eta : %.2f, flavor : %s, sf_cen : %.2f, sf_up : %.2f, sf_down : %.2f'%(ijet,jet.Pt(),jet.Eta(),tree.Jets_hadronFlavor[ijet],sf_cen,sf_up,sf_down)
-	
-	sf = get_syst(sf_cen, sf_up, sf_down, nSigmaBtagSF)
+            eff = heff.GetBinContent(binx,biny)
+            FLAV = 0
+            #print 'b jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+        elif tree.Jets_hadronFlavor[ijet]== 4: # truth c particle
+            heff = fbeff.Get("efficiency_c")
+            binx = heff.GetXaxis().FindBin(min(999,jet.Pt()))
+            biny = heff.GetYaxis().FindBin(jet.Eta())
+            eff = heff.GetBinContent(binx,biny)
+            FLAV = 1
+            #print 'c jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+        elif tree.Jets_hadronFlavor[ijet]== 0: # truth udsg particle
+            heff = fbeff.Get("efficiency_udsg")
+            binx = heff.GetXaxis().FindBin(min(999,jet.Pt()))
+            biny = heff.GetYaxis().FindBin(jet.Eta())
+            eff = heff.GetBinContent(binx,biny)
+            FLAV = 2  
+            #print 'udsg jetpt : ', jet.Pt(), "jeteta:",jet.Eta()," binx:",binx,", biny:",biny,"eff:",eff
+        else : print 'wired Jets_hadronFlavor : ', tree.Jets_hadronFlavor[ijet]
+           
+        sf_cen = readerBtag.eval_auto_bounds(
+            'central',      # systematic (here also 'up'/'down' possible)
+            FLAV,              # jet flavor
+            abs(jet.Eta()),      # absolute value of eta
+            jet.Pt()        # pt
+        )
+        sf_up = readerBtag.eval_auto_bounds(
+            'up',           # systematic (here also 'up'/'down' possible)
+            FLAV,              # jet flavor
+            abs(jet.Eta()),      # absolute value of eta
+            jet.Pt()        # pt
+        )
+        sf_down = readerBtag.eval_auto_bounds(
+            'down',         # systematic (here also 'up'/'down' possible)
+            FLAV,              # jet flavor
+            abs(jet.Eta()),      # absolute value of eta
+            jet.Pt()        # pt
+        )
+        #print '%sth jet pt : %.2f, eta : %.2f, flavor : %s, sf_cen : %.2f, sf_up : %.2f, sf_down : %.2f'%(ijet,jet.Pt(),jet.Eta(),tree.Jets_hadronFlavor[ijet],sf_cen,sf_up,sf_down)
+        
+        sf = get_syst(sf_cen, sf_up, sf_down, nSigmaBtagSF)
 
-	if tree.Jets_bDiscriminatorCSV[ijet]>csv_b :
-	    pMC *= eff
-	    pData *= eff*sf
+        if tree.Jets_bDiscriminatorCSV[ijet]>csv_b :
+            pMC *= eff
+            pData *= eff*sf
         else :
-	    pMC *= 1 - eff
-	    pData *= 1 - eff*sf
+            pMC *= 1 - eff
+            pData *= 1 - eff*sf
     
-    weight = pData / pMC
+    try:weight = pData / pMC
+    except:
+            print 'pMC was 0', pMC
+            print tree.BTags
+            weight = pData / pMC
     return weight
 
 def get_syst(weight_nominal,weight_up,weight_down,nSigma):
     w = weight_nominal
     if nSigma==0 : return w
     else :
-	dw_up = weight_up - weight_nominal
-	dw_down = weight_nominal - weight_down
-	if nSigma >= 0. :
-	    w += nSigma*dw_up
-	else : w += nSigma*dw_down
+        dw_up = weight_up - weight_nominal
+        dw_down = weight_nominal - weight_down
+        if nSigma >= 0. :
+            w += nSigma*dw_up
+        else : w += nSigma*dw_down
     return w
 
 def get_syst_jes(weight_nominal,uncertainty,nSigma):
     w = weight_nominal
     if not nSigma==0.: 
-	w*= 1.0 + nSigma*uncertainty
+        w*= 1.0 + nSigma*uncertainty
     return w
 
 def jets_rescale_smear(tree,applySmearing,nSigmaJES,nSigmaJER):
     jets_syst = []
     for ijet, jet in enumerate(tree.Jets):
-	newjet = jet.Clone()
-	scaleJES = get_syst_jes(1.0,tree.Jets_jecUnc[ijet],nSigmaJES)
-	newjet_Pt = jet.Pt() * scaleJES
-	newjet_E = jet.E() * scaleJES
-	if applySmearing : 
-	    scaleJER = get_syst(tree.Jets_jerFactor[ijet],tree.Jets_jerFactorUp[ijet],tree.Jets_jerFactorDown[ijet],nSigmaJER)
-	    newjet_Pt *= scaleJER
-	    newjet_E *= scaleJER
-	newjet.SetPtEtaPhiE(newjet_Pt, jet.Eta(), jet.Phi(), newjet_E)
-	jets_syst.append(newjet)
+        newjet = jet.Clone()
+        scaleJES = get_syst_jes(1.0,tree.Jets_jecUnc[ijet],nSigmaJES)
+        newjet_Pt = jet.Pt() * scaleJES
+        newjet_E = jet.E() * scaleJES
+        if applySmearing : 
+            scaleJER = get_syst(tree.Jets_jerFactor[ijet],tree.Jets_jerFactorUp[ijet],tree.Jets_jerFactorDown[ijet],nSigmaJER)
+            newjet_Pt *= scaleJER
+            newjet_E *= scaleJER
+        newjet.SetPtEtaPhiE(newjet_Pt, jet.Eta(), jet.Phi(), newjet_E)
+        jets_syst.append(newjet)
     return jets_syst
 
 def get_isr_weight(tree,nSigmaISR):
@@ -178,7 +183,7 @@ def get_isr_weight(tree,nSigmaISR):
 
     w = 1
     fname = tree.GetFile().GetName()
-    #d = 1.0	# Before determine D value
+    #d = 1.0        # Before determine D value
     if 'g1800_chi1400' in fname : d = 1.15598 # g1800_chi1400
     elif 'T1qqqq' in fname : d = 1.123 # T1qqqq
     elif 'T2' in fname : d = 1.121 # T2tt
@@ -201,3 +206,50 @@ def get_isr_weight(tree,nSigmaISR):
     w_isr_down = w_nom - err
     w = get_syst(w_isr, w_isr_up, w_isr_down, nSigmaISR)
     return w
+    
+    
+#time to add some systmatics stuff
+def getRecoIdisoFastfullLeptonSFhistos(year='2017'):
+        yearmodthou = year.replace('20','')
+        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/egammaEffi.txt_EGM2D_RECO'+year+'.root')
+        eleReco = f.Get('EGamma_EffMC2D')
+        print 'eleReco.GetBinContent(1,1)', eleReco.GetBinContent(1,1)
+        eleReco.SetDirectory(0)
+        f.Close()
+        
+        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/ElectronScaleFactors_Run'+year+'.root')
+        eleIdiso = f.Get('Run'+year+'_CutBasedTightNoIso94XV2')
+        print 'eleIdiso.GetBinContent(1,1)', eleIdiso.GetBinContent(1,1)        
+        eleIdiso.SetDirectory(0)
+        f.Close()
+        
+        
+        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/detailed_ele_full_fast_sf_'+yearmodthou+'.root')
+        eleIdFastFull = f.Get('CutBasedTightNoIso94XV2_sf')
+        print 'eleIdiso.GetBinContent(1,1)', eleIdFastFull.GetBinContent(1,1)        
+        eleIdFastFull.SetDirectory(0)
+        f.Close()
+        
+        
+        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/'+year+'_MuonMediumIdIso_SUS.root')
+        if year=='2016': muIdIso = f.Get('SF')
+        else: muIdIso = f.Get('TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta')
+        print 'muIdIso.GetBinContent(1,1)', muIdIso.GetBinContent(1,1)        
+        muIdIso.SetDirectory(0)
+        f.Close()
+        
+        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/detailed_mu_full_fast_sf_'+yearmodthou+'.root')
+        muIdFastFull = f.Get('miniIso02_MediumId_sf')
+        print 'muIdFastFull.GetBinContent(1,1)', muIdFastFull.GetBinContent(1,1)        
+        muIdFastFull.SetDirectory(0)
+        f.Close()
+                                                
+        return eleReco, eleIdiso, eleIdFastFull, muIdIso, muIdFastFull
+        
+        
+                
+        
+
+
+
+

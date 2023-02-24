@@ -10,7 +10,7 @@ from time import sleep
 
 '''
 python tools/ComputeFakeRate.py Run2 data &
-python tools/ComputePromptRate.py Rune data 
+python tools/ComputePromptRate.py Run2 data 
 python tools/ComputeMuRate.py Run2 data 
 
 python tools/ComputeFakeRate.py 2016 MC &
@@ -77,7 +77,7 @@ redoBinning['ElPt'] = [5,0,300]
 redoBinning['TrkEta']=[9,0,3]#tried 5 before
 redoBinning['TrkEta']=[10,0,3]#tried 5 before
 redoBinning['TrkEta']=[0,1.6,2.4,3.0]#tried 5 before
-redoBinning['TrkEta']=[0,1.4,2.4,3.0]#tried 5 before
+redoBinning['TrkEta']=[0,1.4,2.4,3.0]#official one! 
 #redoBinning['TrkEta']=[0,1.0,2.4,3.0]#tried 5 before
 #redoBinning['TrkEta']=binning['TrkEta']
 
@@ -110,6 +110,7 @@ coarseBinningPatch['TrkPt']=[0,5,40,300]
 
 #redoBinning['TrkEta'] = binning['TrkEta']
 redoBinning['TrkEta']=[0,1.4,2.4,2.7,3.0]#tried 5 before
+redoBinning['TrkEta']=[0,2.4,3.0,4.0]#trying new one for Harrison
 #redoBinning['TrkEta'] = binning['TrkEta']
 coarseBinningPatch['TrkPt'] = [0,15,20,25,30,40,60,70,100,225,300]
 coarserBinningPatch['TrkPt'] = binning['TrkPt']

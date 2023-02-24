@@ -20,7 +20,7 @@ analyzer = 'Prompt'
 istest = False
 try: folder = sys.argv[1]
 except:
-    print 'please give folder name as first argument'
+    print 'please give folder name as first argument'#actually run in bashscripts/wrapClosureSkims.sh
     exit(0)
     
 try: erakey = sys.argv[2]
@@ -105,15 +105,10 @@ for contkey in keywordsOfContribution.keys():
 				tree_out.Fill()
 				
 			fw.cd()
-			print 'test 1'
 			hHt.Write()
-			print 'test 2'			
 			fw.mkdir('TreeMaker2')
-			print 'test 3'			
 			fw.cd('TreeMaker2')
-			print 'test 3'
-			tree_out.Write()
-			print 'test 4'			
+			tree_out.Write()	
 		
 		else: hHt.Write()
 				

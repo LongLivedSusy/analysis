@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 
 from ROOT import *
-from lib_systematics import *
 import os, sys
 from glob import glob
-from shared_utils import *
 import argparse
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/lib_systematics.py')
+execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 
 gStyle.SetOptStat(111111)
 

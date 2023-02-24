@@ -1565,14 +1565,6 @@ binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  
 binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (1,inf), (0,inf))] = 51
 
 
-
-'''Pre-Harrison
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (0,0))]   = 49
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (1,inf))] = 50
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (1,inf), (0,inf))] = 51
-'''
-
-
 def GetMinDeltaPhiMhtHemJets(jets, mht):
     lowestDPhi = 10
     for jet in jets:
