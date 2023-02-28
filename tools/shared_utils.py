@@ -49,7 +49,7 @@ epsilon = 0.0001
 binning = {}
 #binning['Met']=[0,20,50,100,150,300,400,650,800,900,1000]
 binning['Met']=[200,0,600]
-binning['Mht']=binning['Met']
+binning['HardMet']=binning['Met']
 #binning['TrkPt']=[15,30,50,100,300]
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,400,410]#good for gen check, and two eta bins
 #binning['TrkPt']=[15,30,50,70,90,120,200,300,310]
@@ -77,11 +77,10 @@ binning['TrkEta']=EtaBinEdges
 binning['TrkEta']=[15,0,3]###comment out ater studies
 binning['TrkEta']=[30,0,3]###comment out ater studies
 binning['NTags']=[3,0,3]
-binning['NPix']=binning['NTags']
-binning['NPixStrips']=binning['NTags']
+binning['TrkLength']=[2,0,2]
 binning['BTags']=[4,0,4]
 binning['Ht']=[40,0,2000]
-binning['MinDPhiMhtJets'] = [16,0,3.2]
+binning['MdpMetJets'] = [16,0,3.2]
 binning['DPhiMhtDt'] = [32,0,3.2]
 binning['InvMass'] = [17,44,180]
 binning['LepMT'] = [14,15,150]
@@ -90,13 +89,13 @@ binning['BinNumber'] = [58,0,58]
 binning['Log10DedxMass'] = [20,0,4]
 binning['DedxMass'] = [40,0,4000]
 binning['NVtx'] = [10,0,50]
-binning['DeDxAverage'] = [1.999999999,2,4.0,10.0]
-binning['DeDxAverage'] = [0,2,4.0,10.0]
-binning['DeDxAverage'] = [40,0,10]
+binning['DeDx'] = [1.999999999,2,4.0,10.0]
+binning['DeDx'] = [0,2,4.0,10.0]
+binning['DeDx'] = [40,0,10]
 binning['MinDPhiMhtHemJet'] = [16,0,3.2]
 binning['MatchedCalo'] = [30,0,150]
-binning['LeadTrkMva'] = [44,-1.1,1.1]
-binning['2ndTrkMva'] = binning['LeadTrkMva']
+binning['TrkMva'] = [44,-1.1,1.1]
+binning['2ndTrkMva'] = binning['TrkMva']
 binning['DtLength'] = [6,-3,3]
 binning['DrJetDt'] = binning['DPhiMhtDt']
 binning['MTauTau'] = [26,50,180]
@@ -109,9 +108,10 @@ binningAnalysis = {}
 for key in binning: binningAnalysis[key] = binning[key]
 
 binningAnalysis['Met']=[35,0,700]
-binningAnalysis['Mht']=binningAnalysis['Met']
+binningAnalysis['HardMet']=binningAnalysis['Met']
+binningAnalysis['BinNumber'] = [50,1,51]
 binningAnalysis['BinNumber'] = [49,1,50]
-binningAnalysis['DeDxAverage'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
+binningAnalysis['DeDx'] = [0,dedxcutLow,0.5*(dedxcutMid+dedxcutLow),dedxcutMid,6.0]
 binningAnalysis['DPhiMhtDt'] = [32,0,3.2]
 #binningAnalysis['TrkPt']=[0,25,30,40,60,120]
 
@@ -293,7 +293,7 @@ CutStages[14] = 'High purity'
 
 
 def namewizard(name):
-    if 'Mht' == name:
+    if 'HardMet' == name:
         return r'hard E_{T}^{miss} [GeV]'
     if 'Met' == name:
         return r'E_{T}^{miss} [GeV]'
@@ -303,7 +303,7 @@ def namewizard(name):
         return r'n_{j}'        
     if 'BTags' == name:
         return r'n_{b}'                
-    if 'MinDPhiMhtJets' == name:
+    if 'MdpMetJets' == name:
         return r'#Delta#phi_{min}'                        
     if 'NLeptons' == name:
         return r'n_{l}'
@@ -317,7 +317,7 @@ def namewizard(name):
         return r'#Delta#phi^{*}'
     if 'InvMass' == name:
         return r'm_{l,track}'
-    if 'DeDxAverage' == name:
+    if 'DeDx' == name:
         return 'de/dx (MeV/cm)'
     if 'TrkPt' == name:
         return r'p_{T} [GeV]'
@@ -924,7 +924,7 @@ def FabDrawBellsAndWhistles(cGold,leg,hObserved,hComponents,hSignals=[],datamc='
             table+=r'\hline'+'\n'
         table+=r'''\end{tabular}
 }
-\caption{Predicted background counts and uncertainties in the 49 analysis signal regions for the Phase 1 data taking period. Statistical and bin-wise uncorrelated systematic uncertainties are added in quadrature, while correlated uncertainties are omitted. Signal mass points are indicated by the squark mass in GeV, the LSP mass in GeV, and $\tilde{\chi}_{1}^{\pm}$ $c\tau$ in cm. }
+\caption{Predicted background counts and uncertainties in the 50 analysis signal regions for the Phase 1 data taking period. Statistical and bin-wise uncorrelated systematic uncertainties are added in quadrature, while correlated uncertainties are omitted. Signal mass points are indicated by the squark mass in GeV, the LSP mass in GeV, and $\tilde{\chi}_{1}^{\pm}$ $c\tau$ in cm. }
 \label{tab:results-phase1}
 \end{table}
 '''
@@ -1507,62 +1507,66 @@ def passesUniversalDataSelection(t):
 
 
 binnumbers = collections.OrderedDict()
-#varlist_  = ['Ht',   'Mht',     'NJets', 'BTags', 'NTags','NPix','NPixStrips','MinDPhiMhtJets','DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
-listagain = ['Ht',    'Mht',     'NJets', 'BTags','NTags','NPix','NPixStrips','MinDPhiMhtJets', 'DeDxAverage',      'NElectrons', 'NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'LeadTrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
-binnumbers[((0,inf),    (150,300),(1,2),    (0,0),    (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
-binnumbers[((0,inf),    (150,300),(1,2),    (0,0),    (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 2
-binnumbers[((0,inf),    (150,300),(1,2),    (0,0),    (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 3
-binnumbers[((0,inf),    (150,300),(1,2),    (0,0),    (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 4
-binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),    (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 5
-binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),    (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 6
-binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),    (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 7
-binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),    (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),         (0,0),   (0,0))] = 8
-binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 9
-binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 10
-binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 11
-binnumbers[((0,inf),    (150,300),(1,2),    (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 12
-binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 13
-binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 14
-binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 15
-binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 16
-binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 17
-binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 18
-binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 19
-binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),          (dedxcutMid,inf),       (0,0),   (0,0))] = 20
-binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 21
-binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (0,0), (1,1),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 22
-binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),      (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 23
-binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf),  (1,1),  (1,1), (0,0),    (0.0,inf),      (dedxcutMid,inf),         (0,0),   (0,0))] = 24
-#listagain =  ['Ht',  'Mht',    'NJets',  'BTags',  'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 25
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 26
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 27
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 28
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 29
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 30
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 31
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 32
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 33
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 34
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (1,inf))] = 35
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutMid,inf),         (0,0),   (1,inf))] = 36
-#listagain =  ['Ht',  'Mht',    'NJets',  'BTags',   'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons', 'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 37
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 38
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 39
-binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),    (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 40
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 41
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 42
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 43
-binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 44
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 45
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (0,0), (1,1),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 46
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutLow,dedxcutMid),  (1,inf), (0,inf))] = 47
-binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf),  (1,1),  (1,1), (0,0),     (0.0,inf),          (dedxcutMid,inf),         (1,inf), (0,inf))] = 48
-#listagain =  ['Ht',  'Mht',      'NJets', 'BTags', 'NTags','NPix','NPixStrips','MinDPhiMhtJets',  'DeDxAverage',        'NElectrons', 'NMuons',  'NPions', 'TrkPt',        'TrkEta',    'Log10DedxMass','BinNumber']
-binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (0,0))]   = 49
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (0,0),   (1,inf))] = 50
-binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf),  (2,inf),(0,inf),(0,inf),  (0.0,inf),          (dedxcutLow,inf),        (1,inf), (0,inf))] = 51
+listagain = ['Ht',     'HardMet','NJets',  'BTags', 'NTags','TrkLength','MdpMetJets','DeDx',              'NElectrons','NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'TrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 1
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 2
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 3
+binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 4
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 5
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 6
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 7
+binnumbers[((0,inf),    (150,300),(3,inf),  (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 8
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 9
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 10
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 11
+binnumbers[((0,inf),    (150,300),(1,2),    (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 12
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 13
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 14
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 15
+binnumbers[((0,inf),    (150,300),(3,inf),  (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 16
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 17
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 18
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 19
+binnumbers[((0,inf),    (300,inf),(1,2),    (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 20
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 21
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 22
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 23
+binnumbers[((0,inf),    (300,inf),(3,inf),  (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),       (0,0),   (0,0))] = 24
+#listagain=['Ht',     'HardMet',  'NJets',  'BTags','NTags','TrkLength','MdpMetJets','DeDx',             'NElectrons','NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'TrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid), (0,0),   (1,inf))] = 25
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),        (0,0),   (1,inf))] = 26
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid), (0,0),   (1,inf))] = 27
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),        (0,0),   (1,inf))] = 28
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid), (0,0),   (1,inf))] = 29
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),        (0,0),   (1,inf))] = 30
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid), (0,0),   (1,inf))] = 31
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),        (0,0),   (1,inf))] = 32
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid), (0,0),   (1,inf))] = 33
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),        (0,0),   (1,inf))] = 34
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid), (0,0),   (1,inf))] = 35
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),        (0,0),   (1,inf))] = 36
+#listagain=['Ht',      'HardMet', 'NJets',  'BTags','NTags','TrkLength','MdpMetJets','DeDx',    'NElectrons','NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'TrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid), (1,inf), (0,inf))] = 37
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),        (1,inf), (0,inf))] = 38
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid), (1,inf), (0,inf))] = 39
+binnumbers[((0,inf),   (0,100),   (0,inf),  (0,0),   (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),        (1,inf), (0,inf))] = 40
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid), (1,inf), (0,inf))] = 41
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),        (1,inf), (0,inf))] = 42
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid), (1,inf), (0,inf))] = 43
+binnumbers[((0,inf),   (0,100),   (1,inf),  (1,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),        (1,inf), (0,inf))] = 44
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid), (1,inf), (0,inf))] = 45
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (1,1),     (0.0,inf),    (dedxcutMid,inf),        (1,inf), (0,inf))] = 46
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutLow,dedxcutMid), (1,inf), (0,inf))] = 47
+binnumbers[((0,inf),   (100,inf), (0,inf),  (0,inf), (1,1), (0,0),     (0.0,inf),    (dedxcutMid,inf),        (1,inf), (0,inf))] = 48
+#listagain=['Ht',      'HardMet', 'NJets',  'BTags','NTags','TrkLength','MdpMetJets','DeDx',    'NElectrons','NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'TrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (2,inf),(1,1),    (0.0,inf),    (dedxcutLow,inf),        (0,0),   (0,0))]   = 49
+binnumbers[((0,inf),   (150,inf), (0,inf),  (0,inf), (2,inf),(0,0),    (0.0,inf),    (dedxcutLow,inf),        (0,0),   (0,0))]   = 50
+binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf), (2,inf),(1,1),    (0.0,inf),    (dedxcutLow,inf),        (0,0),   (1,inf))] = 51
+binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf), (2,inf),(0,0),    (0.0,inf),    (dedxcutLow,inf),        (0,0),   (1,inf))] = 52
+binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf), (2,inf),(1,1),    (0.0,inf),    (dedxcutLow,inf),        (1,inf), (0,inf))] = 53
+binnumbers[((0,inf),   (0,inf),   (0,inf),  (0,inf), (2,inf),(0,0),    (0.0,inf),    (dedxcutLow,inf),        (1,inf), (0,inf))] = 54
+
+
 
 
 def GetMinDeltaPhiMhtHemJets(jets, mht):
@@ -1587,7 +1591,7 @@ susybypdg[1000023] = 'Chi2ne'
 susybypdg[1000024] = 'Chi1pm'
 susybypdg[-1] = 'ctau'
 
-def merge2dtbins(hist):
+def merge3dtbins(hist):
     haux1 = TH1F('haux1','haux1',1,0,1)
     haux2 = TH1F('haux2','haux2',1,0,1)
     haux3 = TH1F('haux3','haux3',1,0,1)
@@ -1606,6 +1610,49 @@ def merge2dtbins(hist):
     hist.SetBinError(bnxax.FindBin(50.5),0)
     hist.SetBinContent(bnxax.FindBin(51.5),0)
     hist.SetBinError(bnxax.FindBin(51.5),0)
+    return hist
+    
+
+def merge6dtbins(hist):
+    #return hist
+    haux1 = TH1F('haux1','haux1',1,0,1); haux1.Sumw2()
+    haux2 = TH1F('haux2','haux2',1,0,1); haux2.Sumw2()
+    haux3 = TH1F('haux3','haux3',1,0,1); haux3.Sumw2()
+    haux4 = TH1F('haux4','haux4',1,0,1); haux4.Sumw2()
+    haux5 = TH1F('haux5','haux5',1,0,1); haux5.Sumw2()
+    haux6 = TH1F('haux6','haux6',1,0,1); haux6.Sumw2()
+    bnxax = hist.GetXaxis()
+    haux1.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(49.5)))
+    haux1.SetBinError(1, hist.GetBinError(bnxax.FindBin(49.5)))
+    haux2.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(50.5)))
+    haux2.SetBinError(1, hist.GetBinError(bnxax.FindBin(50.5)))
+    haux3.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(51.5)))
+    haux3.SetBinError(1, hist.GetBinError(bnxax.FindBin(51.5)))
+    haux4.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(52.5)))
+    haux4.SetBinError(1, hist.GetBinError(bnxax.FindBin(52.5)))    
+    haux5.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(53.5)))
+    haux5.SetBinError(1, hist.GetBinError(bnxax.FindBin(53.5)))    
+    haux6.SetBinContent(1, hist.GetBinContent(bnxax.FindBin(54.5)))
+    haux6.SetBinError(1, hist.GetBinError(bnxax.FindBin(54.5)))            
+    haux1.Add(haux3)    
+    haux1.Add(haux5)
+    haux2.Add(haux4)
+    haux2.Add(haux6)
+    haux1.Add(haux2)###
+    hist.SetBinContent(bnxax.FindBin(49.5), haux1.GetBinContent(1))
+    hist.SetBinError(bnxax.FindBin(49.5), haux1.GetBinError(1))
+    hist.SetBinContent(bnxax.FindBin(50.5),haux2.GetBinContent(1))
+    hist.SetBinError(bnxax.FindBin(50.5),haux2.GetBinError(1))
+    hist.SetBinContent(bnxax.FindBin(50.5),haux2.GetBinContent(1))###
+    hist.SetBinError(bnxax.FindBin(50.5),haux2.GetBinError(1))###
+    hist.SetBinContent(bnxax.FindBin(51.5),0)
+    hist.SetBinError(bnxax.FindBin(51.5),0)
+    hist.SetBinContent(bnxax.FindBin(52.5),0)
+    hist.SetBinError(bnxax.FindBin(52.5),0)    
+    hist.SetBinContent(bnxax.FindBin(53.5),0)
+    hist.SetBinError(bnxax.FindBin(53.5),0)
+    hist.SetBinContent(bnxax.FindBin(54.5),0)
+    hist.SetBinError(bnxax.FindBin(54.5),0)
     return hist
 
 triggerIndeces = {}
