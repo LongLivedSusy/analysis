@@ -34,7 +34,7 @@ python tools/ComputePromptRate.py 2018 data &
 python tools/ComputeMuRate.py 2018 data &
 
 python tools/ComputeFakeRate.py Run2 data &
-python tools/ComputePromptRate.py Rune data &
+python tools/ComputePromptRate.py Run2 data &
 python tools/ComputeMuRate.py Run2 data &
 
 
@@ -193,7 +193,6 @@ for key in sorted(keys):#[:241]:
 	name = key.GetName()
 	
 	#hPromptShort'+region+'_MatchedCaloTruth
-	print 'going after name', name
 	if not region in name: continue
 	if not 'Truth' in name: continue	
 	if 'FakeCr_' in name: continue

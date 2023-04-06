@@ -15,6 +15,7 @@ parser.add_argument("-jersf", "--JerUpDown", type=str, default='Nom',help="JER s
 parser.add_argument("-dtmode", "--dtmode", type=str, default='PixAndStrips',help="PixAndStrips, PixOnly, PixOrStrips")
 parser.add_argument("-pu", "--pileup", type=str, default='Nom',help="Nom, Low, Med, High")
 parser.add_argument("-smearvar", "--smearvar", type=str, default='Nom',help="use gen-kappa")
+parser.add_argument("-doprefire", "--doprefire", type=bool, default=False,help="apply pre-firing weights")
 parser.add_argument("-ps", "--processskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
@@ -30,12 +31,10 @@ smearvar = args.smearvar
 outdir = args.outdir
 
 
-
 #try: 
 moreargs = ' '.join(sys.argv)
 moreargs = moreargs.split('--fnamekeyword')[-1]
 moreargs = ' '.join(moreargs.split()[1:])
-
 
 
 args4name = moreargs.replace(' ','').replace('--','-')
@@ -106,7 +105,7 @@ pwd
 python tools/ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
 echo listing OUTDIR
 mv OUTDIR/*.root CWD/OUTDIR
-mv OUTDIR/*.json CWD/OUTDIR
+ls OUTDIR/
 cd ../
 rm -rf $timestamp
 '''

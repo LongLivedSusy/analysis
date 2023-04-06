@@ -15,19 +15,20 @@ except: shkeys = 'jobs/*.sh'
 
 istest = False
 
-FirstWave = True# (means we're resubmitting the skims)
-FirstWave = False# (means we're resubmitting the skim jobs)
+#FirstWave = True# (means we're resubmitting the skims)
+FirstWave = False# (means we're resubmitting the analysis jobs)
 
 logfileversion = False
 filecheckversion = True# this should be true for BAU skim processing
 errversion = False # this can be false for BAU skim processing
 jobsatatime = 10
 
+#doitlocal = True
 doitlocal = False
-doitlocal = True
+
 
 shlist = glob(shkeys)
-shuffle(shlist)
+#shuffle(shlist)
 elist_ = glob(shkeys+'.e*')
 elist = []
 for e in elist_: elist.append(e.split('.sh.e')[0]+'.sh.e')
@@ -117,8 +118,9 @@ for ish, shfile in enumerate(shlist):
 		
 		os.chdir('..')	
 		if istest: 
-			print 'exiting upon', command_
-			exit(0)
+		    a = 1
+			#print 'exiting upon', command_
+			#exit(0)
 	else: print shfile, 'successfully completed'
 	#pause()
 	
