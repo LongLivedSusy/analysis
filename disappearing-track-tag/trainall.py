@@ -13,7 +13,8 @@ labels_a = [
             #"sep21v1",
             #"sep21v2",
             #"sep21v3",
-            "sep21v1",
+            #"sep21v1",
+            "feb23v1",
             #"sgsamples",
             #"stop",
             #2,
@@ -25,8 +26,13 @@ labels_a = [
 
 labels_b = [
             #"baseline",
-            "test-noPU",
-            "test-withPU",
+            #"test-noPU",
+            #"test-withPU",
+            #"baselinecheck",
+            #"omega",
+            #"omega2",
+            "omega4",
+            "baseline",
             #"useLayers",
             #"corrected",
             #"corrdxy",
@@ -86,13 +92,14 @@ vars = [
 
 #labels_b += unique_combinations
 
-skim_folder = "/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged"
+#skim_folder = "/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_88_mcbranches_merged"
+skim_folder = "/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_mc17omega7_merged"
 #skim_folder = "/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_99corrected_merged"
 #skim_folder = "/afs/desy.de/user/k/kutznerv/dust/shorttrack/analysis/ntupleanalyzer/skim_119_p1corr_merged"
 mode = "grid"
 
 for year in [
-              #2016,
+              2016,
               2017,
             ]:
 
@@ -105,7 +112,7 @@ for year in [
 
     for category in [
                       "short",
-                      #"long",
+                      "long",
                     ]:
 
         for label_a in labels_a:
@@ -114,7 +121,7 @@ for year in [
                 #if "corrected" in label_b and category != "short" and year != 2017: 
                 #    continue
                 if category == "short":
-                    use_more_mem = False
+                    use_more_mem = True
                 else:
                     use_more_mem = True
                 
