@@ -112,7 +112,7 @@ process.ISpySiStripDigi.iSpySiStripDigiTag = cms.InputTag("siStripDigis:ZeroSupp
 process.ISpySuperCluster.iSpySuperClusterTag = cms.InputTag('hybridSuperClusters')
 
 process.ISpyTrack.iSpyTrackTag = cms.InputTag("generalTracks")
-#process.ISpyTrackingRecHit.iSpyTrackingRecHitTag = cms.InputTag("generalTracks")
+process.ISpyTrackingRecHit.iSpyTrackingRecHitTag = cms.InputTag("generalTracks")
 
 process.ISpyTriggerEvent.triggerEventTag = cms.InputTag('hltTriggerSummaryAOD')
 process.ISpyTriggerEvent.triggerResultsTag = cms.InputTag('TriggerResults')
@@ -149,8 +149,8 @@ process.iSpy = cms.Path(process.ISpyEvent*
                         #process.ISpySiStripCluster*
                         #process.ISpySiStripDigi*
                         #process.ISpySuperCluster*
-                        process.ISpyTrack*
-                        #process.ISpyTrackingRecHit*
+                        ###process.ISpyTrack*
+                        ###process.ISpyTrackingRecHit*
                         #process.ISpyTrackExtrapolation*
                         process.ISpyVertex)
 
