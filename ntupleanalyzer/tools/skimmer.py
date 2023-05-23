@@ -129,9 +129,10 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
     binnumbers = shared_utils.binnumbers
 
     # example
-    # binnumbers[((0,inf),    (150,300),(1,2),    (0,0),    (1,1),  (0,0), (1,1),    (0.0,inf),          (dedxcutLow,dedxcutMid),  (0,0),   (0,0))] = 1
-    #               0            1       2           3       4       5       6           7                   8                       9       10
-    #             #['Ht',     'Mht',   'NJets', 'BTags',  'NTags', 'NPix', 'NPixStrips', 'MinDPhiMhtJets', 'DeDxAverage',      'NElectrons', 'NMuons',
+    # listagain = ['Ht',     'HardMet','NJets',  'BTags', 'NTags','TrkLength','MdpMetJets','DeDx',              'NElectrons','NMuons', 'InvMass', 'LepMT', 'TrkPt',        'TrkEta',  'MatchedCalo', 'DtLength', 'DPhiMhtDt',     'TrkMva',    'BinNumber', 'MinDPhiMhtHemJet','Met','Log10DedxMass']
+    # binnumbers[((0,inf),    (150,300),(1,2),    (0,0),   (1,1), (1,1),     (0.0,inf),    (dedxcutLow,dedxcutMid),(0,0),   (0,0))] = 1
+    #MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1] and \
+    
 
     region = 0
     for binkey in binnumbers:
@@ -140,12 +141,10 @@ def get_signal_region(HT, MHT, NJets, n_btags, MinDeltaPhiMhtJets, n_DT, is_pixe
            NJets >= binkey[2][0] and NJets <= binkey[2][1] and \
            n_btags >= binkey[3][0] and n_btags <= binkey[3][1] and \
            n_DT >= binkey[4][0] and n_DT <= binkey[4][1] and \
-           is_pixel_track >= binkey[5][0] and is_pixel_track <= binkey[5][1] and \
-           is_tracker_track >= binkey[6][0] and is_tracker_track <= binkey[6][1] and \
-           MinDeltaPhiMhtJets >= binkey[7][0] and MinDeltaPhiMhtJets <= binkey[7][1] and \
-           DeDxAverage >= binkey[8][0] and DeDxAverage <= binkey[8][1] and \
-           n_goodelectrons >= binkey[9][0] and n_goodelectrons <= binkey[9][1] and \
-           n_goodmuons >= binkey[10][0] and n_goodmuons <= binkey[10][1]:
+           is_tracker_track >= binkey[5][0] and is_tracker_track <= binkey[5][1] and \
+           DeDxAverage >= binkey[7][0] and DeDxAverage <= binkey[7][1] and \
+           n_goodelectrons >= binkey[8][0] and n_goodelectrons <= binkey[8][1] and \
+           n_goodmuons >= binkey[9][0] and n_goodmuons <= binkey[9][1]:
               region = binnumbers[binkey]
               break
                 

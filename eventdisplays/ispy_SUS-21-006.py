@@ -14,6 +14,7 @@ import FWCore.Utilities.FileUtils as FileUtils
 process.source = cms.Source('PoolSource',
                             fileNames = cms.untracked.vstring('file:///pnfs/desy.de/cms/tier2/store/user/vkutzner/MET/Run2017E_DisappearingTracksSREvents/221103_150955/0000/output_9.root')
                             )
+process.source.bypassVersionCheck = cms.untracked.bool(True)
   
 from FWCore.MessageLogger.MessageLogger_cfi import *
 

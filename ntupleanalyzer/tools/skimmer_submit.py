@@ -158,7 +158,7 @@ if __name__ == "__main__":
     elif do_pmssm:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
         options.dataset = sms_pmssm
-        skimname = "skim_pmssmMay8"
+        skimname = "skim_pmssmMay8b"
         options.start = True
         options.files_per_job = 15
         options.njobs = 5000
