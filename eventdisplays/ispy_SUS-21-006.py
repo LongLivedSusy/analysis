@@ -12,7 +12,7 @@ process.GlobalTag.globaltag = '94X_dataRun2_v6'
 import FWCore.Utilities.FileUtils as FileUtils
 
 process.source = cms.Source('PoolSource',
-                            fileNames = cms.untracked.vstring('file:///pnfs/desy.de/cms/tier2/store/user/vkutzner/MET/Run2017E_DisappearingTracksSREvents/221103_150955/0000/output_9.root')
+                            fileNames = cms.untracked.vstring('file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/Run2_MET_small.root')
                             )
 process.source.bypassVersionCheck = cms.untracked.bool(True)
   
@@ -23,13 +23,13 @@ process.add_(
     outputFileName = cms.untracked.string('SUS-21-006.ig'),
     outputIg = cms.untracked.bool(True),
     outputMaxEvents = cms.untracked.int32(10), 
-    debug = cms.untracked.bool(False)
+    debug = cms.untracked.bool(True)
     )
 )
 
-process.options = cms.untracked.PSet(
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
-    )
+#process.options = cms.untracked.PSet(
+#    SkipEvent = cms.untracked.vstring('ProductNotFound')
+#    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -112,7 +112,7 @@ process.ISpySiStripDigi.iSpySiStripDigiTag = cms.InputTag("siStripDigis:ZeroSupp
 process.ISpySuperCluster.iSpySuperClusterTag = cms.InputTag('hybridSuperClusters')
 
 process.ISpyTrack.iSpyTrackTag = cms.InputTag("generalTracks")
-process.ISpyTrackingRecHit.iSpyTrackingRecHitTag = cms.InputTag("generalTracks")
+#process.ISpyTrackingRecHit.iSpyTrackingRecHitTag = cms.InputTag("generalTracks")
 
 process.ISpyTriggerEvent.triggerEventTag = cms.InputTag('hltTriggerSummaryAOD')
 process.ISpyTriggerEvent.triggerResultsTag = cms.InputTag('TriggerResults')
@@ -150,7 +150,7 @@ process.iSpy = cms.Path(process.ISpyEvent*
                         #process.ISpySiStripDigi*
                         #process.ISpySuperCluster*
                         process.ISpyTrack*
-                        process.ISpyTrackingRecHit*
+                        #process.ISpyTrackingRecHit*
                         #process.ISpyTrackExtrapolation*
                         process.ISpyVertex)
 
