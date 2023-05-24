@@ -13,9 +13,9 @@ import FWCore.Utilities.FileUtils as FileUtils
 
 process.source = cms.Source('PoolSource',
                             fileNames = cms.untracked.vstring(
-                            'file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/sus-21-006/Run2_MET.root',
-                            #'file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/sus-21-006/Run2_SingleElectron.root',
-                            #'file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/sus-21-006/Run2_SingleMuon.root',
+                            'file:///nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventdisplays/sus-21-006/Run2_MET.root',
+                            #'file:///nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventdisplays/sus-21-006/Run2_SingleElectron.root',
+                            #'file:///nfs/dust/cms/user/kutznerv/shorttrack/analysis/eventdisplays/sus-21-006/Run2_SingleMuon.root',
                             )
                             )
 process.source.bypassVersionCheck = cms.untracked.bool(True)
