@@ -12,7 +12,11 @@ process.GlobalTag.globaltag = '94X_dataRun2_v6'
 import FWCore.Utilities.FileUtils as FileUtils
 
 process.source = cms.Source('PoolSource',
-                            fileNames = cms.untracked.vstring('file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/Run2_MET_small.root')
+                            fileNames = cms.untracked.vstring(
+                            'file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/sus-21-006/Run2_MET.root',
+                            #'file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/sus-21-006/Run2_SingleElectron.root',
+                            #'file:///nfs/dust/cms/user/kutznerv/shorttrack/event-displays/sus-21-006/Run2_SingleMuon.root',
+                            )
                             )
 process.source.bypassVersionCheck = cms.untracked.bool(True)
   
