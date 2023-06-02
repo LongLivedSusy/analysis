@@ -2,7 +2,7 @@
 
 Search for disappearing tracks
 
-This was adapted from TOP-21-007.
+This was adapted from TOP-21-007. See also https://github.com/cms-outreach/ispy-analyzers
 
 ## Setup
 ```bash
