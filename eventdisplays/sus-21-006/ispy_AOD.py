@@ -18,7 +18,8 @@ process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-
+process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v6', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v10', '')
 
 process.source = cms.Source(
     'PoolSource',
@@ -41,7 +42,7 @@ process.add_(
                         outputESFilename = cms.untracked.string('ES.ig'),
                         outputFilePath = cms.untracked.string(outPath),
                         outputIg = cms.untracked.bool(True),
-                        outputMaxEvents = cms.untracked.int32(25),
+                        outputMaxEvents = cms.untracked.int32(-1),
                         )
         )
 

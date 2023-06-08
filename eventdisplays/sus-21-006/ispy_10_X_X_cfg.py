@@ -40,7 +40,7 @@ process.add_(
                         outputESFilename = cms.untracked.string('ES.ig'),
                         outputFilePath = cms.untracked.string(outPath),
                         outputIg = cms.untracked.bool(True),
-                        outputMaxEvents = cms.untracked.int32(-1),
+                        outputMaxEvents = cms.untracked.int32(10),
                         )
         )
 
@@ -73,9 +73,12 @@ process.load('ISpy.Analyzers.ISpyPhoton_cfi')
 process.load('ISpy.Analyzers.ISpyRPCRecHit_cfi')
 process.load('ISpy.Analyzers.ISpySuperCluster_cfi')
 
+process.load('ISpy.Analyzers.ISpyTrack_cfi')
+
 process.load('ISpy.Analyzers.ISpyTrackExtrapolation_cfi')
 process.load('ISpy.Analyzers.ISpyTriggerEvent_cfi')
 process.load('ISpy.Analyzers.ISpyVertex_cfi')
+
 
 process.ISpyCSCRecHit2D.iSpyCSCRecHit2DTag = cms.InputTag("csc2DRecHits")
 process.ISpyCSCSegment.iSpyCSCSegmentTag = cms.InputTag("cscSegments")
@@ -102,6 +105,8 @@ process.ISpyPhoton.iSpyPhotonTag = cms.InputTag('photons')
 process.ISpyRPCRecHit.iSpyRPCRecHitTag = cms.InputTag("rpcRecHits")
 process.ISpyVertex.iSpyVertexTag = cms.InputTag('offlinePrimaryVertices')
 
+process.ISpyTrack.iSpyTrackTag = cms.InputTag("generalTracks")
+
 process.ISpyTrackExtrapolation.iSpyTrackExtrapolationTag = cms.InputTag("trackExtrapolator")
 process.ISpyTrackExtrapolation.trackPtMin = cms.double(2.0)
 
@@ -123,6 +128,7 @@ process.iSpy = cms.Path(process.ISpyEvent*
                         process.ISpyPhoton*
                         process.ISpyRPCRecHit*
                         process.ISpyTrackExtrapolation*
+                        process.ISpyTrack*
                         process.ISpyVertex)
 
 process.schedule = cms.Schedule(process.iSpy)
