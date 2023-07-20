@@ -137,7 +137,7 @@ define dedx = 2.684 * p(DTk[0])^2 / m(DTk[0])^2 + 3.375 # Can be replaced with C
 # EVENT SELECTION
 
 # Baseline selections
-region baseline_had
+region baselineHad
   weight hltMHT 0.97 
   select size(DTk) >= 1
   select size(electrons) == 0
@@ -146,7 +146,7 @@ region baseline_had
   select HT - HardMET > 0
   select size(jets) >= 1
 
-region baseline_mu
+region baselineMu
   weight hltsinglemu 0.90
   select size(DTk) >= 1
   select HardMET > 30
@@ -155,7 +155,7 @@ region baseline_mu
   select size(jets) >= 1
   select m(DTk[0] + muons[0]) > 120
 
-region baseline_ele
+region baselineEle
   weight hltsingleele 0.80
   select HardMET > 30
   select size(electrons) >= 1
@@ -165,7 +165,8 @@ region baseline_ele
 
 # Signal regions
 region SRsHad
-  select baseline_had
+  take baselineHad
+  select size(DTk) == 1
   # HardMET [] 150 300, 0 bjets
   bin "1" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
   bin "2" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
@@ -195,7 +196,7 @@ region SRsHad
   bin "24" HardMET > 300 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
 
 region SRsMu
-  select baseline_mu
+  take baselineMu
   select size(DTk) == 1
   # HardMET [] 30 150 0 b-jets
   bin "25" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
@@ -214,7 +215,7 @@ region SRsMu
   bin "36" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
 
 region SRsEle
-  select baseline_ele
+  take baselineEle
   select size(DTk) == 1
   select m(DTk[0] + electrons[0]) > 120
   # HardMET [] 30 150 0 b-jets
@@ -234,6 +235,6 @@ region SRsEle
   bin "48" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
 
 region SRTwoDTk
-  baseline-had or baseline-ele or baseline-mu
+  take baselineHad or baselineMu or baselineEle
   select size(DTk) >= 2
 
