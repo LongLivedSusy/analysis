@@ -228,72 +228,72 @@ region SRs_had
   select size(DTSR) == 1
   select fMT(DTSR[0], HardMETLV) > 20
   # HardMET [] 150 300, 0 bjets
-  bin "1" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "2" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "3" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "4" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
-  bin "5" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "6" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "7" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "8" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "1" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "2" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "3" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "4" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
+  bin "5" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "6" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "7" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "8" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
   # HardMET [] 150 300, >=1 bjets
-  bin "9" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "10" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "11" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "12" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
-  bin "13" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "14" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "15" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "16" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "9" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "10" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "11" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "12" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
+  bin "13" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "14" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "15" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "16" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
   # HardMET > 300
-  bin "17" HardMET > 300 and n(jets) [] 1 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "18" HardMET > 300 and n(jets) [] 1 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "19" HardMET > 300 and n(jets) [] 1 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "20" HardMET > 300 and n(jets) [] 1 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
-  bin "21" HardMET > 300 and n(jets) >= 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "22" HardMET > 300 and n(jets) >= 3 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "23" HardMET > 300 and n(jets) >= 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "24" HardMET > 300 and n(jets) >= 3 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "17" HardMET > 300 and size(jets) [] 1 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "18" HardMET > 300 and size(jets) [] 1 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "19" HardMET > 300 and size(jets) [] 1 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "20" HardMET > 300 and size(jets) [] 1 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
+  bin "21" HardMET > 300 and size(jets) >= 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "22" HardMET > 300 and size(jets) >= 3 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "23" HardMET > 300 and size(jets) >= 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "24" HardMET > 300 and size(jets) >= 3 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
 
 region SRs_ele
   select baseline_ele
   select size(DTSR) == 1
   select m(DTSR[0] + electrons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "25" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "26" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "27" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "28" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "25" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "26" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "27" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "28" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "29" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "30" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "31" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "32" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "29" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "30" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "31" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "32" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
   # HardMET > 150
-  bin "33" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "34" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "35" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "36" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "33" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "34" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "35" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "36" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
 
 region SRs_mu
   select baseline_mu
   select size(DTSR) == 1
   select m(DTSR[0] + muons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "37" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "38" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "39" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "40" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "37" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "38" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "39" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "40" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "41" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "42" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "43" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "44" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "41" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "42" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "43" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "44" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
   # HardMET > 150
-  bin "45" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx <= 4
-  bin "46" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 0 and n(DTSRlg) == 1 and dedx > 4
-  bin "47" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx <= 4
-  bin "48" HardMET > 150 and n(jets) >= 1 and n(DTSRsh) == 1 and n(DTSRlg) == 0 and dedx > 4
+  bin "45" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx <= 4
+  bin "46" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 0 and size(DTSRlg) == 1 and dedx > 4
+  bin "47" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx <= 4
+  bin "48" HardMET > 150 and size(jets) >= 1 and size(DTSRsh) == 1 and size(DTSRlg) == 0 and dedx > 4
 
 region SRs_2DT
   select baseline_had or baseline_ele or baseline_mu
@@ -305,72 +305,72 @@ region CRs_realsw_had
   select size(DTCRreal) == 1
   select fMT(DTCRreal[0], HardMETLV) > 20
   # HardMET [] 150 300, 0 bjets
-  bin "1" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "2" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "3" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "4" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
-  bin "5" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "6" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "7" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "8" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "1" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "2" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "3" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "4" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
+  bin "5" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "6" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "7" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "8" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
   # HardMET [] 150 300, >=1 bjets
-  bin "9" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "10" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "11" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "12" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
-  bin "13" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "14" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "15" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "16" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "9" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "10" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "11" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "12" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
+  bin "13" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "14" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "15" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "16" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
   # HardMET > 300
-  bin "17" HardMET > 300 and n(jets) [] 1 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "18" HardMET > 300 and n(jets) [] 1 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "19" HardMET > 300 and n(jets) [] 1 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "20" HardMET > 300 and n(jets) [] 1 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
-  bin "21" HardMET > 300 and n(jets) >= 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "22" HardMET > 300 and n(jets) >= 3 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "23" HardMET > 300 and n(jets) >= 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "24" HardMET > 300 and n(jets) >= 3 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "17" HardMET > 300 and size(jets) [] 1 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "18" HardMET > 300 and size(jets) [] 1 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "19" HardMET > 300 and size(jets) [] 1 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "20" HardMET > 300 and size(jets) [] 1 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
+  bin "21" HardMET > 300 and size(jets) >= 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "22" HardMET > 300 and size(jets) >= 3 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "23" HardMET > 300 and size(jets) >= 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "24" HardMET > 300 and size(jets) >= 3 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
 
 region CRs_realsw_ele
   select baseline_ele
   select size(DTCRreal) == 1
   select m(DTCRreal[0] + electrons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "25" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "26" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "27" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "28" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "25" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "26" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "27" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "28" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "29" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "30" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "31" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "32" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "29" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "30" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "31" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "32" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
   # HardMET > 150
-  bin "33" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "34" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "35" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "36" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "33" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "34" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "35" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "36" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
 
 region CRs_realsw_mu
   select baseline_mu
   select size(DTCRreal) == 1
   select m(DTCRreal[0] + muons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "37" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "38" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "39" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "40" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "37" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "38" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "39" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "40" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "41" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "42" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "43" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "44" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "41" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "42" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "43" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "44" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
   # HardMET > 150
-  bin "45" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx <= 4
-  bin "46" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 0 and n(DTCRreallg) == 1 and dedx > 4
-  bin "47" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx <= 4
-  bin "48" HardMET > 150 and n(jets) >= 1 and n(DTCRrealsh) == 1 and n(DTCRreallg) == 0 and dedx > 4
+  bin "45" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx <= 4
+  bin "46" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 0 and size(DTCRreallg) == 1 and dedx > 4
+  bin "47" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx <= 4
+  bin "48" HardMET > 150 and size(jets) >= 1 and size(DTCRrealsh) == 1 and size(DTCRreallg) == 0 and dedx > 4
 
 region CRs_realsw_2DT # Need to have 5 CRs here!
   select baseline_had or baseline_ele or baseline_mu
@@ -414,20 +414,20 @@ region CRs_realmu_had
   select fMT(DTproxylg[0], HardMETLV) > 20
   # Any cut on any type of short tracks, e.g. DRSRsh?
   # HardMET [] 150 300, 0 bjets
-  bin "1" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTproxylg) == 1 and dedx <= 4
-  bin "2" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTproxylg) == 1 and dedx > 4
-  bin "5" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 n(DTproxylg) == 1 and dedx <= 4
-  bin "6" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 n(DTproxylg) == 1 and dedx > 4
+  bin "1" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTproxylg) == 1 and dedx <= 4
+  bin "2" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTproxylg) == 1 and dedx > 4
+  bin "5" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 size(DTproxylg) == 1 and dedx <= 4
+  bin "6" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 size(DTproxylg) == 1 and dedx > 4
   # HardMET [] 150 300, >=1 bjets
-  bin "9" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTproxylg) == 1 and dedx <= 4
-  bin "10" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTproxylg) == 1 and dedx > 4
-  bin "13" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTproxylg) == 1 and dedx <= 4
-  bin "14" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTproxylg) == 1 and dedx > 4
+  bin "9" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTproxylg) == 1 and dedx <= 4
+  bin "10" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTproxylg) == 1 and dedx > 4
+  bin "13" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTproxylg) == 1 and dedx <= 4
+  bin "14" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTproxylg) == 1 and dedx > 4
   # HardMET > 300
-  bin "17" HardMET > 300 and n(jets) [] 1 3 and n(DTproxylg) == 1 and dedx <= 4
-  bin "18" HardMET > 300 and n(jets) [] 1 3 and n(DTproxylg) == 1 and dedx > 4
-  bin "21" HardMET > 300 and n(jets) >= 3 and n(DTproxylg) == 1 and dedx <= 4
-  bin "22" HardMET > 300 and n(jets) >= 3 and n(DTproxylg) == 1 and dedx > 4
+  bin "17" HardMET > 300 and size(jets) [] 1 3 and size(DTproxylg) == 1 and dedx <= 4
+  bin "18" HardMET > 300 and size(jets) [] 1 3 and size(DTproxylg) == 1 and dedx > 4
+  bin "21" HardMET > 300 and size(jets) >= 3 and size(DTproxylg) == 1 and dedx <= 4
+  bin "22" HardMET > 300 and size(jets) >= 3 and size(DTproxylg) == 1 and dedx > 4
 
 region CRs_realmu_ele
   select baseline_ele
@@ -435,28 +435,28 @@ region CRs_realmu_ele
   select m(DTproxylg[0] + electrons[0]) > 120
   # Any cut on any type of short tracks, e.g. DRSRsh?
   # HardMET [] 30 150 0 b-jets
-  bin "25" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx <= 4
-  bin "26" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx > 4
+  bin "25" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx <= 4
+  bin "26" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "29" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx <= 4
-  bin "30" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx > 4
+  bin "29" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx <= 4
+  bin "30" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx > 4
   # HardMET > 150
-  bin "33" HardMET > 150 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx <= 4
-  bin "34" HardMET > 150 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx > 4
+  bin "33" HardMET > 150 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx <= 4
+  bin "34" HardMET > 150 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx > 4
 
 region CRs_realmu_mu
   select baseline_mu
   select size(DTproxylg) == 1
   select m(DTproxylg[0] + muons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "37" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx <= 4
-  bin "38" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx > 4
+  bin "37" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx <= 4
+  bin "38" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "41" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx <= 4
-  bin "42" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx > 4
+  bin "41" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx <= 4
+  bin "42" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx > 4
   # HardMET > 150
-  bin "45" HardMET > 150 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx <= 4
-  bin "46" HardMET > 150 and n(jets) >= 1 and n(DTproxylg) == 1 and dedx > 4
+  bin "45" HardMET > 150 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx <= 4
+  bin "46" HardMET > 150 and size(jets) >= 1 and size(DTproxylg) == 1 and dedx > 4
 
 region CRs_realmu_2DT # Need to have 5 CRs here!
   select baseline_had or baseline_ele or baseline_mu
@@ -484,72 +484,72 @@ region CRs_fake_had
   select size(DTCRfake) == 1
   select fMT(DTCRfake[0], HardMETLV) > 20
   # HardMET [] 150 300, 0 bjets
-  bin "1" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "2" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "3" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "4" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
-  bin "5" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "6" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "7" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "8" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "1" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "2" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "3" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "4" HardMET [] 150 300 and size(bjets) == 0 and size(jets) [] 1 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
+  bin "5" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "6" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "7" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "8" HardMET [] 150 300 and size(bjets) == 0 and size(jets) >= 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
   # HardMET [] 150 300, >=1 bjets
-  bin "9" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "10" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "11" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "12" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
-  bin "13" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "14" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "15" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "16" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "9" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "10" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "11" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "12" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) [] 1 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
+  bin "13" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "14" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "15" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "16" HardMET [] 150 300 and size(bjets) >= 1 and size(jets) >= 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
   # HardMET > 300
-  bin "17" HardMET > 300 and n(jets) [] 1 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "18" HardMET > 300 and n(jets) [] 1 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "19" HardMET > 300 and n(jets) [] 1 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "20" HardMET > 300 and n(jets) [] 1 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
-  bin "21" HardMET > 300 and n(jets) >= 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "22" HardMET > 300 and n(jets) >= 3 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "23" HardMET > 300 and n(jets) >= 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "24" HardMET > 300 and n(jets) >= 3 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "17" HardMET > 300 and size(jets) [] 1 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "18" HardMET > 300 and size(jets) [] 1 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "19" HardMET > 300 and size(jets) [] 1 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "20" HardMET > 300 and size(jets) [] 1 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
+  bin "21" HardMET > 300 and size(jets) >= 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "22" HardMET > 300 and size(jets) >= 3 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "23" HardMET > 300 and size(jets) >= 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "24" HardMET > 300 and size(jets) >= 3 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
 
 region CRs_fake_ele
   select baseline_ele
   select size(DTCRfake) == 1
   select m(DTCRfake[0] + electrons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "25" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "26" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "27" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "28" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "25" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "26" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "27" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "28" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "29" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "30" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "31" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "32" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "29" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "30" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "31" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "32" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
   # HardMET > 150
-  bin "33" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "34" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "35" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "36" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "33" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "34" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "35" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "36" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
 
 region CRs_fake_mu
   select baseline_mu
   select size(DTCRfake) == 1
   select m(DTCRreal[0] + muons[0]) > 120
   # HardMET [] 30 150 0 b-jets
-  bin "37" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "38" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "39" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "40" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "37" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "38" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "39" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "40" HardMET [] 30 150 and size(bjets) == 0 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
   # HardMET [] 30 150 >=1 b-jets
-  bin "41" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "42" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "43" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "44" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "41" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "42" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "43" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "44" HardMET [] 30 150 and size(bjets) >= 1 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
   # HardMET > 150
-  bin "45" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx <= 4
-  bin "46" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 0 and n(DTCRfakelg) == 1 and dedx > 4
-  bin "47" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx <= 4
-  bin "48" HardMET > 150 and n(jets) >= 1 and n(DTCRfakesh) == 1 and n(DTCRfakelg) == 0 and dedx > 4
+  bin "45" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx <= 4
+  bin "46" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 0 and size(DTCRfakelg) == 1 and dedx > 4
+  bin "47" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx <= 4
+  bin "48" HardMET > 150 and size(jets) >= 1 and size(DTCRfakesh) == 1 and size(DTCRfakelg) == 0 and dedx > 4
 
 region CRs_fake_2DTk
   select baseline_had or baseline_ele or baseline_mu
