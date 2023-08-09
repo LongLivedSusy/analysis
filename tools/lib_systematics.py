@@ -27,7 +27,7 @@ def prepareReaderBtagSF():
     #ROOT.gROOT.ProcessLine('.L ./BTagCalibrationStandalone.cpp+')
     
     # get the sf data loaded 
-    calib = ROOT.BTagCalibration('deepcsv', os.environ['CMSSW_BASE']+'/src/analysis/systematics/DeepCSV_Moriond17_B_H.csv')
+    calib = ROOT.BTagCalibration('deepcsv', '../../systematics/DeepCSV_Moriond17_B_H.csv')
 
     # making a std::vector<std::string>> in python is a bit awkward, 
     # but works with root (needed to load other sys types):
@@ -67,9 +67,9 @@ def get_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim,readerBtag):
     
     ## Get Btagging efficiency map for signal sample
     if 'T1' in tree.GetFile().GetName() : 
-        fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_merged.root")
+        fbeff = TFile("../../systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T1qqqq-LLChipm_ctau-200_merged.root")
     elif 'T2' in tree.GetFile().GetName() or 'iggsino' in tree.GetFile().GetName() or 'T2tb' in tree.GetFile().GetName() or 'PMSSM' in tree.GetFile().GetName():
-        fbeff = TFile(os.environ['CMSSW_BASE']+"/src/analysis/systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_merged.root")
+        fbeff = TFile("../../systematics/BtagEffMaps/RunIISummer16MiniAODv3.SMS-T2bt-LLChipm_ctau-200_merged.root")
     else : 
         print 'Cannot choose efficiency map for this sample, quit'
         abc = abc
@@ -220,34 +220,34 @@ def get_isr_weight(tree):
 #time to add some systmatics stuff
 def getRecoIdisoFastfullLeptonSFhistos(year='2017'):
         yearmodthou = year.replace('20','')
-        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/egammaEffi.txt_EGM2D_RECO'+year+'.root')
+        f = TFile('../../systematics/leptonscalefactors/egammaEffi.txt_EGM2D_RECO'+year+'.root')
         eleReco = f.Get('EGamma_EffMC2D')
         print 'eleReco.GetBinContent(1,1)', eleReco.GetBinContent(1,1)
         eleReco.SetDirectory(0)
         f.Close()
         
-        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/ElectronScaleFactors_Run'+year+'.root')
+        f = TFile('../../systematics/leptonscalefactors/ElectronScaleFactors_Run'+year+'.root')
         eleIdiso = f.Get('Run'+year+'_CutBasedTightNoIso94XV2')
         print 'eleIdiso.GetBinContent(1,1)', eleIdiso.GetBinContent(1,1)        
         eleIdiso.SetDirectory(0)
         f.Close()
         
         
-        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/detailed_ele_full_fast_sf_'+yearmodthou+'.root')
+        f = TFile('../../systematics/leptonscalefactors/detailed_ele_full_fast_sf_'+yearmodthou+'.root')
         eleIdFastFull = f.Get('CutBasedTightNoIso94XV2_sf')
         print 'eleIdiso.GetBinContent(1,1)', eleIdFastFull.GetBinContent(1,1)        
         eleIdFastFull.SetDirectory(0)
         f.Close()
         
         
-        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/'+year+'_MuonMediumIdIso_SUS.root')
+        f = TFile('../../systematics/leptonscalefactors/'+year+'_MuonMediumIdIso_SUS.root')
         if year=='2016': muIdIso = f.Get('SF')
         else: muIdIso = f.Get('TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta')
         print 'muIdIso.GetBinContent(1,1)', muIdIso.GetBinContent(1,1)        
         muIdIso.SetDirectory(0)
         f.Close()
         
-        f = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/leptonscalefactors/detailed_mu_full_fast_sf_'+yearmodthou+'.root')
+        f = TFile('../../systematics/leptonscalefactors/detailed_mu_full_fast_sf_'+yearmodthou+'.root')
         muIdFastFull = f.Get('miniIso02_MediumId_sf')
         print 'muIdFastFull.GetBinContent(1,1)', muIdFastFull.GetBinContent(1,1)        
         muIdFastFull.SetDirectory(0)

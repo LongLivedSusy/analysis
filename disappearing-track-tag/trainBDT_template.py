@@ -379,6 +379,23 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
         sigCut = TCut(extra_sig_cuts + "tracks_chiCandGenMatchingDR<0.01 && " + cuts)
     elif category == "long":
         sigCut = TCut(extra_sig_cuts + "tracks_chiCandGenMatchingDR<0.01 && " + cuts)
+
+    # weight background tracks by omega:
+    #if "omega" in cwd:
+    #    print "weighting fake tracks with omega"
+    #    if category == "short" and phase == 0:
+    #        #cuts += " && (1.0*(tracks_fake==0) ||  1.57*(tracks_fake==1))"
+    #        cuts = "(1.0*(tracks_fake==0 && %s) ||  1.57*(tracks_fake==1 && %s))" % (cuts, cuts)
+    #    if category == "long" and phase == 0:
+    #        #cuts += " && (1.0*(tracks_fake==0) ||  3.18*(tracks_fake==1))"
+    #        cuts = "(1.0*(tracks_fake==0 && %s) ||  3.18*(tracks_fake==1 && %s))" % (cuts, cuts)
+    #    if category == "short" and phase == 1:
+    #        #cuts += " && (1.0*(tracks_fake==0) ||  6.22*(tracks_fake==1))"
+    #        cuts = "(1.0*(tracks_fake==0 && %s) ||  6.22*(tracks_fake==1 && %s))" % (cuts, cuts)
+    #    if category == "long" and phase == 1:
+    #        #cuts += " && (1.0*(tracks_fake==0) || 11.50*(tracks_fake==1))"
+    #        cuts = "(1.0*(tracks_fake==0 && %s) || 11.50*(tracks_fake==1 && %s))" % (cuts, cuts)
+
     bgCut = TCut(cuts)
         
     # set options for trainings
@@ -405,7 +422,11 @@ def train(skim_folder, category, phase, n_ntuple_files_sg = -1, n_ntuple_files_b
     if not oldWeights:
         #factory.SetSignalWeightExpression("puWeight")
         dataloader.SetSignalWeightExpression("weight")
-        dataloader.SetBackgroundWeightExpression("weight")
+        if "omega" in cwd:
+            print "Weighting by Omega"
+            dataloader.SetBackgroundWeightExpression("tracks_weightOmega")
+        else:
+            dataloader.SetBackgroundWeightExpression("weight")
 
     ## book and define methods that should be trained
     method = factory.BookMethod(dataloader, TMVA.Types.kBDT, "BDT",

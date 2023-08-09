@@ -1,0 +1,240 @@
+# Simplified analysis ADL for CMS-SUS-21-006 "SUSY disappearing track"
+# Runs over Delphes events.
+# Only includes signal regions.
+# Disappearing track ID by applying efficiencies on gen-level LLP.
+#           *** change the pdg ID if needed!
+
+info analysis
+  title "Search for long lived SUSY with disappearing tracks in inclusive final states using proton-proton collisions at sqrt(s) = 13 TeV"
+  experiment CMS
+  id SUS-21-006
+  sqrtS 13.0
+  lumi 137fb-1
+
+info adl
+  author Sezen Sekmen, Viktor Kutzner
+  datatier Delphes
+
+# Efficiency tables
+# Disappearing track tagging efficiency vs. 
+table DTkshtageff
+  tabletype efficiency
+  nvars 1
+  errors true
+  # eff    err-     err+     Tdispmin   Tdispmax
+  # ...
+
+table DTklgtageff
+  tabletype efficiency
+  nvars 1
+  errors true
+  # eff    err-     err+     Tdispmin   Tdispmax
+  # ...
+
+table btagdeepCSVmedium
+  tabletype efficiency
+  nvars 1
+  errors true
+  # eff    err-     err+     pTmin     pTmax
+  0.5790   0.0016   0.0016    -10.4     30.0
+  0.6314   0.0013   0.0013     30.0     35.0
+  0.6442   0.0011   0.0011     35.0     40.0
+  0.6596   0.0007   0.0007     40.0     50.0
+  0.6727   0.0007   0.0007     50.0     60.0
+  0.6812   0.0008   0.0008     60.0     70.0
+  0.6855   0.0008   0.0008     70.0     80.0
+  0.6873   0.0009   0.0009     80.0     90.0
+  0.6881   0.0010   0.0010     90.0    100.0
+  0.6880   0.0008   0.0008    100.0    125.0
+  0.6867   0.0011   0.0011    125.0    150.0
+  0.6826   0.0015   0.0015    150.0    175.0
+  0.6734   0.0020   0.0020    175.0    200.0
+  0.6624   0.0026   0.0026    200.0    225.0
+  0.6494   0.0034   0.0034    225.0    250.0
+  0.6419   0.0044   0.0044    250.0    275.0
+  0.6301   0.0054   0.0054    275.0    300.0
+  0.6202   0.0051   0.0051    300.0    350.0
+  0.6006   0.0073   0.0073    350.0    400.0
+  0.5889   0.0098   0.0098    400.0    450.0
+  0.5798   0.0126   0.0126    450.0    500.0
+  0.5547   0.0118   0.0118    500.0    600.0
+  0.5412   0.0172   0.0172    600.0    700.0
+  0.5197   0.0234   0.0234    700.0    800.0
+  0.4959   0.0243   0.0243    800.0   7000.0
+
+# OBJECTS
+
+# Leptons
+object electrons
+  take Electron
+  select pT(Electron) > 40
+  select abs(Eta(Electron)) < 2.4
+  select miniiso(Electron) < 0.1
+#  select tightID == 1
+
+object muons
+  take Muon
+  select pT(Muon) > 40
+  select abs(Eta(Muon)) < 2.4
+  select miniiso(Muon) < 0.2
+#  select mediumID == 1
+
+object leptons
+  take union(electrons, muons)
+
+# Jets
+object jets
+  take Jet
+  select pT(Jet) > 30
+  select abs(Eta(Jet)) < 2.4
+  reject deltaR(Jet, leptons) < 0.4
+
+object bjets
+  take jets
+  select abs(flavor(jets)) == 5
+  select applyHM( btagdeepCSVmedium( pT(jets) ) == 1)
+
+object jetsHardMET
+  take Jet
+  select pT(Jet) > 30
+  select abs(Eta(Jet)) < 5
+  reject deltaR(Jet, leptons) < 0.4
+
+object HardMETLVobj
+  take Union(jetsHardMET, leptons) alias hmobj  
+  select sum(-hmobj) > 0
+
+# Disappearing tracks: Apply efficiency on genparticles
+object DTkpresel
+  take Gen
+  select abs(PID(Gen)) == 1000024 # chargino -- change if needed.
+  select abs(Eta(Gen)) < 2.0 
+  select daughters(Gen) >= 1
+  define transdecaylengthmm = sqrt( (x(Gen)-x(Gen.daughters[0])^2 + (y(Gen)-y(Gen.daughters[0])^2  ) * 10 
+
+object DTksh
+  take DTkpresel
+  select applyHM( DTkshtageff( transdecaylengthmm(GEN) ) == 1)
+  select pT(DTkpresel) > 25
+
+object DTklg
+  take DTkpresel
+  select applyHM( DTklgtageff( transdecaylengthmm(GEN) ) == 1)
+  select pT(DTkpresel) > 40
+
+object DTk
+  take union(DTksh, DTklg)
+
+# EVENT VARIABLES
+define HardMETLV = HardMETLVobj[0] 
+define HardMET = pT( HardMETLV )
+define HT = fHT(jets) 
+define mTele = sqrt(2*pT(electrons[0]) * HardMET * (1 - cos(dphi(electrons[0], HardMETLV)))
+define mTmu = sqrt(2*pT(muons[0]) * HardMET * (1 - cos(dphi(muons[0], HardMETLV)))
+define mTDTk = sqrt(2*pT(DTk[0]) * HardMET * (1 - cos(dphi(DTk[0], HardMETLV)))
+define dedx = 2.684 * p(DTk[0])^2 / m(DTk[0])^2 + 3.375 # Can be replaced with CF / vals + reso
+
+# EVENT SELECTION
+
+# Baseline selections
+region baselineHad
+  weight hltMHT 0.97 
+  select size(DTk) >= 1
+  select size(electrons) == 0
+  select size(muons) == 0
+  select HardMET > 150
+  select HT - HardMET > 0
+  select size(jets) >= 1
+
+region baselineMu
+  weight hltsinglemu 0.90
+  select size(DTk) >= 1
+  select HardMET > 30
+  select size(muons) >= 1
+  select size(electrons) == 0
+  select size(jets) >= 1
+  select m(DTk[0] + muons[0]) > 120
+
+region baselineEle
+  weight hltsingleele 0.80
+  select HardMET > 30
+  select size(electrons) >= 1
+  select size(jets) >= 1
+  select mTele > 110
+#  select fMT(electrons[0], HardMETLV) > 110
+
+# Signal regions
+region SRsHad
+  take baselineHad
+  select size(DTk) == 1
+  # HardMET [] 150 300, 0 bjets
+  bin "1" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "2" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "3" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "4" HardMET [] 150 300 and n(bjets) == 0 and n(jets) [] 1 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  bin "5" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "6" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "7" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "8" HardMET [] 150 300 and n(bjets) == 0 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  # HardMET [] 150 300, >=1 bjets
+  bin "9" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "10" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "11" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "12" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) [] 1 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  bin "13" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "14" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "15" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "16" HardMET [] 150 300 and n(bjets) >= 1 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  # HardMET > 300
+  bin "17" HardMET > 300 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "18" HardMET > 300 and n(jets) [] 1 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "19" HardMET > 300 and n(jets) [] 1 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "20" HardMET > 300 and n(jets) [] 1 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  bin "21" HardMET > 300 and n(jets) >= 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "22" HardMET > 300 and n(jets) >= 3 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "23" HardMET > 300 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "24" HardMET > 300 and n(jets) >= 3 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+
+region SRsMu
+  take baselineMu
+  select size(DTk) == 1
+  # HardMET [] 30 150 0 b-jets
+  bin "25" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "26" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "27" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "28" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  # HardMET [] 30 150 >=1 b-jets
+  bin "29" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "30" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "31" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "32" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  # HardMET > 150
+  bin "33" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "34" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "35" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "36" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+
+region SRsEle
+  take baselineEle
+  select size(DTk) == 1
+  select m(DTk[0] + electrons[0]) > 120
+  # HardMET [] 30 150 0 b-jets
+  bin "37" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "38" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "39" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "40" HardMET [] 30 150 and n(bjets) == 0 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  # HardMET [] 30 150 >=1 b-jets
+  bin "41" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "42" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "43" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "44" HardMET [] 30 150 and n(bjets) >= 1 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+  # HardMET > 150
+  bin "45" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx <= 4
+  bin "46" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 0 and n(DTklg) == 1 and dedx > 4
+  bin "47" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx <= 4
+  bin "48" HardMET > 150 and n(jets) >= 1 and n(DTksh) == 1 and n(DTklg) == 0 and dedx > 4
+
+region SRTwoDTk
+  take baselineHad or baselineMu or baselineEle
+  select size(DTk) >= 2
+

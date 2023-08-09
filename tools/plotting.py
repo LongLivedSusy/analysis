@@ -15,6 +15,10 @@ TH1D.SetDefaultSumw2()
 
 
 def get_nMinus1_cuts(cuts, variable):
+    
+    #if variable not in cuts:
+    #    return cuts
+    
     position = -1
     for i_item, item in enumerate(cuts.split()):
         i_var = item.split(">=")[0].split("<=")[0].split(">")[0].split("<")[0].split("==")[0].split("!=")[0]
@@ -161,6 +165,14 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, lowStats=Fal
         if not tree_file in ignore_files:
             tree.Add(tree_file)
 
+    if nMinus1:
+        if ":" not in variable:
+            cutstring_corrected = get_nMinus1_cuts(cutstring, variable)
+        else:
+            cutstring_corrected = get_nMinus1_cuts(cutstring, variable.split(":")[0])
+            cutstring_corrected = get_nMinus1_cuts(cutstring_corrected, variable.split(":")[1])
+        cutstring = cutstring_corrected
+    
     ## xsection and puweight scaling:
     if not is_data and not unweighted:
         # MC
@@ -177,9 +189,9 @@ def get_histogram_from_file(tree_files, tree_folder_name, variable, lowStats=Fal
         print "Limiting to %s events" % numevents
 
     if not nBinsY:
-        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, numevents=numevents, nMinus1=nMinus1)
+        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, numevents=numevents)
     else:
-        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents, nMinus1=nMinus1)
+        histo = get_histogram_from_tree(tree, variable, cutstring=cutstring, nBinsX=nBinsX, xmin=xmin, xmax=xmax, nBinsY=nBinsY, ymin=ymin, ymax=ymax, numevents=numevents)
 
     #print "cutstring:", cutstring
     if not is_data and not unweighted and nev>0:

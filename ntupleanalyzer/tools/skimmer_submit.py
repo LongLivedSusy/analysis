@@ -57,13 +57,13 @@ def prepare_command_list(ntuples_folder, samples, output_folder, files_per_job =
     return commands
 
 
-def do_submission(commands, output_folder, condorDir = "bird", executable = "looper.py", runmode = "grid", dontCheckOnJobs=False, confirm=True):
+def do_submission(commands, output_folder, condorDir = "bird", executable = "looper.py", runmode = "grid", dontCheckOnJobs=False, confirm=True, use_more_mem=False, use_more_time=False):
 
     print "Submitting \033[1m%s jobs\033[0m, output folder will be \033[1m%s\033[0m." % (len(commands), output_folder)
     os.system("mkdir -p %s" % output_folder)
     os.system("cp %s %s/" % (executable, output_folder))
     os.system("cp ../../tools/shared_utils.py %s/" % (output_folder))
-    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=False, confirm = confirm, cmsbase="/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_11_2_3")
+    runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=use_more_mem, use_more_time=use_more_time, confirm = confirm, cmsbase="/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_11_2_3")
     #runParallel(commands, runmode, condorDir=condorDir, dontCheckOnJobs=dontCheckOnJobs, use_more_mem=False, use_more_time=21600, confirm = confirm, cmsbase="/afs/desy.de/user/k/kutznerv/cmssw/CMSSW_11_2_3")
 
 
@@ -137,86 +137,105 @@ if __name__ == "__main__":
     sms_pmssm = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIAutumn18FSv3.PMSSM*"
     #sms_pmssm = "RunIIAutumn18FSv3.PMSSM*"
     
-    do_lumi = True
-    do_pmssm = False
-    do_all = False
+    do_lumi   = 0
+    do_pmssm  = 1
+    do_all    = 0
+    do_mc     = 0
+    do_signal = 0
+    do_signal_genloop = 0
+
+    use_more_mem = False
+    use_more_time = True
 
     if do_lumi:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
         options.dataset = "Run2016*,Run2017*,Run2018*"
         #options.dataset = "Run2016*AOD90*,Run2017*AOD90*,Run2018*AOD90*"
-        skimname = "skim_lumiJan27"
+        skimname = "skim_lumiFeb21"
         options.start = True
-        options.files_per_job = 20
+        options.files_per_job = 10
         options.njobs = 5000
     elif do_pmssm:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
         options.dataset = sms_pmssm
-        #skimname = "skim_pmssmDec27"
-        skimname = "skim_pmssmJan23"
+        skimname = "skim_pmssmMay8b"
         options.start = True
-        options.files_per_job = 10
-        options.njobs = 3000
+        options.files_per_job = 15
+        options.njobs = 5000
+        use_more_time = 36000
     elif do_all:
         options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
-        #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-        options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS*"
-        skimname = "skim_completeDez2Fast"
+        options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        skimname = "skim_Feb15complete"
         options.start = True
-        options.files_per_job = 1
-        options.njobs = 2000
-
+        options.files_per_job = 15
+        options.njobs = 5000
+    elif do_mc:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
+        options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_summer16 + "," + mc_fall17
+        skimname = "skim_mc17omega7"
+        options.start = True
+        options.files_per_job = 15
+        options.njobs = 3000
+    elif do_signal:
+        options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
+        options.dataset = "RunIIFall17FSv3.SMS*,RunIIAutumn18FSv3.SMS*"
+        skimname = "skim_signalLabXY2"
+        options.start = True
+        options.files_per_job = 15
+        options.njobs = 3000
+    elif do_signal_genloop:
+        options.command = "./skimmer_genloop2.py --input $INPUT --output $OUTPUT "
+        options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIIFall17FSv3.SMS*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*"
+        skimname = "skim_SmsGenLoop5"
+        use_more_time = False
+        use_more_mem = False
+        options.start = True
+        options.files_per_job = 10
+        options.njobs = 4000
     else:
+        quit()
 
-        ######## defaults ########
-        if not options.command:
-            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
-            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
-            options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
-            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --trigger_study "
-            #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow "
-        if not options.dataset:
-            options.dataset = ""
-            #options.dataset += sms_pmssm
-            #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-            #options.dataset = "RunIISummer16MiniAODv3.SMS*," + "," + mc_summer16
-            #options.dataset = "Run201*Single*,Run201*EGamma*," + mc_fall17 + "," + mc_summer16
-            #options.dataset += "Run2016*SingleElectron*,Run2016*JetHT*"
-            options.dataset += "Run2016*,Run2017*,Run2018*"
-            #options.dataset += "Run2016*JetHT*,Run2017*JetHT*,Run2018*JetHT*"
-            #options.dataset += ","
-            #options.dataset += mc_fall17 + "," + mc_summer16
-            #options.dataset += ","
-            ###options.dataset += "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
-            #options.dataset += "RunIISummer16MiniAODv3.SMS*"
-            #options.dataset += "Run2016*"
-            #options.dataset += ","
-            #options.dataset += "RunIIAutumn18FSv3.SMS-T2tb*,RunIIAutumn18FSv3.SMS-T2bt*,RunIIAutumn18FSv3.SMS-T1btbt*,RunIIFall17FSv3.SMS-T2tb*,RunIIFall17FSv3.SMS-T2bt*,RunIIFall17FSv3.SMS-T1btbt*"
-            #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17
-            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
-            #options.dataset = "RunIIAutumn18FS.*"
-            #options.dataset = "Run201*Single*,Run201*JetHT*,Run2018*EGamma*"
-            #options.dataset = "Run2018*EGamma*"
-            #options.dataset = "Run201*MET*"
-            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
-            #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
-            #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*"
-            #options.dataset = "Run2017F*," + mc_fall17
-            #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17 
-            #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
-            #options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
-            #options.dataset = "Summer16.QCD_HT500to700_TuneCUETP8M1*,RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV*"
-            #options.dataset = "RunIIAutumn18FSv3.SMS-T2bt-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211114_042348-0005-SUS-RunIIAutumn18FSPremix-00155_54*"
-            #options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS-*,RunIISummer16MiniAODv3.SMS-T1qqqq*"
-            #options.dataset +=  mc_summer16 + ",RunIISummer16MiniAODv3.SMS*"
-            #options.dataset += "Run2016B*SingleEl*13*"
-
-        #skimname = "skim_fullC1"
-        #skimname = "skim_mcfullbdt2016"
-        skimname = "skim_lumiOct29"
-        #skimname = "skim_pmssmOct29"
-        #skimname = "skim_triggerOct17c"
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT "
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --sparse "
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --lumi_report "
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --trigger_study "
+        #options.command = "./skimmer.py --input $INPUT --output $OUTPUT --cutflow "
+        #options.dataset += sms_pmssm
+        #options.dataset = "Run201*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIISummer16MiniAODv3.SMS*," + "," + mc_summer16
+        #options.dataset = "Run201*Single*,Run201*EGamma*," + mc_fall17 + "," + mc_summer16
+        #options.dataset += "Run2016*SingleElectron*,Run2016*JetHT*"
+        #options.dataset += "Run2016*,Run2017*,Run2018*"
+        #options.dataset += "Run2016*JetHT*,Run2017*JetHT*,Run2018*JetHT*"
+        #options.dataset += ","
+        #options.dataset += mc_fall17 + "," + mc_summer16
+        #options.dataset += ","
+        ###options.dataset += "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+        #options.dataset += "RunIISummer16MiniAODv3.SMS*"
+        #options.dataset += "Run2016*"
+        #options.dataset += ","
+        #options.dataset += "RunIIAutumn18FSv3.SMS-T2tb*,RunIIAutumn18FSv3.SMS-T2bt*,RunIIAutumn18FSv3.SMS-T1btbt*,RunIIFall17FSv3.SMS-T2tb*,RunIIFall17FSv3.SMS-T2bt*,RunIIFall17FSv3.SMS-T1btbt*"
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*," + mc_fall17 + "," + mc_summer16
+        #options.dataset = "RunIIAutumn18FS.*"
+        #options.dataset = "Run201*Single*,Run201*JetHT*,Run2018*EGamma*"
+        #options.dataset = "Run2018*EGamma*"
+        #options.dataset = "Run201*MET*"
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+        #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*,RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*,RunIIAutumn18FSv3.SMS*,RunIIFall17FSv3.SMS*"
+        #options.dataset = "RunIIFall17FS.PMSSM*,RunIIAutumn18FS.PMSSM*"
+        #options.dataset = "Run2017F*," + mc_fall17
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*," + mc_fall17 
+        #options.dataset = "RunIIFall17MiniAODv2.Fast*,RunIISummer16MiniAODv3.SMS*"
+        #options.dataset = "RunIISummer16MiniAODv3.SMS*,Summer16.WJetsToLNu_TuneCUETP8M1*,RunIIFall17MiniAODv2.FastSim-SMS-T1qqqq*,RunIIFall17MiniAODv2.WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM*"
+        #options.dataset = "Summer16.QCD_HT500to700_TuneCUETP8M1*,RunIIFall17MiniAODv2.QCD_HT500to700_TuneCP5_13TeV*"
+        #options.dataset = "RunIIAutumn18FSv3.SMS-T2bt-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650_test1-211114_042348-0005-SUS-RunIIAutumn18FSPremix-00155_54*"
+        #options.dataset = "RunIIFall17MiniAODv2.FastSim-SMS-*,RunIISummer16MiniAODv3.SMS-T1qqqq*"
+        #options.dataset +=  mc_summer16 + ",RunIISummer16MiniAODv3.SMS*"
+        #options.dataset += "Run2016B*SingleEl*13*"
 
     ######## defaults ########
 
@@ -269,7 +288,7 @@ if __name__ == "__main__":
 
     print "total_number_of_outputfiles", total_number_of_outputfiles
    
-    do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start)
+    do_submission(commands, options.output_folder, condorDir=options.output_folder + ".condor", executable=options.command.split()[0], confirm=not options.start, use_more_mem=use_more_mem, use_more_time=use_more_time)
 
     #print "Merging..."
     #os.system("./merge_samples.py --start --hadd %s" % options.output_folder) # --json --bril
