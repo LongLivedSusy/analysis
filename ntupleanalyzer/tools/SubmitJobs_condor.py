@@ -19,6 +19,7 @@ parser.add_argument("-doprefire", "--doprefire", type=bool, default=False,help="
 parser.add_argument("-ps", "--processskims", type=bool, default=False,help="use gen-kappa")
 parser.add_argument("-nfpj", "--nfpj", type=int, default=1)
 parser.add_argument("-outdir", "--outdir", type=str, default='output/smallchunks')
+parser.add_argument("-targetctau", "--targetctau", type=int, default=-1)
 args = parser.parse_args()
 nfpj = args.nfpj
 fnamekeyword = args.fnamekeyword.strip()
@@ -29,6 +30,7 @@ analyzer = analyzer.replace('python/','').replace('tools/','')
 JerUpDown = args.JerUpDown
 smearvar = args.smearvar
 outdir = args.outdir
+targetctau = args.targetctau
 
 
 #try: 
@@ -48,7 +50,19 @@ cwd = os.getcwd()
 filelist = glob(filenames)
 #shuffle(filelist)
 
-
+import subprocess
+def get_active_jobs(username):
+    process = subprocess.Popen(['condor_q'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    result = stdout.decode('utf-8')
+    sumline = result.strip().split("\n")[:-1][-1]
+    try: njobs = float(sumline.split(' jobs;')[0].split('beinsam: ')[-1].strip())
+    except: 
+        print('failed to convert', sumline.split(' jobs;')[0].split('beinsam: ')[-1].strip())
+        exit(0)
+    if njobs>4500: print('nearing limit with njobs=',njobs)
+    return njobs
+    
 filesperjob = nfpj
 
 print 'len(filelist)', len(filelist)
@@ -73,7 +87,11 @@ def main():
 			command = 'condor_qsub -cwd '+jobname+'.sh &'
 			jobcounter_+=1
 			print 'command', command
-			if not test: os.system(command)
+			if not test: 
+			    while get_active_jobs('beinsam') >= 4990: 
+			        os.system('sleep 0.1')
+			        print ('sleeping, waiting for job on file', fname)
+			    os.system(command)
 			os.chdir('..')
 			files = ''
 			ijob+=1

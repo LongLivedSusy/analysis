@@ -10,7 +10,7 @@ compare fast and full for higgsinos
 /nfs/dust/cms/user/beinsam/CommonSamples/MC_BSM/CompressedHiggsino/RadiativeMu_2016Full/ntuple_sidecar/higgsino94xfull_susyall_mChipm115GeV_dm0p268GeV_pu35_part27of100_RA2AnalysisTree.root 
 '''
 import os, sys
-import time
+import time as time_
 import numpy as np
 from ROOT import *
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
@@ -27,8 +27,8 @@ python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/s
 python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FSv3.SMS-T2tb-LLChipm-ctau10to200-mStop-400to1750-mLSP0to1650*.root" --nfpj 10 --outdir bay_T2tb_2018
 
 #new
-python tools/TheAnalyzerSystematics.py --fnamekeyword "/nfs/dust/cms/user/beinsam/CommonSamples/NtupleMaker/3March2020/CMSSW_9_4_11/src/TreeMaker/Production/test/higgsino_Fall17_susyall_mChipm160GeV_dm0p287GeV*.root" --nfpj 999 --outdir bay_PureHiggsino
-python tools/TheAnalyzerSystematics.py --fnamekeyword "/nfs/dust/cms/user/beinsam/CommonSamples/NtupleMaker/3March2020/CMSSW_10_2_7/src/TreeMaker/Production/test/higgsino_Autumn18_susyall_mChipm160GeV_dm0p287GeV*.root" --nfpj 999 --outdir bay_PureHiggsino
+python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/RadiativeMu_2017Fast/ntuple_sidecarv3c/higgsino_Fall17_susyall_mChipm160GeV_dm0p287GeV*.root" --nfpj 999 --outdir bay_PureHiggsino #/nfs/dust/cms/user/beinsam/CommonSamples/NtupleMaker/3March2020/CMSSW_9_4_11/src/TreeMaker/Production/test/
+python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/sbein/CommonSamples/RadiativeMu_2018Fast/ntuple_sidecarv3c/higgsino_Autumn18_susyall_mChipm160GeV_dm0p287GeV*.root" --nfpj 999 --outdir bay_PureHiggsino #/nfs/dust/cms/user/beinsam/CommonSamples/NtupleMaker/3March2020/CMSSW_10_2_7/src/TreeMaker/Production/test/
 
 python tools/TheAnalyzerSystematics.py --fnamekeyword "python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root" --nfpj 1 --outdir test
 Input: ['/pnfs/desy.de/cms/tier2/store/user/vkutzner/NtupleHub/ProductionRun2v3/RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75-DFA0-1E49-8D7E-699CD06E1182_RA2AnalysisTree.root'] 
@@ -38,6 +38,17 @@ Output: RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75
 #Viktor SM sample
 python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root" --nfpj 1 --outdir test
 '''
+
+#re-weight ctau from Viktor
+def reweight_ctau(ctauIn, ctauOut, list_of_labXY):
+        
+    output = 1
+    for labXY in list_of_labXY:
+        t0 = labXY / 10.0          # convert to cm
+        if ctauIn>0:
+            output *= ctauIn/ctauOut * TMath.Exp(t0/ctauIn - t0/ctauOut)   
+    return output
+#'''
 
 #doControlRegions = True
 
@@ -57,25 +68,27 @@ parser.add_argument("-fin", "--fnamekeyword", type=str,default=defaultInfile,hel
 parser.add_argument("-jecvar", "--jecvar", type=str, default='Nom',help="")
 parser.add_argument("-numberOfFilesPerJob", "--nfpj", type=int, default=100)
 parser.add_argument("-outdir", "--outdir", type=str, default='testout')
+parser.add_argument("-targetctau", "--targetctau", type=int, default=-1)
 args = parser.parse_args()
 nfpj = args.nfpj
-filenames = args.fnamekeyword
-if ',' in filenames: inputFiles = filenames.split(',')
-else: inputFiles = glob(filenames)
+filenamestring = args.fnamekeyword
+if ',' in filenamestring: inputFiles = filenamestring.split(',')
+else: inputFiles = glob(filenamestring)
 analyzer = args.analyzer
 updateevery = args.updateevery
-verbose = False
+targetctau = args.targetctau
+verbose = True
 outdir = args.outdir
 
 is2016, is2017, is2018 = True, False, False
-isdata = 'Run20' in filenames
-if 'Run2016' in filenames or 'Summer16' in filenames or 'aksingh' in filenames or '2016Fast' in filenames: 
+isdata = 'Run20' in filenamestring
+if 'Run2016' in filenamestring or 'Summer16' in filenamestring or 'aksingh' in filenamestring or '2016Fast' in filenamestring: 
     is2016, is2017, is2018 = True, False, False
     year = '2016'
-elif 'Run2017' in filenames or 'Fall17' in filenames or 'somethingelse' in filenames or '2017Fast' in filenames: 
+elif 'Run2017' in filenamestring or 'Fall17' in filenamestring or 'somethingelse' in filenamestring or '2017Fast' in filenamestring: 
     is2016, is2017, is2018 = False, True, False
     year = '2017'    
-elif 'Run2018' in filenames or 'Autumn18' in filenames or 'somthin or other' in filenames or '2018Fast' in filenames: 
+elif 'Run2018' in filenamestring or 'Autumn18' in filenamestring or 'somthin or other' in filenamestring or '2018Fast' in filenamestring: 
     is2016, is2017, is2018 = False, True, True
     year = '2018'    
 
@@ -107,28 +120,28 @@ eleReco, eleIdiso, eleIdFastFull, muIdiso, muIdFastFull = getRecoIdisoFastfullLe
 
 from CrossSectionDictionary import *
 ispmssm = False
-if 'Lifetime_' in filenames or 'Signal' in filenames or 'T1' in filenames: model = 'T1'
-elif 'iggsino' in filenames:  model = 'PureHiggsino'
-elif 'T2bt' in filenames or 'T2tb' in filenames: model = 'T2tt'
-elif 'PMSSM' in filenames: 
-    model = 'pMSSM'
+if 'Lifetime_' in filenamestring or 'Signal' in filenamestring or 'T1' in filenamestring: model_ = 'T1'
+elif 'iggsino' in filenamestring:  model_ = 'PureHiggsino'
+elif 'T2bt' in filenamestring or 'T2tb' in filenamestring: model_ = 'T2tt'
+elif 'PMSSM' in filenamestring: 
+    model_ = 'pMSSM'
     ispmssm = True
-else: model = 'Other'
-print 'were considering model', model
-loadCrossSections(model)
+else: model_ = 'Other'
+print 'were considering model_', model_
+loadCrossSections(model_)
 oldWayHiggsino = False
 if oldWayHiggsino: hard_coded_higgsino_events_per_file = 20000# shoot, can't get this info from the ntuple
 newfileEachSignal = True
-if model=='PureHiggsino' or model=='pMSSM': 
+if model_=='PureHiggsino' or model_=='pMSSM': 
     newfileEachSignal = False
 
-if 'WJets' in filenames: 
+if 'WJets' in filenamestring: 
     newfileEachSignal = False
     issignal = False
 else: issignal = True
 
 #counter histogram:
-if outdir=='': outdir = 'bay_'+model
+if outdir=='': outdir = 'bay_'+model_
 
 
 
@@ -171,9 +184,9 @@ p_dedxFastCorrection = fcorrectionFastSim.Get('p_dedxFastCorrection')
 
 rndgen = TRandom3()
 hPtResVsGenFull_ProfileX = fcorrectionFastSim.Get('hPtResVsGenFull_ProfileX')
-pxax = hPtResVsGenFull_ProfileX.GetXaxis()
+pxax_ = hPtResVsGenFull_ProfileX.GetXaxis()
 def getPtSmear(val):
-    pbin = pxax.FindBin(val)
+    pbin = pxax_.FindBin(val)
     sigma = hPtResVsGenFull_ProfileX.GetBinError(pbin)
     smearval = rndgen.Gaus(1,sigma)
     return smearval
@@ -198,20 +211,21 @@ ftrig = TFile(os.environ['CMSSW_BASE']+'/src/analysis/triggerefficiency/susy-tri
 ttrig = ftrig.Get('tEffhMetMhtRealXMht_run2;1')
 hpass = ttrig.GetPassedHistogram().Clone('hpass')
 htotal = ttrig.GetTotalHistogram().Clone('htotal')
-gtrig = TGraphAsymmErrors(hpass, htotal)
-gtrigUp = TGraphAsymmErrors(hpass, htotal)
+gtrig   = TEfficiency(hpass, htotal)
+gtrigDown = TEfficiency(hpass, htotal)
 
 
 ftrig = TFile(os.environ['CMSSW_BASE']+'/src/analysis/triggerefficiency/trigger-efficiencies.root')
 
-htrigmht = ftrig.Get('mht_SingleEl_lowjets/h_triggereff_MHT_MHT_'+year)
+htrigmht    = ftrig.Get('mht_SingleEl_lowjets/h_triggereff_MHT_MHT_'+year)
 htrigmht_up = ftrig.Get('mht_SingleEl_highjets/h_triggereff_MHT_MHT_'+year)
 
-htrigmu = ftrig.Get('smu_switchdenom/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
-htrigel = ftrig.Get('sel_switchdenom/h_triggereff_SEl_leadingelectron_pt_MHT_'+year)
-
-htrigmuUp = ftrig.Get('smu_JetHT/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
+htrigel   = ftrig.Get('sel_switchdenom/h_triggereff_SEl_leadingelectron_pt_MHT_'+year)
 htrigelUp = ftrig.Get('sel_JetHT/h_triggereff_SEl_leadingelectron_pt_MHT_'+year)
+
+htrigmu   = ftrig.Get('smu_switchdenom/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
+htrigmuUp = ftrig.Get('smu_JetHT/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
+
 
 if not newfileEachSignal:
     newfname = 'Hists_'+identifier+'.root'
@@ -224,7 +238,7 @@ if not newfileEachSignal:
 fdtscalefactor = TFile(os.environ['CMSSW_BASE']+'/src/analysis/systematics/signal_scalefactor.root')
 hdtscalefactor_long = fdtscalefactor.Get('fit_sf_long')
 hdtscalefactor_short = fdtscalefactor.Get('fit_sf_short')
-dtsfbin = int(year)%2015
+dtsfbin_ = int(year)%2015
 
 
 mdp= 0.4
@@ -282,7 +296,7 @@ varlist_                                       = ['Ht',  'HardMet','NJets',  'BT
 regionCuts['ShortBaselineSystNom']             = [(0,inf), (30,inf),(1,inf), (0,inf), (1,inf),  (0,0),    (mdp,inf),   (0,inf),   (0,inf),   (0,inf),  (140,inf),  (110,inf),(loptcut,inf),    (0,2.4),  (0,callShort),(0,0),      (0,inf),    (mvaShortTight,inf),(-0.1,inf), (20,inf),   (-inf,inf),        (40,inf),  (0.2,inf)]
 regionCuts['LongBaselineSystNom']              = [(0,inf), (30,inf),(1,inf), (0,inf), (1,inf),  (1,1),    (mdp,inf),   (0,inf),   (0,inf),   (0,inf),  (140,inf),  (110,inf),(hiptcut,inf),   (0,2.4),  (0,callLong),  (0,0),      (0,inf),    (mvaLongTight,inf), (-0.1,inf), (20,inf),   (2,inf),           (40,inf),  (0.2,inf)]
    
-if 'T1btbt' in filenames or 'T2tb' in filenames or 'iggsino' in filenames:  vars2draw = ['HardMet','NJets','BinNumber','DedxMass','BTags', 'TrkLength','TrkPt','TrkMva','NElectrons','NMuons']
+if 'T1btbt' in filenamestring or 'T2tb' in filenamestring or 'iggsino' in filenamestring:  vars2draw = ['HardMet','NJets','BinNumber','DedxMass','BTags', 'TrkLength','TrkPt','TrkMva','NElectrons','NMuons']
 else: vars2draw = ['HardMet','BinNumber','DedxMass','BTags','NElectrons','NMuons']
 
 dedxidx = varlist_.index('DeDx')
@@ -354,9 +368,9 @@ for region in regionCuts:
 #print 'histoStructDict', histoStructDict.keys()
 
     
-if model=='PureHiggsino':
+if model_=='PureHiggsino':
     islopythia8 = True
-    print 'filenames', inputFiles[0]
+    print 'filenamestring', inputFiles[0]
     print 'next thing', inputFiles[0].split('/')[-1]    
     print 'big thing', inputFiles[0].split('/')[-1].split('mChipm')[-1].split('GeV')[0]
     print 'last thing', inputFiles[0].split('/')[-1].split('mChipm')[-1]    
@@ -376,12 +390,13 @@ if model=='PureHiggsino':
     if oldWayHiggsino:
         for i in range(hard_coded_higgsino_events_per_file): hHt.Fill(555)
     higgsinoxsecfile.Close()
-elif model=='pMSSM':
+elif model_=='pMSSM':
     islopythia8 = True
     xsecpb = 1.0
 else: 
     islopythia8 = False
     xsecpb = -1
+filesarectaubinary = 'ctau10to200' in filenamestring
 
 c = TChain("TreeMaker2/PreSelection")
 print 'inputFiles', inputFiles
@@ -419,18 +434,18 @@ else:
 
 readerPixelOnly = TMVA.Reader("")
 readerPixelOnly.SetName('Reader1')
-readerPixelStrips = TMVA.Reader("")
-readerPixelStrips.SetName('Reader2')
+readerPixelStrips_ = TMVA.Reader("")
+readerPixelStrips_.SetName('Reader2')
 
 print 'going to process', pixelXml
 prepareReaderPixel_fullyinformed(readerPixelOnly, pixelXml)
 
 print 'going to process', pixelstripsXml
-prepareReaderPixelStrips_fullyinformed(readerPixelStrips, pixelstripsXml)
+prepareReaderPixelStrips_fullyinformed_(readerPixelStrips_, pixelstripsXml)
 
 
 import time
-t1 = time.time()
+t1 = time_.time()
 i0=0
 
 nnotjet, totdt, totmt, passmt, passdt = 0, 0, 0, 0, 0
@@ -444,10 +459,10 @@ for ientry in range(nentries):
     if ientry%updateevery==0:
         print 'now processing event number', ientry, 'of', nentries
 
-    if verbose: print 'getting entry', ientry
     if debugmode:
         if not ientry in [4151]: continue
     c.GetEntry(ientry) 
+
 
     if ispmssm:
         id1, id2 = c.SusyLSPMass, c.SusyMotherMass
@@ -464,10 +479,16 @@ for ientry in range(nentries):
                     
         orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
         orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
-        if 'ctau10to200' in filenames: orderedmasses_.append( [-1, c.SusyCTau] )
+        if filesarectaubinary:
+            rawctau=c.SusyCTau
+            if targetctau>0: orderedmasses_.append( [-1, targetctau] )
+            else: orderedmasses_.append( [-1, rawctau] )
+            if (targetctau>0 and targetctau<10) and rawctau!=10: 
+                continue
+        
     
         if not orderedmasses==orderedmasses_:
-            print 'looks like a model transition from', orderedmasses, 'to', orderedmasses_
+            print 'looks like a model_ transition from', orderedmasses, 'to', orderedmasses_
             orderedmasses = orderedmasses_
             if not newfname=='':
                 fnew_.cd()
@@ -490,7 +511,7 @@ for ientry in range(nentries):
             for ip, susypid in enumerate(orderedmasses):
                 print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
                 newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
-            newfname+='_time'+str(round(time.time(),6)).replace('.','p').replace('Chi1pm','Chi1ne')+'.root'
+            newfname+='_time'+str(round(time_.time(),6)).replace('.','p').replace('Chi1pm','Chi1ne')+'.root'
             if '_Glu' in newfname: 
                 print 'what the hay?'
                 print susies, susymasses, orderedmasses
@@ -511,9 +532,9 @@ for ientry in range(nentries):
             #        print('e', region, var, histname, histname in histoStructDict.keys())
             #        histoStructDict[histname] = mkHistoStruct(histname, thebinning)
             #        print('f', region, var))
-            if 'T1' in model or 'T2tt' in model:
+            if 'T1' in model_ or 'T2tt' in model_:
                 mothermass = orderedmasses[0][1]#filenames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
-                xsecpb = CrossSectionsPb[model][str(int(5*round(mothermass/5)))]
+                xsecpb = CrossSectionsPb[model_][str(int(5*round(mothermass/5)))]
                 
                 print 'got xsec', xsecpb, 'for mothermass', str(int(5*round(mothermass/5)))
             else:
@@ -532,10 +553,20 @@ for ientry in range(nentries):
         hScaleTotUpDown.Fill(0.5, 1)
         hScaleTotUpDown.Fill(1.5, scaleup)
         hScaleTotUpDown.Fill(2.5, scaledown)
+        
+    
+    labxymmlist = []
+    chilist = []
+    for igp, gp in enumerate(c.GenParticles):        
+        if abs(c.GenParticles_PdgId[igp])==1000024:
+            labxymmlist.append(c.GenParticles_LabXYmm[igp])
+            chilist.append(c.GenParticles[igp])
+        
+    if targetctau>0: ctauweight = reweight_ctau(rawctau, targetctau, labxymmlist)
+    else: ctauweight = 1.0
             
     #nothing is skipped at this point yet!
-    if not (oldWayHiggsino and (not model=='PureHiggsino')):
-        hHt.Fill(c.HT)
+    if not (oldWayHiggsino and (not model_=='PureHiggsino')): hHt.Fill(c.HT)
     fillth1(hHtWeighted, c.HT)
         
     if issignal:
@@ -556,28 +587,29 @@ for ientry in range(nentries):
             #if not abs(track.Eta()) < 2.4: continue
             #if not abs(track.Eta()) < 2.2: continue
             if not abs(track.Eta()) < 2.0: continue        
-        
-            ischargino = False
-            if not issignal: ischargino = True
+            
+            if issignal: ischargino = False
+            else: ischargino = True
             gpt = track.Pt()
-            for igp, gp in enumerate(c.GenParticles):
-                if not abs(c.GenParticles_PdgId[igp])==1000024: continue    
-                if not abs(c.GenParticles_LabXYmm[igp]>25): continue
+            for igp, gp in enumerate(chilist):   
+                if not abs(labxymmlist[igp]>25): continue
                 dr = gp.DeltaR(track)            
                 if dr<0.04:
                     ischargino = True
                     gpt = gp.Pt()
                     break
             if not ischargino: continue    
-            if debugmode: print 'we at least got a chimatched track'
+            #if verbose: print 'we at least got a chimatched track'
             totdt+=1
             if gpt>1100: track.SetPtEtaPhiE(gp.Pt()*getPtSmear(gpt), track.Eta(), track.Phi(), track.P())
                 
                                     
             if not isBaselineTrackLoosetag(track, itrack, c, hMask):  continue
+            #if verbose: print 'found', ientry, itrack, 'pt', track.Pt(), 'eta', track.Eta()
+            
             if not (track.Pt() > loptcut): continue
             if debugmode: print 'we at least got a baseline track'
-            dtlength, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaminShort,mvaminLong], vtx_calibs)
+            dtlength, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips_, [mvaminShort,mvaminLong], vtx_calibs)
             if dtlength==0: continue
         
             if debugmode: print 'and it even disappears!'    
@@ -661,9 +693,7 @@ for ientry in range(nentries):
 
         RecoMuons = []
         for imu, lep in enumerate(c.Muons):
-            if verbose: print ientry, imu,'mu with Pt' , lep.Pt()
             if not abs(lep.Eta())<2.4: continue
-            if verbose: print 'passed eta and Pt'
             if not c.Muons_passIso[imu]: continue
             if not c.Muons_mediumID[imu]: continue
             if lep.Pt()>40: RecoMuons.append([lep,imu])    
@@ -726,7 +756,7 @@ for ientry in range(nentries):
             #mT = c.Electrons_MTW[RecoElectrons[0][1]]
             mT = TMath.Sqrt(2*RecoElectrons[0][0].Pt()*adjustedMht.Pt()*(1-TMath.Cos(RecoElectrons[0][0].DeltaPhi(adjustedMht))))
             dt__ = dt.Clone()
-            mtautau = mttsam1(newmetvec, RecoElectrons[0][0], dt__)
+            mtautau = mttsam1_(newmetvec, RecoElectrons[0][0], dt__)
             if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoElectrons[0][0]+dt__).M()
             else: invmass = 999        
             leppt = RecoElectrons[0][0].Pt()
@@ -734,7 +764,7 @@ for ientry in range(nentries):
             #mT = c.Muons_MTW[RecoMuons[0][1]]
             mT = TMath.Sqrt(2*RecoMuons[0][0].Pt()*adjustedMht.Pt()*(1-TMath.Cos(RecoMuons[0][0].DeltaPhi(adjustedMht))))
             dt__ = dt.Clone()
-            mtautau = mttsam1(newmetvec, RecoMuons[0][0], dt__)
+            mtautau = mttsam1_(newmetvec, RecoMuons[0][0], dt__)
             if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoMuons[0][0]+dt__).M()
             else: invmass = 999
             leppt = RecoMuons[0][0].Pt()
@@ -773,18 +803,9 @@ for ientry in range(nentries):
             if dtlength==1: print ientry, 'short track_mva_sep21v1_baseline', mvascore, 'pT =', dt.Pt(), 'bin number =', getBinNumber(fv)
             if dtlength==2: print ientry, 'long  track_mva_sep21v1_baseline', mvascore, 'pT =', dt.Pt(), 'bin number =', getBinNumber(fv)    
     
-        ##old    
-        #fv = [adjustedHt,adjustedMht.Pt(),adjustedNJets-len(RecoElectrons)-len(RecoMuons),adjustedBTags,len(disappearingTracks), nShort, nLong, mindphi,dedxPixel, len(RecoElectrons), len(RecoMuons), invmass, mT, pt, eta, matchedcalofrac, length, dphiMhtDt, mvascore, mtDtMht, mtautau, leppt]
-        #fv.append(getBinNumber(fv))
-        #fv.extend([DrJetDt, GetMinDeltaPhiMhtHemJets(adjustedJets,adjustedMht),DedxMass])
-
-
         if abs(disappearingTracks[0][1])==1:
             mctot+=1
-            if matchedcalofrac<15: mcpass+=1
-            #print 'mc eff', 1.0*mcpass/mctot
-            #for ifv in range(len(fv)): print varlist_[ifv], fv[ifv]
-            
+            if matchedcalofrac<15: mcpass+=1            
 
         lepsf = 1.0
         if isdata: 
@@ -792,6 +813,7 @@ for ientry in range(nentries):
         else:
             if dtlength==1: weight = 0.8*xsecpb # fastsim scale factor
             else: weight = 0.95*xsecpb
+            weight*=ctauweight
             if len(RecoElectrons)>0: 
                 leppt, lepeta = RecoElectrons[0][0].Pt(), RecoElectrons[0][0].Eta()
                 binmet, binpt = htrigel.GetXaxis().FindBin(adjustedMht.Pt()), htrigel.GetYaxis().FindBin(leppt)
@@ -838,9 +860,8 @@ for ientry in range(nentries):
                 lepsf*=muIdFastFull.GetBinContent(binpt, bineta)
                                     
             else: 
-                wtrignom = gtrig.Eval(c.MHT)
-                wtrigup = gtrigUp.Eval(c.MHT)
-                
+                wtrignom = gtrig.GetEfficiency(gtrig.FindFixBin(c.MHT))
+                wtrigup = wtrignom-gtrigDown.GetEfficiencyErrorLow(gtrig.FindFixBin(c.MHT))
                 binmht = htrigmht.GetXaxis().FindBin(adjustedMht.Pt())
                 wtrignom = htrigmht.GetBinContent(binmht)
                 wtrigup = htrigmht_up.GetBinContent(binmht)                
@@ -866,18 +887,16 @@ for ientry in range(nentries):
         sfpuup = c.puSysUp
         sfpudown = c.puSysDown
     
-        isrnom = get_isr_weight(c,0)
-        isrup = get_isr_weight(c,1)
-        isrdown = get_isr_weight(c,-1)
+        isrnom, isrup, isrdown = get_isr_weight(c)
         
         if dtlength==1:
-            sfdtnom = hdtscalefactor_short.GetBinContent(dtsfbin)
-            sfdtshortup = hdtscalefactor_short.GetBinContent(dtsfbin)+hdtscalefactor_short.GetBinError(dtsfbin)
-            sfdtlongup = hdtscalefactor_short.GetBinContent(dtsfbin) #wrong length variation should just be nominal
+            sfdtnom = hdtscalefactor_short.GetBinContent(dtsfbin_)
+            sfdtshortup = hdtscalefactor_short.GetBinContent(dtsfbin_)+hdtscalefactor_short.GetBinError(dtsfbin_)
+            sfdtlongup = hdtscalefactor_short.GetBinContent(dtsfbin_) #wrong length variation should just be nominal
         else:
-            sfdtnom = hdtscalefactor_long.GetBinContent(dtsfbin)
-            sfdtshortup = hdtscalefactor_long.GetBinContent(dtsfbin) #wrong length variation should just be nominal
-            sfdtlongup = hdtscalefactor_long.GetBinContent(dtsfbin)+hdtscalefactor_long.GetBinError(dtsfbin)            
+            sfdtnom = hdtscalefactor_long.GetBinContent(dtsfbin_)
+            sfdtshortup = hdtscalefactor_long.GetBinContent(dtsfbin_) #wrong length variation should just be nominal
+            sfdtlongup = hdtscalefactor_long.GetBinContent(dtsfbin_)+hdtscalefactor_long.GetBinError(dtsfbin_)            
         
         #print 'ientry', ientry, 'len(c.ScaleWeights)', len(c.ScaleWeights)
         #for ithing, thing in enumerate(c.ScaleWeights): print 'element', thing
@@ -888,6 +907,7 @@ for ientry in range(nentries):
             for ivar, varname in enumerate(varlist_):
                 if not varname in vars2draw: continue
                 if selectionFeatureVector(fv,regionkey,varname):
+                    if 'Baseline' in regionkey and varname=='BinNumber': print 'were in the SR hist', ientry, regionkey
                     #weightsysts = ['Nom','BTagUp','BTagDown','IsrUp','IsrDown']            
                     if ivar==srindex and jecup: 
                         fillth1(histoStructDict[regionkey.replace('Nom','JecUp')+'_'+varname].Truth,fv[ivar], sfbtagnom*isrnom*sfpunom*wtrignom*sfdtnom*weight)

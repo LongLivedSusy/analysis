@@ -72,13 +72,13 @@ print keywords
 
 for fkey in keywords:
     
-    cmd = 'python tools/ahadd.py -j 10 -f '+tempfolder+'/'+fkey.replace('_Autumn18','').replace('_Fall17','')+'.root '+bayname+'/*'+fkey+'_*.root'
+    cmd = 'python tools/ahadd.py -j 10 -f '+tempfolder+'/ctrw'+fkey.replace('_Autumn18','').replace('_Fall17','')+'.root '+bayname+'/*'+fkey+'_*.root'
     print cmd    
     if istest: exit(0)
     else: os.system(cmd)
 
     #pause()
-    fintermediate = TFile(tempfolder+'/'+fkey.replace('_Autumn18','').replace('_Fall17','')+'.root')
+    fintermediate = TFile(tempfolder+'/ctrw'+fkey.replace('_Autumn18','').replace('_Fall17','')+'.root')
     keys = fintermediate.GetListOfKeys()    
     if len(keys)==0: 
         print 'couldnt make sense of', fkey.replace('_Autumn18','').replace('_Fall17','')
