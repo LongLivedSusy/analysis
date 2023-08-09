@@ -130,7 +130,9 @@ def get_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim,readerBtag):
         )
         #print '%sth jet pt : %.2f, eta : %.2f, flavor : %s, sf_cen : %.2f, sf_up : %.2f, sf_down : %.2f'%(ijet,jet.Pt(),jet.Eta(),tree.Jets_hadronFlavor[ijet],sf_cen,sf_up,sf_down)
         
-        sf = get_syst(sf_cen, sf_up, sf_down, nSigmaBtagSF)
+        if nSigmaBtagSF>0.0001: sf = sf_up
+        elif nSigmaBtagSF<0.0001: sf = sf_down
+        else: sf = sf_cen
 
         if tree.Jets_bDiscriminatorCSV[ijet]>csv_b :
             pMC *= eff
@@ -146,16 +148,6 @@ def get_btag_weight(tree,nSigmaBtagSF,nSigmaBtagFastSimSF,isFastSim,readerBtag):
             weight = pData / pMC
     return weight
 
-def get_syst(weight_nominal,weight_up,weight_down,nSigma):
-    w = weight_nominal
-    if nSigma==0 : return w
-    else :
-        dw_up = weight_up - weight_nominal
-        dw_down = weight_nominal - weight_down
-        if nSigma >= 0. :
-            w += nSigma*dw_up
-        else : w += nSigma*dw_down
-    return w
 
 def get_syst_jes(weight_nominal,uncertainty,nSigma):
     w = weight_nominal
@@ -171,41 +163,58 @@ def jets_rescale_smear(tree,applySmearing,nSigmaJES,nSigmaJER):
         newjet_Pt = jet.Pt() * scaleJES
         newjet_E = jet.E() * scaleJES
         if applySmearing : 
-            scaleJER = get_syst(tree.Jets_jerFactor[ijet],tree.Jets_jerFactorUp[ijet],tree.Jets_jerFactorDown[ijet],nSigmaJER)
+            if nSigmaJER>0.001: scaleJER = tree.Jets_jerFactorUp[ijet]
+            elif nSigmaJER<0.001: scaleJER = tree.Jets_jerFactorDown[ijet]
+            else: scaleJER = tree.Jets_jerFactor[ijet]
             newjet_Pt *= scaleJER
             newjet_E *= scaleJER
         newjet.SetPtEtaPhiE(newjet_Pt, jet.Eta(), jet.Phi(), newjet_E)
         jets_syst.append(newjet)
     return jets_syst
 
-def get_isr_weight(tree,nSigmaISR):
+def get_isr_weight(tree):
     # Ana's talk : https://indico.cern.ch/event/592621/contributions/2398559/attachments/1383909/2105089/16-12-05_ana_manuelf_isr.pdf
-
+    isewk = True    
     w = 1
     fname = tree.GetFile().GetName()
     #d = 1.0        # Before determine D value
-    if 'g1800_chi1400' in fname : d = 1.15598 # g1800_chi1400
-    elif 'T1qqqq' in fname : d = 1.123 # T1qqqq
-    elif 'T2' in fname : d = 1.121 # T2tt
-    else : d = 1.0
-    n = tree.NJetsISR
-    w_nom = 0.0
+    #if 'g1800_chi1400' in fname : d = 1.15598 # g1800_chi1400
+    if 'T1' in fname : 
+        isewk = False
+        d = 1.123 # T1qqqq
+    elif 'T2' in fname: 
+        isewk = False
+        d = 1.121 # T2tt
+    else : d = 0.928 # assume electroweak SUSY model
     
-    if   n==0 : w_nom = d
-    elif n==1 : w_nom = d * 0.920
-    elif n==2 : w_nom = d * 0.821
-    elif n==3 : w_nom = d * 0.715
-    elif n==4 : w_nom = d * 0.662
-    elif n==5 : w_nom = d * 0.561
-    elif n>=6 : w_nom = d * 0.511
-    else : print 'Invalid NISR?' 
+    if isewk:
+        ptisr = (tree.GenParticles[2]+tree.GenParticles[3]).Pt()
+        if ptisr in [0,50]: w_nom = d
+        elif ptisr<100: w_nom = d * 1.052
+        elif ptisr<150: w_nom = d * 1.179
+        elif ptisr<200: w_nom = d * 1.150
+        elif ptisr<300: w_nom = d * 1.057
+        elif ptisr<400: w_nom = d * 1.000 
+        elif ptisr<600: w_nom = d * 0.912 
+        else: w_nom = d * 0.783
+        
+    else:
+        n = tree.NJetsISR
+        w_nom = 0.0
+        if   n==0 : w_nom = d
+        elif n==1 : w_nom = d * 0.920
+        elif n==2 : w_nom = d * 0.821
+        elif n==3 : w_nom = d * 0.715
+        elif n==4 : w_nom = d * 0.662
+        elif n==5 : w_nom = d * 0.561
+        elif n>=6 : w_nom = d * 0.511
+        else : print 'Invalid NISR?' 
 
     err = (1-w_nom)/2
     w_isr_up   = w_nom + err
     w_isr      = w_nom
     w_isr_down = w_nom - err
-    w = get_syst(w_isr, w_isr_up, w_isr_down, nSigmaISR)
-    return w
+    return w_isr, w_isr_up, w_isr_down
     
     
 #time to add some systmatics stuff

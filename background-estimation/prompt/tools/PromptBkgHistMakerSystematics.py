@@ -15,7 +15,7 @@ import collections
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False
 
-grandunified = True #doesn't matter for "derive TF" wave
+grandunified = False #doesn't matter for "derive TF" wave
 dedxzones = False # this is a flag to create plots for extra regions to study the de/dx transfer factor to populate depleted prediction bins
 
 '''
@@ -34,7 +34,7 @@ bash dohaddrates.sh && rm output/smallchunks/* && bash tools/CleanBird.sh && bas
 -after finishing+likely resubmit, copy and paste the hadd commands at the end of kickouttheskimsSystematics.sh to gather hists
 3) Run plot making commands as shown in makeValidationPlotsSystematics.py:
 rm -rf pdfs/Validation/prompt-bkg/* 
-python tools/makeValidationPlotsSystematics.py Run2016 
+python tools/makeValidationPlotsSystematics.py Run2016  ##should the Run be here?
 python tools/makeValidationPlotsSystematics.py Phase1 &
 python tools/makeValidationPlotsSystematics.py Summer16 MC & 
 python tools/makeValidationPlotsSystematics.py Fall17 MC 
@@ -133,7 +133,7 @@ else: phase = 1
 
 if ismc: hiptcut = 30
 
-if 'SMS' in inputFileNames: issignal = True
+if 'SMS' in inputFileNames or 'higgsino' in inputFileNames: issignal = True
 else: issignal = False
 
 
@@ -167,21 +167,6 @@ if not turnoffpred:
     hmrshort = fmurate.Get('hprshort')
     hmrlong = fmurate.Get('hprlong')    
 
-
-def getfakerate(eta, hfr):
-    xax = hfr.GetXaxis()
-    thebin = max(1, min(xax.FindBin(eta), xax.GetNbins()))
-    fr = hfr.GetBinContent(thebin)
-    if thebin==1: froneup = hfr.GetBinContent(thebin)+hfr.GetBinError(thebin)
-    else: froneup = hfr.GetBinContent(thebin)
-    if thebin==2: frtwoup = hfr.GetBinContent(thebin)+hfr.GetBinError(thebin)
-    else: frtwoup = hfr.GetBinContent(thebin)    
-    return fr, froneup, frtwoup
-
-def getpromptrate(obs, hpr):
-    xax = hpr.GetXaxis()
-    thebin = max(1, min(xax.FindBin(obs), xax.GetNbins()))
-    return hpr.GetBinContent(thebin), hpr.GetBinContent(thebin)+hpr.GetBinError(thebin)
 
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
@@ -501,12 +486,17 @@ elif 'JetHT' in inputFileNames:
     ismetstream= False
     isjethtstream = True
 
+
+#preapproval: 
+#if isdata:  fMask = TFile('usefulthings/PreApproval/Masks_mcal13to30_Data2016.root')
+#else: fMask = TFile('usefulthings/PreApproval/Masks_mcal13to30_MC2016.root')    
 ####should be this## if isdata:  fMask = TFile(os.environ['CMSSW_BASE']+'/src/analysis/disappearing-track-tag/Masks_mcal13to30_Data2016.root')
 if isdata:  fMask = TFile('usefulthings/Masks_mcal13to30_Data2016.root')
 else: fMask = TFile('usefulthings/Masks_mcal13to30_MC2016.root')    
 
-#preapproval: 
-hMask = fMask.Get('h_Mask_allyearsLongBaseline_EtaVsPhiDT')#this is the sum of long and short mht sideband
+
+hMask = fMask.Get('h_Mask_allyearsLongBaseline_EtaVsPhiDT')
+#this is the sum of long and short mht sideband
 #after preapproval, I can't seem to be able to reconstruct the old masks well at all! so let's try this one:
 #hMask = fMask.Get('h_Mask_allyearsLongSElValidZLLCaloSideband_EtaVsPhiDT')
 
@@ -535,7 +525,7 @@ print 'going to use', pixelXml
 prepareReaderPixel_fullyinformed(readerPixelOnly, pixelXml)
 
 print 'going to use', pixelstripsXml
-prepareReaderPixelStrips_fullyinformed(readerPixelStrips, pixelstripsXml)
+prepareReaderPixelStrips_fullyinformed_(readerPixelStrips, pixelstripsXml)
 
 
 
@@ -624,6 +614,8 @@ for ientry in range(nentries):
 
     if isdata: 
         if not passesUniversalDataSelection(c): continue
+    elif issignal: 
+        if not passesUniversalSelectionFastSim(c): continue
     else: 
         if not passesUniversalSelection(c): continue
 
@@ -631,7 +623,7 @@ for ientry in range(nentries):
     disappearingTracks = []    
     fakecrTracks = []
     for itrack, track in enumerate(c.tracks):
-        if verbose: print itrack, 'no selection at all', track.Pt(), 'eta', track.Eta()        
+        #if verbose: print itrack, 'no selection at all', track.Pt(), 'eta', track.Eta()        
         if not track.Pt() > 10 : continue
         #if not abs(track.Eta()) < 2.4: continue
         #if not abs(track.Eta()) < 2.2: continue
@@ -639,26 +631,38 @@ for ientry in range(nentries):
         if not abs(track.Eta()) < 2.0: continue    
         #if not abs(track.Eta()) < 1.8: continuew        
         ##if  not (abs(track.Eta()) > 1.566 or abs(track.Eta()) < 1.4442): continue    #I kind of want to drop this eventually
-        if verbose: print itrack, 'before baseline pt', track.Pt(), 'eta', track.Eta()        
+        #if verbose: print itrack, 'before baseline pt', track.Pt(), 'eta', track.Eta()       
 
         
-
+        if issignal: 
+            ischargino = False
+            gpt = track.Pt()
+            for igp, gp in enumerate(c.GenParticles):
+                if not abs(c.GenParticles_PdgId[igp])==1000024: continue    
+                if not abs(c.GenParticles_LabXYmm[igp]>25): continue
+                dr = gp.DeltaR(track)            
+                if dr<0.04:
+                    ischargino = True
+                    gpt = gp.Pt()
+                    break
+        else: ischargino = True
+        if not ischargino: continue  
+        
         if not isBaselineTrackLoosetag(track, itrack, c, hMask): continue        
     
-        if verbose: print itrack, 'pt', track.Pt(), 'eta', track.Eta()
 
 
         if not (track.Pt() > loptcut): continue    
-        if verbose: print ientry, itrack, 'basic track!', track.Pt()
+        #if verbose: print ientry, itrack, 'basic track!', track.Pt()
         dtlen, mva = isDisappearingTrack_FullyInformed(track, itrack, c, readerPixelOnly, readerPixelStrips, [mvaminShort,mvaminLong], vtx_calibs)
-        if verbose: print ientry, itrack, 'mva results were:', dtlen, mva
+        #if verbose: print ientry, itrack, 'mva results were:', dtlen, mva
         if exomode:
             if not passesExtraExoCuts(track, itrack, c): continue
     
         if dtlen==0: continue
         
 
-        if verbose: print ientry, itrack, 'still got this', track.Pt()
+        #if verbose: print ientry, itrack, 'still got this', track.Pt()
 
 
         drlep = 99
@@ -698,7 +702,7 @@ for ientry in range(nentries):
         if not (c.tracks_passPFCandVeto[itrack] or dtisrecomu): continue
                                         
                                     
-        if verbose: print ientry, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta(), dtlength   
+        #if verbose: print 'found', ientry, itrack, 'disappearing track! pt', track.Pt(), 'eta', track.Eta(), dtlen   
 
         if abs(track.Eta())<1.5: dedxcalib = dedxcalib_barrel
         else: dedxcalib = dedxcalib_endcap
@@ -844,6 +848,8 @@ for ientry in range(nentries):
     if isdata or issignal: isPromptEl, isPromptMu, isPromptPi, isfake = True, True, True, True
     else: isfake = not (isPromptEl or isPromptMu or isPromptPi)
 
+
+    
     adjustedBTags = 0        
     adjustedJets = []
     adjustedHt = 0
@@ -934,7 +940,7 @@ for ientry in range(nentries):
         dt__ = dt.Clone()
         #dt__*=adjustedMht.Pt()/dt.Pt()*TMath.Cos(dt.DeltaPhi(adjustedMht))
         DrJetDt = abs(RecoElectrons[0][0].DeltaR(dt__))
-        mtautau = mttsam1(newmetvec, RecoElectrons[0][0], dt__)
+        mtautau = mttsam1_(newmetvec, RecoElectrons[0][0], dt__)
         if c.Electrons_charge[RecoElectrons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoElectrons[0][0]+dt__).M()
         else: invmass = 999        
         leppt = RecoElectrons[0][0].Pt()
@@ -943,7 +949,7 @@ for ientry in range(nentries):
         mT = TMath.Sqrt(2*RecoMuons[0][0].Pt()*adjustedMht.Pt()*(1-TMath.Cos(RecoMuons[0][0].DeltaPhi(adjustedMht))))
         dt__ = dt.Clone()
         DrJetDt = abs(RecoMuons[0][0].DeltaR(dt__))
-        mtautau = mttsam1(newmetvec, RecoMuons[0][0], dt__)
+        mtautau = mttsam1_(newmetvec, RecoMuons[0][0], dt__)
         #dt__*=adjustedMht.Pt()/dt.Pt()*TMath.Cos(dt.DeltaPhi(adjustedMht))        
         if c.Muons_charge[RecoMuons[0][1]]*c.tracks_charge[itrack]==-1: invmass = (RecoMuons[0][0]+dt__).M()
         else: invmass = 999
@@ -1007,6 +1013,7 @@ for ientry in range(nentries):
         for ivar, varname in enumerate(varlist_):
             if selectionFeatureVector(fv,regionkey,varname):
                 if 'Baseline' in regionkey and varname=='BinNumber':
+                    if verbose: print 'were in the SR hist', ientry, regionkey
                     if not ('MuMatched' in regionkey or 'Sideband' in regionkey or 'FakeCr' in regionkey): 
                         sr = getBinNumber(fv)
                         if sr>0: print ientry, regionkey, "SR"+str(sr), '%d:%d:%d' % (c.RunNum, c.LumiBlockNum, c.EvtNum)
