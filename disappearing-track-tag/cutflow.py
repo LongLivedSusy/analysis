@@ -18,20 +18,34 @@ def plot_signalregions_cutflow(ntuple, lheader, pdfname, numevents = -1, absolut
     # plot event selection cutflow and bins
     
     legendlabels = [
-        "all events",
-        "+ cut on hard MET",
-        "+ cut on n_jet",
-        "+ cut on n_bjet",
-        "+ #geq1 DTk",
-        "+ cut on dE/dx",
+        "all events",                       # cut_allevents
+        "+ #geq1 N_{jet}",                  # cut_njet1
+        "+ MET_{hard}>30 GeV",              # cut_mht30
+        "+ m_{T} (DTk,MET)>20 GeV",         # cut_mtDtkMHT
+        "+ cut on N_{e}",                   # cut_nel
+        "+ cut on N_{#mu}",                 # cut_nmu
+        "+ cut m_{inv} (DTk,lep)>120 GeV",  # cut_minv
+        "+ cut m_{T} (lep,MHT)>110 GeV",    # cut_mt
+        "+ cut on MET_{hard}",              # cut_mht
+        "+ cut on N_{jet}",                 # cut_njet
+        "+ cut on N_{b}",                   # cut_bjet
+        "+ cut on N_{DTk}",                 # cut_dtk
+        "+ cut on dE/dx",                   # cut_dedx
     ]
     histocolors = [
          kBlack,
          kRed,
+         kRed-7,
+         kRed-9,
+         kRed-10,
          kOrange,
+         kOrange-3,
+         kOrange-7,
          kBlue,
          kCyan,
-         kBlack,
+         kViolet,
+         kViolet-7,
+         kViolet-10,
     ]
     
     # get counts
@@ -44,71 +58,104 @@ def plot_signalregions_cutflow(ntuple, lheader, pdfname, numevents = -1, absolut
         srcounts[ntuple][cutstage] = {}
         for sr in range(49+1)[1:]:
 
-            # get cuts:
+            cut_allevents = "HT>0"
+
+            cut_njet1 = " && n_goodjets>=1"
+
+            cut_mht30 = " && MHT>=30"
+            
+            cut_mtDtkMHT = " && mtDtMht>=20"
+            
             if sr in range(1,24+1):
-                cut_allevents = "n_goodelectrons==0 && n_goodmuons==0 "
+                cut_nel = " && n_goodelectrons==0"
             if sr in range(25,36+1):
-                cut_allevents = "n_goodelectrons==0 && n_goodmuons>=1 "
+                cut_nel = " && n_goodelectrons==0"
             if sr in range(37,48+1):
-                cut_allevents = "n_goodelectrons>=1 "
+                cut_nel = " && n_goodelectrons>=1"
             if sr == 49:
-                cut_allevents = "HT>0 "
+                cut_nel = ""
+
+            if sr in range(1,24+1):
+                cut_nmu = " && n_goodmuons==0"
+            if sr in range(25,36+1):
+                cut_nmu = " && n_goodmuons>=1"
+            if sr in range(37,48+1):
+                cut_nmu = ""
+            if sr == 49:
+                cut_nmu = ""
+
+            if sr in range(1,24+1):
+                cut_minv = ""
+            if sr in range(25,48+1):
+                cut_minv = " && invmass>=120"
+            if sr == 49:
+                cut_minv = ""
             
-            if sr in range(1,16+1):                             cut_mht = cut_allevents + " && MHT>150 && MHT<300 "
-            if sr in range(17,24+1):                            cut_mht = cut_allevents + " && MHT>300 "
-            if sr in range(25,32+1) or sr in range(37,44+1):    cut_mht = cut_allevents + " && MHT>30 && MHT<100 "
-            if sr in range(33,36+1) or sr in range(45,48+1):    cut_mht = cut_allevents + " && MHT>100 "
-            if sr == 49:                                        cut_mht = cut_allevents + " && MHT>30 "
+            if sr in range(1,24+1):
+                cut_mt = ""
+            if sr in range(25,48+1):
+                cut_mt = " && leadinglepton_mt>=110"
+            if sr == 49:
+                cut_mt = ""
             
+            if sr in range(1,16+1):                             cut_mht = " && MHT>150 && MHT<300 "
+            if sr in range(17,24+1):                            cut_mht = " && MHT>300 "
+            if sr in range(25,32+1) or sr in range(37,44+1):    cut_mht = " && MHT>30 && MHT<100 "
+            if sr in range(33,36+1) or sr in range(45,48+1):    cut_mht = " && MHT>100 "
+            if sr == 49:                                        cut_mht = " && MHT>30 "
+                        
             if sr in range(1,4+1) or sr in range(9,12+1) or sr in range(17,20+1):
-                cut_njet = cut_mht + " && n_goodjets<=1 && n_goodjets<=2 "
+                cut_njet = " && n_goodjets>=1 && n_goodjets<=2 "
             if sr in range(5,8+1) or sr in range(13,16+1) or sr in range(21,24+1):
-                cut_njet = cut_mht + " && n_goodjets<=3 "
+                cut_njet = " && n_goodjets>=3 "
             if sr in range(25,49+1):
-                cut_njet = cut_mht + " && n_goodjets>=1 "
-            
-            if sr in range(1,8+1):                              cut_bjet = cut_njet + " && n_btags==0 "
-            if sr in range(8,16+1):                             cut_bjet = cut_njet + " && n_btags>=1 "
-            if sr in range(17,24+1):                            cut_bjet = cut_njet
-            if sr in range(25,28+1):                            cut_bjet = cut_njet + " && n_btags==0 "
-            if sr in range(29,32+1):                            cut_bjet = cut_njet + " && n_btags>=1 "
-            if sr in range(33,36+1):                            cut_bjet = cut_njet
-            if sr in range(37,40+1):                            cut_bjet = cut_njet + " && n_btags==0 "
-            if sr in range(41,44+1):                            cut_bjet = cut_njet + " && n_btags>=1 "
-            if sr in range(45,48+1):                            cut_bjet = cut_njet
-            if sr == 49:                                        cut_bjet = cut_njet
+                cut_njet = " && n_goodjets>=1 "
+
+            if sr in range(1,8+1):                              cut_bjet = " && n_btags==0 "
+            if sr in range(8,16+1):                             cut_bjet = " && n_btags>=1 "
+            if sr in range(17,24+1):                            cut_bjet = ""
+            if sr in range(25,28+1):                            cut_bjet = " && n_btags==0 "
+            if sr in range(29,32+1):                            cut_bjet = " && n_btags>=1 "
+            if sr in range(33,36+1):                            cut_bjet = ""
+            if sr in range(37,40+1):                            cut_bjet = " && n_btags==0 "
+            if sr in range(41,44+1):                            cut_bjet = " && n_btags>=1 "
+            if sr in range(45,48+1):                            cut_bjet = ""
+            if sr == 49:                                        cut_bjet = ""
 
             # long/short tracks:
             if sr in [1,2,5,6,9,10,13,14,17,18,21,22,25,26,29,30,33,34,37,38,41,42,45,46]:
-                cut_dtk = cut_bjet + " && n_DTLong==1 && n_DTShort==0 "
+                cut_dtk = " && n_DTLong==1 && n_DTShort==0 "
             elif sr in [3,4,7,8,11,12,15,16,19,20,23,24,27,28,31,32,35,36,39,40,43,44,47,48]:
-                cut_dtk = cut_bjet + " && n_DTLong==0 && n_DTShort==1 "
+                cut_dtk = " && n_DTLong==0 && n_DTShort==1 "
             elif sr == 49:
-                cut_dtk = cut_bjet + " && (n_DTShort+n_DTLong)>=2 "
+                cut_dtk = " && (n_DTShort+n_DTLong)>=2 "
 
             if sr == 49:
-                cut_dedx = cut_dtk
+                cut_dedx = ""
             elif sr % 2 == 1:
-                cut_dedx = cut_dtk + " && tracks_deDxHarmonic2pixel<4 "
+                cut_dedx = " && tracks_deDxHarmonic2pixel<4 "
             elif sr % 2 == 0:
-                cut_dedx = cut_dtk + " && tracks_deDxHarmonic2pixel>4 "
+                cut_dedx = " && tracks_deDxHarmonic2pixel>4 "
 
-            if cutstage == 0:
-                finalcuts = cut_allevents
-            elif cutstage == 1:
-                finalcuts = cut_mht
-            elif cutstage == 2:
-                finalcuts = cut_njet
-            elif cutstage == 3:
-                finalcuts = cut_bjet
-            elif cutstage == 4:
-                finalcuts = cut_dtk
-            elif cutstage == 5:
-                finalcuts = cut_dedx
-        
-            #if "SMS" in ntuple:
-            #    finalcuts += " && tracks_chiCandGenMatchingDR<0.01 "
-                     
+            if cutstage == 0:    finalcuts = cut_allevents
+            elif cutstage == 1:  finalcuts = " ".join([cut_allevents, cut_njet1])
+            elif cutstage == 2:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30])
+            elif cutstage == 3:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT])
+            elif cutstage == 4:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel])
+            elif cutstage == 5:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu])
+            elif cutstage == 6:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv])
+            elif cutstage == 7:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt])
+            elif cutstage == 8:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht])
+            elif cutstage == 9:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet])
+            elif cutstage == 10: finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet, cut_bjet])
+            elif cutstage == 11: finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet, cut_bjet, cut_dtk])
+            elif cutstage == 12: finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet, cut_bjet, cut_dtk, cut_dedx])
+            
+            if "SMS" in ntuple:
+                finalcuts += " && tracks_chiCandGenMatchingDR<0.01 "
+            
+            print finalcuts
+            
             if not debug:                
                 h_tmp = plotting.get_all_histos([ntuple], "Events", "n_goodjets", cutstring=finalcuts, nBinsX=1, xmin=0, xmax=100, unweighted=absolute, numevents=numevents)
                 if h_tmp:
@@ -124,45 +171,75 @@ def plot_signalregions_cutflow(ntuple, lheader, pdfname, numevents = -1, absolut
         baselineregions[ntuple][cutstage] = {}
         for sr in range(3+1):
 
-            # get cuts:
+            cut_allevents = "HT>0"
+
+            cut_njet1 = " && n_goodjets>=1"
+
+            cut_mht30 = " && MHT>=30"
+            
+            cut_mtDtkMHT = " && mtDtMht>=20"
+            
             if sr == 0:
-                cut_allevents = "n_goodelectrons==0 && n_goodmuons==0 "
+                cut_nel = " && n_goodelectrons==0"
             if sr == 1:
-                cut_allevents = "n_goodelectrons==0 && n_goodmuons>=1 "
+                cut_nel = " && n_goodelectrons==0"
             if sr == 2:
-                cut_allevents = "n_goodelectrons>=1 "
+                cut_nel = " && n_goodelectrons>=1"
             if sr == 3:
-                cut_allevents = "HT>0 "
-            
-            if sr == 0:    cut_mht = cut_allevents + " && MHT>150 "
-            if sr == 1:    cut_mht = cut_allevents + " && MHT>30 "
-            if sr == 2:    cut_mht = cut_allevents + " && MHT>30 "
-            if sr == 3:    cut_mht = cut_allevents + " && MHT>30 "
-            
-            cut_njet = cut_mht + " && n_goodjets>=1 "
-                        
-            cut_bjet = cut_njet
-            
+                cut_nel = ""
+
+            if sr == 0:
+                cut_nmu = " && n_goodmuons==0"
+            if sr == 1:
+                cut_nmu = " && n_goodmuons>=1"
+            if sr == 2:
+                cut_nmu = ""
             if sr == 3:
-                cut_dtk = cut_bjet + " && (n_DTShort+n_DTLong)>=2 "
+                cut_nmu = ""
+
+            if sr == 1 or sr == 2:
+                cut_minv = " && invmass>=120"
             else:
-                cut_dtk = cut_bjet + " && (n_DTShort+n_DTLong)>=1 "
+                cut_minv = ""
             
+            if sr == 1 or sr == 2:
+                cut_minv = " && leadinglepton_mt>=110"
+            else:
+                cut_minv = ""
+            
+            if sr == 0: cut_mht = " && MHT>=150 "
+            else:       cut_mht = " && MHT>=30 "
+                        
+            cut_njet = " && n_goodjets>=1 "
+            cut_bjet = " "
+
+            # long/short tracks:
+            if sr == 3:
+                cut_dtk = " && (n_DTShort+n_DTLong)>=2 "
+            else:
+                cut_dtk = " && (n_DTShort+n_DTLong)==1 "
+
             cut_dedx = cut_dtk
+
+            if cutstage == 0:    finalcuts = cut_allevents
+            elif cutstage == 1:  finalcuts = " ".join([cut_allevents, cut_njet1])
+            elif cutstage == 2:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30])
+            elif cutstage == 3:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT])
+            elif cutstage == 4:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel])
+            elif cutstage == 5:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu])
+            elif cutstage == 6:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv])
+            elif cutstage == 7:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt])
+            elif cutstage == 8:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht])
+            elif cutstage == 9:  finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet])
+            elif cutstage == 10: finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet, cut_bjet])
+            elif cutstage == 11: finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet, cut_bjet, cut_dtk])
+            elif cutstage == 12: finalcuts = " ".join([cut_allevents, cut_njet1, cut_mht30, cut_mtDtkMHT, cut_nel, cut_nmu, cut_minv, cut_mt, cut_mht, cut_njet, cut_bjet, cut_dtk, cut_dedx])
             
-            if cutstage == 0:
-                finalcuts = cut_allevents
-            elif cutstage == 1:
-                finalcuts = cut_mht
-            elif cutstage == 2:
-                finalcuts = cut_njet
-            elif cutstage == 3:
-                finalcuts = cut_bjet
-            elif cutstage == 4:
-                finalcuts = cut_dtk
-            elif cutstage == 5:
-                finalcuts = cut_dedx
-                             
+            if "SMS" in ntuple:
+                finalcuts += " && tracks_chiCandGenMatchingDR<0.01 "
+            
+            print finalcuts
+                     
             if not debug:                
                 h_tmp = plotting.get_all_histos([ntuple], "Events", "n_goodjets", cutstring=finalcuts, nBinsX=1, xmin=0, xmax=100, unweighted=absolute, numevents=numevents)
                 if h_tmp:
@@ -173,7 +250,7 @@ def plot_signalregions_cutflow(ntuple, lheader, pdfname, numevents = -1, absolut
                 count = 1
             
             baselineregions[ntuple][cutstage][sr] = count            
-            
+
     
     # Do plotting:
     
@@ -201,8 +278,8 @@ def plot_signalregions_cutflow(ntuple, lheader, pdfname, numevents = -1, absolut
         canvas.SetLeftMargin(.14)
         canvas.SetGrid()
         
-        legend = shared_utils.mklegend(x1=0.17, y1=0.17, x2=0.5, y2=0.45)
-        legend.SetTextSize(0.03)
+        legend = shared_utils.mklegend(x1=0.17, y1=0.17, x2=0.5, y2=0.7)
+        legend.SetTextSize(0.002)
         
         histos = collections.OrderedDict()
         for ntuple in counts:
