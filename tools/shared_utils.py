@@ -133,6 +133,12 @@ def histoStyler(h,color=kBlack):
     h.GetXaxis().SetTitleOffset(1.0)
     h.GetYaxis().SetTitleOffset(0.65)
     if not h.GetSumw2N(): h.Sumw2()
+    binWidth = h.GetXaxis().GetBinWidth(1) 
+    nbins = h.GetXaxis().GetNbins()
+    if binWidth == 1 and nbins<20:
+        h.SetNdivisions(nbins)
+        h.GetXaxis().CenterLabels()
+        
     
 def histoStylerTdr(h,color=kBlack):
     h.SetLineWidth(2)
@@ -294,7 +300,7 @@ CutStages[14] = 'High purity'
 def namewizard(name):
     if 'HardMet' == name:
         #return r'hard E_{T}^{miss} [GeV]'
-        return r'hard p_{T}^{miss} [GeV]'
+        return r'p_{T,hard}^{miss} [GeV]'
     if 'Met' == name:
         return r'E_{T}^{miss} [GeV]'
     if 'Ht' == name:
@@ -398,11 +404,11 @@ def mkHistoStruct(hname, binning=binning):
     histoStyler(histoStruct.Method3,kGreen+1)
     histoStyler(histoStruct.Method3OneUp,kGreen+2)
     histoStruct.Method1.SetFillStyle(1001)
-    histoStruct.Method1.SetFillColor(histoStruct.Method1.GetLineColor()+1)
+    histoStruct.Method1.SetFillColor(histoStruct.Method1.GetLineColor())
     histoStruct.Method2.SetFillStyle(1001)
-    histoStruct.Method2.SetFillColor(histoStruct.Method2.GetLineColor()+1)    
+    histoStruct.Method2.SetFillColor(histoStruct.Method2.GetLineColor())    
     histoStruct.Method3.SetFillStyle(1001)
-    histoStruct.Method3.SetFillColor(histoStruct.Method3.GetLineColor()+2)        
+    histoStruct.Method3.SetFillColor(histoStruct.Method3.GetLineColor())        
     return histoStruct
 
 
@@ -436,6 +442,22 @@ def clearHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
         if 'method3' in opt:
             hStructDict[key].Method3.Reset()
             hStructDict[key].Method3OneUp.Reset()    
+            
+            
+def slurpFileIntoHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2', file=''):
+    keys = sorted(hStructDict.keys())
+    for key in keys:
+        if 'truth' in opt: hStructDict[key].Truth = file.Get(key)
+        if 'method1' in opt: 
+            hStructDict[key].Method1 = file.Get(key)
+            hStructDict[key].Method1OneUp = file.Get(key)
+            hStructDict[key].Method1TwoUp = file.Get(key)
+        if 'method2' in opt: 
+            hStructDict[key].Method2 = file.Get(key)
+            hStructDict[key].Method2OneUp = file.Get(key)
+        if 'method3' in opt:
+            hStructDict[key].Method3 = file.Get(key)
+            hStructDict[key].Method3OneUp = file.Get(key)    
 
 
 def resetHistoStruct(hStructDict, opt = 'truthcontrolmethod1method2'):
@@ -824,11 +846,11 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,hSignals=[],datamc='MC',lu
     pad2.Draw()
     pad2.cd()
     hObservedCopy = hObserved.Clone('hObservedClone'+hComponents[0].GetName())
-    hRatio = hObservedCopy.Clone('hRatioClone')#hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
-    hRatio.SetMarkerStyle(20)
     hObservedCopy.SetMarkerStyle(20)
     hObservedCopy.SetMarkerColor(1) 
-    histoStyler(hObservedCopy, 1)
+    histoStyler(hObservedCopy, 1)    
+    hRatio = hObservedCopy.Clone('hRatioClone')#hComponents[0].Clone('hRatioClone')#+hComponents[0].GetName()+'testing
+    hRatio.SetMarkerStyle(20)
     histoByWhichToDivide = hComponents[0].Clone()
     for ibin in range(1, xax.GetNbins()+1): histoByWhichToDivide.SetBinError(ibin, 0)
     hRatio.Divide(histoByWhichToDivide)
@@ -879,7 +901,7 @@ def FabDrawSystyRatio(cGold,leg,hObserved,hComponents,hSignals=[],datamc='MC',lu
     hRatio.Draw('e0 same')
     hRatio.Draw('axis same')
     pad1.cd()
-    sleg = mklegend(x1=.125, y1=.54, x2=.685, y2=.72, color=kWhite)
+    sleg = mklegend(x1=.125, y1=.54, x2=.66, y2=.72, color=kWhite)
     if len(hSignals)>0:
         for hsig in hSignals:
             hsig.Draw('hist same')
@@ -1010,16 +1032,22 @@ def FabDrawBellsAndWhistles(cGold,leg,hObserved,hComponents,hSignals=[],datamc='
     hComponentsUp.GetYaxis().SetTitleOffset(0.25)
     hComponentsUp.GetYaxis().SetLabelSize(0.095)
     #hComponentsUp.Draw('hist')
-    hComponents[0][0].SetLineColor(kGray+1)
-    hComponents[0][0].SetLineWidth(2)
-    hComponents[0][0].Draw('hist e')
+    #hComponents[0][0].SetLineColor(kGray+1)
+    hComponents[0][0].SetLineWidth(0)
+    hComponents[0][0].Draw('hist')
     #hComponentsDown.Draw('hist same')
     for h in hComponents[1:]: 
         h[0].SetFillStyle(1001)
+        h[0].SetLineWidth(0)
         h[0].Draw('hist same')
         #h[0].Draw('e1 sames')
     ErrorHistogram = hComponents[0][0].Clone('ErrorHistogram')
     ErrorHistogram.SetFillStyle(3013)
+    #ErrorHistogram.SetFillStyle(3244)
+    #ErrorHistogram.SetFillStyle(3003)
+    #ErrorHistogram.SetFillStyle(3002)
+    #ErrorHistogram.SetFillStyle(3006)
+    #ErrorHistogram.SetFillStyle(3007)
     ErrorHistogram.SetFillColor(kGray+2)
     ErrorHistogram.Draw('e2 sames')             
     cGold.Update()
@@ -1027,29 +1055,31 @@ def FabDrawBellsAndWhistles(cGold,leg,hObserved,hComponents,hSignals=[],datamc='
     hObserved.Draw('p same')
     hObserved.Draw('e0 same')    
     cGold.Update()
-    hComponents[0][0].Draw('axis same')           
+    hObserved.Draw('axis same')
     leg.Draw()        
     cGold.Update()
     #####stampFab(lumi,datamc)
-    CMS_lumi(pad1, str(lumi), 10)
+    if 'number' in hObserved.GetXaxis().GetTitle().lower(): CMS_lumi(pad1, str(lumi), 20)
+    else: CMS_lumi(pad1, str(lumi), 10)
     cGold.Update()
     cGold.cd()
     pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.45)
     pad2.SetTopMargin(0.0)
-    pad2.SetBottomMargin(0.27)
+    pad2.SetBottomMargin(0.29)
     pad2.SetLeftMargin(0.12)
     pad2.SetRightMargin(0.04)
-    pad2.SetTopMargin(0.14)
+    pad2.SetTopMargin(0.0)
     #pad2.SetGridx()
     pad2.SetGridy()
     pad2.Draw()
     pad2.cd()
     hObservedCopy = hObserved.Clone('hObservedClone'+hComponents[0][0].GetName())
-    hRatio = hObservedCopy.Clone('hRatioClone')#hComponents[0][0].Clone('hRatioClone')#+hComponents[0][0].GetName()+'testing
-    hRatio.SetMarkerStyle(20)
     hObservedCopy.SetMarkerStyle(20)
     hObservedCopy.SetMarkerColor(1) 
-    histoStyler(hObservedCopy, 1)
+    histoStyler(hObservedCopy, 1)    
+    
+    hRatio = hObservedCopy.Clone('hRatioClone')#hComponents[0][0].Clone('hRatioClone')#+hComponents[0][0].GetName()+'testing
+    hRatio.SetMarkerStyle(20)
     histoByWhichToDivide = hComponents[0][0].Clone()
     for ibin in range(1, xax.GetNbins()+1): histoByWhichToDivide.SetBinError(ibin, 0)
     hRatio.Divide(histoByWhichToDivide)
@@ -1062,7 +1092,7 @@ def FabDrawBellsAndWhistles(cGold,leg,hObserved,hComponents,hSignals=[],datamc='
     hRatio.GetYaxis().SetTitleSize(0.13)
     hRatio.GetYaxis().SetLabelSize(0.13)
     hRatio.GetYaxis().SetNdivisions(5)
-    hRatio.GetXaxis().SetNdivisions(10)
+    ###hRatio.GetXaxis().SetNdivisions(10)
     hRatio.GetYaxis().SetTitleOffset(0.425)
     hRatio.GetXaxis().SetTitleOffset(0.95)
     hRatio.GetXaxis().SetTitle(hObserved.GetXaxis().GetTitle())
@@ -1106,17 +1136,21 @@ def FabDrawBellsAndWhistles(cGold,leg,hObserved,hComponents,hSignals=[],datamc='
     hRatio.Draw('e0 same')
     hRatio.Draw('axis same')
     pad1.cd()
-    sleg = mklegend(x1=.25, y1=.6, x2=.72, y2=.81, color=kWhite)
+    if 'number' in hRatio.GetXaxis().GetTitle().lower(): sleg = mklegend(x1=.17, y1=.54, x2=.67, y2=.69, color=kWhite)
+    else: sleg = mklegend(x1=.14, y1=.5725, x2=.64, y2=.75, color=kWhite)
     if len(hSignals)>0:
-        for hsig in hSignals:
+        for isig, hsig in enumerate(hSignals):
             hsig.Draw('hist same')
             sleg.AddEntry(hsig, hsig.GetTitle(),'l')
+        sleg.SetMargin(0.13)
         sleg.Draw()
+        hObserved.Draw('axis same')
     hComponents.reverse()
     hObserved.SetTitle(title0)
     pad1.Update()
 
     return hRatio, [histoMethodFracErrorNom, histoMethodFracErrorUp, histoMethodFracErrorDown, hComponentsUp, hComponentsDown, ErrorHistogram,sleg,pad1, pad2]
+#bottom of FabDrawBellsAndWhistles
 
 def stampFab(lumi,datamc_='MC'):
     datamc = datamc_.lower()
