@@ -38,6 +38,8 @@ moreargs = ' '.join(sys.argv)
 moreargs = moreargs.split('--fnamekeyword')[-1]
 moreargs = ' '.join(moreargs.split()[1:])
 
+cachelocal = True
+if 'Pure' in outdir: cachelocal = True
 
 args4name = moreargs.replace(' ','').replace('--','-')
 
@@ -45,7 +47,19 @@ args4name = moreargs.replace(' ','').replace('--','-')
 moreargs = moreargs.strip()
 print 'moreargs', moreargs
 
-if not os.path.isdir(outdir): os.system('mkdir '+outdir)
+if cachelocal:
+    if not os.path.isdir(outdir): os.system('mkdir '+outdir)
+else: 
+    cachedir = '/pnfs/desy.de/cms/tier2/store/user/sbein/HistFragments/'+outdir
+    print('working with cachedir', cachedir)
+    if not os.path.isdir(cachedir):
+        print('attempting to create', cachedir)
+        os.system('gfal-mkdir "srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN='+cachedir+'"')
+        os.system('sleep 0.3')
+    if not os.path.isdir(cachedir):
+        print('something went wrong', cachedir)
+        exit(0)
+        
 cwd = os.getcwd()
 filelist = glob(filenames)
 #shuffle(filelist)
@@ -102,10 +116,26 @@ def main():
 			#raw_input('')
 	print 'submitted', jobcounter_, 'jobs'
 
+if cachelocal: movecommand = 'mv OUTDIR/*.root CWD/OUTDIR'
+else: movecommand = '''
+for root_file in OUTDIR/*.root; do
+    gfal_command="gfal-copy -n 1 file:////$PWD/$root_file davs://dcache-cms-webdav-wan.desy.de:2880//pnfs/desy.de/cms/tier2/store/user/sbein/HistFragments/OUTDIR/"
+    echo $gfal_command
+    $gfal_command
+    if [ $? -eq 0 ]; then
+        echo "Successfully copied $root_file"
+    else
+        echo "Error copying $root_file"
+    fi
+    rm $root_file
+done
+'''
+
 jobscript = '''#!/bin/zsh
 source /etc/profile.d/modules.sh
 source /afs/desy.de/user/b/beinsam/.bash_profile
 module use -a /afs/desy.de/group/cms/modulefiles/
+export X509_USER_PROXY=CWD/x509up_u27836
 module load cmssw
 export THISDIR=$PWD
 echo "$QUEUE $JOB $HOST"
@@ -122,10 +152,11 @@ echo doing a good old pwd:
 pwd
 python tools/ANALYZER --fnamekeyword FNAMEKEYWORD MOREARGS
 echo listing OUTDIR
-mv OUTDIR/*.root CWD/OUTDIR
+eval `scram unsetenv -sh`
+MOVECOMMAND
 ls OUTDIR/
 cd ../
 rm -rf $timestamp
-'''
+'''.replace('MOVECOMMAND',movecommand)
 
 main()

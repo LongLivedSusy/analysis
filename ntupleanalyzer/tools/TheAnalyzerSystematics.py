@@ -1,3 +1,4 @@
+#this ones real important!
 '''
 ---------------------BR: 100%-----------------------
 /pnfs/desy.de/cms/tier2/store/user/aksingh/SignalMC/LLChargino/BR100/Lifetime_10cm/*/*.root
@@ -15,7 +16,6 @@ import numpy as np
 from ROOT import *
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 from glob import glob
-from random import shuffle
 import random
 from array import array
 gROOT.SetStyle('Plain')
@@ -39,9 +39,10 @@ Output: RunIIAutumn18FS.PMSSM_set_1_LL_TuneCP2_13TeV-pythia8-AOD0_00000-02A2CB75
 python tools/TheAnalyzerSystematics.py --fnamekeyword "/pnfs/desy.de/cms/tier2/store/user/ynissan/NtupleHub/ProductionRun2v3/Summer16.WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8AOD_120000-40EE4B49-34BB-E611-A332-001E674FB2D4_RA2AnalysisTree.root" --nfpj 1 --outdir test
 '''
 
+#follow this up with mergymovey.sh, then ...
+
 #re-weight ctau from Viktor
 def reweight_ctau(ctauIn, ctauOut, list_of_labXY):
-        
     output = 1
     for labXY in list_of_labXY:
         t0 = labXY / 10.0          # convert to cm
@@ -85,10 +86,10 @@ isdata = 'Run20' in filenamestring
 if 'Run2016' in filenamestring or 'Summer16' in filenamestring or 'aksingh' in filenamestring or '2016Fast' in filenamestring: 
     is2016, is2017, is2018 = True, False, False
     year = '2016'
-elif 'Run2017' in filenamestring or 'Fall17' in filenamestring or 'somethingelse' in filenamestring or '2017Fast' in filenamestring: 
+elif 'Run2017' in filenamestring or 'Fall17' in filenamestring or '2017Fast' in filenamestring: 
     is2016, is2017, is2018 = False, True, False
     year = '2017'    
-elif 'Run2018' in filenamestring or 'Autumn18' in filenamestring or 'somthin or other' in filenamestring or '2018Fast' in filenamestring: 
+elif 'Run2018' in filenamestring or 'Autumn18' in filenamestring or '2018Fast' in filenamestring: 
     is2016, is2017, is2018 = False, True, True
     year = '2018'    
 
@@ -114,40 +115,45 @@ readerBtag = prepareReaderBtagSF()
 
 eleReco, eleIdiso, eleIdFastFull, muIdiso, muIdFastFull = getRecoIdisoFastfullLeptonSFhistos(year)
 
-####scale factors needed for actual interpretation with 17, 18 data
-#usefulthings/signal_scalefactor.root
-
-
 from CrossSectionDictionary import *
 ispmssm = False
 if 'Lifetime_' in filenamestring or 'Signal' in filenamestring or 'T1' in filenamestring: model_ = 'T1'
-elif 'iggsino' in filenamestring:  model_ = 'PureHiggsino'
+elif 'iggsino' in outdir:  model_ = 'PureHiggsino'
+elif 'wino' in outdir.lower():  model_ = 'PureWino'
 elif 'T2bt' in filenamestring or 'T2tb' in filenamestring: model_ = 'T2tt'
 elif 'PMSSM' in filenamestring: 
     model_ = 'pMSSM'
     ispmssm = True
+elif 'tchiwz' in outdir.lower(): model_ = 'TChiWZ'
+elif 'tchiww' in outdir.lower(): model_ = 'TChiWW'
 else: model_ = 'Other'
 print 'were considering model_', model_
 loadCrossSections(model_)
-oldWayHiggsino = False
-if oldWayHiggsino: hard_coded_higgsino_events_per_file = 20000# shoot, can't get this info from the ntuple
-newfileEachSignal = True
-if model_=='PureHiggsino' or model_=='pMSSM': 
-    newfileEachSignal = False
+#oldWayHiggsino = False #pretty sure this has been off since v3c
+#if oldWayHiggsino: hard_coded_higgsino_events_per_file = 20000# shoot, can't get this info from the ntuple
+makeNewfileEachSignal = True
+if model_ in ['PureHiggsino','pMSSM','PureWino','TChiWW', 'TChiWZ']: 
+    makeNewfileEachSignal = False
+
+proccodes = {(1000023, 1000024, 1000022):1, (1000023, 1000022):2, (1000024, 1000022):3}
+procfilters = []
+if model_ == 'PureWino': procfilters = [1,3]
+if model_ == 'PureHiggsino': procfilters = [1,2,3]
+
+prodpairs = {(1000024,1000023):1, (1000024,1000022):2,(1000023,1000022):3, (1000024,1000024):4}
+prodfilters = []
+if model_ == 'TChiWZ': prodfilters = [1]
+if model_ == 'TChiWW': prodfilters = [4]
 
 if 'WJets' in filenamestring: 
-    newfileEachSignal = False
+    makeNewfileEachSignal = False
     issignal = False
 else: issignal = True
 
-#counter histogram:
 if outdir=='': outdir = 'bay_'+model_
-
-
 
 identifier = inputFiles[0][inputFiles[0].rfind('/')+1:].replace('.root','').replace('Summer16.','').replace('RA2AnalysisTree','')
 print 'Identifier', identifier
-
 
 calib_version = '-SingleMuon'
 calib_version = ''# Sang-Il's new key names
@@ -195,17 +201,6 @@ def getPtSmear(val):
 
 thejet = TLorentzVector()
 
-'''
-if 'Run201' in identifier: 
-    dedxcalib_barrel = datacalibdict_SingleElectron_barrel[identifier.split('-')[0]]/datacalibdict_SingleElectron_barrel['Summer16']
-    dedxcalib_endcap = datacalibdict_SingleElectron_endcap[identifier.split('-')[0]]/datacalibdict_SingleElectron_barrel['Summer16']
-elif 'Summer16' in identifier: 
-    dedxcalib_barrel = 1.
-    dedxcalib_endcap = datacalibdict_SingleElectron_endcap['Summer16']/datacalibdict_SingleElectron_barrel['Summer16']
-else: 
-    dedxcalib_barrel = 1.0
-    dedxcalib_endcap = 1.0    
-'''
 
 ftrig = TFile(os.environ['CMSSW_BASE']+'/src/analysis/triggerefficiency/susy-trig-plots_amag.root')#triggersRa2bRun2_v4_withTEffs.root')
 ttrig = ftrig.Get('tEffhMetMhtRealXMht_run2;1')
@@ -227,7 +222,7 @@ htrigmu   = ftrig.Get('smu_switchdenom/h_triggereff_SMu_leadingmuon_pt_MHT_'+yea
 htrigmuUp = ftrig.Get('smu_JetHT/h_triggereff_SMu_leadingmuon_pt_MHT_'+year)
 
 
-if not newfileEachSignal:
+if not makeNewfileEachSignal:
     newfname = 'Hists_'+identifier+'.root'
     if not os.path.isdir(outdir):     
         os.system('mkdir '+outdir)
@@ -366,30 +361,58 @@ for region in regionCuts:
         histoStructDict[histname] = mkHistoStruct(histname, thebinning)
     
 #print 'histoStructDict', histoStructDict.keys()
-
+def getCTauCmChi1pmHiggsinoFromMassGeV(dmchipmchi10):
+    #https://arxiv.org/pdf/1410.4549.pdf
+    mpi = 0.135
+    ctau = 1.1*pow(dmchipmchi10*1000./300,-3)*pow(1-pow(mpi/dmchipmchi10,2),-0.5)
+    return ctau	
     
-if model_=='PureHiggsino':
+def getCTauCmChi1pmWinoFromMassGeV(dmchipmchi10, mass):
+    #https://arxiv.org/pdf/1410.4549.pdf
+    fwino = TFile('usefulthings/WinoCtauVsDmVsM.root')
+    hctau = fwino.Get('hwinoctaucm')
+    #winoctau = hctau.GetBinContent(hctau.GetXaxis().FindBin(mass), hctau.GetYaxis().FindBin(dmchipmchi10))
+    winoctau = hctau.Interpolate(mass, dmchipmchi10)
+    fwino.Close()
+    return winoctau
+    
+if model_ in ['PureHiggsino','PureWino', 'TChiWZ', 'TChiWW']:
     islopythia8 = True
     print 'filenamestring', inputFiles[0]
-    print 'next thing', inputFiles[0].split('/')[-1]    
-    print 'big thing', inputFiles[0].split('/')[-1].split('mChipm')[-1].split('GeV')[0]
     print 'last thing', inputFiles[0].split('/')[-1].split('mChipm')[-1]    
     mothermass = float(inputFiles[0].split('/')[-1].split('mChipm')[-1].split('GeV')[0])
+    dm = float(inputFiles[0].split('/')[-1].split('_dm')[-1].split('GeV')[0].replace('p','.'))
+    xfiles = []
     higgsinoxsecfile = TFile('usefulthings/CN_hino_13TeV.root')
+    winoxsecfile_cn = TFile('usefulthings/C1N2_wino_13TeV.root'); winoxsecfile_cc = TFile('usefulthings/C1C1_wino_13TeV.root')
+    if model_== 'PureWino': xfiles.extend([winoxsecfile_cn,winoxsecfile_cc])    
+    else: xfiles.append(higgsinoxsecfile) #this had if model_== 'PureHiggsino': but now we want this as default for TChiWZ
+    xsecpb = 0
     if mothermass<150:
-        xsecpb = 0.001*higgsinoxsecfile.Get('fit_nom_0').Eval(max(100,mothermass))
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_0').Eval(max(100,mothermass))
     elif mothermass>=150 and mothermass<200:
-        xsecpb = 0.001*higgsinoxsecfile.Get('fit_nom_1').Eval(mothermass)
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_1').Eval(mothermass)
     elif mothermass>=200 and mothermass<300:
-        xsecpb = 0.001*higgsinoxsecfile.Get('fit_nom_2').Eval(mothermass)    
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_2').Eval(mothermass)    
     elif mothermass>=300 and mothermass<400:
-        xsecpb = 0.001*higgsinoxsecfile.Get('fit_nom_3').Eval(mothermass)    
-    elif mothermass>=400:
-        xsecpb = 0.001*higgsinoxsecfile.Get('fit_nom_4').Eval(mothermass)                    
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_3').Eval(mothermass)    
+    elif mothermass>=400 and mothermass<600:
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_4').Eval(mothermass)
+    elif mothermass>=600 and mothermass<800:
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_5').Eval(mothermass)
+    elif mothermass>=800 and mothermass<1000:
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_6').Eval(mothermass)                
+    elif mothermass>=1000 and mothermass<1200:
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_7').Eval(mothermass)        
+    elif mothermass>=1200 and mothermass<1500:
+        for xfile in xfiles: xsecpb += 0.001*xfile.Get('fit_nom_8').Eval(mothermass)        
     print 'xsec was', xsecpb
-    if oldWayHiggsino:
-        for i in range(hard_coded_higgsino_events_per_file): hHt.Fill(555)
     higgsinoxsecfile.Close()
+    if model_== 'PureWino':
+        rawctau = getCTauCmChi1pmHiggsinoFromMassGeV(dm)
+        targetctau = getCTauCmChi1pmWinoFromMassGeV(dm, mothermass)
+        print ('ctaus in out:', rawctau, targetctau)
+    
 elif model_=='pMSSM':
     islopythia8 = True
     xsecpb = 1.0
@@ -464,82 +487,90 @@ for ientry in range(nentries):
     c.GetEntry(ientry) 
 
 
+    labxymmlist = []
+    chilist = []
+    susymasses = []
+    susies = []
+    top2susies = []
+    for igp, gp in enumerate(c.GenParticles):        
+        if not abs(c.GenParticles_PdgId[igp])>1000000: continue
+        #if c.GenParticles_Status[igp]==23: continue
+        if abs(c.GenParticles_PdgId[igp])==1000024:
+            labxymmlist.append(c.GenParticles_LabXYmm[igp])
+            chilist.append(c.GenParticles[igp])
+        pid = abs(c.GenParticles_PdgId[igp])
+        if pid==1000022 and not (c.GenParticles_Status[igp]==1): continue
+        if len(top2susies)<2: top2susies.append(pid)
+        if not pid in susies:                
+            susies.append(pid)
+            susymasses.append([pid,round(gp.M(),2)])
+                
+    top2susies_ = tuple(sorted(top2susies, reverse=True))
+    orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
+    baremasses = tuple(sublist[0] for sublist in orderedmasses_)
+    if len(prodfilters)>0:
+        if not prodpairs[top2susies_] in prodfilters:
+            continue    
+    if len(procfilters)>0:
+        if not baremasses in proccodes:
+            print('whoa nelly! This code appeared!', baremasses)
+            continue
+        proccode = proccodes[baremasses]
+        passpfilter = False
+        for particlefilter in procfilters:
+            if proccode==particlefilter: passpfilter = True; break
+        if not passpfilter: continue
+    orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
+    if filesarectaubinary:
+        rawctau=c.SusyCTau
+        if targetctau>0: orderedmasses_.append([-1, targetctau])
+        else: orderedmasses_.append( [-1, rawctau] )
+        if (targetctau>0 and targetctau<10) and rawctau!=10: 
+            continue    
+    
     if ispmssm:
         id1, id2 = c.SusyLSPMass, c.SusyMotherMass
-    elif newfileEachSignal:
-        susymasses = []
-        susies = []
-        for igp, gp in enumerate(c.GenParticles):        
-            if not abs(c.GenParticles_PdgId[igp])>1000000: continue
-            #if c.GenParticles_Status[igp]==23: continue
-            pid = abs(c.GenParticles_PdgId[igp])
-            if not pid in susies:                
-                susies.append(pid)
-                susymasses.append([pid,round(gp.M(),2)])
-                    
-        orderedmasses_ = sorted(susymasses, key=lambda x: x[1], reverse=True)
-        orderedmasses_ = [orderedmasses_[0], orderedmasses_[-1]]
-        if filesarectaubinary:
-            rawctau=c.SusyCTau
-            if targetctau>0: orderedmasses_.append( [-1, targetctau] )
-            else: orderedmasses_.append( [-1, rawctau] )
-            if (targetctau>0 and targetctau<10) and rawctau!=10: 
-                continue
-        
-    
-        if not orderedmasses==orderedmasses_:
-            print 'looks like a model_ transition from', orderedmasses, 'to', orderedmasses_
-            orderedmasses = orderedmasses_
-            if not newfname=='':
-                fnew_.cd()
-                hHt.Write()
-                hHtWeighted.Write()
-                hScaleTotUpDown.Write()
-                writeHistoStruct(histoStructDict, 'truth')
-                itsname = fnew_.GetName()
-                print 'just created', itsname
-                fnew_.Close()
-                if int(os.path.getsize(itsname))<10000:
-                    print "removing because its a zombie"
-                    os.system('rm '+itsname)                
-                fcheck = TFile(itsname)
-                if fcheck.IsZombie() or fcheck.GetNkeys()==0: 
-                    fcheck.Close()
-                else: fcheck.Close()
-            print 'creating new file based on', orderedmasses
-            newfname = 'Hists'
-            for ip, susypid in enumerate(orderedmasses):
-                print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
-                newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
-            newfname+='_time'+str(round(time_.time(),6)).replace('.','p').replace('Chi1pm','Chi1ne')+'.root'
-            if '_Glu' in newfname: 
-                print 'what the hay?'
-                print susies, susymasses, orderedmasses
-            if not os.path.isdir(outdir): os.system('mkdir '+outdir)
-            fnew_ = TFile(outdir+'/'+newfname,'recreate')
-            print 'creating file', fnew_.GetName()        
-            print 'from', susymasses
-            hHt.Reset()
-            hHtWeighted.Reset()
-            hScaleTotUpDown.Reset()# = TH1F('hScaleTotUpDown','hScaleTotUpDown',3,0,3)
-            clearHistoStruct(histoStructDict,'truth')
-            #for region in regionCuts:
-            #    print('c', region)
-            #    for var in varlist_:
-            #        print('d', region, var)
-            #        if not var in vars2draw: continue
-            #        histname = region+'_'+var
-            #        print('e', region, var, histname, histname in histoStructDict.keys())
-            #        histoStructDict[histname] = mkHistoStruct(histname, thebinning)
-            #        print('f', region, var))
-            if 'T1' in model_ or 'T2tt' in model_:
-                mothermass = orderedmasses[0][1]#filenames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
-                xsecpb = CrossSectionsPb[model_][str(int(5*round(mothermass/5)))]
-                
-                print 'got xsec', xsecpb, 'for mothermass', str(int(5*round(mothermass/5)))
-            else:
-                xsecpb = 1
-                
+    elif makeNewfileEachSignal and not orderedmasses_==orderedmasses:
+        print 'looks like a model_ transition from', orderedmasses, 'to', orderedmasses_
+        orderedmasses = orderedmasses_
+        if not newfname=='':
+            fnew_.cd()
+            hHt.Write()
+            hHtWeighted.Write()
+            hScaleTotUpDown.Write()
+            writeHistoStruct(histoStructDict, 'truth')
+            itsname = fnew_.GetName()
+            print 'just created', itsname
+            fnew_.Close()
+            if int(os.path.getsize(itsname))<10000:
+                print "removing because its a zombie"
+                os.system('rm '+itsname)
+            fcheck = TFile(itsname)
+            if fcheck.IsZombie() or fcheck.GetNkeys()==0: 
+                fcheck.Close()
+                os.system('rm '+itsname)
+            else: fcheck.Close()
+        print 'creating new file based on', orderedmasses
+        newfname = 'Hists'
+        for ip, susypid in enumerate(orderedmasses):
+            print susybypdg[orderedmasses[ip][0]], orderedmasses[ip][1]
+            newfname+='_'+susybypdg[orderedmasses[ip][0]]+str(orderedmasses[ip][1]).split('.')[0]
+        newfname+='_time'+str(round(time_.time(),6)).replace('.','p').replace('Chi1pm','Chi1ne')+'.root'
+        if not os.path.isdir(outdir): os.system('mkdir '+outdir)
+        fnew_ = TFile(outdir+'/'+newfname,'recreate')
+        print 'creating file', fnew_.GetName()        
+        print 'from', susymasses
+        hHt.Reset()
+        hHtWeighted.Reset()
+        hScaleTotUpDown.Reset()# = TH1F('hScaleTotUpDown','hScaleTotUpDown',3,0,3)
+        clearHistoStruct(histoStructDict,'truth')
+        if 'T1' in model_ or 'T2tt' in model_:
+            mothermass = orderedmasses[0][1]#filenames.split('/')[-1].split('_')[0].replace('Higgsino','PLACEHOLDER').replace('g','').replace('*','').replace('PLACEHOLDER','Higgsino')
+            xsecpb = CrossSectionsPb[model_][str(int(5*round(mothermass/5)))]
+            
+            print 'got xsec', xsecpb, 'for mothermass', str(int(5*round(mothermass/5)))
+        else:
+            xsecpb = 1
             
     if islopythia8:
         scaleup, scaledown = 1, 1
@@ -554,21 +585,17 @@ for ientry in range(nentries):
         hScaleTotUpDown.Fill(1.5, scaleup)
         hScaleTotUpDown.Fill(2.5, scaledown)
         
-    
-    labxymmlist = []
-    chilist = []
-    for igp, gp in enumerate(c.GenParticles):        
-        if abs(c.GenParticles_PdgId[igp])==1000024:
-            labxymmlist.append(c.GenParticles_LabXYmm[igp])
-            chilist.append(c.GenParticles[igp])
         
-    if targetctau>0: ctauweight = reweight_ctau(rawctau, targetctau, labxymmlist)
+    if targetctau>0:
+        ctauweight = reweight_ctau(rawctau, targetctau, labxymmlist)
+        #print('ctauweight, rawctau, targetctau, labxymmlist', ctauweight, rawctau, targetctau, labxymmlist)
     else: ctauweight = 1.0
             
     #nothing is skipped at this point yet!
-    if not (oldWayHiggsino and (not model_=='PureHiggsino')): hHt.Fill(c.HT)
-    fillth1(hHtWeighted, c.HT)
-        
+    fillth1(hHt,c.HT)
+    fillth1(hHtWeighted, c.HT, ctauweight)
+    
+    #now start physics cuts
     if issignal:
         if not passesUniversalSelectionFastSim(c): continue
         a = 1
@@ -805,7 +832,8 @@ for ientry in range(nentries):
     
         if abs(disappearingTracks[0][1])==1:
             mctot+=1
-            if matchedcalofrac<15: mcpass+=1            
+            if matchedcalofrac<15: mcpass+=1
+            
 
         lepsf = 1.0
         if isdata: 
@@ -878,9 +906,9 @@ for ientry in range(nentries):
         #for ifv in range(len(fv)): print ifv, varlist_[ifv], fv[ifv]    
         
         if issignal:
-         sfbtagnom = get_btag_weight(c,nSigmaBtagSF=0,nSigmaBtagFastSimSF=0,isFastSim=1,readerBtag=readerBtag)
-         sfbtagup = get_btag_weight(c,nSigmaBtagSF=1,nSigmaBtagFastSimSF=0,isFastSim=1,readerBtag=readerBtag)
-         sfbtagdown = get_btag_weight(c,nSigmaBtagSF=-1,nSigmaBtagFastSimSF=0,isFastSim=1,readerBtag=readerBtag)
+           sfbtagnom = get_btag_weight(c,nSigmaBtagSF=0,nSigmaBtagFastSimSF=0,isFastSim=1,readerBtag=readerBtag)
+           sfbtagup = get_btag_weight(c,nSigmaBtagSF=1,nSigmaBtagFastSimSF=0,isFastSim=1,readerBtag=readerBtag)
+           sfbtagdown = get_btag_weight(c,nSigmaBtagSF=-1,nSigmaBtagFastSimSF=0,isFastSim=1,readerBtag=readerBtag)
         else: sfbtagnom, sfbtagup, sfbtagdown = 1,1,1
         
         sfpunom = c.puWeight
@@ -897,11 +925,7 @@ for ientry in range(nentries):
             sfdtnom = hdtscalefactor_long.GetBinContent(dtsfbin_)
             sfdtshortup = hdtscalefactor_long.GetBinContent(dtsfbin_) #wrong length variation should just be nominal
             sfdtlongup = hdtscalefactor_long.GetBinContent(dtsfbin_)+hdtscalefactor_long.GetBinError(dtsfbin_)            
-        
-        #print 'ientry', ientry, 'len(c.ScaleWeights)', len(c.ScaleWeights)
-        #for ithing, thing in enumerate(c.ScaleWeights): print 'element', thing
 
-        #if c.MHT>150: print 'njetsISR', c.NJetsISR, c.NJets, 'the noms', sfbtagnom, isrnom, sfbtagnom*isrnom
         for regionkey in regionCuts:
             if not 'Nom' in regionkey: continue
             for ivar, varname in enumerate(varlist_):

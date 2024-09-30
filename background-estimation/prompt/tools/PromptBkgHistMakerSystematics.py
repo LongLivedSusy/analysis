@@ -15,11 +15,20 @@ import collections
 execfile(os.environ['CMSSW_BASE']+'/src/analysis/tools/shared_utils.py')
 debugmode = False
 
-grandunified = False #doesn't matter for "derive TF" wave
+grandunified = False #this makes all of Run 2 one era. #doesn't matter for "derive TF" wave
 dedxzones = False # this is a flag to create plots for extra regions to study the de/dx transfer factor to populate depleted prediction bins
 
 '''
-how-to
+#(29 September 2023 Notes - after the analysis)
+#Congrats, you've found the main skimmer code, which skims, as well as makes histograms needed for the analysis and TF measurements! 
+#This script is pretty important:
+kickouttheskimsSystematics.sh, sometimes you submit that, and sometimes you cat it and then use the last lines to wadd file clumps together.
+#then you've got
+afterkickSystematics.sh
+#this one you tend to run after the previous one has finished and you've hadded stuff. 
+#then there's the makeValidationPlotsTdr.py, which is kind of the final plot maker for the paper - you can have a look in there at command block. 
+#end#(29 September 2023 Notes - after the analysis), but don't forget the following to-do list thingy
+
 1) Calculate transfer factors
 -set turnoffpred, flythrough4tf to true to speed things up for th e
 -run test command:

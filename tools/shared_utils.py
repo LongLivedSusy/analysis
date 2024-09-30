@@ -110,10 +110,10 @@ binningAnalysis['Met']=[35,0,700]
 binningAnalysis['HardMet']=binningAnalysis['Met']
 binningAnalysis['BinNumber'] = [50,1,51]
 binningAnalysis['BinNumber'] = [49,1,50]
-binningAnalysis['DeDx'] = [0,0,0.5*dedxcutMid,dedxcutMid,6.0]
+#binningAnalysis['DeDx'] = [0,0,0.5*dedxcutMid,dedxcutMid,6.0]#this seemed weird
+binningAnalysis['DeDx'] = [0,0.5*dedxcutMid,dedxcutMid,6.0]
 binningAnalysis['DPhiMhtDt'] = [32,0,3.2]
 #binningAnalysis['TrkPt']=[0,25,30,40,60,120]
-
 
 def histoStyler(h,color=kBlack):
     h.SetLineWidth(2)

@@ -27,7 +27,7 @@ except:
     outdir = '/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Xenon/v2/Signal/T2btLL'
     outdir = '/afs/desy.de/user/k/kutznerv/dust/public/disapptrk/interpretation/Histograms/Indium/v8NoPreFireWeight/T1qqqqLL'
 
-bayname = infiles.split('/')[0]
+bayname = '/'.join(infiles.split('/')[:-1])
 
 #lumi = 137
 if 'Summer16' in outdir: lumi = 36.5
@@ -85,8 +85,10 @@ for fkey in keywords:
         continue
     ffinal = TFile(outdir+'/'+fkey.replace('_Autumn18','').replace('_Fall17','')+'.root', 'recreate')
     hHt = fintermediate.Get('hHt')
+    hHtWeighted = fintermediate.Get('hHtWeighted')
 
-    if 'higgsino' in infilelist[0].lower(): ##what, don't you want this to actually know about the m??
+    if False and ('higgsino' in infilelist[0].lower()): ##I think you want to cancel this, now that there's no filter! 3c
+                                            ##what, don't you want this to actually know about the m?? 
         print fkey
         m  = float('higgsino94x_susyall_mChipm200GeV_dm0p8GeV'.split('mChipm')[-1].split('GeV')[0].replace('p','.'))
         dm = float('higgsino94x_susyall_mChipm200GeV_dm0p8GeV'.split('_dm')[-1].split('GeV')[0].replace('p','.'))        
@@ -95,7 +97,8 @@ for fkey in keywords:
         #continue
         
     else:
-        nentries = hHt.GetEntries()
+        #nentries = hHt.GetEntries()
+        sumunitaryweights = hHtWeighted.Integral(-1,9999)
     for key in keys:
         name = key.GetName()
         if name=='hHt': 
@@ -149,7 +152,8 @@ for fkey in keywords:
             newxs = array('d',newbinning)
             hist = hist.Rebin(nbins,'',newxs)
         
-        hist.Scale(1.0*1000*lumi/nentries)
+        #hist.Scale(1.0*1000*lumi/nentries)
+        hist.Scale(1.0*1000*lumi/sumunitaryweights)
         ffinal.cd()
         if 'BinNumber' in name: hist.Write(hist.GetName().replace('hLong','h'))
         else: hist.Write(hist.GetName())
